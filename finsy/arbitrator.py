@@ -109,7 +109,7 @@ class Arbitrator:
         self.is_primary = False
         self.primary_id = _NOT_ASSIGNED
 
-    def complete_request(self, msg: pbuf.Message):
+    def complete_request(self, msg: pbuf.PBMessage):
         "Complete request with role/election_id information."
 
         if isinstance(msg, p4r.ReadRequest):

@@ -15,7 +15,6 @@
 # limitations under the License.
 
 import re
-from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import AsyncIterator, Sequence
 
@@ -54,7 +53,7 @@ class P4SubError:
     message: str
     space: str
     code: int
-    subvalue: pbuf.Message | None = None
+    subvalue: pbuf.PBMessage | None = None
 
 
 @dataclass
@@ -121,7 +120,7 @@ class P4Status:
         )
 
     @staticmethod
-    def _parse_error(details: Sequence[pbuf.Any]) -> dict[int, P4SubError]:
+    def _parse_error(details: Sequence[pbuf.PBAny]) -> dict[int, P4SubError]:
         result = {}
         for i in range(len(details)):
             err = p4r.Error()
@@ -145,7 +144,7 @@ class P4ClientError(Exception):
         error: grpc.RpcError,
         operation: str,
         *,
-        msg: pbuf.Message | None = None,
+        msg: pbuf.PBMessage | None = None,
     ):
         super().__init__()
         self._operation = operation
@@ -182,7 +181,7 @@ class P4ClientError(Exception):
     def is_unimplemented(self):
         return self.code == GRPCStatusCode.UNIMPLEMENTED
 
-    def _attach_details(self, msg: pbuf.Message):
+    def _attach_details(self, msg: pbuf.PBMessage):
         "Attach the subvalue(s) from the message that caused the error."
         if isinstance(msg, p4r.WriteRequest):
             for key, value in self.details.items():
@@ -317,7 +316,7 @@ class P4Client:
         self.log_msg(msg)
         return msg
 
-    async def request(self, msg: pbuf.Message) -> pbuf.Message:
+    async def request(self, msg: pbuf.PBMessage) -> pbuf.PBMessage:
         msg_type = type(msg).__name__
         assert msg_type.endswith("Request")
 
@@ -334,7 +333,7 @@ class P4Client:
         self.log_msg(reply)
         return reply
 
-    async def request_iter(self, msg: pbuf.Message) -> AsyncIterator[pbuf.Message]:
+    async def request_iter(self, msg: pbuf.PBMessage) -> AsyncIterator[pbuf.PBMessage]:
         msg_type = type(msg).__name__
         assert msg_type.endswith("Request")
 
@@ -350,6 +349,6 @@ class P4Client:
         except grpc.RpcError as ex:
             raise P4ClientError(ex, msg_type) from None
 
-    def log_msg(self, msg: pbuf.Message) -> None:
+    def log_msg(self, msg: pbuf.PBMessage) -> None:
         assert self._channel is not None
         pbuf.log_msg(self._channel.get_state(), msg, self._schema)
