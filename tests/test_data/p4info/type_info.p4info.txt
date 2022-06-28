@@ -1,0 +1,135 @@
+type_info {
+  structs {
+    key: "S1"
+    value {
+      members {
+        name: "a"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 32
+            }
+          }
+        }
+      }
+      members {
+        name: "b"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 32
+            }
+          }
+        }
+      }
+      members {
+        name: "c"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 32
+            }
+          }
+        }
+      }
+    }
+  }
+  structs {
+    key: "S2"
+    value {
+      members {
+        name: "a"
+        type_spec {
+          struct {
+            name: "S1"
+          }
+        }
+      }
+      members {
+        name: "b"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 32
+            }
+          }
+        }
+      }
+    }
+  }
+  headers {
+    key: "A"
+    value {
+      members {
+        name: "a"
+        type_spec {
+          bit {
+            bitwidth: 32
+          }
+        }
+      }
+      members {
+        name: "b"
+        type_spec {
+          bit {
+            bitwidth: 32
+          }
+        }
+      }
+      members {
+        name: "c"
+        type_spec {
+          bit {
+            bitwidth: 32
+          }
+        }
+      }
+    }
+  }
+  headers {
+    key: "B"
+    value {
+      members {
+        name: "d"
+        type_spec {
+          bit {
+            bitwidth: 32
+          }
+        }
+      }
+      members {
+        name: "e"
+        type_spec {
+          bit {
+            bitwidth: 32
+          }
+        }
+      }
+      members {
+        name: "f"
+        type_spec {
+          bit {
+            bitwidth: 32
+          }
+        }
+      }
+    }
+  }
+  header_unions {
+    key: "U1"
+    value {
+      members {
+        name: "A"
+        header {
+          name: "A"
+        }
+      }
+      members {
+        name: "B"
+        header {
+          name: "B"
+        }
+      }
+    }
+  }
+}

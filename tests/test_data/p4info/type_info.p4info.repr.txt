@@ -1,0 +1,122 @@
+P4Schema(
+    action_profiles=[],
+    actions=[],
+    arch="",
+    controller_packet_metadata=[],
+    counters=[],
+    digests=[],
+    direct_counters=[],
+    direct_meters=[],
+    is_configured=True,
+    meters=[],
+    name="",
+    p4cookie=8436496257272676675,
+    registers=[],
+    tables=[],
+    type_info=P4TypeInfo(
+        header_unions={
+            "U1": P4HeaderUnionType(
+                annotations=[],
+                members={
+                    "A": P4HeaderType(
+                        annotations=[],
+                        members={
+                            "a": P4BitsType(
+                                annotations=[], bitwidth=32, signed=False, varbit=False
+                            ),
+                            "b": P4BitsType(
+                                annotations=[], bitwidth=32, signed=False, varbit=False
+                            ),
+                            "c": P4BitsType(
+                                annotations=[], bitwidth=32, signed=False, varbit=False
+                            ),
+                        },
+                    ),
+                    "B": P4HeaderType(
+                        annotations=[],
+                        members={
+                            "d": P4BitsType(
+                                annotations=[], bitwidth=32, signed=False, varbit=False
+                            ),
+                            "e": P4BitsType(
+                                annotations=[], bitwidth=32, signed=False, varbit=False
+                            ),
+                            "f": P4BitsType(
+                                annotations=[], bitwidth=32, signed=False, varbit=False
+                            ),
+                        },
+                    ),
+                },
+            )
+        },
+        headers={
+            "A": P4HeaderType(
+                annotations=[],
+                members={
+                    "a": P4BitsType(
+                        annotations=[], bitwidth=32, signed=False, varbit=False
+                    ),
+                    "b": P4BitsType(
+                        annotations=[], bitwidth=32, signed=False, varbit=False
+                    ),
+                    "c": P4BitsType(
+                        annotations=[], bitwidth=32, signed=False, varbit=False
+                    ),
+                },
+            ),
+            "B": P4HeaderType(
+                annotations=[],
+                members={
+                    "d": P4BitsType(
+                        annotations=[], bitwidth=32, signed=False, varbit=False
+                    ),
+                    "e": P4BitsType(
+                        annotations=[], bitwidth=32, signed=False, varbit=False
+                    ),
+                    "f": P4BitsType(
+                        annotations=[], bitwidth=32, signed=False, varbit=False
+                    ),
+                },
+            ),
+        },
+        structs={
+            "S1": P4StructType(
+                annotations=[],
+                members={
+                    "a": P4BitsType(
+                        annotations=[], bitwidth=32, signed=False, varbit=False
+                    ),
+                    "b": P4BitsType(
+                        annotations=[], bitwidth=32, signed=False, varbit=False
+                    ),
+                    "c": P4BitsType(
+                        annotations=[], bitwidth=32, signed=False, varbit=False
+                    ),
+                },
+            ),
+            "S2": P4StructType(
+                annotations=[],
+                members={
+                    "a": P4StructType(
+                        annotations=[],
+                        members={
+                            "a": P4BitsType(
+                                annotations=[], bitwidth=32, signed=False, varbit=False
+                            ),
+                            "b": P4BitsType(
+                                annotations=[], bitwidth=32, signed=False, varbit=False
+                            ),
+                            "c": P4BitsType(
+                                annotations=[], bitwidth=32, signed=False, varbit=False
+                            ),
+                        },
+                    ),
+                    "b": P4BitsType(
+                        annotations=[], bitwidth=32, signed=False, varbit=False
+                    ),
+                },
+            ),
+        },
+    ),
+    version="",
+)

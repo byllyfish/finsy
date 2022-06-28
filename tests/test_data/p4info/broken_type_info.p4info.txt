@@ -1,0 +1,29 @@
+type_info {
+  # Two structs S1 and S2 that reference each other.
+  structs {
+    key: "S1"
+    value {
+      members {
+        name: "a"
+        type_spec {
+          struct {
+            name: "S2"
+          }
+        }
+      }
+    }
+  }
+  structs {
+    key: "S2"
+    value {
+      members {
+        name: "a"
+        type_spec {
+          struct {
+            name: "S1"
+          }
+        }
+      }
+    }
+  }
+}
