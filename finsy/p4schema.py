@@ -22,8 +22,8 @@ from typing import Any, Generic, Iterator, NamedTuple, SupportsBytes, TypeVar
 
 import pylev
 
+import finsy.p4values as p4values
 import finsy.pbuf as pbuf
-import finsy.values as values
 from finsy.grpcutil import GRPCStatusCode, _EnumBase
 from finsy.proto import p4d, p4i, p4r, p4t, rpc_code
 
@@ -826,12 +826,12 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
         "Encode `param` to protobuf."
         return p4r.Action.Param(
             param_id=self.id,
-            value=values.encode_exact(value, self.bitwidth),
+            value=p4values.encode_exact(value, self.bitwidth),
         )
 
     def decode_param(self, param: p4r.Action.Param):
         "Decode protobuf `param`."
-        return values.decode_exact(param.value, self.bitwidth)
+        return p4values.decode_exact(param.value, self.bitwidth)
 
 
 class P4Action(_P4TopLevel[p4i.Action]):
@@ -929,25 +929,25 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
         "Encode value as protobuf type."
         match self.match_type:
             case P4MatchType.EXACT:
-                data = values.encode_exact(value, self.bitwidth)
+                data = p4values.encode_exact(value, self.bitwidth)
                 return p4r.FieldMatch(
                     field_id=self.id,
                     exact=p4r.FieldMatch.Exact(value=data),
                 )
             case P4MatchType.LPM:
-                data, prefix = values.encode_lpm(value, self.bitwidth)
+                data, prefix = p4values.encode_lpm(value, self.bitwidth)
                 return p4r.FieldMatch(
                     field_id=self.id,
                     lpm=p4r.FieldMatch.LPM(value=data, prefix_len=prefix),
                 )
             case P4MatchType.TERNARY:
-                data, mask = values.encode_ternary(value, self.bitwidth)
+                data, mask = p4values.encode_ternary(value, self.bitwidth)
                 return p4r.FieldMatch(
                     field_id=self.id,
                     ternary=p4r.FieldMatch.Ternary(value=data, mask=mask),
                 )
             case P4MatchType.OPTIONAL:
-                data = values.encode_optional(value, self.bitwidth)
+                data = p4values.encode_optional(value, self.bitwidth)
                 return p4r.FieldMatch(
                     field_id=self.id,
                     optional=p4r.FieldMatch.Optional(value=data),
@@ -960,9 +960,9 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
         # TODO: check field type against self.match_type? Check id?
         match field.WhichOneof("field_match_type"):
             case "exact":
-                return values.decode_exact(field.exact.value, self.bitwidth)
+                return p4values.decode_exact(field.exact.value, self.bitwidth)
             case "lpm":
-                return values.decode_lpm(
+                return p4values.decode_lpm(
                     field.lpm.value, field.lpm.prefix_len, self.bitwidth
                 )
             case other:
@@ -1003,11 +1003,11 @@ class P4CPMetadata(_P4AnnoMixin, _P4NamedMixin[p4i.ControllerPacketMetadata.Meta
         return self.pbuf.bitwidth
 
     def encode(self, value) -> p4r.PacketMetadata:
-        data = values.encode_exact(value, self.bitwidth)
+        data = p4values.encode_exact(value, self.bitwidth)
         return p4r.PacketMetadata(metadata_id=self.id, value=data)
 
     def decode(self, data: p4r.PacketMetadata):
-        return values.decode_exact(data.value, self.bitwidth)
+        return p4values.decode_exact(data.value, self.bitwidth)
 
 
 class P4DirectCounter(_P4TopLevel[p4i.DirectCounter]):
@@ -1078,12 +1078,12 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
     def encode_bytes(self, value: Any) -> bytes:
         # TODO: Implement signed and varbit.
         assert not self.signed and not self.varbit
-        return values.encode_exact(value, self.bitwidth)
+        return p4values.encode_exact(value, self.bitwidth)
 
     def decode_bytes(self, data: bytes) -> Any:
         # TODO: Implement signed and varbit.
         assert not self.signed and not self.varbit
-        return values.decode_exact(data, self.bitwidth)
+        return p4values.decode_exact(data, self.bitwidth)
 
     def encode_data(self, value: Any) -> p4d.P4Data:
         return p4d.P4Data(bitstring=self.encode_bytes(value))
