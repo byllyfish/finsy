@@ -1,4 +1,3 @@
-import pytest
 from finsy import pbuf
 from finsy.gnmipath import gNMIPath
 

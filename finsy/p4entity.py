@@ -14,21 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = (
-    "P4TableEntry",
-    "P4TableMatch",
-    "P4TableAction",
-    "P4MeterConfig",
-    "P4CounterData",
-    "P4MeterCounterData",
-    "P4RegisterEntry",
-    "P4MulticastGroupEntry",
-    "P4DigestEntry",
-    "P4PacketIn",
-    "P4PacketOut",
-    "P4DigestList",
-)
-
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
 from typing import Any, Sequence

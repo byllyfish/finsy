@@ -14,11 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = (
-    "P4ConfigAction",
-    "P4Schema",
-)
-
 import hashlib
 import inspect
 import re
@@ -370,32 +365,20 @@ class _P4Defs:
         self.digests = P4EntityMap("P4Digest")
         self.type_info = P4TypeInfo(p4info.type_info)
 
-        for entity in p4info.actions:
-            self.actions._add(P4Action(entity))
-
-        for entity in p4info.action_profiles:
-            self.action_profiles._add(P4ActionProfile(entity))
-
-        for entity in p4info.controller_packet_metadata:
-            self.controller_packet_metadata._add(P4ControllerPacketMetadata(entity))
-
-        for entity in p4info.direct_counters:
-            self.direct_counters._add(P4DirectCounter(entity))
-
-        for entity in p4info.direct_meters:
-            self.direct_meters._add(P4DirectMeter(entity))
-
-        for entity in p4info.counters:
-            self.counters._add(P4Counter(entity))
-
-        for entity in p4info.meters:
-            self.meters._add(P4Meter(entity))
-
-        for entity in p4info.registers:
-            self.registers._add(P4Register(entity))
-
-        for entity in p4info.digests:
-            self.digests._add(P4Digest(entity))
+        for (name, cls) in [
+            ("actions", P4Action),
+            ("action_profiles", P4ActionProfile),
+            ("controller_packet_metadata", P4ControllerPacketMetadata),
+            ("direct_counters", P4DirectCounter),
+            ("direct_meters", P4DirectMeter),
+            ("counters", P4Counter),
+            ("meters", P4Meter),
+            ("registers", P4Register),
+            ("digests", P4Digest),
+        ]:
+            obj = getattr(self, name)
+            for entity in getattr(p4info, name):
+                obj._add(cls(entity))
 
         for entity in p4info.tables:
             self.tables._add(P4Table(entity, self))
