@@ -41,7 +41,9 @@ class HelloWorldApp:
         while True:
             await asyncio.sleep(1.0)
             await switch.write(
-                fy.P4PacketOut(bytes.fromhex("deadbeef"), egress_port=255, _pad=0)
+                fy.P4PacketOut(
+                    bytes.fromhex("deadbeefdeadbeef"), egress_port=255, _pad=0
+                )
             )
 
     @staticmethod
