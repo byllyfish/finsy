@@ -1,13 +1,7 @@
 import asyncio
 
 import pytest
-from finsy.gnmiclient import gNMIClient, gNMIPath
-
-
-@pytest.fixture
-async def gnmi_client():
-    async with gNMIClient("127.0.0.1:50001") as client:
-        yield client
+from finsy.gnmiclient import gNMIPath
 
 
 async def test_gnmi_get_top(gnmi_client):

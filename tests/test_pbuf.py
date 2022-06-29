@@ -1,9 +1,8 @@
 from pathlib import Path
 
-import pytest
 from finsy import pbuf
 from finsy.p4schema import P4Schema
-from finsy.proto import p4i, p4r
+from finsy.proto import p4i
 
 _P4INFO = p4i.P4Info(
     pkg_info=p4i.PkgInfo(

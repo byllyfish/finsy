@@ -20,8 +20,8 @@ from typing import Type
 import google.protobuf.json_format as json_format
 import google.protobuf.text_format as text_format
 import grpc
-from google.protobuf.any_pb2 import Any
-from google.protobuf.message import Message
+from google.protobuf.any_pb2 import Any as _Any
+from google.protobuf.message import Message as _Message
 from google.protobuf.reflection import GeneratedProtocolMessageType
 
 import finsy
@@ -29,8 +29,11 @@ from finsy.gnmiclient import gNMIPath
 from finsy.log import MSG_LOG
 from finsy.proto import gnmi, p4r
 
+PBAny = _Any
+PBMessage = _Message
 
-def from_text(data: str, msg_class: Type[Message]):
+
+def from_text(data: str, msg_class: Type[PBMessage]):
     "Read protobuf message from given text/json string."
     assert isinstance(data, str)
     assert isinstance(msg_class, GeneratedProtocolMessageType)
@@ -44,20 +47,20 @@ def from_text(data: str, msg_class: Type[Message]):
     return msg
 
 
-def from_dict(value: dict, msg_class: Type[Message]):
+def from_dict(value: dict, msg_class: Type[PBMessage]):
     "Convert Python dict to protobuf message."
     assert isinstance(msg_class, GeneratedProtocolMessageType)
     return json_format.ParseDict(value, msg_class())
 
 
 def to_text(
-    msg: Message,
+    msg: PBMessage,
     *,
     as_one_line: bool = True,
     custom_format: bool = False,
 ) -> str:
     "Convert protobuf message to text format."
-    assert isinstance(msg, Message)
+    assert isinstance(msg, PBMessage)
     formatter = _message_formatter if custom_format else None
     result = text_format.MessageToString(
         msg,
@@ -67,15 +70,15 @@ def to_text(
     return result
 
 
-def to_json(msg: Message) -> str:
+def to_json(msg: PBMessage) -> str:
     "Convert protobuf message to JSON format."
-    assert isinstance(msg, Message), f"not a Message: {msg!r}"
+    assert isinstance(msg, PBMessage), f"not a Message: {msg!r}"
     return json_format.MessageToJson(msg, preserving_proto_field_name=True)
 
 
-def to_dict(msg: Message) -> dict:
+def to_dict(msg: PBMessage) -> dict:
     "Convert protobuf message to Python dict."
-    assert isinstance(msg, Message), f"not a Message: {msg!r}"
+    assert isinstance(msg, PBMessage), f"not a Message: {msg!r}"
     return json_format.MessageToDict(msg, preserving_proto_field_name=True)
 
 
@@ -98,7 +101,7 @@ def _message_formatter(msg, _indent, _as_one_line):
 
 def log_msg(
     state: grpc.ChannelConnectivity,
-    msg: Message,
+    msg: PBMessage,
     schema: "finsy.P4Schema | None",
 ):
     """Log a sent/received client message.

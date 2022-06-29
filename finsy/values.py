@@ -69,7 +69,7 @@ def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
         else:
             try:
                 ival = int(value, base=0)
-            except ValueError as ex:
+            except ValueError:
                 raise ValueError(
                     f"invalid value for bitwidth {bitwidth}: {value!r}"
                 ) from None
