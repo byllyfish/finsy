@@ -48,38 +48,43 @@ def p4r_truncate(value: bytes, signed: bool = False) -> bytes:
     return result if result else b"\x00"
 
 
+def _parse_str(value: str, bitwidth: int) -> int:
+    "Convert string value to an integer."
+    value = value.strip()
+
+    if bitwidth == 32 and "." in value:
+        return int(IPv4Address(value))
+
+    if bitwidth == 128 and ":" in value:
+        return int(IPv6Address(value))
+
+    if bitwidth == 48 and ("-" in value[1:] or ":" in value):
+        return int(MACAddress(value))
+
+    try:
+        return int(value, base=0)
+    except ValueError:
+        raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}") from None
+
+
+def _parse_int(value: SupportsInt) -> int:
+    "Convert SupportsInt value to an integer."
+    if isinstance(value, float) and not value.is_integer():
+        raise ValueError(f"fractional float value: {value!r}")
+
+    # Handle int, non-fractional float and IP address objects.
+    return int(value)
+
+
 def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
     "Encode an exact field value into a byte encoding."
-
     if isinstance(value, bytes):
-        if len(value) * 8 != bitwidth:
-            raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
         return p4r_truncate(value)
 
     if isinstance(value, str):
-        value = value.strip()
-
-        # Handle common string conversions.
-        if bitwidth == 32 and "." in value:
-            ival = int(IPv4Address(value))
-        elif bitwidth == 128 and ":" in value:
-            ival = int(IPv6Address(value))
-        elif bitwidth == 48 and ("-" in value[1:] or ":" in value):
-            ival = int(MACAddress(value))
-        else:
-            try:
-                ival = int(value, base=0)
-            except ValueError:
-                raise ValueError(
-                    f"invalid value for bitwidth {bitwidth}: {value!r}"
-                ) from None
-
+        ival = _parse_str(value, bitwidth)
     elif isinstance(value, SupportsInt):
-        if isinstance(value, float) and not value.is_integer():
-            raise ValueError(f"fractional float value: {value!r}")
-        # Handle int, non-fractional float and IP address objects.
-        ival = int(value)
-
+        ival = _parse_int(value)
     else:
         raise ValueError(f"invalid value type: {value!r}")
 
