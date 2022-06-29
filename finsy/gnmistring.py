@@ -77,7 +77,7 @@ def _ELEMS():
     return elems
 
 
-#######################################
+################################################################################
 
 # This module provides two functions: `parse` and `to_str`.
 #
@@ -93,7 +93,7 @@ def _ELEMS():
 # This module does not support Unicode surrogate pairs.
 #
 # Reference:
-#   [Representing gNMI Paths as Strings]:(https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-strings.md)
+# https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-strings.md
 
 
 def parse(value: str) -> gnmi.Path:
