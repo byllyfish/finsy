@@ -21,9 +21,41 @@ import sys
 if sys.version_info < (3, 10):
     raise RuntimeError("Requires Python 3.10+.")
 
-from .controller import *
-from .p4entity import *
-from .p4schema import *
-from .switch import *
+from .controller import Controller
+from .p4entity import (
+    P4CounterData,
+    P4DigestEntry,
+    P4DigestList,
+    P4MeterConfig,
+    P4MeterCounterData,
+    P4MulticastGroupEntry,
+    P4PacketIn,
+    P4PacketOut,
+    P4RegisterEntry,
+    P4TableAction,
+    P4TableEntry,
+    P4TableMatch,
+)
+from .p4schema import P4ConfigAction, P4Schema
+from .switch import Switch, SwitchEvent, SwitchOptions
 
-__all__ = controller.__all__ + switch.__all__ + p4schema.__all__ + p4entity.__all__
+__all__ = [
+    "Controller",
+    "P4CounterData",
+    "P4DigestEntry",
+    "P4DigestList",
+    "P4MeterConfig",
+    "P4MeterCounterData",
+    "P4MulticastGroupEntry",
+    "P4PacketIn",
+    "P4PacketOut",
+    "P4RegisterEntry",
+    "P4TableAction",
+    "P4TableEntry",
+    "P4TableMatch",
+    "P4ConfigAction",
+    "P4Schema",
+    "Switch",
+    "SwitchEvent",
+    "SwitchOptions",
+]

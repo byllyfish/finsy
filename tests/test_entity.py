@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 from finsy import pbuf
-from finsy.p4entity import *
+from finsy.p4entity import P4RegisterEntry, P4TableAction, P4TableEntry, P4TableMatch
 from finsy.p4schema import P4Schema
 
 _P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
