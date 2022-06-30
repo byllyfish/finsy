@@ -4,3 +4,4 @@ __pycache__/
 .*_cache/
 html/
 .ipynb_checkpoints/
+.coverage
