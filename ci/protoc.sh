@@ -6,6 +6,9 @@
 # To re-compile the local proto files, run "./ci/protoc.sh" (with no arguments).
 #
 # To download the latest proto files and compile them, run "./ci/protoc.sh update".
+#
+# Requirements:
+#    pip install -r requirements-protoc.txt
 
 set -eu
 
@@ -54,7 +57,7 @@ if [ "${1-}" = "update" ]; then
 fi
 
 files="finsy/proto"
-protoc=".venv/bin/python3 -m grpc_tools.protoc"
+protoc="python -m grpc_tools.protoc"
 protoc_args="-I$files --python_out=$files --mypy_out=$files"
 grpc_args="-I$files --grpc_python_out=$files --mypy_grpc_out=$files"
 

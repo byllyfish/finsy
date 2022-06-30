@@ -22,7 +22,6 @@ import google.protobuf.text_format as text_format
 import grpc
 from google.protobuf.any_pb2 import Any as _Any
 from google.protobuf.message import Message as _Message
-from google.protobuf.reflection import GeneratedProtocolMessageType
 
 import finsy
 from finsy.gnmiclient import gNMIPath
@@ -36,7 +35,6 @@ PBMessage = _Message
 def from_text(data: str, msg_class: Type[PBMessage]):
     "Read protobuf message from given text/json string."
     assert isinstance(data, str)
-    assert isinstance(msg_class, GeneratedProtocolMessageType)
 
     msg = msg_class()
     if data[0] == "{":
@@ -49,7 +47,6 @@ def from_text(data: str, msg_class: Type[PBMessage]):
 
 def from_dict(value: dict, msg_class: Type[PBMessage]):
     "Convert Python dict to protobuf message."
-    assert isinstance(msg_class, GeneratedProtocolMessageType)
     return json_format.ParseDict(value, msg_class())
 
 

@@ -153,8 +153,10 @@ class gNMIClient:
             path=(i.path for i in path),
             encoding=gnmi.Encoding.PROTO,
         )
+
         if prefix is not None:
             request.prefix.CopyFrom(prefix.path)
+
         if config:
             request.type = gnmi.GetRequest.CONFIG
 
