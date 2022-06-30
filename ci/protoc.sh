@@ -6,6 +6,10 @@
 # To re-compile the local proto files, run "./ci/protoc.sh" (with no arguments).
 #
 # To download the latest proto files and compile them, run "./ci/protoc.sh update".
+#
+# Requirements:
+#    pip install github-clone
+#    pip install grpcio-tools
 
 set -eu
 

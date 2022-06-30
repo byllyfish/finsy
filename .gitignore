@@ -5,3 +5,4 @@ __pycache__/
 html/
 .ipynb_checkpoints/
 .coverage
+dist/
