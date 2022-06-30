@@ -153,18 +153,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "mypy-protobuf"
-version = "3.2.0"
-description = "Generate mypy stub files from protobuf specs"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-protobuf = ">=3.19.3"
-types-protobuf = ">=3.19.5"
-
-[[package]]
 name = "nodeenv"
 version = "1.7.0"
 description = "Node.js virtual environment builder"
@@ -375,14 +363,6 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
-name = "types-protobuf"
-version = "3.19.22"
-description = "Typing stubs for protobuf"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "typing-extensions"
 version = "4.2.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -393,7 +373,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "f843b9187497b62e56ba3f44621c8461e1ecfe8620655b5d753713d2774e9037"
+content-hash = "ed74c2a4f50c515dd735354fe5a618aa4cd7a91f9b71fbd58f39fe4f8845d34e"
 
 [metadata.files]
 atomicwrites = [
@@ -606,10 +586,6 @@ mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
 ]
-mypy-protobuf = [
-    {file = "mypy-protobuf-3.2.0.tar.gz", hash = "sha256:730aa15337c38f0446fbe08f6c6c2370ee01d395125369d4b70e08b1e2ee30ee"},
-    {file = "mypy_protobuf-3.2.0-py3-none-any.whl", hash = "sha256:65fc0492165f4a3c0aff69b03e34096fc1453e4dac8f14b4e9c2306cdde06010"},
-]
 nodeenv = [
     {file = "nodeenv-1.7.0-py2.py3-none-any.whl", hash = "sha256:27083a7b96a25f2f5e1d8cb4b6317ee8aeda3bdd121394e5ac54e498028a042e"},
     {file = "nodeenv-1.7.0.tar.gz", hash = "sha256:e0e7f7dfb85fc5394c6fe1e8fa98131a2473e04311a45afb6508f7cf1836fa2b"},
@@ -697,10 +673,6 @@ six = [
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
-]
-types-protobuf = [
-    {file = "types-protobuf-3.19.22.tar.gz", hash = "sha256:d2b26861b0cb46a3c8669b0df507b7ef72e487da66d61f9f3576aa76ce028a83"},
-    {file = "types_protobuf-3.19.22-py3-none-any.whl", hash = "sha256:d291388678af91bb045fafa864f142dc4ac22f5d4cdca097c7d8d8a32fa9b3ab"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.2.0-py3-none-any.whl", hash = "sha256:6657594ee297170d19f67d55c05852a874e7eb634f4f753dbd667855e07c1708"},
