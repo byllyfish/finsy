@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 #
 # To install from repository directory:
 #   ln -s ../../ci/git-hook/pre-commit .git/hooks/pre-commit
