@@ -37,6 +37,12 @@ class gNMIPath:
     operStatus = gNMIPath("interfaces/interface/state/oper-status")
     path = operStatus.key("interface", name="eth1")
     ```
+
+    Use [] to access the name/key of path elements:
+    ```
+    path[1] == "interface"
+    path["interface", "name"] == "eth1"
+    ```
     """
 
     path: gnmi.Path
@@ -96,28 +102,32 @@ class gNMIPath:
         new_path.CopyFrom(self.path)
         return gNMIPath(new_path)
 
-    def __getitem__(self, arg):
-        match arg:
+    def __getitem__(self, key):
+        "Return the specified element or key value."
+        match key:
             case int(idx):
                 return self.path.elem[idx].name
-            case (int(idx), key):
+            case (int(idx), str(key)):
                 return self.path.elem[idx].key[key]
-            case (str(name), key):
+            case (str(name), str(key)):
                 return self.path.elem[_find_index(name, self.path)].key[key]
-            case other:
-                raise TypeError(f"invalid arg: {other!r}")
+            case _:
+                raise TypeError(f"invalid key type: {key!r}")
 
     def __eq__(self, rhs):
+        "Return True if path's are equal."
         if not isinstance(rhs, gNMIPath):
             return False
         return self.path == rhs.path
 
     def __repr__(self):
+        "Return string representation of path."
         return gnmistring.to_str(self.path)
 
 
-def _find_index(value, path):
+def _find_index(value: str, path: gnmi.Path) -> int:
+    "Return index in path of specified element `value`."
     for i, elem in enumerate(path.elem):
         if elem.name == value:
             return i
-    raise KeyError(f"unknown path element: {value!r}")
+    raise KeyError(value)
