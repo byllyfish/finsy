@@ -98,8 +98,6 @@ class gNMIServer(gnmi_grpc.gNMIServicer):
                         for reply in _GNMI_SUBSCRIBE_RESPONSES:
                             yield pbuf.from_text(reply, gnmi.SubscribeResponse)
                         yield gnmi.SubscribeResponse(sync_response=True)
-                case _:
-                    pass
 
 
 # Copy and pasted from Stratum responses (minor editing).
