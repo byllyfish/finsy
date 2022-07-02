@@ -91,13 +91,17 @@ class gNMIServer(gnmi_grpc.gNMIServicer):
                     mode = msg.subscribe.subscription[0].mode
                     if mode == gnmi.SubscriptionMode.SAMPLE:
                         for reply in _GNMI_SUBSCRIBE_RESPONSES_SAMPLE:
-                            yield pbuf.from_text(reply, gnmi.SubscribeResponse)
                             await asyncio.sleep(0.1)
-                        await asyncio.sleep(5.0)
+                            yield pbuf.from_text(reply, gnmi.SubscribeResponse)
                     else:
-                        for reply in _GNMI_SUBSCRIBE_RESPONSES:
+                        for reply in _GNMI_SUBSCRIBE_RESPONSES_INITIAL:
                             yield pbuf.from_text(reply, gnmi.SubscribeResponse)
                         yield gnmi.SubscribeResponse(sync_response=True)
+                        if msg.subscribe.mode != gnmi.SubscriptionList.ONCE:
+                            await asyncio.sleep(0.2)
+                            for reply in _GNMI_SUBSCRIBE_RESPONSES_UPDATES:
+                                yield pbuf.from_text(reply, gnmi.SubscribeResponse)
+                    await asyncio.sleep(5.0)
 
 
 # Copy and pasted from Stratum responses (minor editing).
@@ -180,13 +184,23 @@ notification {
 """
 
 
-_GNMI_SUBSCRIBE_RESPONSES = [
+_GNMI_SUBSCRIBE_RESPONSES_INITIAL = [
     r"""
     update { timestamp: 1656723692816736079 update { path { elem { name: "interfaces" } elem { name: "interface" key { key: "name" value: "s1-eth1" } } elem { name: "state" } elem { name: "oper-status" } } val { string_val: "UP" } } }
 
     """,
     r"""
     update { timestamp: 1656723692817152380 update { path { elem { name: "interfaces" } elem { name: "interface" key { key: "name" value: "s1-eth2" } } elem { name: "state" } elem { name: "oper-status" } } val { string_val: "UP" } } }
+    """,
+]
+
+
+_GNMI_SUBSCRIBE_RESPONSES_UPDATES = [
+    r"""
+    update { timestamp: 1656723692816736079 update { path { elem { name: "interfaces" } elem { name: "interface" key { key: "name" value: "s1-eth1" } } elem { name: "state" } elem { name: "oper-status" } } val { string_val: "DOWN" } } }
+    """,
+    r"""
+    update { timestamp: 1656723692816736079 update { path { elem { name: "interfaces" } elem { name: "interface" key { key: "name" value: "s1-eth1" } } elem { name: "state" } elem { name: "oper-status" } } val { string_val: "UP" } } }
     """,
 ]
 
