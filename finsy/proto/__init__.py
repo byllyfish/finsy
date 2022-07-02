@@ -1,5 +1,24 @@
-"Package that provides accessors for protobuf files."
+"""Package that provides accessors for protobuf files.
 
+For example, to access `p4.v1.p4runtime_pb2.CapabilitiesRequest`:
+
+    from finsy.proto import p4r
+    msg = p4r.CapabilitiesRequest(...)
+
+Here is the full table:
+
+    p4.v1.p4runtime_pb2       => `from finsy.proto import p4r`
+    p4.v1.p4runtime_pb2_grpc  => `from finsy.proto import p4r_gprc`
+    p4.v1.p4data_pb2          => `from finsy.proto import p4d`
+    p4.config.v1.p4info_pb2   => `from finsy.proto import p4i`
+    p4.config.v1.p4types_pb2  => `from finsy.proto import p4t`
+    google.rpc.code_pb2       => `from finsy.proto import rpc_code`
+    google.rpc.status_pb2     => `from finsy.proto import rpc_status`
+    gnmi1.gnmi_pb2            => `from finsy.proto import gnmi`
+    gnmi1.gnmi_pb2_grpc       => `from finsy.proto import gnmi_grpc`
+    gnmi1.gnmi_ext_pb2        => `from finsy.proto import gnmi_ext`
+
+"""
 
 __all__ = (
     "gnmi",

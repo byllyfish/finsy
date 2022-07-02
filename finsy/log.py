@@ -20,7 +20,17 @@ import os
 import sys
 from functools import wraps
 
-DEBUG = os.environ.get("FINSY_DEBUG")
+
+def get_setting(name: str, default: str = "") -> bool:
+    "Retrieve environment variable setting."
+    value = os.environ.get(name, default)
+    if not value:
+        return False
+    return value.strip().lower() not in {"0", "false"}
+
+
+FINSY_DEBUG = get_setting("FINSY_DEBUG")
+FINSY_TRANSLATE_LOGS = get_setting("FINSY_TRANSLATE_LOGS", "true")
 
 
 class _CustomAdapter(logging.LoggerAdapter):
@@ -73,7 +83,7 @@ def _trace_noop(func):
     return func
 
 
-if DEBUG:
+if FINSY_DEBUG:
     TRACE = _trace
 else:
     TRACE = _trace_noop
