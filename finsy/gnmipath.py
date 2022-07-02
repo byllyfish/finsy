@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing_extensions import Self
+
 from finsy import gnmistring
 from finsy.proto import gnmi
 
@@ -21,12 +23,15 @@ from finsy.proto import gnmi
 class gNMIPath:
     """Concrete class for working with `gnmi.Path` objects.
 
-    You can wrap an existing `gnmi.Path` directly.
+    A `gNMIPath` should be treated as an immutable object. You can access
+    the wrapped `gnmi.Path` protobuf class using the `.path` property.
+
+    You can construct a gNMIPath object from a `gnmi.Path` directly.
     ```
     path = gNMIPath(update.path)
     ```
 
-    You can construct a path from a string:
+    You can construct a gNMIPath from a string:
     ```
     path = gNMIPath("interfaces/interface[name=eth1]/state")
     ```
@@ -36,6 +41,12 @@ class gNMIPath:
     ```
     operStatus = gNMIPath("interfaces/interface/state/oper-status")
     path = operStatus.key("interface", name="eth1")
+    ```
+
+    Use [] to access the name/key of path elements:
+    ```
+    path[1] == "interface"
+    path["interface", "name"] == "eth1"
     ```
     """
 
@@ -81,7 +92,7 @@ class gNMIPath:
         "Return the path's target."
         return self.path.target
 
-    def key(self, elem, **kwds):
+    def key(self, elem: str | int, **kwds) -> Self:
         "Construct a new gNMIPath with keys set for the given elem."
         if isinstance(elem, str):
             elem = _find_index(elem, self.path)
@@ -90,34 +101,38 @@ class gNMIPath:
         result.path.elem[elem].key.update(kwds)
         return result
 
-    def copy(self):
+    def copy(self) -> Self:
         "Return a copy of the path."
         new_path = gnmi.Path()
         new_path.CopyFrom(self.path)
         return gNMIPath(new_path)
 
-    def __getitem__(self, arg):
-        match arg:
+    def __getitem__(self, key) -> str:
+        "Return the specified element or key value."
+        match key:
             case int(idx):
                 return self.path.elem[idx].name
-            case (int(idx), key):
+            case (int(idx), str(key)):
                 return self.path.elem[idx].key[key]
-            case (str(name), key):
+            case (str(name), str(key)):
                 return self.path.elem[_find_index(name, self.path)].key[key]
-            case other:
-                raise TypeError(f"invalid arg: {other!r}")
+            case _:
+                raise TypeError(f"invalid key type: {key!r}")
 
-    def __eq__(self, rhs):
+    def __eq__(self, rhs) -> bool:
+        "Return True if path's are equal."
         if not isinstance(rhs, gNMIPath):
             return False
         return self.path == rhs.path
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        "Return string representation of path."
         return gnmistring.to_str(self.path)
 
 
-def _find_index(value, path):
+def _find_index(value: str, path: gnmi.Path) -> int:
+    "Return index in path of specified element `value`."
     for i, elem in enumerate(path.elem):
         if elem.name == value:
             return i
-    raise KeyError(f"unknown path element: {value!r}")
+    raise KeyError(value)

@@ -63,11 +63,7 @@ class GRPCStatusCode(_EnumBase):
     @staticmethod
     def _validate_enum():
         for value in grpc.StatusCode:
-            try:
-                enum_value = GRPCStatusCode[value.name].value
-            except KeyError:
-                enum_value = None
-            assert enum_value == value.value[0], f"GRPCStatusCode missing {value!r}"
+            assert GRPCStatusCode[value.name].value == value.value[0], value.name
 
 
 # Check GRPCStatusCode against grpc.StatusCode.

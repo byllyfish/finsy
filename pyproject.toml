@@ -28,7 +28,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-addopts = '--log-cli-format="%(created).03f %(levelname)s %(name)s %(message)s" --log-level=INFO --log-file-format="%(created).03f %(levelname)s %(name)s %(message)s"'
+addopts = '--log-cli-format="%(created).03f %(levelname)s %(name)s %(message)s" --log-cli-level=DEBUG --log-file-format="%(created).03f %(levelname)s %(name)s %(message)s"'
 
 [tool.pyright]
 ignore = ["finsy/proto/**/*_pb2.py"]

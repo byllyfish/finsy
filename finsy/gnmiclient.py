@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import asyncio
-from typing import Iterable
+from typing import AsyncIterator, Iterable
 
 import grpc
 
@@ -280,7 +280,7 @@ class gNMISubscription:
         except grpc.RpcError as ex:
             raise gNMIClientError(ex) from None
 
-    async def updates(self):
+    async def updates(self) -> AsyncIterator[gnmi.Notification]:
         if self._stream is None:
             await self._subscribe()
 

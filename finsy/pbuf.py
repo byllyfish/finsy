@@ -25,7 +25,7 @@ from google.protobuf.message import Message as _Message
 
 import finsy
 from finsy.gnmiclient import gNMIPath
-from finsy.log import MSG_LOG
+from finsy.log import FINSY_TRANSLATE_LOGS, MSG_LOG
 from finsy.proto import gnmi, p4r
 
 PBAny = _Any
@@ -114,14 +114,16 @@ def log_msg(
     if state != grpc.ChannelConnectivity.READY:
         state_name = f"{state.name} "  # trailing space necessary
 
+    custom_format = FINSY_TRANSLATE_LOGS
+
     if isinstance(msg, (p4r.ReadResponse, p4r.WriteRequest)):
-        text = to_text(msg, as_one_line=False, custom_format=True)
+        text = to_text(msg, as_one_line=False, custom_format=custom_format)
         if schema is not None:
             text = _log_annotate(text, schema)
     elif isinstance(msg, gnmi.GetResponse):
-        text = to_text(msg, as_one_line=False, custom_format=True)
+        text = to_text(msg, as_one_line=False, custom_format=custom_format)
     else:
-        text = to_text(msg, custom_format=True)
+        text = to_text(msg, custom_format=custom_format)
 
     size = msg.ByteSize()
 

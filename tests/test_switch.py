@@ -22,7 +22,7 @@ async def p4rt_server():
 async def test_switch(p4rt_server):
     @TRACE
     async def _read(sw):
-        packet_ins = sw.packet_in_iterator(100)
+        packet_ins = sw.packet_iterator()
         async for packet in packet_ins:
             print("test_switch._read", packet)
 

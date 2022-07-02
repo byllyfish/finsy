@@ -1,7 +1,7 @@
 import asyncio
 
 import pytest
-from finsy.gnmiclient import gNMIPath
+from finsy.gnmiclient import gNMIClient, gNMIPath
 
 
 async def test_gnmi_get_top(gnmi_client):
@@ -64,7 +64,7 @@ async def test_gnmi_subscribe_on_change(gnmi_client):
         await asyncio.wait_for(_read_stream(), 1.0)
 
 
-async def test_gnmi_subscribe_sample(gnmi_client):
+async def test_gnmi_subscribe_sample(gnmi_client: gNMIClient):
     interfaces = await _get_interfaces(gnmi_client)
 
     in_octets = gNMIPath("interfaces/interface/state/counters/in-octets")
@@ -76,8 +76,9 @@ async def test_gnmi_subscribe_sample(gnmi_client):
 
     # Place test code in a coroutine so I can set a timeout.
     async def _read_stream():
-        async for _ in sub.updates():
-            pass
+        async for notification in sub.updates():
+            for update in notification.update:
+                assert gNMIPath(update.path).last == "in-octets"
 
     with pytest.raises(asyncio.TimeoutError):
         await asyncio.wait_for(_read_stream(), 1.0)
