@@ -21,7 +21,7 @@ from typing import Any, Sequence
 from typing_extensions import Self
 
 from finsy.log import LOGGER
-from finsy.p4schema import P4Schema, P4Table, P4UpdateType
+from finsy.p4schema import P4ActionRef, P4Schema, P4Table, P4UpdateType
 from finsy.proto import p4r
 
 _DECODE_ENTITY = {}
@@ -174,12 +174,28 @@ class P4TableMatch(dict[str, Any]):
 
     def encode(self, table: P4Table) -> list[p4r.FieldMatch]:
         "Encode TableMatch data as protobuf."
-        return table.encode_match(self)
+        result = []
+        match_fields = table.match_fields
+
+        for key, value in self.items():
+            try:
+                result.append(match_fields[key].encode(value))
+            except Exception as ex:
+                raise ValueError(f"{table.name!r}: Match field {key!r}: {ex}") from ex
+
+        return result
 
     @classmethod
     def decode(cls, msgs: Sequence[p4r.FieldMatch], table: P4Table) -> Self:
         "Decode protobuf to TableMatch data."
-        return cls(table.decode_match(msgs))
+        result = {}
+        match_fields = table.match_fields
+
+        for field in msgs:
+            fld = match_fields[field.field_id]
+            result[fld.alias] = fld.decode(field)
+
+        return cls(result)
 
 
 @dataclass
@@ -196,24 +212,67 @@ class P4TableAction:
         self.name = __name
         self.args = args
 
-    def __getitem__(self, key):
-        if key == "$action":  # FIXME
-            return self.name
-        return self.args[key]
-
-    def items(self):  # FIXME
-        return self.args.items()
-
     def encode(self, table: P4Table) -> p4r.TableAction:
         "Encode TableAction data as protobuf."
-        return table.encode_action(self)
+
+        try:
+            action = table.actions[self.name]
+        except Exception as ex:
+            raise ValueError(f"{table.name!r}: {ex}") from ex
+
+        params = []
+        for name, value in self.args.items():
+            try:
+                param = action.params[name]
+                params.append(param.encode(value))
+            except ValueError as ex:
+                raise ValueError(f"{table.name!r}: {action.alias!r}: {ex}") from ex
+
+        # Check for missing action parameters.
+        if len(params) != len(action.params):
+            self._fail_missing_params(table, action)
+
+        return p4r.TableAction(action=p4r.Action(action_id=action.id, params=params))
+
+    def _fail_missing_params(self, table: P4Table, action: P4ActionRef):
+        "Report missing parameters."
+        seen = {param.name for param in action.params}
+
+        for name in self.args:
+            param = action.params[name]
+            seen.remove(param.name)
+
+        raise ValueError(f"{table.name!r}: {action.alias!r}: missing parameters {seen}")
 
     @classmethod
     def decode(cls, msg: p4r.TableAction, table: P4Table) -> Self:
         "Decode protobuf to TableAction data."
-        result = table.decode_action(msg)
-        name = result.pop("$action")
-        return cls(name, **result)
+
+        match msg.WhichOneof("type"):
+            case "action":
+                return cls._decode_action(msg.action, table)
+            case "action_profile_member_id":
+                raise NotImplementedError()
+            case "action_profile_group_id":
+                raise NotImplementedError()
+            case "action_profile_action_set":
+                raise NotImplementedError()
+            case other:
+                raise ValueError(f"unknown oneof: {other!r}")
+
+    @classmethod
+    def _decode_action(cls, msg: p4r.Action, table: P4Table) -> Self:
+        "Decode protobuf action."
+        action = table.actions[msg.action_id]
+        name = action.alias
+
+        args = {}
+        for param in msg.params:
+            action_param = action.params[param.param_id]
+            value = action_param.decode(param)
+            args[action_param.name] = value
+
+        return cls(name, **args)
 
 
 @dataclass(kw_only=True)
@@ -517,7 +576,7 @@ class P4PacketIn:
 
         return cls(
             payload=packet.payload,
-            metadata=cpm.decode_metadata(packet.metadata),
+            metadata=cpm.decode(packet.metadata),
         )
 
     def __getitem__(self, key):
@@ -553,7 +612,7 @@ class P4PacketOut:
         return p4r.StreamMessageRequest(
             packet=p4r.PacketOut(
                 payload=self.payload,
-                metadata=cpm.encode_metadata(self.metadata),
+                metadata=cpm.encode(self.metadata),
             )
         )
 
