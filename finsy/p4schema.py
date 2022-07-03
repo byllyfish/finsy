@@ -118,11 +118,7 @@ class P4UpdateType(_EnumBase):
 def _validate_enum(enum_class, pbuf_class):
     "Verify that our enum class contains the same members as the protobuf."
     for name, value in pbuf_class.items():
-        try:
-            enum_value = enum_class[name].value
-        except KeyError:
-            enum_value = None
-        assert enum_value == value, f"Enum {enum_class.__name__!r} missing {name!r}"
+        assert enum_class[name].value == value, name
 
 
 # Verify that enum convenience classes have the same members as the protobuf
@@ -290,21 +286,29 @@ class P4EntityMap(Generic[_T]):
         return f"[{', '.join([repr(item) for item in self])}]"
 
     def _add(self, entity: _T, split_suffix: bool = False) -> None:
+        "Add entity."
+        id = entity.id  # type: ignore[attr-defined]
         name = entity.name  # type: ignore[attr-defined]
-        assert name not in self._by_name
 
-        self._by_id[entity.id] = entity  # type: ignore[attr-defined]
-        self._by_name[name] = entity
+        if id in self._by_id:
+            raise ValueError(f"id already exists: {id!r}")
+
+        self._by_id[id] = entity
+        self._add_name(name, entity)
 
         if hasattr(entity, "alias"):
             alias = entity.alias  # type: ignore[attr-defined]
             if name != alias:
-                assert alias not in self._by_name
-                self._by_name[alias] = entity
+                self._add_name(alias, entity)
             elif split_suffix and "." in alias:
                 _, suffix = alias.rsplit(".", 2)
-                assert suffix not in self._by_name, f"{suffix} exists!"
-                self._by_name[suffix] = entity
+                self._add_name(suffix, entity)
+
+    def _add_name(self, name, entity):
+        "Add entity by name."
+        if name in self._by_name:
+            raise ValueError(r"name already exists: {name!r}")
+        self._by_name[name] = entity
 
     def _key_error(self, key: str | int):
         if isinstance(key, int):
@@ -667,7 +671,7 @@ def _parse_unstructured_annotation(annotation: str) -> tuple[str, str]:
 
 
 class P4Table(_P4TopLevel[p4i.Table]):
-    "Represents P4Table in schema."
+    "Represents Table in schema."
 
     def __init__(self, pbuf: p4i.Table, defs: _P4Defs):
         super().__init__(pbuf)
@@ -746,95 +750,31 @@ class P4Table(_P4TopLevel[p4i.Table]):
     def direct_meter(self):
         return self._direct_meter
 
-    def encode_match(self, match):
-        "Convert `match` to protobuf."
-        result = []
-        for key, value in match.items():
-            try:
-                result.append(self.match_fields[key].encode(value))
-            except Exception as ex:
-                raise ValueError(f"{self.name!r}: Match field {key!r}: {ex}") from ex
-        return result
-
-    def decode_match(self, match: list[p4r.FieldMatch]):
-        "Convert protobuf `match` to a python dict."
-        result = {}
-        for field in match:
-            fld = self.match_fields[field.field_id]
-            result[fld.alias] = fld.decode(field)
-        return result
-
-    def encode_action(self, action):
-        "Convert `action` to protobuf."
-        try:
-            act = self.actions[action["$action"]]
-        except Exception as ex:
-            raise ValueError(f"{self.name!r}: {ex}") from ex
-
-        params = []
-        for name, value in action.items():
-            if name.startswith("$"):  # TODO: deal with $weight
-                continue
-            try:
-                param = act.params[name]
-                params.append(param.encode_param(value))
-            except ValueError as ex:
-                raise ValueError(f"{self.name!r}: {act.name!r}: {ex}") from ex
-        return p4r.TableAction(action=p4r.Action(action_id=act.id, params=params))
-
-    def decode_action(self, tbl_action: p4r.TableAction):
-        "Convert protobuf `action` to python dict."
-        match tbl_action.WhichOneof("type"):
-            case "action":
-                return self._decode_action(tbl_action.action)
-            case "action_profile_member_id":
-                member_id = tbl_action.action_profile_member_id
-                return {"$member_id": member_id}
-            case "action_profile_group_id":
-                group_id = tbl_action.action_profile_group_id
-                return {"$group_id": group_id}
-            case "action_profile_action_set":
-                action_set = tbl_action.action_profile_action_set
-                return self._decode_action_set(action_set)
-
-    def _decode_action(self, action: p4r.Action):
-        act = self.actions[action.action_id]
-        result = {"$action": act.alias}
-        for param in action.params:
-            act_param = act.params[param.param_id]
-            value = act_param.decode_param(param)
-            result[act_param.name] = value
-        return result
-
-    def _decode_action_set(self, action_set: p4r.ActionProfileActionSet):
-        result = []
-        for action in action_set.action_profile_actions:
-            actval = self._decode_action(action.action)
-            actval["$weight"] = (action.weight, action.watch_port)
-            result.append(actval)
-        return result
-
 
 class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
+    "Represents 'Action.Param' in schema."
+
     @property
     def bitwidth(self):
         return self.pbuf.bitwidth
 
     # TODO: type_name property
 
-    def encode_param(self, value) -> p4r.Action.Param:
+    def encode(self, value) -> p4r.Action.Param:
         "Encode `param` to protobuf."
         return p4r.Action.Param(
             param_id=self.id,
             value=p4values.encode_exact(value, self.bitwidth),
         )
 
-    def decode_param(self, param: p4r.Action.Param):
+    def decode(self, param: p4r.Action.Param):
         "Decode protobuf `param`."
         return p4values.decode_exact(param.value, self.bitwidth)
 
 
 class P4Action(_P4TopLevel[p4i.Action]):
+    "Represents Action in schema."
+
     def __init__(self, pbuf) -> None:
         super().__init__(pbuf)
         self._params = P4EntityMap[P4ActionParam]("action parameter")
@@ -847,6 +787,8 @@ class P4Action(_P4TopLevel[p4i.Action]):
 
 
 class P4ActionRef(_P4AnnoMixin, _P4Bridged[p4i.ActionRef]):
+    "Represents ActionRef in schema."
+
     def __init__(self, pbuf: p4i.ActionRef, defs: _P4Defs) -> None:
         super().__init__(pbuf)
         self._action = defs.actions[pbuf.id]
@@ -873,6 +815,7 @@ class P4ActionRef(_P4AnnoMixin, _P4Bridged[p4i.ActionRef]):
 
 
 class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
+    "Represents ActionProfile in schema."
 
     _actions: P4EntityMap[P4Action]
 
@@ -970,6 +913,8 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
 
 
 class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
+    "Represents ControllerPacketMetadata in schema."
+
     def __init__(self, pbuf: p4i.ControllerPacketMetadata):
         super().__init__(pbuf)
         self._metadata = P4EntityMap[P4CPMetadata]("controller packet metadata")
@@ -980,15 +925,32 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
     def metadata(self):
         return self._metadata
 
-    def encode_metadata(self, metadata: dict) -> list[p4r.PacketMetadata]:
+    def encode(self, metadata: dict) -> list[p4r.PacketMetadata]:
+        "Encode python dict as protobuf `metadata`."
         result = []
+
         for md in self.metadata:
-            result.append(md.encode(metadata[md.name]))
-        # for key, value in metadata.items():
-        #    result.append(self.metadata[key].encode(value))
+            try:
+                value = metadata[md.name]
+            except KeyError:
+                raise ValueError(
+                    f"{self.name!r}: missing parameter {md.name!r}"
+                ) from None
+            result.append(md.encode(value))
+
+        if len(metadata) > len(result):
+            self._report_extra_metadata(metadata)
+
         return result
 
-    def decode_metadata(self, metadata: list[p4r.PacketMetadata]) -> dict:
+    def _report_extra_metadata(self, metadata):
+        "Report metadata that contains extra values."
+        seen = set(metadata.keys())
+        for md in self.metadata:
+            seen.remove(md.name)
+        raise ValueError(f"{self.name!r}: extra parameters {seen!r}")
+
+    def decode(self, metadata: list[p4r.PacketMetadata]) -> dict:
         "Convert protobuf `metadata` to a python dict."
         result = {}
         for field in metadata:
@@ -998,6 +960,8 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
 
 
 class P4CPMetadata(_P4AnnoMixin, _P4NamedMixin[p4i.ControllerPacketMetadata.Metadata]):
+    "Represents ControllerPacketMetadata.Metadata in schema."
+
     @property
     def bitwidth(self):
         return self.pbuf.bitwidth
@@ -1011,18 +975,24 @@ class P4CPMetadata(_P4AnnoMixin, _P4NamedMixin[p4i.ControllerPacketMetadata.Meta
 
 
 class P4DirectCounter(_P4TopLevel[p4i.DirectCounter]):
+    "Represents DirectCounter in schema."
+
     @property
     def unit(self):
         return P4CounterUnit(self.pbuf.spec.unit)
 
 
 class P4DirectMeter(_P4TopLevel[p4i.DirectMeter]):
+    "Represents DirectMeter in schema."
+
     @property
     def unit(self):
         return P4MeterUnit(self.pbuf.spec.unit)
 
 
 class P4Counter(_P4TopLevel[p4i.Counter]):
+    "Represents Counter in schema."
+
     @property
     def size(self) -> int:
         return self.pbuf.size
@@ -1033,6 +1003,8 @@ class P4Counter(_P4TopLevel[p4i.Counter]):
 
 
 class P4Meter(_P4TopLevel[p4i.Meter]):
+    "Represents Meter in schema."
+
     @property
     def size(self) -> int:
         return self.pbuf.size
@@ -1145,6 +1117,8 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
 
 
 class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
+    "Represents P4HeaderUnionTypeSpec."
+
     _members: dict[str, P4HeaderType]
 
     def __init__(self, pbuf: p4t.P4HeaderUnionTypeSpec):
@@ -1169,6 +1143,8 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
 
 
 class P4HeaderStackType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderStackTypeSpec]):
+    "Represents P4HeaderStackTypeSpec."
+
     _header: P4HeaderType
 
     def __init__(self, pbuf, type_info: P4TypeInfo):
@@ -1191,6 +1167,8 @@ class P4HeaderStackType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderStackTypeSpec]):
 
 
 class P4HeaderUnionStackType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
+    "Represents P4HeaderUnionStackTypeSpec."
+
     _header_union: P4HeaderUnionType
 
     def __init__(self, pbuf, type_info: P4TypeInfo):
@@ -1307,6 +1285,8 @@ def _parse_type_spec(type_spec: p4t.P4DataTypeSpec, type_info: P4TypeInfo) -> _P
 
 
 class P4Register(_P4TopLevel[p4i.Register]):
+    "Represents Register in schema."
+
     _type_spec: _P4Type | None = None
 
     def _finish_init(self, defs: _P4Defs):
@@ -1325,6 +1305,8 @@ class P4Register(_P4TopLevel[p4i.Register]):
 
 
 class P4Digest(_P4TopLevel[p4i.Digest]):
+    "Represents Digest in schema."
+
     _type_spec: _P4Type
 
     def _finish_init(self, defs: _P4Defs):

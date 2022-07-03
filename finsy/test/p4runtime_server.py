@@ -148,6 +148,14 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     ) -> p4r.SetForwardingPipelineConfigResponse:
         return p4r.SetForwardingPipelineConfigResponse()
 
+    @TRACE
+    async def Write(
+        self,
+        request: p4r.WriteRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> p4r.WriteResponse:
+        return p4r.WriteResponse()
+
 
 async def main():
     logging.basicConfig(level=logging.INFO)
