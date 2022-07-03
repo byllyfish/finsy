@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
-from finsy.p4schema import P4EntityMap, P4MatchField, P4MatchType, P4Schema
+from finsy.p4schema import P4EntityMap, P4MatchType, P4Schema
 
 P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
 
@@ -80,6 +80,7 @@ def test_p4schema():
     assert schema.p4info is not None
     assert schema.p4blob == b"abc"
     assert repr(schema)
+    assert str(schema)
 
 
 def test_p4info_tables():

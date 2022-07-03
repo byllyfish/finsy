@@ -637,8 +637,8 @@ class P4DigestList:
     digest_id: str
     _: KW_ONLY
     list_id: int
-    data: list[_DataDict]
     timestamp: int
+    data: list[_DataDict]
 
     @classmethod
     def decode(cls, msg: p4r.StreamMessageResponse, schema: P4Schema) -> Self:
@@ -651,6 +651,18 @@ class P4DigestList:
         return cls(
             digest_id=digest.alias,
             list_id=digest_list.list_id,
-            data=[type_spec.decode_data(item) for item in digest_list.data],
             timestamp=digest_list.timestamp,
+            data=[type_spec.decode_data(item) for item in digest_list.data],
         )
+
+    def __len__(self):
+        "Return number of values in digest list."
+        return len(self.data)
+
+    def __getitem__(self, key):
+        "Retrieve value at given index from digest list."
+        return self.data[key]
+
+    def __iter__(self):
+        "Iterate over values in digest list."
+        return iter(self.data)

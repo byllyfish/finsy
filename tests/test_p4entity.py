@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from finsy import pbuf
 from finsy.p4entity import (
+    P4DigestList,
     P4PacketIn,
     P4PacketOut,
     P4RegisterEntry,
@@ -278,3 +279,22 @@ def test_packet_in2():
         repr(packet)
         == "PacketIn(metadata={'ingress_port': 97, '_pad': 98}, payload=h'616263')"
     )
+
+
+def test_digest_list1():
+    "Test P4DigestList."
+
+    digest_list = P4DigestList(
+        "digest_name",
+        list_id=1,
+        timestamp=2,
+        data=[
+            {"a": 1},
+            {"a": 2},
+            {"a": 3},
+        ],
+    )
+
+    assert len(digest_list) == 3
+    assert list(digest_list) == digest_list.data
+    assert digest_list[0] == {"a": 1}
