@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from finsy import pbuf
 from finsy.p4entity import (
+    P4PacketIn,
     P4PacketOut,
     P4RegisterEntry,
     P4TableAction,
@@ -10,6 +11,7 @@ from finsy.p4entity import (
     P4TableMatch,
 )
 from finsy.p4schema import P4Schema
+from finsy.proto import p4r
 
 _P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
 _SCHEMA = P4Schema(_P4INFO_TEST_DIR / "basic.p4.p4info.txt")
@@ -185,7 +187,7 @@ def test_register_entry2():
 
 
 def test_packet_out1():
-    "Test PacketOut class."
+    "Test P4PacketOut class."
 
     entry = P4PacketOut(b"abc", egress_port=1, _pad=0)
     msg = entry.encode_update(_SCHEMA)
@@ -200,9 +202,15 @@ def test_packet_out1():
         }
     }
 
+    assert entry["egress_port"] == 1
+    assert (
+        repr(entry)
+        == "PacketOut(metadata={'egress_port': 1, '_pad': 0}, payload=h'616263')"
+    )
+
 
 def test_packet_out2():
-    "Test PacketOut class with missing argument name."
+    "Test P4PacketOut class with missing argument name."
 
     entry = P4PacketOut(b"abc", egress_port=1)
 
@@ -211,7 +219,7 @@ def test_packet_out2():
 
 
 def test_packet_out3():
-    "Test PacketOut class with wrong argument name."
+    "Test P4PacketOut class with wrong argument name."
 
     entry = P4PacketOut(b"abc", ingress_port=1, _pad=0)
 
@@ -220,9 +228,53 @@ def test_packet_out3():
 
 
 def test_packet_out4():
-    "Test PacketOut class with extra argument name."
+    "Test P4PacketOut class with extra argument name."
 
     entry = P4PacketOut(b"abc", egress_port=1, _pad=0, extra=1)
 
     with pytest.raises(ValueError, match="extra parameters {'extra'}"):
         entry.encode_update(_SCHEMA)
+
+
+def test_packet_in1():
+    "Test P4PacketIn class with no metadata."
+
+    data = pbuf.from_text(
+        r"""
+        packet {
+            payload: "abc"
+        }
+        """,
+        p4r.StreamMessageResponse,
+    )
+
+    packet = P4PacketIn.decode(data, _SCHEMA)
+
+    assert packet.payload == b"abc"
+    assert packet.metadata == {}
+    assert repr(packet) == "PacketIn(payload=h'616263')"
+
+
+def test_packet_in2():
+    "Test P4PacketIn class with metadata."
+
+    data = pbuf.from_text(
+        r"""
+        packet {
+            payload: "abc"
+            metadata { metadata_id: 1 value: "a" }
+            metadata { metadata_id: 2 value: "b" }
+        }
+        """,
+        p4r.StreamMessageResponse,
+    )
+
+    packet = P4PacketIn.decode(data, _SCHEMA)
+
+    assert packet.payload == b"abc"
+    assert packet.metadata == {"_pad": 98, "ingress_port": 97}
+    assert packet["ingress_port"] == 97
+    assert (
+        repr(packet)
+        == "PacketIn(metadata={'ingress_port': 97, '_pad': 98}, payload=h'616263')"
+    )

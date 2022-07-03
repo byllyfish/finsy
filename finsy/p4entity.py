@@ -616,6 +616,18 @@ class P4PacketOut:
             )
         )
 
+    def __getitem__(self, key):
+        "Retrieve metadata value."
+
+        return self.metadata[key]
+
+    def __repr__(self):
+        "Return friendlier hexadecimal description of packet."
+
+        if self.metadata:
+            return f"PacketOut(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
+        return f"PacketOut(payload=h'{self.payload.hex()}')"
+
 
 @decodable(p4r.StreamMessageResponse, "digest")
 @dataclass

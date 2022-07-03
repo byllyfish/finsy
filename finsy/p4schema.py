@@ -286,21 +286,29 @@ class P4EntityMap(Generic[_T]):
         return f"[{', '.join([repr(item) for item in self])}]"
 
     def _add(self, entity: _T, split_suffix: bool = False) -> None:
+        "Add entity."
+        id = entity.id  # type: ignore[attr-defined]
         name = entity.name  # type: ignore[attr-defined]
-        assert name not in self._by_name
 
-        self._by_id[entity.id] = entity  # type: ignore[attr-defined]
-        self._by_name[name] = entity
+        if id in self._by_id:
+            raise ValueError(f"id already exists: {id!r}")
+
+        self._by_id[id] = entity
+        self._add_name(name, entity)
 
         if hasattr(entity, "alias"):
             alias = entity.alias  # type: ignore[attr-defined]
             if name != alias:
-                assert alias not in self._by_name
-                self._by_name[alias] = entity
+                self._add_name(alias, entity)
             elif split_suffix and "." in alias:
                 _, suffix = alias.rsplit(".", 2)
-                assert suffix not in self._by_name, f"{suffix} exists!"
-                self._by_name[suffix] = entity
+                self._add_name(suffix, entity)
+
+    def _add_name(self, name, entity):
+        "Add entity by name."
+        if name in self._by_name:
+            raise ValueError(r"name already exists: {name!r}")
+        self._by_name[name] = entity
 
     def _key_error(self, key: str | int):
         if isinstance(key, int):

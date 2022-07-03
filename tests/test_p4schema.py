@@ -1,11 +1,85 @@
 import difflib
 import subprocess
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
-from finsy.p4schema import P4MatchType, P4Schema
+from finsy.p4schema import P4EntityMap, P4MatchField, P4MatchType, P4Schema
 
 P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
+
+
+@dataclass
+class _Example:
+    "Dummy entity used to testing P4EntityMap."
+    id: int
+    name: str
+    alias: str
+
+
+def test_entity_map():
+    "Test P4EntityMap helper class."
+
+    example = _Example(1, "example.one", "one")
+
+    entities = P4EntityMap("entry_type")
+    assert len(entities) == 0
+
+    entities._add(example)
+    assert len(entities) == 1
+    assert list(entities) == [example]
+
+    assert entities[1] == example
+    assert entities["example.one"] == example
+    assert entities["one"] == example
+
+    with pytest.raises(ValueError, match="no entry_type named 'example.zero'"):
+        entities["example.zero"]
+
+    assert entities.get(1) == example
+    assert entities.get("example.one") == example
+    assert entities.get("one") == example
+    assert entities.get("zero") is None
+
+    assert repr(entities) == "[_Example(id=1, name='example.one', alias='one')]"
+
+
+def test_entity_map_split():
+    "Test P4EntityMap helper class with split_suffix."
+    example = _Example(1, "example.one", "example.one")
+
+    entities = P4EntityMap("entry_type")
+    entities._add(example, split_suffix=True)
+
+    assert entities[1] == example
+    assert entities["example.one"] == example
+    assert entities["one"] == example
+
+
+def test_entity_map_duplicate():
+    "Test P4EntityMap helper class with duplicate entry."
+    example1 = _Example(1, "example.one", "example.one")
+    example2 = _Example(1, "example.one", "example.one")
+    example3 = _Example(2, "example.one", "example.one")
+
+    entities = P4EntityMap("entry_type")
+    entities._add(example1)
+
+    with pytest.raises(ValueError, match="id already exists"):
+        entities._add(example2)
+
+    with pytest.raises(ValueError, match="name already exists"):
+        entities._add(example3)
+
+
+def test_p4schema():
+    "Test P4Schema."
+
+    schema = P4Schema(P4INFO_TEST_DIR / "basic.p4.p4info.txt", b"abc")
+
+    assert schema.p4info is not None
+    assert schema.p4blob == b"abc"
+    assert repr(schema)
 
 
 def test_p4info_tables():

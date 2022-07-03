@@ -18,7 +18,7 @@ __version__ = "0.1.0"
 
 import sys
 
-if sys.version_info < (3, 10):
+if sys.version_info < (3, 10):  # pragma: no cover
     raise RuntimeError("Requires Python 3.10+.")
 
 from .controller import Controller
