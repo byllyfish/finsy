@@ -1,5 +1,7 @@
 # 🐟 Finsy 
 
+[![ci](https://github.com/byllyfish/finsy/actions/workflows/ci.yml/badge.svg)](https://github.com/byllyfish/finsy/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/byllyfish/finsy/branch/main/graph/badge.svg?token=8RPYWRXNGS)](https://codecov.io/gh/byllyfish/finsy)
+
 Finsy is a P4Runtime controller framework written in Python using asyncio.
 
 ```python
