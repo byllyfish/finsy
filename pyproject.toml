@@ -35,7 +35,7 @@ ignore = ["finsy/proto/**/*_pb2.py"]
 
 [tool.black]
 target-version = ['py310']
-required-version = "22.3.0"
+required-version = "22.6.0"
 extend-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 [tool.coverage.run]
