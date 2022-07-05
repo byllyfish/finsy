@@ -141,14 +141,14 @@ class _Writable:
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         if self._update_type == P4UpdateType.UNSPECIFIED:
             raise ValueError("unspecified update type")
-        return p4r.Update(type=self._update_type, entity=self.encode(schema))
+        return p4r.Update(type=self._update_type.vt(), entity=self.encode(schema))
 
 
 _DataDict = dict[str, Any]
 _Port = int
 _ReplicaCanon = tuple[_Port, int]
 _Replica = _ReplicaCanon | _Port
-_Value = int  # TODO
+_Value = Any  # TODO
 
 
 def encode_replica(value: _Replica) -> p4r.Replica:
@@ -377,7 +377,9 @@ class P4TableEntry(_Writable):
             meter_counter_data = None
 
         if self.time_since_last_hit is not None:
-            time_since_last_hit = p4r.TableEntry.IdleTimeout(self.time_since_last_hit)
+            time_since_last_hit = p4r.TableEntry.IdleTimeout(
+                elapsed_ns=self.time_since_last_hit
+            )
         else:
             time_since_last_hit = None
 
@@ -454,6 +456,7 @@ class P4RegisterEntry(_Writable):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode RegisterEntry data as protobuf."
+        assert self.data is not None
 
         register = schema.registers[self.register_id]
         index = p4r.Index(index=self.index) if self.index is not None else None
@@ -572,10 +575,10 @@ class P4PacketIn:
             # There is no controller metadata. Warn if message has any.
             if packet.HasField("metadata"):
                 LOGGER.warning("unexpected metadata: %r", packet.metadata)
-            return cls(packet.payload, {})
+            return cls(packet.payload, metadata={})
 
         return cls(
-            payload=packet.payload,
+            packet.payload,
             metadata=cpm.decode(packet.metadata),
         )
 

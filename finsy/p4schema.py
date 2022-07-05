@@ -18,7 +18,16 @@ import hashlib
 import inspect
 import re
 from pathlib import Path
-from typing import Any, Generic, Iterator, NamedTuple, SupportsBytes, TypeVar
+from typing import (
+    Any,
+    Generic,
+    Iterator,
+    NamedTuple,
+    Sequence,
+    SupportsBytes,
+    TypeVar,
+    cast,
+)
 
 import pylev
 
@@ -87,6 +96,9 @@ class P4ConfigResponseType(_EnumBase):
         p4r.GetForwardingPipelineConfigRequest.ResponseType.DEVICE_CONFIG_AND_COOKIE
     )
 
+    def vt(self) -> p4r.GetForwardingPipelineConfigRequest.ResponseType.ValueType:
+        return cast(p4r.GetForwardingPipelineConfigRequest.ResponseType.ValueType, self)
+
 
 class P4ConfigAction(_EnumBase):
     "IntEnum equivalent to `p4r.SetForwardingPipelineConfigRequest.Action`."
@@ -98,6 +110,9 @@ class P4ConfigAction(_EnumBase):
     RECONCILE_AND_COMMIT = (
         p4r.SetForwardingPipelineConfigRequest.Action.RECONCILE_AND_COMMIT
     )
+
+    def vt(self) -> p4r.SetForwardingPipelineConfigRequest.Action.ValueType:
+        return cast(p4r.SetForwardingPipelineConfigRequest.Action.ValueType, self)
 
 
 class P4Atomicity(_EnumBase):
@@ -113,6 +128,9 @@ class P4UpdateType(_EnumBase):
     INSERT = p4r.Update.Type.INSERT
     DELETE = p4r.Update.Type.DELETE
     MODIFY = p4r.Update.Type.MODIFY
+
+    def vt(self) -> p4r.Update.Type.ValueType:
+        return cast(p4r.Update.Type.ValueType, self)
 
 
 def _validate_enum(enum_class, pbuf_class):
@@ -406,9 +424,9 @@ def _load_p4info(data: p4i.P4Info | Path | None) -> tuple[p4i.P4Info | None, _P4
     if isinstance(data, Path):
         p4info = pbuf.from_text(data.read_text(), p4i.P4Info)
     else:
-        assert isinstance(data, p4i.P4Info)
         p4info = data
 
+    assert isinstance(p4info, p4i.P4Info)
     return p4info, _P4Defs(p4info)
 
 
@@ -950,7 +968,7 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
             seen.remove(md.name)
         raise ValueError(f"{self.name!r}: extra parameters {seen!r}")
 
-    def decode(self, metadata: list[p4r.PacketMetadata]) -> dict:
+    def decode(self, metadata: Sequence[p4r.PacketMetadata]) -> dict:
         "Convert protobuf `metadata` to a python dict."
         result = {}
         for field in metadata:
