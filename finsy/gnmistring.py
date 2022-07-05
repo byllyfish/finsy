@@ -61,9 +61,9 @@ def _KEYVAL():
 @pa.generate
 def _ELEM():
     "Parse `IDENT KEYVAL*`"
-    id = yield _IDENT
+    ident = yield _IDENT
     kvs = yield _KEYVAL.many()
-    return id, dict(kvs)
+    return ident, dict(kvs)
 
 
 @pa.generate

@@ -17,9 +17,8 @@
 import re
 from typing import Type, TypeVar
 
-import google.protobuf.json_format as json_format
-import google.protobuf.text_format as text_format
 import grpc
+from google.protobuf import json_format, text_format
 from google.protobuf.any_pb2 import Any as _Any  # pylint: disable=E0611
 from google.protobuf.message import Message as _Message
 

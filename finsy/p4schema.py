@@ -31,8 +31,7 @@ from typing import (
 
 import pylev
 
-import finsy.p4values as p4values
-import finsy.pbuf as pbuf
+from finsy import p4values, pbuf
 from finsy.grpcutil import GRPCStatusCode, _EnumBase
 from finsy.proto import p4d, p4i, p4r, p4t, rpc_code
 
@@ -287,12 +286,10 @@ class P4EntityMap(Generic[_T]):
 
     def __getitem__(self, key: str | int) -> _T:
         "Retrieve item by name or ID."
-        try:
-            if isinstance(key, int):
-                return self._by_id[key]
-            return self._by_name[key]
-        except KeyError:
+        value = self.get(key)
+        if value is None:
             self._key_error(key)
+        return value
 
     def __iter__(self) -> Iterator[_T]:
         return iter(self._by_id.values())
@@ -305,13 +302,13 @@ class P4EntityMap(Generic[_T]):
 
     def _add(self, entity: _T, split_suffix: bool = False) -> None:
         "Add entity."
-        id = entity.id  # type: ignore[attr-defined]
+        ident = entity.id  # type: ignore[attr-defined]
         name = entity.name  # type: ignore[attr-defined]
 
-        if id in self._by_id:
-            raise ValueError(f"id already exists: {id!r}")
+        if ident in self._by_id:
+            raise ValueError(f"id already exists: {ident!r}")
 
-        self._by_id[id] = entity
+        self._by_id[ident] = entity
         self._add_name(name, entity)
 
         if hasattr(entity, "alias"):
@@ -332,8 +329,8 @@ class P4EntityMap(Generic[_T]):
         if isinstance(key, int):
             raise ValueError(f"no {self._entry_type} with id={key!r}") from None
 
-        def _lev(s):
-            return pylev.wfi_levenshtein(s, key)
+        def _lev(val):
+            return pylev.wfi_levenshtein(val, key)
 
         if not self._by_name:
             # No key's present at all? (e.g. action has no parameters)
@@ -341,7 +338,7 @@ class P4EntityMap(Generic[_T]):
                 f"no {self._entry_type}s present; you asked for {key!r}?"
             ) from None
 
-        suggest = [s for s in self._by_name.keys() if s.endswith(f".{key}")]
+        suggest = [s for s in self._by_name if s.endswith(f".{key}")]
         if not suggest:
             suggest = [min(self._by_name.keys(), key=_lev)]
         if len(suggest) == 1:
@@ -1339,10 +1336,10 @@ def _make_alias(name: str) -> str:
     return name.split(".")[-1]
 
 
-def _check_id(id: int, entity_type: str) -> bool:
+def _check_id(ident: int, entity_type: str) -> bool:
     "Return true if ID belongs to the specified entity type."
     id_prefix = getattr(p4i.P4Ids.Prefix, entity_type.upper())
-    return (id >> 24) == id_prefix
+    return (ident >> 24) == id_prefix
 
 
 class P4SchemaDescription:
@@ -1384,8 +1381,7 @@ class P4SchemaDescription:
 
         if isinstance(match_type, str):
             return f"[{match_type}]"
-        else:
-            return self.MATCH_TYPES[match_type]
+        return self.MATCH_TYPES[match_type]
 
     def _describe_table(self, table: P4Table) -> str:
         "Describe P4Table."
