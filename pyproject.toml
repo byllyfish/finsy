@@ -40,3 +40,11 @@ extend-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 [tool.coverage.run]
 omit = ["*_pb2.py", "*_pb2_grpc.py"]
+
+
+[tool.pylint.main]
+ignore-patterns = [".*_pb2\\.py", ".*_pb2_grpc\\.py"]
+ignore-paths = ["finsy/proto"]
+
+[tool.pylint."messages control"]
+disable = ["wrong-import-position", "cyclic-import"]
