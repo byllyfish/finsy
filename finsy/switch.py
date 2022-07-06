@@ -256,7 +256,10 @@ class Switch:
         assert self._p4client is not None
 
         try:
-            await self._p4client.open(schema=self.p4info)
+            await self._p4client.open(
+                schema=self.p4info,
+                complete_request=self._arbitrator.complete_request,
+            )
             await self._arbitrator.handshake(self)
             await self._fetch_capabilities()
             await self._start_gnmi()
@@ -466,8 +469,9 @@ class Switch:
         response_type: P4ConfigResponseType = P4ConfigResponseType.COOKIE_ONLY,
     ) -> p4r.GetForwardingPipelineConfigResponse:
         "Send a GetForwardingPipelineConfigRequest and await the response."
+        assert self._p4client is not None
 
-        return await self._request(
+        return await self._p4client.request(
             p4r.GetForwardingPipelineConfigRequest(
                 device_id=self.device_id,
                 response_type=response_type.vt(),
@@ -481,21 +485,15 @@ class Switch:
         config: p4r.ForwardingPipelineConfig,
     ) -> p4r.SetForwardingPipelineConfigResponse:
         "Send a SetForwardingPipelineConfigRequest and await the response."
+        assert self._p4client is not None
 
-        return await self._request(
+        return await self._p4client.request(
             p4r.SetForwardingPipelineConfigRequest(
                 device_id=self.device_id,
                 action=action.vt(),
                 config=config,
             )
         )
-
-    @TRACE
-    async def _request(self, msg):
-        assert self._p4client is not None
-
-        self._arbitrator.complete_request(msg)
-        return await self._p4client.request(msg)
 
     async def read(self, *entities):
         assert self._p4client is not None
@@ -504,7 +502,6 @@ class Switch:
             device_id=self.device_id,
             entities=p4entity.encode_entities(entities, self.p4info),
         )
-        self._arbitrator.complete_request(request)
 
         async for reply in self._p4client.request_iter(request):
             for ent in reply.entities:
@@ -523,7 +520,7 @@ class Switch:
                 updates.append(msg)
 
         if updates:
-            await self._request(
+            await self._p4client.request(
                 p4r.WriteRequest(
                     device_id=self.device_id,
                     updates=updates,
@@ -563,7 +560,6 @@ class Switch:
             device_id=self.device_id,
             entities=p4entity.encode_entities(everything, self.p4info),
         )
-        self._arbitrator.complete_request(request)
 
         async for reply in self._p4client.request_iter(request):
             if reply.entities:
@@ -578,11 +574,13 @@ class Switch:
             await self.delete(digest_entries, ignore_not_found_error=True)
 
     async def _write(self, entities, update_type: P4UpdateType):
+        assert self._p4client is not None
+
         updates = [
             p4r.Update(type=update_type.vt(), entity=ent)
             for ent in p4entity.encode_entities(entities, self.p4info)
         ]
-        await self._request(
+        await self._p4client.request(
             p4r.WriteRequest(
                 device_id=self.device_id,
                 updates=updates,
@@ -595,7 +593,6 @@ class Switch:
 
         try:
             reply = await self._p4client.request(p4r.CapabilitiesRequest())
-            assert isinstance(reply, p4r.CapabilitiesResponse)
             self._api_version = _parse_semantic_version(reply.p4runtime_api_version)
 
         except P4ClientError as ex:
