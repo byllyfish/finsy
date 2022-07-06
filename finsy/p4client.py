@@ -206,12 +206,11 @@ class P4ClientError(Exception):
                 f"operation={self.operation} code={self.code!r} "
                 f"message={self.message!r} {details}"
             )
-        else:
-            return (
-                f"code={self.code!r} message={self.message!r} "
-                f"details={self.details!r} operation={self.operation} "
-                f"_outer_message={self._outer_message!r} _outer_code={self._outer_code!r}"
-            )
+        return (
+            f"code={self.code!r} message={self.message!r} "
+            f"details={self.details!r} operation={self.operation} "
+            f"_outer_message={self._outer_message!r} _outer_code={self._outer_code!r}"
+        )
 
 
 class P4Client:

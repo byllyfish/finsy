@@ -69,6 +69,16 @@ class gNMIServer(gnmi_grpc.gNMIServicer):
 
         return pbuf.from_text(_GNMI_INTERFACE_STUFF, gnmi.GetResponse)
 
+    async def Set(
+        self,
+        request: gnmi.SetRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> gnmi.SetResponse:
+        "Handle the set request."
+
+        # TODO: Does not actually do anything.
+        return gnmi.SetResponse()
+
     async def Capabilities(
         self,
         request: gnmi.CapabilityRequest,

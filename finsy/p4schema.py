@@ -18,12 +18,21 @@ import hashlib
 import inspect
 import re
 from pathlib import Path
-from typing import Any, Generic, Iterator, NamedTuple, SupportsBytes, TypeVar
+from typing import (
+    Any,
+    Generic,
+    Iterator,
+    NamedTuple,
+    Sequence,
+    SupportsBytes,
+    TypeVar,
+    cast,
+)
 
 import pylev
 
-import finsy.p4values as p4values
-import finsy.pbuf as pbuf
+from finsy import p4values
+from finsy import pbuf as pbuf_util
 from finsy.grpcutil import GRPCStatusCode, _EnumBase
 from finsy.proto import p4d, p4i, p4r, p4t, rpc_code
 
@@ -87,6 +96,9 @@ class P4ConfigResponseType(_EnumBase):
         p4r.GetForwardingPipelineConfigRequest.ResponseType.DEVICE_CONFIG_AND_COOKIE
     )
 
+    def vt(self) -> p4r.GetForwardingPipelineConfigRequest.ResponseType.ValueType:
+        return cast(p4r.GetForwardingPipelineConfigRequest.ResponseType.ValueType, self)
+
 
 class P4ConfigAction(_EnumBase):
     "IntEnum equivalent to `p4r.SetForwardingPipelineConfigRequest.Action`."
@@ -98,6 +110,9 @@ class P4ConfigAction(_EnumBase):
     RECONCILE_AND_COMMIT = (
         p4r.SetForwardingPipelineConfigRequest.Action.RECONCILE_AND_COMMIT
     )
+
+    def vt(self) -> p4r.SetForwardingPipelineConfigRequest.Action.ValueType:
+        return cast(p4r.SetForwardingPipelineConfigRequest.Action.ValueType, self)
 
 
 class P4Atomicity(_EnumBase):
@@ -113,6 +128,9 @@ class P4UpdateType(_EnumBase):
     INSERT = p4r.Update.Type.INSERT
     DELETE = p4r.Update.Type.DELETE
     MODIFY = p4r.Update.Type.MODIFY
+
+    def vt(self) -> p4r.Update.Type.ValueType:
+        return cast(p4r.Update.Type.ValueType, self)
 
 
 def _validate_enum(enum_class, pbuf_class):
@@ -269,12 +287,10 @@ class P4EntityMap(Generic[_T]):
 
     def __getitem__(self, key: str | int) -> _T:
         "Retrieve item by name or ID."
-        try:
-            if isinstance(key, int):
-                return self._by_id[key]
-            return self._by_name[key]
-        except KeyError:
+        value = self.get(key)
+        if value is None:
             self._key_error(key)
+        return value
 
     def __iter__(self) -> Iterator[_T]:
         return iter(self._by_id.values())
@@ -287,13 +303,13 @@ class P4EntityMap(Generic[_T]):
 
     def _add(self, entity: _T, split_suffix: bool = False) -> None:
         "Add entity."
-        id = entity.id  # type: ignore[attr-defined]
+        ident = entity.id  # type: ignore[attr-defined]
         name = entity.name  # type: ignore[attr-defined]
 
-        if id in self._by_id:
-            raise ValueError(f"id already exists: {id!r}")
+        if ident in self._by_id:
+            raise ValueError(f"id already exists: {ident!r}")
 
-        self._by_id[id] = entity
+        self._by_id[ident] = entity
         self._add_name(name, entity)
 
         if hasattr(entity, "alias"):
@@ -314,8 +330,8 @@ class P4EntityMap(Generic[_T]):
         if isinstance(key, int):
             raise ValueError(f"no {self._entry_type} with id={key!r}") from None
 
-        def _lev(s):
-            return pylev.wfi_levenshtein(s, key)
+        def _lev(val):
+            return pylev.wfi_levenshtein(val, key)
 
         if not self._by_name:
             # No key's present at all? (e.g. action has no parameters)
@@ -323,7 +339,7 @@ class P4EntityMap(Generic[_T]):
                 f"no {self._entry_type}s present; you asked for {key!r}?"
             ) from None
 
-        suggest = [s for s in self._by_name.keys() if s.endswith(f".{key}")]
+        suggest = [s for s in self._by_name if s.endswith(f".{key}")]
         if not suggest:
             suggest = [min(self._by_name.keys(), key=_lev)]
         if len(suggest) == 1:
@@ -404,11 +420,11 @@ def _load_p4info(data: p4i.P4Info | Path | None) -> tuple[p4i.P4Info | None, _P4
         return None, _EMPTY_P4DEFS
 
     if isinstance(data, Path):
-        p4info = pbuf.from_text(data.read_text(), p4i.P4Info)
+        p4info = pbuf_util.from_text(data.read_text(), p4i.P4Info)
     else:
-        assert isinstance(data, p4i.P4Info)
         p4info = data
 
+    assert isinstance(p4info, p4i.P4Info)
     return p4info, _P4Defs(p4info)
 
 
@@ -421,14 +437,14 @@ class P4Schema(_ReprMixin):
     """
 
     _p4info: p4i.P4Info | None
-    _p4blob: Path | SupportsBytes | None
+    _p4blob: Path | bytes | SupportsBytes | None
     _p4defs: _P4Defs
     _p4cookie: int = 0
 
     def __init__(
         self,
         p4info: p4i.P4Info | Path | None = None,
-        p4blob: Path | SupportsBytes | None = None,
+        p4blob: Path | bytes | SupportsBytes | None = None,
     ):
         "Parse P4Info information."
 
@@ -929,14 +945,14 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
         "Encode python dict as protobuf `metadata`."
         result = []
 
-        for md in self.metadata:
+        for mdata in self.metadata:
             try:
-                value = metadata[md.name]
+                value = metadata[mdata.name]
             except KeyError:
                 raise ValueError(
-                    f"{self.name!r}: missing parameter {md.name!r}"
+                    f"{self.name!r}: missing parameter {mdata.name!r}"
                 ) from None
-            result.append(md.encode(value))
+            result.append(mdata.encode(value))
 
         if len(metadata) > len(result):
             self._report_extra_metadata(metadata)
@@ -946,11 +962,11 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
     def _report_extra_metadata(self, metadata):
         "Report metadata that contains extra values."
         seen = set(metadata.keys())
-        for md in self.metadata:
-            seen.remove(md.name)
+        for mdata in self.metadata:
+            seen.remove(mdata.name)
         raise ValueError(f"{self.name!r}: extra parameters {seen!r}")
 
-    def decode(self, metadata: list[p4r.PacketMetadata]) -> dict:
+    def decode(self, metadata: Sequence[p4r.PacketMetadata]) -> dict:
         "Convert protobuf `metadata` to a python dict."
         result = {}
         for field in metadata:
@@ -1264,24 +1280,25 @@ _P4Type = (
 def _parse_type_spec(type_spec: p4t.P4DataTypeSpec, type_info: P4TypeInfo) -> _P4Type:
     match type_spec.WhichOneof("type_spec"):
         case "bitstring":
-            return P4BitsType(type_spec.bitstring)
+            result = P4BitsType(type_spec.bitstring)
         case "bool":
-            return P4BoolType(type_spec.bool)
+            result = P4BoolType(type_spec.bool)
         case "tuple":
-            return P4TupleType(type_spec.tuple, type_info)
+            result = P4TupleType(type_spec.tuple, type_info)
         case "struct":
-            return type_info.structs[type_spec.struct.name]
+            result = type_info.structs[type_spec.struct.name]
         case "header":
-            return type_info.headers[type_spec.header.name]
+            result = type_info.headers[type_spec.header.name]
         case "header_union":
-            return type_info.header_unions[type_spec.header_union.name]
+            result = type_info.header_unions[type_spec.header_union.name]
         case "header_stack":
-            return P4HeaderStackType(type_spec.header_stack, type_info)
+            result = P4HeaderStackType(type_spec.header_stack, type_info)
         case "header_union_stack":
-            return P4HeaderUnionStackType(type_spec.header_union_stack, type_info)
+            result = P4HeaderUnionStackType(type_spec.header_union_stack, type_info)
         # TODO: "enum", "error", "serializable_enum", "new_type"
         case other:
             raise ValueError(f"unknown type_spec: {other!r}")
+    return result
 
 
 class P4Register(_P4TopLevel[p4i.Register]):
@@ -1321,10 +1338,10 @@ def _make_alias(name: str) -> str:
     return name.split(".")[-1]
 
 
-def _check_id(id: int, entity_type: str) -> bool:
+def _check_id(ident: int, entity_type: str) -> bool:
     "Return true if ID belongs to the specified entity type."
     id_prefix = getattr(p4i.P4Ids.Prefix, entity_type.upper())
-    return (id >> 24) == id_prefix
+    return (ident >> 24) == id_prefix
 
 
 class P4SchemaDescription:
@@ -1366,8 +1383,7 @@ class P4SchemaDescription:
 
         if isinstance(match_type, str):
             return f"[{match_type}]"
-        else:
-            return self.MATCH_TYPES[match_type]
+        return self.MATCH_TYPES[match_type]
 
     def _describe_table(self, table: P4Table) -> str:
         "Describe P4Table."
@@ -1375,7 +1391,7 @@ class P4SchemaDescription:
         # Table header
         line = f"{self.CLIPBOARD}{table.alias}[{table.size}]"
         if table.action_profile:
-            line += f" -> {self._describe_ap(table.action_profile)}"
+            line += f" -> {self._describe_profile(table.action_profile)}"
         line += "\n"
 
         # Table fields
@@ -1393,14 +1409,14 @@ class P4SchemaDescription:
 
         return line
 
-    def _describe_ap(self, ap: P4ActionProfile) -> str:
+    def _describe_profile(self, profile: P4ActionProfile) -> str:
         "Describe P4ActionProfile."
         opts = []
-        if ap.with_selector:
+        if profile.with_selector:
             opts.append("selector")
-            opts.append(f"max_group_size={ap.max_group_size}")
+            opts.append(f"max_group_size={profile.max_group_size}")
 
-        return f"{self.PACKAGE}{ap.alias}[{ap.size}] { ', '.join(opts) }"
+        return f"{self.PACKAGE}{profile.alias}[{profile.size}] { ', '.join(opts) }"
 
     def _describe_action(self, action: P4ActionRef):
         "Describe P4ActionRef."
@@ -1414,11 +1430,11 @@ class P4SchemaDescription:
             symbol = self.OUTBOX
 
         total_bits = 0
-        for md in metadata.metadata:
-            total_bits += md.bitwidth
+        for mdata in metadata.metadata:
+            total_bits += mdata.bitwidth
         line = f"{symbol}{metadata.alias} ({total_bits//8} bytes)\n  "
-        for md in metadata.metadata:
-            line += f"{md.name}:{md.bitwidth} "
+        for mdata in metadata.metadata:
+            line += f"{mdata.name}:{mdata.bitwidth} "
         line += "\n"
 
         return line

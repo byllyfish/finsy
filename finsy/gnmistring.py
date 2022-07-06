@@ -48,7 +48,7 @@ _IDVAL = (__VAL | __ESC).at_least(1).concat().desc("_IDVAL")
 
 
 @pa.generate
-def _KEYVAL():
+def _keyval():
     "Parse `[ IDKEY = IDVAL ]`"
     yield _LBRACK
     key = yield _IDKEY
@@ -59,20 +59,20 @@ def _KEYVAL():
 
 
 @pa.generate
-def _ELEM():
+def _elem():
     "Parse `IDENT KEYVAL*`"
-    id = yield _IDENT
-    kvs = yield _KEYVAL.many()
-    return id, dict(kvs)
+    ident = yield _IDENT
+    kvs = yield _keyval.many()
+    return ident, dict(kvs)
 
 
 @pa.generate
-def _ELEMS():
-    """Parse zero or more `_ELEM` separated by `/`.
+def _elems():
+    """Parse zero or more `_elem` separated by `/`.
     Ignore a single slash at the beginning or end.
     """
     yield _SLASH.optional()
-    elems = yield _ELEM.sep_by(_SLASH)
+    elems = yield _elem.sep_by(_SLASH)
     yield _SLASH.optional()
     return elems
 
@@ -102,7 +102,7 @@ def parse(value: str) -> gnmi.Path:
         return gnmi.Path()
 
     try:
-        elems = _ELEMS.parse(value)
+        elems = _elems.parse(value)
     except pa.ParseError as ex:
         # Map ParseError to ValueError for convenience.
         raise ValueError(f"parse failed: {ex} (value={value!r})") from ex

@@ -115,8 +115,7 @@ def decode_exact(
         case "ip":
             if bitwidth > 32:
                 return IPv6Address(ival)
-            else:
-                return IPv4Address(ival)
+            return IPv4Address(ival)
         case "mac":
             return MACAddress(ival)
         case other:

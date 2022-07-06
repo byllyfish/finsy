@@ -15,12 +15,11 @@
 # limitations under the License.
 
 import re
-from typing import Type
+from typing import Type, TypeVar
 
-import google.protobuf.json_format as json_format
-import google.protobuf.text_format as text_format
 import grpc
-from google.protobuf.any_pb2 import Any as _Any
+from google.protobuf import json_format, text_format
+from google.protobuf.any_pb2 import Any as _Any  # pylint: disable=E0611
 from google.protobuf.message import Message as _Message
 
 import finsy
@@ -31,8 +30,10 @@ from finsy.proto import gnmi, p4r
 PBAny = _Any
 PBMessage = _Message
 
+_MT = TypeVar("_MT", bound=PBMessage)
 
-def from_text(data: str, msg_class: Type[PBMessage]):
+
+def from_text(data: str, msg_class: Type[_MT]) -> _MT:
     "Read protobuf message from given text/json string."
     assert isinstance(data, str)
 
@@ -45,7 +46,7 @@ def from_text(data: str, msg_class: Type[PBMessage]):
     return msg
 
 
-def from_dict(value: dict, msg_class: Type[PBMessage]):
+def from_dict(value: dict, msg_class: Type[_MT]) -> _MT:
     "Convert Python dict to protobuf message."
     return json_format.ParseDict(value, msg_class())
 

@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import finsy.pbuf as pbuf
 import finsy.switch as _sw  # break circular import
+from finsy import pbuf
 from finsy.grpcutil import GRPCStatusCode
 from finsy.log import LOGGER
 from finsy.p4client import P4ClientError, P4Status
@@ -100,7 +100,7 @@ class Arbitrator:
                 self.is_primary = False
                 await self._request_primary(switch)
             case other:
-                raise ValueError("Unexpected status: %r", other)
+                raise ValueError(f"Unexpected status: {other!r}")
 
     def reset(self):
         "Called when client stream disconnects."
@@ -132,7 +132,7 @@ class Arbitrator:
     async def _arbitration_request(self, switch: "_sw.Switch"):
         "Send a MasterArbitrationUpdate request and wait for the response."
 
-        for i in range(5):
+        for _ in range(5):
             await self._send(switch)
 
             response = await self._receive(switch)
@@ -141,8 +141,7 @@ class Arbitrator:
 
             self.election_id -= 1
 
-        else:
-            raise ValueError("no compatible election_id")
+        raise ValueError("no compatible election_id")
 
     async def _request_primary(self, switch: "_sw.Switch"):
         "Send a request to become the new primary."
@@ -183,7 +182,7 @@ class Arbitrator:
             raise
 
         if response.WhichOneof("update") != "arbitration":
-            raise ValueError("Unexpected response: %r", response)
+            raise ValueError(f"Unexpected response: {response!r}")
 
         # TODO: Match arbitration response to request we sent?
 

@@ -166,6 +166,7 @@ class Switch:
 
     @property
     def p4client(self) -> P4Client:
+        assert self._p4client is not None
         return self._p4client
 
     @property
@@ -232,11 +233,15 @@ class Switch:
     @TRACE
     async def _run_lifecycle(self):
         "Run the switch's lifecycle once."
+        assert self._tasks is not None
+
         self.create_task(self._run(), background=True)
         await self._tasks.wait()
         self._arbitrator.reset()
 
     def create_task(self, coro, *, background=False, name=None):
+        assert self._tasks is not None
+
         return self._tasks.create_task(
             coro,
             switch=self,
@@ -248,6 +253,7 @@ class Switch:
     async def _run(self):
         "Main Switch task runs the stream."
         assert not self._is_channel_up
+        assert self._p4client is not None
 
         try:
             await self._p4client.open(schema=self.p4info)
@@ -267,6 +273,8 @@ class Switch:
     @TRACE
     async def _receive_until_closed(self):
         "Receive messages from stream until EOF."
+        assert self._p4client is not None
+
         client = self._p4client
 
         while True:
@@ -358,6 +366,8 @@ class Switch:
         self.ee.emit(SwitchEvent.CHANNEL_DOWN, self)
 
     def _become_primary(self):
+        assert self._tasks is not None
+
         LOGGER.info(
             "Become primary (is_primary=%r, election_id=%r, primary_id=%r)",
             self.is_primary,
@@ -371,6 +381,8 @@ class Switch:
         self.ee.emit(SwitchEvent.BECOME_PRIMARY, self)
 
     def _become_backup(self):
+        assert self._tasks is not None
+
         LOGGER.info(
             "Become backup (is_primary=%r, election_id=%r, primary_id=%r)",
             self.is_primary,
@@ -458,7 +470,7 @@ class Switch:
         return await self._request(
             p4r.GetForwardingPipelineConfigRequest(
                 device_id=self.device_id,
-                response_type=response_type,
+                response_type=response_type.vt(),
             )
         )
 
@@ -473,7 +485,7 @@ class Switch:
         return await self._request(
             p4r.SetForwardingPipelineConfigRequest(
                 device_id=self.device_id,
-                action=action,
+                action=action.vt(),
                 config=config,
             )
         )
@@ -539,6 +551,8 @@ class Switch:
             raise
 
     async def delete_all(self):
+        assert self._p4client is not None
+
         everything = [
             p4entity.P4TableEntry(),
             p4entity.P4MulticastGroupEntry(),
@@ -565,7 +579,7 @@ class Switch:
 
     async def _write(self, entities, update_type: P4UpdateType):
         updates = [
-            p4r.Update(type=update_type, entity=ent)
+            p4r.Update(type=update_type.vt(), entity=ent)
             for ent in p4entity.encode_entities(entities, self.p4info)
         ]
         await self._request(
@@ -577,6 +591,7 @@ class Switch:
 
     async def _fetch_capabilities(self):
         "Check the P4Runtime protocol version supported by the other end."
+        assert self._p4client is not None
 
         try:
             reply = await self._p4client.request(p4r.CapabilitiesRequest())
@@ -637,7 +652,7 @@ class SwitchEmitter(pyee.EventEmitter):
     def _emit_run(self, f, args, kwargs):
         try:
             coro = f(*args, **kwargs)
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-except
             LOGGER.error("Error in SwitchEmitter._emit_run", exc_info=exc)
             # TODO: Have synchronous callback failures affect Switch?
         else:
@@ -667,8 +682,8 @@ class SwitchTasks:
         if name is None:
             name = coro.__name__
 
-        bg = "&" if background else ""
-        task_name = f"fy:{switch.name}|{name}{bg}"
+        bg_char = "&" if background else ""
+        task_name = f"fy:{switch.name}|{name}{bg_char}"
 
         task = asyncio.create_task(coro, name=task_name)
         self._tasks.add(task)
