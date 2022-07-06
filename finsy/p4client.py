@@ -16,7 +16,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import AsyncIterator, Sequence
+from typing import AsyncIterator, Callable, Sequence, overload
 
 import grpc
 
@@ -214,12 +214,14 @@ class P4ClientError(Exception):
 
 
 class P4Client:
+    "Implements a P4Runtime client."
 
     _address: str
     _credentials: grpc.ChannelCredentials | None
     _channel: grpc.aio.Channel | None = None
     _stub: p4r_grpc.P4RuntimeStub | None = None
     _stream: grpc.aio.StreamStreamCall | None = None
+    _complete_request: Callable | None = None
 
     _schema: P4Schema | None = None
     "Annotate log messages using this optional P4Info schema."
@@ -234,6 +236,7 @@ class P4Client:
 
     @property
     def channel(self) -> grpc.aio.Channel | None:
+        "Return the GRPC channel object, or None if the channel is not open."
         return self._channel
 
     async def __aenter__(self):
@@ -244,7 +247,12 @@ class P4Client:
         await self.close()
 
     @TRACE
-    async def open(self, *, schema: P4Schema | None = None) -> None:
+    async def open(
+        self,
+        *,
+        schema: P4Schema | None = None,
+        complete_request: Callable | None = None,
+    ) -> None:
         """Open the client channel.
 
         Note: This method is `async` for forward-compatible reasons.
@@ -267,6 +275,7 @@ class P4Client:
 
         self._stub = p4r_grpc.P4RuntimeStub(self._channel)
         self._schema = schema
+        self._complete_request = complete_request
 
     @TRACE
     async def close(self) -> None:
@@ -283,6 +292,7 @@ class P4Client:
             self._channel = None
             self._stub = None
             self._schema = None
+            self._complete_request = None
 
     @TRACE
     async def send(self, msg: p4r.StreamMessageRequest) -> None:
@@ -307,6 +317,7 @@ class P4Client:
         try:
             msg = await self._stream.read()
             if msg == grpc.aio.EOF:
+                # Treat EOF as a protocol violation.
                 raise RuntimeError("P4Client.receive got EOF!")
 
         except grpc.RpcError as ex:
@@ -315,11 +326,36 @@ class P4Client:
         self.log_msg(msg)
         return msg
 
+    @overload
+    async def request(self, msg: p4r.WriteRequest) -> p4r.WriteResponse:
+        ...
+
+    @overload
+    async def request(
+        self, msg: p4r.GetForwardingPipelineConfigRequest
+    ) -> p4r.GetForwardingPipelineConfigResponse:
+        ...
+
+    @overload
+    async def request(
+        self, msg: p4r.SetForwardingPipelineConfigRequest
+    ) -> p4r.SetForwardingPipelineConfigResponse:
+        ...
+
+    @overload
+    async def request(self, msg: p4r.CapabilitiesRequest) -> p4r.CapabilitiesResponse:
+        ...
+
     async def request(self, msg: pbuf.PBMessage) -> pbuf.PBMessage:
+        "Send a unary-unary P4Runtime request and wait for the response."
+
+        if self._complete_request:
+            self._complete_request(msg)
+
         msg_type = type(msg).__name__
         assert msg_type.endswith("Request")
-
         rpc_method = getattr(self._stub, msg_type[:-7])
+
         self.log_msg(msg)
         try:
             reply = await rpc_method(
@@ -332,11 +368,18 @@ class P4Client:
         self.log_msg(reply)
         return reply
 
-    async def request_iter(self, msg: pbuf.PBMessage) -> AsyncIterator[pbuf.PBMessage]:
+    async def request_iter(
+        self, msg: p4r.ReadRequest
+    ) -> AsyncIterator[p4r.ReadResponse]:
+        "Send a unary-stream P4Runtime read request and wait for the responses."
+
+        if self._complete_request:
+            self._complete_request(msg)
+
         msg_type = type(msg).__name__
         assert msg_type.endswith("Request")
-
         rpc_method = getattr(self._stub, msg_type[:-7])
+
         self.log_msg(msg)
         try:
             async for reply in rpc_method(
@@ -349,5 +392,7 @@ class P4Client:
             raise P4ClientError(ex, msg_type) from None
 
     def log_msg(self, msg: pbuf.PBMessage) -> None:
+        "Log a P4Runtime request or response."
         assert self._channel is not None
+
         pbuf.log_msg(self._channel.get_state(), msg, self._schema)

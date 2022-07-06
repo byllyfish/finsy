@@ -69,9 +69,10 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         self._stream_context = context
         self._stream_closed = asyncio.Event()
 
+        read_task = self._tasks.start(self._stream_read())
+        write_task = self._tasks.start(self._stream_write())
+
         try:
-            read_task = self._tasks.start(self._stream_read())
-            write_task = self._tasks.start(self._stream_write())
             await self._stream_closed.wait()
 
         finally:
@@ -81,6 +82,8 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
     @TRACE
     async def _stream_read(self):
+        assert self._stream_context is not None
+
         while True:
             try:
                 request = await self._stream_context.read()
@@ -90,6 +93,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
             if request == grpc.aio.EOF:
                 LOGGER.debug("_stream_read EOF")
+                assert self._stream_closed is not None
                 self._stream_closed.set()
                 self._stream_context = None
                 return
@@ -102,6 +106,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
     @TRACE
     async def _stream_write(self):
+        assert self._stream_context is not None
         # Only one write() at a time. Otherwise GRPC raises an ExecuteBatchError.
         while True:
             response = await self._stream_queue.get()
