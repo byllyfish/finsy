@@ -652,7 +652,7 @@ class SwitchEmitter(pyee.EventEmitter):
     def _emit_run(self, f, args, kwargs):
         try:
             coro = f(*args, **kwargs)
-        except Exception as exc:
+        except Exception as exc:  # pytype: disable=broad-except
             LOGGER.error("Error in SwitchEmitter._emit_run", exc_info=exc)
             # TODO: Have synchronous callback failures affect Switch?
         else:
@@ -682,8 +682,8 @@ class SwitchTasks:
         if name is None:
             name = coro.__name__
 
-        bg = "&" if background else ""
-        task_name = f"fy:{switch.name}|{name}{bg}"
+        bg_char = "&" if background else ""
+        task_name = f"fy:{switch.name}|{name}{bg_char}"
 
         task = asyncio.create_task(coro, name=task_name)
         self._tasks.add(task)

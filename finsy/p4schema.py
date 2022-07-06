@@ -944,14 +944,14 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
         "Encode python dict as protobuf `metadata`."
         result = []
 
-        for md in self.metadata:
+        for mdata in self.metadata:
             try:
-                value = metadata[md.name]
+                value = metadata[mdata.name]
             except KeyError:
                 raise ValueError(
-                    f"{self.name!r}: missing parameter {md.name!r}"
+                    f"{self.name!r}: missing parameter {mdata.name!r}"
                 ) from None
-            result.append(md.encode(value))
+            result.append(mdata.encode(value))
 
         if len(metadata) > len(result):
             self._report_extra_metadata(metadata)
@@ -961,8 +961,8 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
     def _report_extra_metadata(self, metadata):
         "Report metadata that contains extra values."
         seen = set(metadata.keys())
-        for md in self.metadata:
-            seen.remove(md.name)
+        for mdata in self.metadata:
+            seen.remove(mdata.name)
         raise ValueError(f"{self.name!r}: extra parameters {seen!r}")
 
     def decode(self, metadata: Sequence[p4r.PacketMetadata]) -> dict:
@@ -1279,24 +1279,25 @@ _P4Type = (
 def _parse_type_spec(type_spec: p4t.P4DataTypeSpec, type_info: P4TypeInfo) -> _P4Type:
     match type_spec.WhichOneof("type_spec"):
         case "bitstring":
-            return P4BitsType(type_spec.bitstring)
+            result = P4BitsType(type_spec.bitstring)
         case "bool":
-            return P4BoolType(type_spec.bool)
+            result = P4BoolType(type_spec.bool)
         case "tuple":
-            return P4TupleType(type_spec.tuple, type_info)
+            result = P4TupleType(type_spec.tuple, type_info)
         case "struct":
-            return type_info.structs[type_spec.struct.name]
+            result = type_info.structs[type_spec.struct.name]
         case "header":
-            return type_info.headers[type_spec.header.name]
+            result = type_info.headers[type_spec.header.name]
         case "header_union":
-            return type_info.header_unions[type_spec.header_union.name]
+            result = type_info.header_unions[type_spec.header_union.name]
         case "header_stack":
-            return P4HeaderStackType(type_spec.header_stack, type_info)
+            result = P4HeaderStackType(type_spec.header_stack, type_info)
         case "header_union_stack":
-            return P4HeaderUnionStackType(type_spec.header_union_stack, type_info)
+            result = P4HeaderUnionStackType(type_spec.header_union_stack, type_info)
         # TODO: "enum", "error", "serializable_enum", "new_type"
         case other:
             raise ValueError(f"unknown type_spec: {other!r}")
+    return result
 
 
 class P4Register(_P4TopLevel[p4i.Register]):
@@ -1389,7 +1390,7 @@ class P4SchemaDescription:
         # Table header
         line = f"{self.CLIPBOARD}{table.alias}[{table.size}]"
         if table.action_profile:
-            line += f" -> {self._describe_ap(table.action_profile)}"
+            line += f" -> {self._describe_profile(table.action_profile)}"
         line += "\n"
 
         # Table fields
@@ -1407,14 +1408,14 @@ class P4SchemaDescription:
 
         return line
 
-    def _describe_ap(self, ap: P4ActionProfile) -> str:
+    def _describe_profile(self, profile: P4ActionProfile) -> str:
         "Describe P4ActionProfile."
         opts = []
-        if ap.with_selector:
+        if profile.with_selector:
             opts.append("selector")
-            opts.append(f"max_group_size={ap.max_group_size}")
+            opts.append(f"max_group_size={profile.max_group_size}")
 
-        return f"{self.PACKAGE}{ap.alias}[{ap.size}] { ', '.join(opts) }"
+        return f"{self.PACKAGE}{profile.alias}[{profile.size}] { ', '.join(opts) }"
 
     def _describe_action(self, action: P4ActionRef):
         "Describe P4ActionRef."
@@ -1428,11 +1429,11 @@ class P4SchemaDescription:
             symbol = self.OUTBOX
 
         total_bits = 0
-        for md in metadata.metadata:
-            total_bits += md.bitwidth
+        for mdata in metadata.metadata:
+            total_bits += mdata.bitwidth
         line = f"{symbol}{metadata.alias} ({total_bits//8} bytes)\n  "
-        for md in metadata.metadata:
-            line += f"{md.name}:{md.bitwidth} "
+        for mdata in metadata.metadata:
+            line += f"{mdata.name}:{mdata.bitwidth} "
         line += "\n"
 
         return line
