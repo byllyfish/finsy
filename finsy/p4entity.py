@@ -144,14 +144,14 @@ class _Writable:
         return p4r.Update(type=self._update_type.vt(), entity=self.encode(schema))
 
 
-_DataDict = dict[str, Any]
-_Port = int
-_ReplicaCanon = tuple[_Port, int]
-_Replica = _ReplicaCanon | _Port
-_Value = Any  # TODO
+_DataValueType = Any  # TODO: tighten P4Data type constraint later
+_MetadataDictType = dict[str, Any]
+_PortType = int
+_ReplicaCanonType = tuple[_PortType, int]
+_ReplicaType = _ReplicaCanonType | _PortType
 
 
-def encode_replica(value: _Replica) -> p4r.Replica:
+def encode_replica(value: _ReplicaType) -> p4r.Replica:
     "Convert python representation to Replica."
 
     if isinstance(value, int):
@@ -163,7 +163,7 @@ def encode_replica(value: _Replica) -> p4r.Replica:
     return p4r.Replica(egress_port=egress_port, instance=instance)
 
 
-def decode_replica(replica: p4r.Replica) -> _ReplicaCanon:
+def decode_replica(replica: p4r.Replica) -> _ReplicaCanonType:
     "Convert Replica to python representation."
 
     return (replica.egress_port, replica.instance)
@@ -452,7 +452,7 @@ class P4RegisterEntry(_Writable):
     register_id: str
     _: KW_ONLY
     index: int | None = None
-    data: _Value | None = None
+    data: _DataValueType | None = None
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode RegisterEntry data as protobuf."
@@ -488,7 +488,7 @@ class P4MulticastGroupEntry(_Writable):
 
     multicast_group_id: int = 0
     _: KW_ONLY
-    replicas: Sequence[_Replica] = ()
+    replicas: Sequence[_ReplicaType] = ()
 
     def encode(self, _schema: P4Schema) -> p4r.Entity:
         "Encode MulticastGroupEntry data as protobuf."
@@ -563,7 +563,7 @@ class P4PacketIn:
 
     payload: bytes
     _: KW_ONLY
-    metadata: _DataDict
+    metadata: _MetadataDictType
 
     @classmethod
     def decode(cls, msg: p4r.StreamMessageResponse, schema: P4Schema) -> Self:
@@ -602,7 +602,7 @@ class P4PacketOut:
     "Represents a P4Runtime PacketOut."
 
     payload: bytes
-    metadata: _DataDict
+    metadata: _MetadataDictType
 
     def __init__(self, __payload: bytes, /, **metadata):
         self.payload = __payload
@@ -641,7 +641,7 @@ class P4DigestList:
     _: KW_ONLY
     list_id: int
     timestamp: int
-    data: list[_DataDict]
+    data: list[_DataValueType]
 
     @classmethod
     def decode(cls, msg: p4r.StreamMessageResponse, schema: P4Schema) -> Self:
