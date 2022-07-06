@@ -31,7 +31,8 @@ from typing import (
 
 import pylev
 
-from finsy import p4values, pbuf
+from finsy import p4values
+from finsy import pbuf as pbuf_util
 from finsy.grpcutil import GRPCStatusCode, _EnumBase
 from finsy.proto import p4d, p4i, p4r, p4t, rpc_code
 
@@ -419,7 +420,7 @@ def _load_p4info(data: p4i.P4Info | Path | None) -> tuple[p4i.P4Info | None, _P4
         return None, _EMPTY_P4DEFS
 
     if isinstance(data, Path):
-        p4info = pbuf.from_text(data.read_text(), p4i.P4Info)
+        p4info = pbuf_util.from_text(data.read_text(), p4i.P4Info)
     else:
         p4info = data
 

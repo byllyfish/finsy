@@ -55,4 +55,4 @@ good-names-rgxs = ["gNMI[A-Za-z]*"]
 # 1. `no-value-for-parameter` false positive from dataclass, KW_ONLY parameter '_'.
 # (see https://github.com/PyCQA/pylint/issues/5225)
 # 2. `missing-function-docstring` is *temporarily* disabled.
-disable = ["wrong-import-position", "cyclic-import", "no-value-for-parameter", "protected-access", "missing-function-docstring" ]
+disable = ["wrong-import-position", "cyclic-import", "no-value-for-parameter", "protected-access", "missing-function-docstring", "too-few-public-methods" ]

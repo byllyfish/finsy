@@ -652,7 +652,7 @@ class SwitchEmitter(pyee.EventEmitter):
     def _emit_run(self, f, args, kwargs):
         try:
             coro = f(*args, **kwargs)
-        except Exception as exc:  # pytype: disable=broad-except
+        except Exception as exc:  # pylint: disable=broad-except
             LOGGER.error("Error in SwitchEmitter._emit_run", exc_info=exc)
             # TODO: Have synchronous callback failures affect Switch?
         else:
