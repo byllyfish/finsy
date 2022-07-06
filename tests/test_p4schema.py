@@ -128,60 +128,6 @@ def test_p4info_actions():
     assert p4.actions[21257015] is noaction
 
 
-@pytest.mark.skip()
-def test_table_syntax():
-    p4 = P4Schema(Path(P4INFO_TEST_DIR, "basic.p4.p4info.txt"))
-    ipv4 = p4.tables["ipv4_lpm"].set(idle_timeout=1e9)
-
-    x = ipv4(dstaddr="A").ipv4_forward(dstaddr="B", port=1)
-    assert ~x == {
-        "table": "MyIngress.ipv4_lpm",
-        "match": {"dstaddr": "A"},
-        "actions": [
-            {"$action": "ipv4_forward", "$weight": None, "dstaddr": "B", "port": 1}
-        ],
-        "idle_timeout": 1000000000.0,
-        "group_id": None,
-        "member_id": None,
-        "priority": None,
-    }
-
-    oneshot = (
-        ipv4(dstaddr="B")
-        .ipv4_forward((1, b"1"), dstaddr="B", port=1)
-        .ipv4_forward((2, b"2"), dstaddr="B", port=1)
-        .ipv4_forward((3, b"3"), dstaddr="B", port=1)
-    )
-    assert ~oneshot == {
-        "table": "MyIngress.ipv4_lpm",
-        "match": {"dstaddr": "B"},
-        "actions": [
-            {
-                "$action": "ipv4_forward",
-                "$weight": (1, b"1"),
-                "dstaddr": "B",
-                "port": 1,
-            },
-            {
-                "$action": "ipv4_forward",
-                "$weight": (2, b"2"),
-                "dstaddr": "B",
-                "port": 1,
-            },
-            {
-                "$action": "ipv4_forward",
-                "$weight": (3, b"3"),
-                "dstaddr": "B",
-                "port": 1,
-            },
-        ],
-        "idle_timeout": 1000000000.0,
-        "group_id": None,
-        "member_id": None,
-        "priority": None,
-    }
-
-
 @pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
 def test_p4info(p4info_file):
     p4 = P4Schema(p4info_file)

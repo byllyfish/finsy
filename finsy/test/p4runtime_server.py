@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import AsyncIterator
 
 import grpc
 from finsy.log import LOGGER, TRACE
@@ -147,6 +148,15 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         context: grpc.aio.ServicerContext,
     ) -> p4r.SetForwardingPipelineConfigResponse:
         return p4r.SetForwardingPipelineConfigResponse()
+
+    @TRACE
+    async def Read(
+        self,
+        request: p4r.ReadRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> AsyncIterator[p4r.ReadResponse]:
+        # TODO: fix response
+        yield p4r.ReadResponse()
 
     @TRACE
     async def Write(

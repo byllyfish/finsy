@@ -437,14 +437,14 @@ class P4Schema(_ReprMixin):
     """
 
     _p4info: p4i.P4Info | None
-    _p4blob: Path | SupportsBytes | None
+    _p4blob: Path | bytes | SupportsBytes | None
     _p4defs: _P4Defs
     _p4cookie: int = 0
 
     def __init__(
         self,
         p4info: p4i.P4Info | Path | None = None,
-        p4blob: Path | SupportsBytes | None = None,
+        p4blob: Path | bytes | SupportsBytes | None = None,
     ):
         "Parse P4Info information."
 
