@@ -514,6 +514,12 @@ class P4MulticastGroupEntry(_Writable):
         )
 
 
+@decodable(p4r.Entity, "packet_replication_engine_entry", "clone_session_entry")
+@dataclass
+class P4CloneSessionEntry(_Writable):
+    "Represents a P4Runtime CloneSessionEntry."
+
+
 @decodable(p4r.Entity, "digest_entry")
 @dataclass
 class P4DigestEntry(_Writable):
@@ -554,6 +560,42 @@ class P4DigestEntry(_Writable):
             max_timeout_ns=config.max_timeout_ns,
             ack_timeout_ns=config.ack_timeout_ns,
         )
+
+
+@decodable(p4r.Entity, "action_profile_member")
+@dataclass
+class P4ActionProfileMember(_Writable):
+    "Represents a P4Runtime ActionProfileMember."
+
+
+@decodable(p4r.Entity, "action_profile_group")
+@dataclass
+class P4ActionProfileGroup(_Writable):
+    "Represents a P4Runtime ActionProfileGroup."
+
+
+@decodable(p4r.Entity, "meter_entry")
+@dataclass
+class P4MeterEntry(_Writable):
+    "Represents a P4Runtime MeterEntry."
+
+
+@decodable(p4r.Entity, "direct_meter_entry")
+@dataclass
+class P4DirectMeterEntry(_Writable):
+    "Represents a P4Runtime DirectMeterEntry."
+
+
+@decodable(p4r.Entity, "counter_entry")
+@dataclass
+class P4CounterEntry(_Writable):
+    "Represents a P4Runtime CounterEntry."
+
+
+@decodable(p4r.Entity, "direct_counter_entry")
+@dataclass
+class P4DirectCounterEntry(_Writable):
+    "Represents a P4Runtime DirectCounterEntry."
 
 
 @decodable(p4r.StreamMessageResponse, "packet")
@@ -669,3 +711,14 @@ class P4DigestList:
     def __iter__(self):
         "Iterate over values in digest list."
         return iter(self.data)
+
+
+@dataclass
+class P4DigestListAck:
+    "Represents a P4Runtime DigestListAck."
+
+
+@decodable(p4r.StreamMessageResponse, "idle_timeout_notification")
+@dataclass
+class P4IdleTimeoutNotification:
+    "Represents a P4Runtime IdleTimeoutNotification."
