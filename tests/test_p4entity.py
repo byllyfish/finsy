@@ -3,7 +3,10 @@ from pathlib import Path
 import pytest
 from finsy import pbuf
 from finsy.p4entity import (
+    P4ActionProfileMember,
+    P4CloneSessionEntry,
     P4DigestList,
+    P4MulticastGroupEntry,
     P4PacketIn,
     P4PacketOut,
     P4RegisterEntry,
@@ -59,7 +62,7 @@ def test_table_action1():
 
     action = P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=1)
     table = _SCHEMA.tables["ipv4_lpm"]
-    msg = action.encode(table)
+    msg = action.encode_table_action(table)
 
     assert pbuf.to_dict(msg) == {
         "action": {
@@ -70,7 +73,7 @@ def test_table_action1():
             ],
         }
     }
-    assert action == P4TableAction.decode(msg, table)
+    assert action == P4TableAction.decode_table_action(msg, table)
 
 
 def test_table_action2():
@@ -80,7 +83,7 @@ def test_table_action2():
     table = _SCHEMA.tables["ipv4_lpm"]
 
     with pytest.raises(ValueError, match="missing parameters {'dstAddr'}"):
-        action.encode(table)
+        action.encode_table_action(table)
 
 
 def test_table_action3():
@@ -90,7 +93,7 @@ def test_table_action3():
     table = _SCHEMA.tables["ipv4_lpm"]
 
     with pytest.raises(ValueError, match="no action parameter named 'prt'"):
-        action.encode(table)
+        action.encode_table_action(table)
 
 
 def test_table_action4():
@@ -100,7 +103,7 @@ def test_table_action4():
     table = _SCHEMA.tables["ipv4_lpm"]
 
     with pytest.raises(ValueError, match="no action parameter named 'extra'"):
-        action.encode(table)
+        action.encode_table_action(table)
 
 
 def test_table_entry1():
@@ -156,8 +159,44 @@ def test_table_entry3():
     assert entry == P4TableEntry.decode(msg, _SCHEMA)
 
 
+def test_action_profile_member1():
+    "Test P4ActionProfileMember class."
+
+    entry = P4ActionProfileMember()
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {"action_profile_member": {}}
+    assert entry == P4ActionProfileMember.decode(msg, _SCHEMA)
+
+
+def test_action_profile_member2():
+    "Test P4ActionProfileMember class."
+
+    entry = P4ActionProfileMember(
+        action_profile_id=1,
+        member_id=2,
+        action=P4TableAction("ipv4_forward", port=1, dstAddr=2),
+    )
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {
+        "action_profile_member": {
+            "action": {
+                "action_id": 28792405,
+                "params": [
+                    {"param_id": 2, "value": "AQ=="},
+                    {"param_id": 1, "value": "Ag=="},
+                ],
+            },
+            "action_profile_id": 1,
+            "member_id": 2,
+        }
+    }
+    assert entry == P4ActionProfileMember.decode(msg, _SCHEMA)
+
+
 def test_register_entry1():
-    "Test RegisterEntry class."
+    "Test P4RegisterEntry class."
 
     entry = P4RegisterEntry("counter_bloom_filter", index=1, data=1)
     msg = entry.encode(_SCHEMA)
@@ -185,6 +224,34 @@ def test_register_entry2():
         }
     }
     assert entry == P4RegisterEntry.decode(msg, _SCHEMA)
+
+
+def test_multicast_group_entry1():
+    "Test P4MulticastEntry."
+
+    entry = P4MulticastGroupEntry()
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {
+        "packet_replication_engine_entry": {
+            "multicast_group_entry": {},
+        }
+    }
+    assert entry == P4MulticastGroupEntry.decode(msg, _SCHEMA)
+
+
+def test_clone_session_entry1():
+    "Test P4CloneSessionEntry."
+
+    entry = P4CloneSessionEntry()
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {
+        "packet_replication_engine_entry": {
+            "clone_session_entry": {},
+        }
+    }
+    assert entry == P4CloneSessionEntry.decode(msg, _SCHEMA)
 
 
 def test_packet_out1():

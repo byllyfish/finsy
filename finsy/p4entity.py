@@ -16,12 +16,12 @@
 
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
-from typing import Any, Sequence
+from typing import Any, NoReturn, Sequence
 
 from typing_extensions import Self
 
 from finsy.log import LOGGER
-from finsy.p4schema import P4ActionRef, P4Schema, P4Table, P4UpdateType
+from finsy.p4schema import P4Action, P4ActionRef, P4Schema, P4Table, P4UpdateType
 from finsy.proto import p4r
 
 _DECODE_ENTITY = {}
@@ -212,7 +212,7 @@ class P4TableAction:
         self.name = __name
         self.args = args
 
-    def encode(self, table: P4Table) -> p4r.TableAction:
+    def encode_table_action(self, table: P4Table) -> p4r.TableAction:
         "Encode TableAction data as protobuf."
 
         try:
@@ -220,37 +220,49 @@ class P4TableAction:
         except Exception as ex:
             raise ValueError(f"{table.name!r}: {ex}") from ex
 
+        return p4r.TableAction(action=self._encode_action(action))
+
+    def _fail_missing_params(self, action: P4ActionRef | P4Action) -> NoReturn:
+        "Report missing parameters."
+
+        seen = {param.name for param in action.params}
+        for name in self.args:
+            param = action.params[name]
+            seen.remove(param.name)
+
+        raise ValueError(f"{action.alias!r}: missing parameters {seen}")
+
+    def encode_action(self, schema: P4Schema) -> p4r.Action:
+        "Encode Action data as protobuf."
+
+        # TODO: Make sure that action is normal `Action`.
+        action = schema.actions[self.name]
+        return self._encode_action(action)
+
+    def _encode_action(self, action: P4ActionRef | P4Action) -> p4r.Action:
+        "Helper to encode an action."
+
         params = []
         for name, value in self.args.items():
             try:
                 param = action.params[name]
                 params.append(param.encode(value))
             except ValueError as ex:
-                raise ValueError(f"{table.name!r}: {action.alias!r}: {ex}") from ex
+                raise ValueError(f"{action.alias!r}: {ex}") from ex
 
         # Check for missing action parameters.
         if len(params) != len(action.params):
-            self._fail_missing_params(table, action)
+            self._fail_missing_params(action)
 
-        return p4r.TableAction(action=p4r.Action(action_id=action.id, params=params))
-
-    def _fail_missing_params(self, table: P4Table, action: P4ActionRef):
-        "Report missing parameters."
-        seen = {param.name for param in action.params}
-
-        for name in self.args:
-            param = action.params[name]
-            seen.remove(param.name)
-
-        raise ValueError(f"{table.name!r}: {action.alias!r}: missing parameters {seen}")
+        return p4r.Action(action_id=action.id, params=params)
 
     @classmethod
-    def decode(cls, msg: p4r.TableAction, table: P4Table) -> Self:
+    def decode_table_action(cls, msg: p4r.TableAction, table: P4Table) -> Self:
         "Decode protobuf to TableAction data."
 
         match msg.WhichOneof("type"):
             case "action":
-                return cls._decode_action(msg.action, table)
+                return cls.decode_action(msg.action, table)
             case "action_profile_member_id":
                 raise NotImplementedError()
             case "action_profile_group_id":
@@ -261,18 +273,17 @@ class P4TableAction:
                 raise ValueError(f"unknown oneof: {other!r}")
 
     @classmethod
-    def _decode_action(cls, msg: p4r.Action, table: P4Table) -> Self:
-        "Decode protobuf action."
-        action = table.actions[msg.action_id]
-        name = action.alias
+    def decode_action(cls, msg: p4r.Action, parent: P4Schema | P4Table) -> Self:
+        "Decode protobuf to Action data."
 
+        action = parent.actions[msg.action_id]
         args = {}
         for param in msg.params:
             action_param = action.params[param.param_id]
             value = action_param.decode(param)
             args[action_param.name] = value
 
-        return cls(name, **args)
+        return cls(action.alias, **args)
 
 
 @dataclass(kw_only=True)
@@ -357,7 +368,7 @@ class P4TableEntry(_Writable):
             match = None
 
         if self.action:
-            action = self.action.encode(table)
+            action = self.action.encode_table_action(table)
         else:
             action = None
 
@@ -415,7 +426,7 @@ class P4TableEntry(_Writable):
             match = None
 
         if entry.HasField("action"):
-            action = P4TableAction.decode(entry.action, table)
+            action = P4TableAction.decode_table_action(entry.action, table)
         else:
             action = None
 
@@ -510,7 +521,7 @@ class P4MulticastGroupEntry(_Writable):
         entry = msg.packet_replication_engine_entry.multicast_group_entry
         return cls(
             multicast_group_id=entry.multicast_group_id,
-            replicas=[decode_replica(replica) for replica in entry.replicas],
+            replicas=tuple(decode_replica(replica) for replica in entry.replicas),
         )
 
 
@@ -518,6 +529,39 @@ class P4MulticastGroupEntry(_Writable):
 @dataclass
 class P4CloneSessionEntry(_Writable):
     "Represents a P4Runtime CloneSessionEntry."
+
+    session_id: int = 0
+    _: KW_ONLY
+    class_of_service: int = 0
+    packet_length_bytes: int = 0
+    replicas: Sequence[_ReplicaType] = ()
+
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
+        "Encode CloneSessionEntry data as protobuf."
+
+        entry = p4r.CloneSessionEntry(
+            session_id=self.session_id,
+            class_of_service=self.class_of_service,
+            packet_length_bytes=self.packet_length_bytes,
+            replicas=[encode_replica(replica) for replica in self.replicas],
+        )
+        return p4r.Entity(
+            packet_replication_engine_entry=p4r.PacketReplicationEngineEntry(
+                clone_session_entry=entry
+            )
+        )
+
+    @classmethod
+    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
+        "Decode protobuf to CloneSessionEntry data."
+
+        entry = msg.packet_replication_engine_entry.clone_session_entry
+        return cls(
+            session_id=entry.session_id,
+            class_of_service=entry.class_of_service,
+            packet_length_bytes=entry.packet_length_bytes,
+            replicas=tuple(decode_replica(replica) for replica in entry.replicas),
+        )
 
 
 @decodable(p4r.Entity, "digest_entry")
@@ -566,6 +610,41 @@ class P4DigestEntry(_Writable):
 @dataclass
 class P4ActionProfileMember(_Writable):
     "Represents a P4Runtime ActionProfileMember."
+
+    action_profile_id: int = 0
+    member_id: int = 0
+    action: P4TableAction | None = None
+
+    def encode(self, schema: P4Schema) -> p4r.Entity:
+        "Encode P4ActionProfileMember as protobuf."
+
+        if self.action:
+            action = self.action.encode_action(schema)
+        else:
+            action = None
+
+        entry = p4r.ActionProfileMember(
+            action_profile_id=self.action_profile_id,
+            member_id=self.member_id,
+            action=action,
+        )
+        return p4r.Entity(action_profile_member=entry)
+
+    @classmethod
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+        "Decode protobuf to ActionProfileMember data."
+        entry = msg.action_profile_member
+
+        if entry.HasField("action"):
+            action = P4TableAction.decode_action(entry.action, schema)
+        else:
+            action = None
+
+        return cls(
+            action_profile_id=entry.action_profile_id,
+            member_id=entry.member_id,
+            action=action,
+        )
 
 
 @decodable(p4r.Entity, "action_profile_group")
