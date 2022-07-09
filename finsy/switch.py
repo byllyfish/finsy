@@ -27,7 +27,7 @@ import re
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import AsyncIterator, Callable, SupportsBytes
+from typing import Any, AsyncIterator, Awaitable, Callable, SupportsBytes
 
 import grpc
 import pyee
@@ -74,7 +74,7 @@ class SwitchOptions:
     device_id: int = 1
     initial_election_id: int = 10
     credentials: grpc.ChannelCredentials | None = None
-    ready_handler: Callable | None = None
+    ready_handler: Callable[["Switch"], Awaitable[None]] | None = None
 
     def __call__(self, **kwds):
         return dataclasses.replace(self, **kwds)
@@ -93,14 +93,14 @@ class Switch:
     _p4client: P4Client | None
     _p4schema: P4Schema
     _tasks: "SwitchTasks | None"
-    _queues: dict[str, asyncio.Queue]
+    _queues: dict[str, asyncio.Queue[Any]]
     _arbitrator: "Arbitrator"
     _gnmi_client: gNMIClient | None
     _ports: PortList
     _is_channel_up: bool = False
     _api_version: _ApiVersion = (1, 0, 0)
 
-    control_task: asyncio.Task | None = None
+    control_task: asyncio.Task[Any] | None = None
     "Used by Controller to track switch's main task."
 
     ee: "SwitchEmitter"
@@ -667,7 +667,7 @@ class SwitchEmitter(pyee.EventEmitter):
 class SwitchTasks:
     "Manage a set of related tasks."
 
-    _tasks: set[asyncio.Task]
+    _tasks: set[asyncio.Task[Any]]
     _task_count: CountdownFuture
 
     def __init__(self):
@@ -689,7 +689,7 @@ class SwitchTasks:
 
         return task
 
-    def _task_done(self, done: asyncio.Task):
+    def _task_done(self, done: asyncio.Task[Any]):
         "Called when a task finishes."
         self._tasks.remove(done)
         self._task_count.decrement()

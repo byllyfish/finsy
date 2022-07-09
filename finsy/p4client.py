@@ -16,7 +16,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import AsyncIterator, Callable, Sequence, overload
+from typing import AsyncIterator, Callable, Sequence, TypeAlias, overload
 
 import grpc
 
@@ -213,6 +213,11 @@ class P4ClientError(Exception):
         )
 
 
+_P4StreamTypeAlias: TypeAlias = grpc.aio.StreamStreamCall[
+    p4r.StreamMessageRequest, p4r.StreamMessageResponse
+]
+
+
 class P4Client:
     "Implements a P4Runtime client."
 
@@ -220,8 +225,8 @@ class P4Client:
     _credentials: grpc.ChannelCredentials | None
     _channel: grpc.aio.Channel | None = None
     _stub: p4r_grpc.P4RuntimeStub | None = None
-    _stream: grpc.aio.StreamStreamCall | None = None
-    _complete_request: Callable | None = None
+    _stream: _P4StreamTypeAlias | None = None
+    _complete_request: Callable[[pbuf.PBMessage], None] | None = None
 
     _schema: P4Schema | None = None
     "Annotate log messages using this optional P4Info schema."
@@ -251,7 +256,7 @@ class P4Client:
         self,
         *,
         schema: P4Schema | None = None,
-        complete_request: Callable | None = None,
+        complete_request: Callable[[pbuf.PBMessage], None] | None = None,
     ) -> None:
         """Open the client channel.
 

@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import asyncio
-from typing import Iterable
+from typing import Any, Iterable
 
 from finsy.log import LOGGER, TRACE
 from finsy.switch import Switch, SwitchEvent
@@ -33,7 +33,7 @@ class Controller:
     _removed: set[Switch]
     _task_count: CountdownFuture
 
-    control_task: asyncio.Task | None = None
+    control_task: asyncio.Task[Any] | None = None
     "Keep track of controller's main task."
 
     def __init__(self, switches: Iterable[Switch], *, name="controller"):
