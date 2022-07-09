@@ -136,7 +136,7 @@ def _elem_str(elem: gnmi.PathElem) -> str:
 _REPLACE_ESCAPES = re.compile(rb"\\x[0-9a-fA-F]{2}|\\t")
 
 
-def _escape(value, chars):
+def _escape(value: str, chars: str) -> str:
     "Backslash escape the specified characters in value"
 
     def _replace(m):

@@ -92,7 +92,7 @@ def test_path_getitem():
     assert path1["interfaces", "b"] == ""
 
     with pytest.raises(TypeError, match="invalid key type"):
-        path1["interface"]
+        path1["interface"]  # type: ignore
 
     with pytest.raises(KeyError, match="x"):
         path1["x", "a"]
@@ -101,4 +101,4 @@ def test_path_getitem():
         path1[3]
 
     with pytest.raises(TypeError, match="invalid key type"):
-        path1["interface", 3]
+        path1["interface", 3]  # type: ignore

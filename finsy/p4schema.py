@@ -168,7 +168,7 @@ class _ReprMixin:
     Property values that are redundant or verbose are exempt.
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         EXEMPT_PROPERTIES = {"pbuf", "p4info", "p4blob"}
 
         cls = type(self)
@@ -216,11 +216,11 @@ class _P4DocMixin:
     "Mixin class for sub-entities that have descriptions."
 
     @property
-    def brief(self):
+    def brief(self) -> str:
         return self.pbuf.doc.brief  # type: ignore[attr-defined]
 
     @property
-    def description(self):
+    def description(self) -> str:
         return self.pbuf.doc.description  # type: ignore[attr-defined]
 
 

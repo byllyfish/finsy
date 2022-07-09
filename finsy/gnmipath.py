@@ -92,7 +92,7 @@ class gNMIPath:
         "Return the path's target."
         return self.path.target
 
-    def key(self, elem: str | int, **kwds) -> Self:
+    def key(self, elem: str | int, **kwds: str) -> Self:
         "Construct a new gNMIPath with keys set for the given elem."
         if isinstance(elem, str):
             elem = _find_index(elem, self.path)
@@ -107,19 +107,19 @@ class gNMIPath:
         new_path.CopyFrom(self.path)
         return gNMIPath(new_path)
 
-    def __getitem__(self, key) -> str:
+    def __getitem__(self, key: int | tuple[int | str, str]) -> str:
         "Return the specified element or key value."
         match key:
             case int(idx):
                 return self.path.elem[idx].name
-            case (int(idx), str(key)):
-                return self.path.elem[idx].key[key]
-            case (str(name), str(key)):
-                return self.path.elem[_find_index(name, self.path)].key[key]
+            case (int(idx), str(k)):
+                return self.path.elem[idx].key[k]
+            case (str(name), str(k)):
+                return self.path.elem[_find_index(name, self.path)].key[k]
             case _:
                 raise TypeError(f"invalid key type: {key!r}")
 
-    def __eq__(self, rhs) -> bool:
+    def __eq__(self, rhs: Self) -> bool:
         "Return True if path's are equal."
         if not isinstance(rhs, gNMIPath):
             return False
