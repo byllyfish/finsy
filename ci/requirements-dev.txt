@@ -301,7 +301,7 @@ pylint==2.14.4; python_full_version >= "3.7.2" \
 pyparsing==3.0.9; python_full_version >= "3.6.8" and python_version >= "3.7" \
     --hash=sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc \
     --hash=sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb
-pyright==1.1.258; python_version >= "3.7"
+pyright==1.1.258; python_version >= "3.7" --hash=sha256:2b40179a6fe70be75104500de2b2eb1e7b3ebd1ba130db96f4f1921fc98f37cd
 pytest-asyncio==0.18.3; python_version >= "3.7" \
     --hash=sha256:7659bdb0a9eb9c6e3ef992eef11a2b3e69697800ad02fb06374a210d85b29f91 \
     --hash=sha256:8fafa6c52161addfd41ee7ab35f11836c5a16ec208f93ee388f752bea3493a84
@@ -317,7 +317,7 @@ six==1.16.0; python_version >= "3.6" and python_full_version < "3.0.0" or python
 tomli==2.0.1; python_full_version <= "3.11.0a6" and python_full_version >= "3.7.2" and python_version >= "3.7" and python_version < "3.11" \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
     --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f
-tomlkit==0.11.1; python_version >= "3.6" and python_version < "4.0" and python_full_version >= "3.7.2"
+tomlkit==0.11.1; python_version >= "3.6" and python_version < "4.0" and python_full_version >= "3.7.2" --hash=sha256:1c5bebdf19d5051e2e1de6cf70adfc5948d47221f097fcff7a3ffc91e953eaf5
 typing-extensions==4.3.0; python_version >= "3.7" \
     --hash=sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02 \
     --hash=sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6
