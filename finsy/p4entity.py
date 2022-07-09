@@ -469,21 +469,33 @@ class P4TableEntry(_Writable):
 class P4RegisterEntry(_Writable):
     "Represents a P4Runtime RegisterEntry."
 
-    register_id: str
+    register_id: str = ""
     _: KW_ONLY
     index: int | None = None
     data: _DataValueType | None = None
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode RegisterEntry data as protobuf."
-        assert self.data is not None
+
+        if not self.register_id:
+            return p4r.Entity(register_entry=p4r.RegisterEntry())
 
         register = schema.registers[self.register_id]
-        index = p4r.Index(index=self.index) if self.index is not None else None
+
+        if self.index is not None:
+            index = p4r.Index(index=self.index)
+        else:
+            index = None
+
+        if self.data is not None:
+            data = register.type_spec.encode_data(self.data)
+        else:
+            data = None
+
         entry = p4r.RegisterEntry(
             register_id=register.id,
             index=index,
-            data=register.type_spec.encode_data(self.data),
+            data=data,
         )
         return p4r.Entity(register_entry=entry)
 
@@ -492,12 +504,25 @@ class P4RegisterEntry(_Writable):
         "Decode protobuf to RegisterEntry data."
 
         entry = msg.register_entry
+        if entry.register_id == 0:
+            return cls("")
+
         register = schema.registers[entry.register_id]
-        index = entry.index.index if entry.HasField("index") else None
+
+        if entry.HasField("index"):
+            index = entry.index.index
+        else:
+            index = None
+
+        if entry.HasField("data"):
+            data = register.type_spec.decode_data(entry.data)
+        else:
+            data = None
+
         return cls(
             register.alias,
             index=index,
-            data=register.type_spec.decode_data(entry.data),
+            data=data,
         )
 
 
@@ -680,12 +705,17 @@ class P4Member:
             case other:
                 raise ValueError(f"unexpected weight: {other!r}")
 
-        return p4r.ActionProfileGroup.Member(
+        member = p4r.ActionProfileGroup.Member(
             member_id=self.member_id,
             weight=weight,
-            watch=watch,
-            watch_port=watch_port,
         )
+
+        if watch is not None:
+            member.watch = watch
+        elif watch_port is not None:
+            member.watch_port = watch_port
+
+        return member
 
     @classmethod
     def decode(cls, msg: p4r.ActionProfileGroup.Member) -> Self:
@@ -877,11 +907,95 @@ class P4DirectMeterEntry(_Writable):
 class P4CounterEntry(_Writable):
     "Represents a P4Runtime CounterEntry."
 
+    counter_id: int = 0
+    _: KW_ONLY
+    index: int | None = None
+    data: P4CounterData | None = None
+
+    def encode(self, schema: P4Schema) -> p4r.Entity:
+        "Encode P4CounterEntry as protobuf."
+
+        if self.index is not None:
+            index = p4r.Index(index=self.index)
+        else:
+            index = None
+
+        if self.data is not None:
+            data = self.data.encode()
+        else:
+            data = None
+
+        entry = p4r.CounterEntry(
+            counter_id=self.counter_id,
+            index=index,
+            data=data,
+        )
+        return p4r.Entity(counter_entry=entry)
+
+    @classmethod
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+        "Decode protobuf to P4CounterEntry."
+
+        entry = msg.counter_entry
+
+        if entry.HasField("index"):
+            index = entry.index.index
+        else:
+            index = None
+
+        if entry.HasField("data"):
+            data = P4CounterData.decode(entry.data)
+        else:
+            data = None
+
+        return cls(counter_id=entry.counter_id, index=index, data=data)
+
 
 @decodable(p4r.Entity, "direct_counter_entry")
 @dataclass
 class P4DirectCounterEntry(_Writable):
     "Represents a P4Runtime DirectCounterEntry."
+
+    table_entry: P4TableEntry | None = None
+    _: KW_ONLY
+    data: P4CounterData | None = None
+
+    def encode(self, schema: P4Schema) -> p4r.Entity:
+        "Encode P4DirectCounterEntry as protobuf."
+
+        if self.table_entry is not None:
+            table_entry = self.table_entry.encode_entry(schema)
+        else:
+            table_entry = None
+
+        if self.data is not None:
+            data = self.data.encode()
+        else:
+            data = None
+
+        entry = p4r.DirectCounterEntry(
+            table_entry=table_entry,
+            data=data,
+        )
+        return p4r.Entity(direct_counter_entry=entry)
+
+    @classmethod
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+        "Decode protobuf to P4DirectCounterEntry."
+
+        entry = msg.direct_counter_entry
+
+        if entry.HasField("table_entry"):
+            table_entry = P4TableEntry.decode_entry(entry.table_entry, schema)
+        else:
+            table_entry = None
+
+        if entry.HasField("data"):
+            data = P4CounterData.decode(entry.data)
+        else:
+            data = None
+
+        return cls(table_entry=table_entry, data=data)
 
 
 @decodable(p4r.StreamMessageResponse, "packet")

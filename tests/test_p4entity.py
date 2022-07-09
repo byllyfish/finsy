@@ -7,7 +7,9 @@ from finsy.p4entity import (
     P4ActionProfileMember,
     P4CloneSessionEntry,
     P4CounterData,
+    P4CounterEntry,
     P4DigestList,
+    P4DirectCounterEntry,
     P4DirectMeterEntry,
     P4Member,
     P4MeterConfig,
@@ -350,6 +352,85 @@ def test_direct_meter_entry2():
         }
     }
     assert entry == P4DirectMeterEntry.decode(msg, _SCHEMA)
+
+
+def test_counter_entry1():
+    "Test P4CounterEntry class."
+
+    entry = P4CounterEntry()
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {"counter_entry": {}}
+    assert entry == P4CounterEntry.decode(msg, _SCHEMA)
+
+
+def test_counter_entry2():
+    "Test P4CounterEntry class."
+
+    entry = P4CounterEntry(
+        1,
+        index=2,
+        data=P4CounterData(byte_count=1, packet_count=2),
+    )
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {
+        "counter_entry": {
+            "counter_id": 1,
+            "data": {"byte_count": "1", "packet_count": "2"},
+            "index": {"index": "2"},
+        }
+    }
+    assert entry == P4CounterEntry.decode(msg, _SCHEMA)
+
+
+def test_direct_counter_entry1():
+    "Test P4CounterEntry class."
+
+    entry = P4DirectCounterEntry()
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {"direct_counter_entry": {}}
+    assert entry == P4DirectCounterEntry.decode(msg, _SCHEMA)
+
+
+def test_direct_counter_entry2():
+    "Test P4CounterEntry class."
+
+    entry = P4DirectCounterEntry(
+        table_entry=P4TableEntry(
+            "ipv4_lpm",
+            match=P4TableMatch(dstAddr=(167772160, 24)),
+        ),
+        data=P4CounterData(byte_count=1, packet_count=2),
+    )
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {
+        "direct_counter_entry": {
+            "data": {"byte_count": "1", "packet_count": "2"},
+            "table_entry": {
+                "match": [
+                    {
+                        "field_id": 1,
+                        "lpm": {"prefix_len": 24, "value": "CgAAAA=="},
+                    }
+                ],
+                "table_id": 37375156,
+            },
+        }
+    }
+    assert entry == P4DirectCounterEntry.decode(msg, _SCHEMA)
+
+
+def test_register_entry0():
+    "Test P4RegisterEntry class."
+
+    entry = P4RegisterEntry()
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {"register_entry": {}}
+    assert entry == P4RegisterEntry.decode(msg, _SCHEMA)
 
 
 def test_register_entry1():
