@@ -178,7 +178,7 @@ class P4ClientError(Exception):
         return self._status.details
 
     @property
-    def is_unimplemented(self):
+    def is_unimplemented(self) -> bool:
         return self.code == GRPCStatusCode.UNIMPLEMENTED
 
     def _attach_details(self, msg: pbuf.PBMessage):

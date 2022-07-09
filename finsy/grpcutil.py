@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from typing import Sequence
 
 import grpc
+from typing_extensions import Self
 
 from finsy.log import LOGGER
 from finsy.proto import rpc_code
@@ -29,7 +30,7 @@ from finsy.proto import rpc_code
 class _EnumBase(enum.IntEnum):
     "Base class for GRPC/Protobuf Enum wrapper classes."
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{type(self).__name__}.{self.name}"
 
 
@@ -54,14 +55,14 @@ class GRPCStatusCode(_EnumBase):
     UNAVAILABLE = rpc_code.UNAVAILABLE
     DATA_LOSS = rpc_code.DATA_LOSS
 
-    @staticmethod
-    def from_status_code(val: grpc.StatusCode):
+    @classmethod
+    def from_status_code(cls, val: grpc.StatusCode) -> Self:
         "Create corresponding GRPCStatusCode from a grpc.StatusCode object."
         assert isinstance(val, grpc.StatusCode)
         return GRPCStatusCode(val.value[0])
 
     @staticmethod
-    def _validate_enum():
+    def _validate_enum() -> None:
         for value in grpc.StatusCode:
             assert GRPCStatusCode[value.name].value == value.value[0], value.name
 

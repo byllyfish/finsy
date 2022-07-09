@@ -62,21 +62,21 @@ MSG_LOG = _CustomAdapter(logging.getLogger(f"{__package__}.msg"))
 TRACE_LOG = _CustomAdapter(logging.getLogger(f"{__package__}.trace"))
 
 
-def _exc():
+def _exc() -> BaseException | None:
     # TODO: replace sys.exc_info() with sys.exception() someday...
     return sys.exc_info()[1]
 
 
 def _trace(func):
     @wraps(func)
-    async def wrapper(*args, **kwd):
+    async def _wrapper(*args, **kwd):
         try:
             TRACE_LOG.info("%s stepin", func.__qualname__)
             return await func(*args, **kwd)
         finally:
             TRACE_LOG.info("%s stepout ex=%r", func.__qualname__, _exc())
 
-    return wrapper
+    return _wrapper
 
 
 def _trace_noop(func):

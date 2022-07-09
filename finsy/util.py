@@ -24,7 +24,7 @@ def _create_future() -> asyncio.Future:
     return asyncio.get_running_loop().create_future()
 
 
-async def wait_for_cancel():
+async def wait_for_cancel() -> None:
     "Wait for the running task to be cancelled or interrupted."
     try:
         await _create_future()
@@ -45,14 +45,14 @@ class CountdownFuture:
     _future: asyncio.Future | None = None
     _counter: int = 0
 
-    def increment(self):
+    def increment(self) -> None:
         "Increment the countdown counter."
         if self._future is None or self._future.done():
             self._future = _create_future()
 
         self._counter += 1
 
-    def decrement(self):
+    def decrement(self) -> None:
         "Decrement the countdown counter."
         assert self._future is not None
 
@@ -61,7 +61,7 @@ class CountdownFuture:
             self._future.set_result(1)
 
     @TRACE
-    async def wait(self, on_cancel=None):
+    async def wait(self, on_cancel=None) -> None:
         "Wait for the countdown to finish."
         if self._counter <= 0:
             raise ValueError("CountdownFuture is already <= zero.")
@@ -77,7 +77,7 @@ class CountdownFuture:
             raise
 
     @TRACE
-    async def _wait_cancelled(self):
+    async def _wait_cancelled(self) -> None:
         assert self._future and self._future.cancelled()
 
         while True:
