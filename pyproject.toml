@@ -56,3 +56,8 @@ good-names-rgxs = ["gNMI[A-Za-z]*"]
 # (see https://github.com/PyCQA/pylint/issues/5225)
 # 2. `missing-function-docstring` is *temporarily* disabled.
 disable = ["wrong-import-position", "cyclic-import", "no-value-for-parameter", "protected-access", "missing-function-docstring", "too-few-public-methods" ]
+
+[tool.mypy]
+
+disallow_untyped_defs = true
+exclude = [ ".+_pb2.py", ".+_pb2_grpc.py" ]

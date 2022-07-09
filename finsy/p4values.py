@@ -124,18 +124,23 @@ def decode_exact(
 
 def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
     "Encode a string value into a P4R LPM value."
+
     if isinstance(value, (IPv4Network, IPv6Network)):
         if bitwidth != value.max_prefixlen:
             raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
         data = encode_exact(value.network_address, bitwidth)
         return data, value.prefixlen
 
-    if isinstance(value, str):
+    if isinstance(value, int):
+        vals = [value]
+    elif isinstance(value, str):
         vals = value.split("/", 1)
     elif isinstance(value, tuple):
         if len(value) != 2:
             raise ValueError(f"invalid tuple value: {value!r}")
         vals = value
+    else:
+        raise ValueError(f"unexpected type: {value!r}")
 
     data = encode_exact(vals[0], bitwidth)
     if len(vals) == 2:

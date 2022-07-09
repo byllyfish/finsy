@@ -149,6 +149,7 @@ _MetadataDictType = dict[str, Any]
 _PortType = int
 _ReplicaCanonType = tuple[_PortType, int]
 _ReplicaType = _ReplicaCanonType | _PortType
+_Weight = int | tuple[int, int | bytes]
 
 
 def encode_replica(value: _ReplicaType) -> p4r.Replica:
@@ -357,8 +358,13 @@ class P4TableEntry(_Writable):
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode TableEntry data as protobuf."
 
+        return p4r.Entity(table_entry=self.encode_entry(schema))
+
+    def encode_entry(self, schema: P4Schema) -> p4r.TableEntry:
+        "Encode TableEntry data as protobuf."
+
         if not self.table_id:
-            return p4r.Entity(table_entry=p4r.TableEntry())
+            return p4r.TableEntry()
 
         table = schema.tables[self.table_id]
 
@@ -394,27 +400,30 @@ class P4TableEntry(_Writable):
         else:
             time_since_last_hit = None
 
-        return p4r.Entity(
-            table_entry=p4r.TableEntry(
-                table_id=table.id,
-                match=match,
-                action=action,
-                priority=self.priority,
-                meter_config=meter_config,
-                counter_data=counter_data,
-                meter_counter_data=meter_counter_data,
-                is_default_action=self.is_default_action,
-                idle_timeout_ns=self.idle_timeout_ns,
-                time_since_last_hit=time_since_last_hit,
-                metadata=self.metadata,
-            )
+        return p4r.TableEntry(
+            table_id=table.id,
+            match=match,
+            action=action,
+            priority=self.priority,
+            meter_config=meter_config,
+            counter_data=counter_data,
+            meter_counter_data=meter_counter_data,
+            is_default_action=self.is_default_action,
+            idle_timeout_ns=self.idle_timeout_ns,
+            time_since_last_hit=time_since_last_hit,
+            metadata=self.metadata,
         )
 
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to TableEntry data."
 
-        entry = msg.table_entry
+        return cls.decode_entry(msg.table_entry, schema)
+
+    @classmethod
+    def decode_entry(cls, entry: p4r.TableEntry, schema: P4Schema) -> Self:
+        "Decode protobuf to TableEntry data."
+
         if entry.table_id == 0:
             return cls("")
 
@@ -612,6 +621,7 @@ class P4ActionProfileMember(_Writable):
     "Represents a P4Runtime ActionProfileMember."
 
     action_profile_id: int = 0
+    _: KW_ONLY
     member_id: int = 0
     action: P4TableAction | None = None
 
@@ -647,10 +657,94 @@ class P4ActionProfileMember(_Writable):
         )
 
 
+@dataclass(kw_only=True)
+class P4Member:
+    "Represents an ActionProfileGroup Member."
+
+    member_id: int
+    weight: _Weight
+
+    def encode(self) -> p4r.ActionProfileGroup.Member:
+        "Encode P4Member as protobuf."
+
+        watch = None
+        watch_port = None
+
+        match self.weight:
+            case int(weight):
+                pass
+            case (int(weight), int(watch)):
+                pass
+            case (int(weight), bytes(watch_port)):
+                pass
+            case other:
+                raise ValueError(f"unexpected weight: {other!r}")
+
+        return p4r.ActionProfileGroup.Member(
+            member_id=self.member_id,
+            weight=weight,
+            watch=watch,
+            watch_port=watch_port,
+        )
+
+    @classmethod
+    def decode(cls, msg: p4r.ActionProfileGroup.Member) -> Self:
+        "Decode protobuf to P4Member."
+
+        match msg.WhichOneof("watch_kind"):
+            case "watch":
+                weight = (msg.weight, msg.watch)
+            case "watch_port":
+                weight = (msg.weight, msg.watch_port)
+            case other:
+                raise ValueError(f"unknown oneof: {other!r}")
+
+        return cls(member_id=msg.member_id, weight=weight)
+
+
 @decodable(p4r.Entity, "action_profile_group")
 @dataclass
 class P4ActionProfileGroup(_Writable):
     "Represents a P4Runtime ActionProfileGroup."
+
+    action_profile_id: int = 0
+    _: KW_ONLY
+    group_id: int = 0
+    max_size: int = 0
+    members: Sequence[P4Member] | None = None
+
+    def encode(self, schema: P4Schema) -> p4r.Entity:
+        "Encode P4ActionProfileGroup as protobuf."
+
+        if self.members is not None:
+            members = [member.encode() for member in self.members]
+        else:
+            members = None
+
+        entry = p4r.ActionProfileGroup(
+            action_profile_id=self.action_profile_id,
+            group_id=self.group_id,
+            members=members,
+            max_size=self.max_size,
+        )
+        return p4r.Entity(action_profile_group=entry)
+
+    @classmethod
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+        "Decode protobuf to ActionProfileGroup data."
+        entry = msg.action_profile_group
+
+        if entry.members:
+            members = [P4Member.decode(member) for member in entry.members]
+        else:
+            members = None
+
+        return cls(
+            action_profile_id=entry.action_profile_id,
+            group_id=entry.group_id,
+            max_size=entry.max_size,
+            members=members,
+        )
 
 
 @decodable(p4r.Entity, "meter_entry")
@@ -658,11 +752,124 @@ class P4ActionProfileGroup(_Writable):
 class P4MeterEntry(_Writable):
     "Represents a P4Runtime MeterEntry."
 
+    meter_id: int = 0
+    _: KW_ONLY
+    index: int | None = None
+    config: P4MeterConfig | None = None
+    counter_data: P4MeterCounterData | None = None
+
+    def encode(self, schema: P4Schema) -> p4r.Entity:
+        "Encode P4MeterEntry to protobuf."
+
+        if self.index is not None:
+            index = p4r.Index(index=self.index)
+        else:
+            index = None
+
+        if self.config is not None:
+            config = self.config.encode()
+        else:
+            config = None
+
+        if self.counter_data is not None:
+            counter_data = self.counter_data.encode()
+        else:
+            counter_data = None
+
+        entry = p4r.MeterEntry(
+            meter_id=self.meter_id,
+            index=index,
+            config=config,
+            counter_data=counter_data,
+        )
+        return p4r.Entity(meter_entry=entry)
+
+    @classmethod
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+        "Decode protobuf to P4MeterEntry."
+
+        entry = msg.meter_entry
+
+        if entry.HasField("index"):
+            index = entry.index.index
+        else:
+            index = None
+
+        if entry.HasField("config"):
+            config = P4MeterConfig.decode(entry.config)
+        else:
+            config = None
+
+        if entry.HasField("counter_data"):
+            counter_data = P4MeterCounterData.decode(entry.counter_data)
+        else:
+            counter_data = None
+
+        return cls(
+            meter_id=entry.meter_id,
+            index=index,
+            config=config,
+            counter_data=counter_data,
+        )
+
 
 @decodable(p4r.Entity, "direct_meter_entry")
 @dataclass
 class P4DirectMeterEntry(_Writable):
     "Represents a P4Runtime DirectMeterEntry."
+
+    table_entry: P4TableEntry | None = None
+    _: KW_ONLY
+    config: P4MeterConfig | None = None
+    counter_data: P4MeterCounterData | None = None
+
+    def encode(self, schema: P4Schema) -> p4r.Entity:
+        "Encode P4DirectMeterEntry as protobuf."
+
+        if self.table_entry is not None:
+            table_entry = self.table_entry.encode_entry(schema)
+        else:
+            table_entry = p4r.TableEntry()
+
+        if self.config is not None:
+            config = self.config.encode()
+        else:
+            config = None
+
+        if self.counter_data is not None:
+            counter_data = self.counter_data.encode()
+        else:
+            counter_data = None
+
+        entry = p4r.DirectMeterEntry(
+            table_entry=table_entry,
+            config=config,
+            counter_data=counter_data,
+        )
+        return p4r.Entity(direct_meter_entry=entry)
+
+    @classmethod
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+        "Decode protobuf to P4DirectMeterEntry."
+
+        entry = msg.direct_meter_entry
+        table_entry = P4TableEntry.decode_entry(entry.table_entry, schema)
+
+        if entry.HasField("config"):
+            config = P4MeterConfig.decode(entry.config)
+        else:
+            config = None
+
+        if entry.HasField("counter_data"):
+            counter_data = P4MeterCounterData.decode(entry.counter_data)
+        else:
+            counter_data = None
+
+        return cls(
+            table_entry=table_entry,
+            config=config,
+            counter_data=counter_data,
+        )
 
 
 @decodable(p4r.Entity, "counter_entry")
