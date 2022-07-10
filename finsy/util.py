@@ -15,11 +15,12 @@
 # limitations under the License.
 
 import asyncio
+from typing import Any, Callable
 
 from finsy.log import LOGGER, TRACE
 
 
-def _create_future() -> asyncio.Future:
+def _create_future() -> asyncio.Future[Any]:
     "Create a new Future."
     return asyncio.get_running_loop().create_future()
 
@@ -42,7 +43,7 @@ class CountdownFuture:
     function, then wait for the countdown to fully finish.
     """
 
-    _future: asyncio.Future | None = None
+    _future: asyncio.Future[int] | None = None
     _counter: int = 0
 
     def increment(self) -> None:
@@ -61,7 +62,10 @@ class CountdownFuture:
             self._future.set_result(1)
 
     @TRACE
-    async def wait(self, on_cancel=None) -> None:
+    async def wait(
+        self,
+        on_cancel: Callable[[], None] | None = None,
+    ) -> None:
         "Wait for the countdown to finish."
         if self._counter <= 0:
             raise ValueError("CountdownFuture is already <= zero.")

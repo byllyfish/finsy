@@ -37,7 +37,7 @@ class Arbitrator:
     primary_id: int = _NOT_ASSIGNED
     role: p4r.Role | None = None
 
-    def __init__(self, initial_election_id):
+    def __init__(self, initial_election_id: int):
         self.initial_election_id = initial_election_id
         self.election_id = initial_election_id
 

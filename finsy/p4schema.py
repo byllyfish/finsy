@@ -941,7 +941,7 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
     def metadata(self):
         return self._metadata
 
-    def encode(self, metadata: dict) -> list[p4r.PacketMetadata]:
+    def encode(self, metadata: dict[str, Any]) -> list[p4r.PacketMetadata]:
         "Encode python dict as protobuf `metadata`."
         result = []
 
@@ -966,7 +966,7 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
             seen.remove(mdata.name)
         raise ValueError(f"{self.name!r}: extra parameters {seen!r}")
 
-    def decode(self, metadata: Sequence[p4r.PacketMetadata]) -> dict:
+    def decode(self, metadata: Sequence[p4r.PacketMetadata]) -> dict[str, Any]:
         "Convert protobuf `metadata` to a python dict."
         result = {}
         for field in metadata:
@@ -1103,7 +1103,7 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
     def members(self) -> dict[str, P4BitsType]:
         return self._members
 
-    def encode_data(self, value: dict) -> p4d.P4Data:
+    def encode_data(self, value: dict[str, Any]) -> p4d.P4Data:
         # TODO: Handle valid but memberless header?
         if not value:
             return p4d.P4Data(header=p4d.P4Header(is_valid=False))
@@ -1111,7 +1111,7 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
         bitstrings = [typ.encode_bytes(value[key]) for key, typ in self.members.items()]
         return p4d.P4Data(header=p4d.P4Header(is_valid=True, bitstrings=bitstrings))
 
-    def decode_data(self, data: p4d.P4Data) -> dict:
+    def decode_data(self, data: p4d.P4Data) -> dict[str, Any]:
         # TODO: Handle valid but memberless header?
         header = data.header
 
@@ -1225,11 +1225,11 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
     def members(self) -> dict[str, "_P4Type"]:
         return self._members
 
-    def encode_data(self, value: dict) -> p4d.P4Data:
+    def encode_data(self, value: dict[str, Any]) -> p4d.P4Data:
         members = [typ.encode_data(value[key]) for key, typ in self.members.items()]
         return p4d.P4Data(struct=p4d.P4StructLike(members=members))
 
-    def decode_data(self, data: p4d.P4Data) -> dict:
+    def decode_data(self, data: p4d.P4Data) -> dict[str, Any]:
         struct = data.struct
         if len(struct.members) != len(self.members):
             raise ValueError(f"invalid struct size: {struct!r}")

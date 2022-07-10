@@ -27,7 +27,7 @@ import re
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import AsyncIterator, Callable, SupportsBytes
+from typing import Any, AsyncIterator, Awaitable, Callable, SupportsBytes
 
 import grpc
 import pyee
@@ -74,9 +74,9 @@ class SwitchOptions:
     device_id: int = 1
     initial_election_id: int = 10
     credentials: grpc.ChannelCredentials | None = None
-    ready_handler: Callable | None = None
+    ready_handler: Callable[["Switch"], Awaitable[None]] | None = None
 
-    def __call__(self, **kwds):
+    def __call__(self, **kwds: Any):
         return dataclasses.replace(self, **kwds)
 
 
@@ -93,14 +93,14 @@ class Switch:
     _p4client: P4Client | None
     _p4schema: P4Schema
     _tasks: "SwitchTasks | None"
-    _queues: dict[str, asyncio.Queue]
+    _queues: dict[str, asyncio.Queue[Any]]
     _arbitrator: "Arbitrator"
     _gnmi_client: gNMIClient | None
     _ports: PortList
     _is_channel_up: bool = False
     _api_version: _ApiVersion = (1, 0, 0)
 
-    control_task: asyncio.Task | None = None
+    control_task: asyncio.Task[Any] | None = None
     "Used by Controller to track switch's main task."
 
     ee: "SwitchEmitter"
@@ -136,7 +136,7 @@ class Switch:
         return self._options
 
     @options.setter
-    def options(self, opts):
+    def options(self, opts: SwitchOptions):
         if self._p4client is not None:
             raise RuntimeError("Cannot change switch options while client is open.")
 
@@ -184,18 +184,18 @@ class Switch:
     def packet_iterator(
         self,
         *,
-        size=_DEFAULT_QUEUE_SIZE,
+        size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4PacketIn"]:
         return self._queue_iter("packet", size)
 
     def digest_iterator(
         self,
         *,
-        size=_DEFAULT_QUEUE_SIZE,
+        size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4DigestList"]:
         return self._queue_iter("digest", size)
 
-    async def _queue_iter(self, name, size):
+    async def _queue_iter(self, name: str, size: int):
         if name in self._queues:
             raise RuntimeError(f"iterator {name!r} already open")
 
@@ -239,7 +239,13 @@ class Switch:
         await self._tasks.wait()
         self._arbitrator.reset()
 
-    def create_task(self, coro, *, background=False, name=None):
+    def create_task(
+        self,
+        coro: Awaitable[Any],
+        *,
+        background: bool = False,
+        name: str | None = None,
+    ) -> asyncio.Task:
         assert self._tasks is not None
 
         return self._tasks.create_task(
@@ -667,7 +673,7 @@ class SwitchEmitter(pyee.EventEmitter):
 class SwitchTasks:
     "Manage a set of related tasks."
 
-    _tasks: set[asyncio.Task]
+    _tasks: set[asyncio.Task[Any]]
     _task_count: CountdownFuture
 
     def __init__(self):
@@ -689,7 +695,7 @@ class SwitchTasks:
 
         return task
 
-    def _task_done(self, done: asyncio.Task):
+    def _task_done(self, done: asyncio.Task[Any]):
         "Called when a task finishes."
         self._tasks.remove(done)
         self._task_count.decrement()

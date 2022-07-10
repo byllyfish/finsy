@@ -46,7 +46,7 @@ def from_text(data: str, msg_class: Type[_MT]) -> _MT:
     return msg
 
 
-def from_dict(value: dict, msg_class: Type[_MT]) -> _MT:
+def from_dict(value: dict[str, int | str], msg_class: Type[_MT]) -> _MT:
     "Convert Python dict to protobuf message."
     return json_format.ParseDict(value, msg_class())
 
@@ -74,13 +74,13 @@ def to_json(msg: PBMessage) -> str:
     return json_format.MessageToJson(msg, preserving_proto_field_name=True)
 
 
-def to_dict(msg: PBMessage) -> dict:
+def to_dict(msg: PBMessage) -> dict[str, int | str]:
     "Convert protobuf message to Python dict."
     assert isinstance(msg, PBMessage), f"not a Message: {msg!r}"
     return json_format.MessageToDict(msg, preserving_proto_field_name=True)
 
 
-def _message_formatter(msg, _indent, _as_one_line):
+def _message_formatter(msg: PBMessage, _indent: int, _as_one_line: bool):
     if isinstance(msg, p4r.ForwardingPipelineConfig):
         return f"📦[p4cookie=0x{msg.cookie.cookie:x}]"
     if isinstance(msg, gnmi.Path):
@@ -146,7 +146,7 @@ def _log_annotate(text: str, schema: "finsy.P4Schema") -> str:
     action_id = 0
     table_id = 0
 
-    def _replace(m):
+    def _replace(m: re.Match[str]) -> str:
         nonlocal action_id, table_id
 
         key, value = m.groups()

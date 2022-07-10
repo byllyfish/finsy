@@ -19,6 +19,7 @@ import logging
 import os
 import sys
 from functools import wraps
+from typing import TYPE_CHECKING, TypeAlias
 
 
 def get_setting(name: str, default: str = "") -> bool:
@@ -33,7 +34,14 @@ FINSY_DEBUG = get_setting("FINSY_DEBUG")
 FINSY_TRANSLATE_LOGS = get_setting("FINSY_TRANSLATE_LOGS", "true")
 
 
-class _CustomAdapter(logging.LoggerAdapter):
+if TYPE_CHECKING:
+    _LoggerAdapter: TypeAlias = logging.LoggerAdapter[logging.Logger]
+else:
+    # LoggerAdapter will be generic at runtime in Python 3.11.
+    _LoggerAdapter: TypeAlias = logging.LoggerAdapter
+
+
+class _CustomAdapter(_LoggerAdapter):
     """Custom log adapter to include the name of the current task."""
 
     def process(self, msg, kwargs):
