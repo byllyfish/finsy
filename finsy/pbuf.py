@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import re
-from typing import Any, Type, TypeVar
+from typing import Type, TypeVar
 
 import grpc
 from google.protobuf import json_format, text_format
