@@ -80,7 +80,7 @@ def to_dict(msg: PBMessage) -> dict[str, int | str]:
     return json_format.MessageToDict(msg, preserving_proto_field_name=True)
 
 
-def _message_formatter(msg, _indent, _as_one_line):
+def _message_formatter(msg: PBMessage, _indent: int, _as_one_line: bool):
     if isinstance(msg, p4r.ForwardingPipelineConfig):
         return f"📦[p4cookie=0x{msg.cookie.cookie:x}]"
     if isinstance(msg, gnmi.Path):
@@ -146,7 +146,7 @@ def _log_annotate(text: str, schema: "finsy.P4Schema") -> str:
     action_id = 0
     table_id = 0
 
-    def _replace(m):
+    def _replace(m: re.Match[str]) -> str:
         nonlocal action_id, table_id
 
         key, value = m.groups()

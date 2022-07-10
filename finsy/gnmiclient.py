@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import asyncio
-from typing import AsyncIterator, Iterable
+from typing import Any, AsyncIterator, Iterable
 
 import grpc
 
@@ -100,7 +100,7 @@ class gNMIClient:
         await self.open()
         return self
 
-    async def __aexit__(self, *_args):
+    async def __aexit__(self, *_args: Any):
         await self.close()
 
     @TRACE
@@ -218,7 +218,7 @@ class gNMIClient:
         self.log_msg(reply)
         return reply
 
-    def log_msg(self, msg):
+    def log_msg(self, msg: "pbuf.PBMessage"):
         assert self._channel is not None
         pbuf.log_msg(self._channel.get_state(), msg, None)
 

@@ -76,7 +76,7 @@ class SwitchOptions:
     credentials: grpc.ChannelCredentials | None = None
     ready_handler: Callable[["Switch"], Awaitable[None]] | None = None
 
-    def __call__(self, **kwds):
+    def __call__(self, **kwds: Any):
         return dataclasses.replace(self, **kwds)
 
 
@@ -136,7 +136,7 @@ class Switch:
         return self._options
 
     @options.setter
-    def options(self, opts):
+    def options(self, opts: SwitchOptions):
         if self._p4client is not None:
             raise RuntimeError("Cannot change switch options while client is open.")
 
@@ -184,18 +184,18 @@ class Switch:
     def packet_iterator(
         self,
         *,
-        size=_DEFAULT_QUEUE_SIZE,
+        size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4PacketIn"]:
         return self._queue_iter("packet", size)
 
     def digest_iterator(
         self,
         *,
-        size=_DEFAULT_QUEUE_SIZE,
+        size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4DigestList"]:
         return self._queue_iter("digest", size)
 
-    async def _queue_iter(self, name, size):
+    async def _queue_iter(self, name: str, size: int):
         if name in self._queues:
             raise RuntimeError(f"iterator {name!r} already open")
 
@@ -239,7 +239,13 @@ class Switch:
         await self._tasks.wait()
         self._arbitrator.reset()
 
-    def create_task(self, coro, *, background=False, name=None):
+    def create_task(
+        self,
+        coro: Awaitable[Any],
+        *,
+        background: bool = False,
+        name: str | None = None,
+    ) -> asyncio.Task:
         assert self._tasks is not None
 
         return self._tasks.create_task(

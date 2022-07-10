@@ -16,7 +16,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import AsyncIterator, Callable, Sequence, TypeAlias, overload
+from typing import Any, AsyncIterator, Callable, Sequence, TypeAlias, overload
 
 import grpc
 
@@ -190,7 +190,7 @@ class P4ClientError(Exception):
     def __str__(self) -> str:
         if self.details:
 
-            def _indent(value):
+            def _indent(value: P4SubError):
                 s = repr(value).replace("\n}\n)", "\n})")  # tidy multiline repr
                 return s.replace("\n", "\n" + " " * 6)
 
@@ -248,7 +248,7 @@ class P4Client:
         await self.open()
         return self
 
-    async def __aexit__(self, *args):
+    async def __aexit__(self, *args: Any):
         await self.close()
 
     @TRACE

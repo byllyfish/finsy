@@ -139,7 +139,7 @@ _REPLACE_ESCAPES = re.compile(rb"\\x[0-9a-fA-F]{2}|\\t")
 def _escape(value: str, chars: str) -> str:
     "Backslash escape the specified characters in value"
 
-    def _replace(m):
+    def _replace(m: re.Match[bytes]) -> bytes:
         s = m.group(0)
         if s[0:2] == rb"\t":
             return rb"\u0009"
