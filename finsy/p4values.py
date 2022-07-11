@@ -14,28 +14,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 from typing import Literal, SupportsInt
 
 from macaddress import MAC as MACAddress
 
-_DecodeHint = Literal["ip", "mac"] | None  # FIXME: use enum
+
+class DecodeHint(enum.Enum):
+    "Indicate how to decode values."
+
+    DEFAULT = enum.auto()
+    ADDRESS = enum.auto()
+
 
 _ExactValue = SupportsInt | str | bytes
 _ExactReturn = int | IPv4Address | IPv6Address | MACAddress
 
 _LPMValue = str | IPv4Network | IPv6Network | tuple[_ExactValue, int]
-_LPMReturn = IPv4Network | IPv6Network | tuple[_ExactReturn, int]
+_LPMReturn = tuple[_ExactReturn, int]
 
-_TernaryValue = str | tuple[_ExactValue, _ExactValue]
+_TernaryValue = str | IPv4Network | IPv6Network | tuple[_ExactValue, _ExactValue]
 _TernaryReturn = tuple[_ExactReturn, _ExactReturn]
 
-_OptionalValue = _ExactValue | None
-_OptionalReturn = _ExactReturn | None
+_RangeValue = str | tuple[_ExactValue, _ExactValue]
+_RangeReturn = tuple[_ExactReturn, _ExactReturn]
 
 
 def p4r_minimum_string_size(bitwidth: int) -> int:
     "P4Runtime `minimum_string_size` function (P4R-Spec section 8.4)"
+
     if bitwidth <= 0:
         raise ValueError(f"invalid bitwidth: {bitwidth}")
     return (bitwidth + 7) // 8
@@ -44,6 +52,7 @@ def p4r_minimum_string_size(bitwidth: int) -> int:
 def p4r_truncate(value: bytes, signed: bool = False) -> bytes:
     "Truncate a bytes value to the specified bitwidth."
     assert not signed, "TODO: signed not yet supported"
+
     result = value.lstrip(b"\x00")
     return result if result else b"\x00"
 
@@ -78,6 +87,8 @@ def _parse_int(value: SupportsInt) -> int:
 
 def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
     "Encode an exact field value into a byte encoding."
+    assert value is not None
+
     if isinstance(value, bytes):
         return p4r_truncate(value)
 
@@ -99,7 +110,7 @@ def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
 def decode_exact(
     data: bytes,
     bitwidth: int,
-    hint: _DecodeHint = None,
+    hint: DecodeHint = DecodeHint.DEFAULT,
 ) -> _ExactReturn:
     """Decode a P4R value into an integer or address."""
     if not data:
@@ -110,20 +121,23 @@ def decode_exact(
         raise OverflowError(f"invalid value for bitwidth {bitwidth}: {data!r}")
 
     match hint:
-        case None:
+        case DecodeHint.DEFAULT:
             return ival
-        case "ip":
-            if bitwidth > 32:
-                return IPv6Address(ival)
-            return IPv4Address(ival)
-        case "mac":
+        case DecodeHint.ADDRESS if bitwidth == 128:
+            return IPv6Address(ival)
+        case DecodeHint.ADDRESS if bitwidth == 48:
             return MACAddress(ival)
-        case other:
-            raise ValueError(f"invalid hint: {other!r}")
+        case DecodeHint.ADDRESS if bitwidth == 32:
+            return IPv4Address(ival)
+        case DecodeHint.ADDRESS:
+            return ival
+
+    raise ValueError(f"invalid hint: {hint!r}")
 
 
 def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
     "Encode a string value into a P4R LPM value."
+    assert value is not None
 
     if isinstance(value, (IPv4Network, IPv6Network)):
         if bitwidth != value.max_prefixlen:
@@ -158,41 +172,63 @@ def decode_lpm(
     data: bytes,
     prefix_len: int,
     bitwidth: int,
-    hint: _DecodeHint = None,
+    hint: DecodeHint = DecodeHint.DEFAULT,
 ) -> _LPMReturn:
     "Decode a P4R Value into an integer or address."
-    addr = decode_exact(data, bitwidth, hint)
-    if isinstance(addr, IPv4Address):
-        return IPv4Network((addr, prefix_len))
-    if isinstance(addr, IPv6Address):
-        return IPv6Network((addr, prefix_len))
-    return (addr, prefix_len)
+
+    return (decode_exact(data, bitwidth, hint), prefix_len)
 
 
 def encode_ternary(value: _TernaryValue, bitwidth: int) -> tuple[bytes, bytes]:
-    "TODO: Not implemented yet."
-    raise NotImplementedError("TODO")
+    "Encode a value into a P4R ternary value."
+    assert value is not None
+
+    if isinstance(value, (IPv4Network, IPv6Network)):
+        val, mask = int(value.network_address), int(value.netmask)
+    else:
+        match value:
+            case str(val):
+                val, mask = val.split("/", 1)
+            case (val, mask):
+                pass
+            case other:
+                raise ValueError(f"unexpected value: {other!r}")
+
+    return (encode_exact(val, bitwidth), encode_exact(mask, bitwidth))
 
 
 def decode_ternary(
     data: bytes,
     mask: bytes,
     bitwidth: int,
-    hint: _DecodeHint = None,
+    hint: DecodeHint = DecodeHint.DEFAULT,
 ) -> _TernaryReturn:
-    "TODO: Not implemented yet."
-    raise NotImplementedError("TODO")
+    "Decode a P4R Ternary value."
+
+    return (decode_exact(data, bitwidth, hint), decode_exact(mask, bitwidth, hint))
 
 
-def encode_optional(value: _OptionalValue, bitwidth: int) -> bytes:
-    "TODO: Not implemented yet."
-    raise NotImplementedError("TODO")
+def encode_range(value: _RangeValue, bitwidth: int) -> tuple[bytes, bytes]:
+    "Encode a P4R Range value."
+    assert value is not None
+
+    match value:
+        case str(val):
+            low, high = val.split("...", 1)
+        case (low, high):
+            pass
+        case other:
+            raise ValueError(f"unexpected value: {other!r}")
+
+    return (encode_exact(low, bitwidth), encode_exact(high, bitwidth))
 
 
-def decode_optional(
-    data: bytes,
+def decode_range(
+    low: bytes,
+    high: bytes,
     bitwidth: int,
-    hint: _DecodeHint = None,
-) -> _OptionalReturn:
-    "TODO: Not implemented yet."
-    raise NotImplementedError("TODO")
+    hint: DecodeHint = DecodeHint.DEFAULT,
+) -> _RangeReturn:
+    "Decode a P4R Range value."
+
+    return (decode_exact(low, bitwidth, hint), decode_exact(high, bitwidth, hint))
