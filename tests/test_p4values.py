@@ -234,16 +234,21 @@ def test_encode_lpm_fail():
     with pytest.raises(ValueError, match="unexpected type"):
         p4values.encode_lpm(1 + 2j, 32)  # type: ignore
 
+    with pytest.raises(ValueError, match="invalid prefix for bitwidth"):
+        p4values.encode_lpm((1, 32), 8)
+
 
 def test_decode_lpm():
     "Test the decode_lpm function."
 
-    assert p4values.decode_lpm(
-        b"\xc0\xa8\x01\x00", 24, 32, DecodeHint.ADDRESS
-    ) == IPv4Network("192.168.1.0/24")
-    assert p4values.decode_lpm(
-        b"\xc0\xa8\x01\x01", 32, 32, DecodeHint.ADDRESS
-    ) == IPv4Network("192.168.1.1/32")
+    assert p4values.decode_lpm(b"\xc0\xa8\x01\x00", 24, 32, DecodeHint.ADDRESS) == (
+        IP("192.168.1.0"),
+        24,
+    )
+    assert p4values.decode_lpm(b"\xc0\xa8\x01\x01", 32, 32, DecodeHint.ADDRESS) == (
+        IP("192.168.1.1"),
+        32,
+    )
 
 
 def test_encode_ternary():

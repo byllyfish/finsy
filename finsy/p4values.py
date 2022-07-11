@@ -32,7 +32,7 @@ _ExactValue = SupportsInt | str | bytes
 _ExactReturn = int | IPv4Address | IPv6Address | MACAddress
 
 _LPMValue = str | IPv4Network | IPv6Network | tuple[_ExactValue, int]
-_LPMReturn = IPv4Network | IPv6Network | tuple[_ExactReturn, int]
+_LPMReturn = tuple[_ExactReturn, int]
 
 _TernaryValue = str | IPv4Network | IPv6Network | tuple[_ExactValue, _ExactValue]
 _TernaryReturn = tuple[_ExactReturn, _ExactReturn]
@@ -175,14 +175,8 @@ def decode_lpm(
     hint: DecodeHint = DecodeHint.DEFAULT,
 ) -> _LPMReturn:
     "Decode a P4R Value into an integer or address."
-    addr = decode_exact(data, bitwidth, hint)
 
-    if isinstance(addr, IPv4Address):
-        return IPv4Network((addr, prefix_len))
-    if isinstance(addr, IPv6Address):
-        return IPv6Network((addr, prefix_len))
-
-    return (addr, prefix_len)
+    return (decode_exact(data, bitwidth, hint), prefix_len)
 
 
 def encode_ternary(value: _TernaryValue, bitwidth: int) -> tuple[bytes, bytes]:
