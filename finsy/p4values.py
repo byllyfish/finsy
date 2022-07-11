@@ -30,12 +30,16 @@ _LPMReturn = IPv4Network | IPv6Network | tuple[_ExactReturn, int]
 _TernaryValue = str | tuple[_ExactValue, _ExactValue]
 _TernaryReturn = tuple[_ExactReturn, _ExactReturn]
 
+_RangeValue = str | tuple[_ExactValue, _ExactValue]
+_RangeReturn = tuple[_ExactReturn, _ExactReturn]
+
 _OptionalValue = _ExactValue | None
 _OptionalReturn = _ExactReturn | None
 
 
 def p4r_minimum_string_size(bitwidth: int) -> int:
     "P4Runtime `minimum_string_size` function (P4R-Spec section 8.4)"
+
     if bitwidth <= 0:
         raise ValueError(f"invalid bitwidth: {bitwidth}")
     return (bitwidth + 7) // 8
@@ -44,6 +48,7 @@ def p4r_minimum_string_size(bitwidth: int) -> int:
 def p4r_truncate(value: bytes, signed: bool = False) -> bytes:
     "Truncate a bytes value to the specified bitwidth."
     assert not signed, "TODO: signed not yet supported"
+
     result = value.lstrip(b"\x00")
     return result if result else b"\x00"
 
@@ -162,16 +167,30 @@ def decode_lpm(
 ) -> _LPMReturn:
     "Decode a P4R Value into an integer or address."
     addr = decode_exact(data, bitwidth, hint)
+
     if isinstance(addr, IPv4Address):
         return IPv4Network((addr, prefix_len))
     if isinstance(addr, IPv6Address):
         return IPv6Network((addr, prefix_len))
+
     return (addr, prefix_len)
 
 
 def encode_ternary(value: _TernaryValue, bitwidth: int) -> tuple[bytes, bytes]:
-    "TODO: Not implemented yet."
-    raise NotImplementedError("TODO")
+    "Encode a value into a P4R ternary value."
+
+    if isinstance(value, (IPv4Network, IPv6Network)):
+        val, mask = int(value.network_address), int(value.netmask)
+    else:
+        match value:
+            case str(val):
+                val, mask = val.split("/", 1)
+            case (val, mask):
+                pass
+            case other:
+                raise ValueError(f"unexpected value: {other!r}")
+
+    return (encode_exact(val, bitwidth), encode_exact(mask, bitwidth))
 
 
 def decode_ternary(
@@ -180,8 +199,37 @@ def decode_ternary(
     bitwidth: int,
     hint: _DecodeHint = None,
 ) -> _TernaryReturn:
-    "TODO: Not implemented yet."
-    raise NotImplementedError("TODO")
+    "Decode a P4R Ternary value."
+
+    addr = decode_exact(data, bitwidth, hint)
+    mask = decode_exact(mask, bitwidth, hint)
+
+    return (addr, mask)
+
+
+def encode_range(value: _RangeValue, bitwidth: int) -> tuple[bytes, bytes]:
+    "Encode a P4R Range value."
+
+    match value:
+        case str(val):
+            low, high = val.split("-", 1)
+        case (low, high):
+            pass
+        case other:
+            raise ValueError(f"unexpected value: {other!r}")
+
+    return (encode_exact(low, bitwidth), encode_exact(high, bitwidth))
+
+
+def decode_range(
+    low: bytes,
+    high: bytes,
+    bitwidth: int,
+    hint: _DecodeHint = None,
+) -> _RangeReturn:
+    "Decode a P4R Range value."
+
+    return (decode_exact(low, bitwidth, hint), decode_exact(high, bitwidth, hint))
 
 
 def encode_optional(value: _OptionalValue, bitwidth: int) -> bytes:

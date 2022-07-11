@@ -207,3 +207,84 @@ def test_decode_lpm():
     assert p4values.decode_lpm(b"\xc0\xa8\x01\x01", 32, 32, "ip") == IPv4Network(
         "192.168.1.1/32"
     )
+
+
+def test_encode_ternary():
+    "Test the encode_ternary function."
+
+    assert p4values.encode_ternary((1, 1), 32) == (b"\x01", b"\x01")
+    assert p4values.encode_ternary("192.168.1.1/255.255.255.0", 32) == (
+        b"\xc0\xa8\x01\x01",
+        b"\xff\xff\xff\x00",
+    )
+
+    # FIXME: This does not do what you think it should?
+    assert p4values.encode_ternary("192.168.1.1/24", 32) == (
+        b"\xc0\xa8\x01\x01",
+        b"\x18",
+    )
+
+    # FIXME: This does not do what you think it should?
+    assert p4values.encode_ternary("2000::1/64", 128) == (
+        b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01",
+        b"\x40",
+    )
+
+    assert p4values.encode_ternary(IPv4Network("10.0.0.0/24"), 32) == (
+        b"\x0A\x00\x00\x00",
+        b"\xff\xff\xff\x00",
+    )
+
+    assert p4values.encode_ternary(IPv6Network("2000::/64"), 128) == (
+        b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00",
+    )
+
+
+def test_decode_ternary():
+    "Test the decode_ternary function."
+
+    assert p4values.decode_ternary(b"\x01", b"\x01", 32) == (1, 1)
+    assert p4values.decode_ternary(b"\xc0\xa8\x01\x01", b"\xff\xff\xff\x00", 32) == (
+        3232235777,
+        4294967040,
+    )
+
+
+def test_decode_ternary_ip():
+    "Test the decode_ternary function."
+
+    assert p4values.decode_ternary(b"\x01", b"\x01", 32, "ip") == (
+        IP("0.0.0.1"),
+        IP("0.0.0.1"),
+    )
+    assert p4values.decode_ternary(
+        b"\xc0\xa8\x01\x01", b"\xff\xff\xff\x00", 32, "ip"
+    ) == (IP("192.168.1.1"), IP("255.255.255.0"))
+
+    assert p4values.decode_ternary(
+        b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00",
+        128,
+        "ip",
+    ) == (IP("2000::"), IP("ffff:ffff:ffff:ffff::"))
+
+
+def test_encode_range():
+    "Test the encode_range function."
+
+    assert p4values.encode_range((1, 2), 32) == (b"\x01", b"\x02")
+    assert p4values.encode_range("1-2", 32) == (b"\x01", b"\x02")
+    assert p4values.encode_range((IP("1.2.3.4"), IP("1.2.3.5")), 32) == (
+        b"\x01\x02\x03\x04",
+        b"\x01\x02\x03\x05",
+    )
+
+
+def test_decode_range():
+    "Test the decode_range function."
+
+    assert p4values.decode_range(b"\x01", b"\x02", 32) == (1, 2)
+    assert p4values.decode_range(
+        b"\x01\x02\x03\x04", b"\x01\x02\x03\x05", 32, "ip"
+    ) == (IP("1.2.3.4"), IP("1.2.3.5"))
