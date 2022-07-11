@@ -42,6 +42,7 @@ def test_encode_exact():
     # Misc
     assert p4values.encode_exact(127, 7) == b"\x7F"
     assert p4values.encode_exact(4095, 12) == b"\x0f\xff"
+    assert p4values.encode_exact(b"\x00\x00\x01", 4) == b"\x01"
 
     # Allow non-fractional float values.
     assert p4values.encode_exact(1.11e3, 12) == b"\x04\x56"
@@ -73,6 +74,9 @@ def test_encode_exact_fail():
 
     with pytest.raises(ValueError, match="fractional float value"):
         p4values.encode_exact(11.1, 32)
+
+    with pytest.raises(ValueError, match="invalid value type"):
+        p4values.encode_exact(1 + 2j, 32)  # type: ignore
 
 
 def test_encode_exact_ip():
@@ -132,6 +136,8 @@ def test_decode_exact_int():
     assert p4values.decode_exact(b"\x00\xFF", 32) == 255
     assert p4values.decode_exact(b"\x01\x00", 32) == 256
 
+    assert p4values.decode_exact(b"\x01", 8, DecodeHint.ADDRESS) == 1
+
 
 def test_decode_exact_mac():
     "Test the decode_exact function with a 'mac' hint."
@@ -182,6 +188,9 @@ def test_decode_exact_fail():
     with pytest.raises(OverflowError):
         p4values.decode_exact(b"\x01\x00", 8)
 
+    with pytest.raises(ValueError, match="invalid hint"):
+        p4values.decode_exact(b"\x01", 8, "x")  # type: ignore
+
 
 def test_encode_lpm():
     "Test the encode_lpm function."
@@ -211,6 +220,19 @@ def test_encode_lpm():
         b"\x20" + b"\x00" * 15,
         64,
     )
+
+
+def test_encode_lpm_fail():
+    "Test the encode_lpm function."
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth 16"):
+        p4values.encode_lpm(IPv4Network("10.0.0.0/8"), 16)
+
+    with pytest.raises(ValueError, match="invalid tuple value"):
+        p4values.encode_lpm((1, 2, 3), 32)  # type: ignore
+
+    with pytest.raises(ValueError, match="unexpected type"):
+        p4values.encode_lpm(1 + 2j, 32)  # type: ignore
 
 
 def test_decode_lpm():
@@ -256,6 +278,13 @@ def test_encode_ternary():
     )
 
 
+def test_encode_ternary_fail():
+    "Test the encode_ternary function."
+
+    with pytest.raises(ValueError, match="unexpected value"):
+        p4values.encode_ternary(1 + 2j, 32)  # type: ignore
+
+
 def test_decode_ternary():
     "Test the decode_ternary function."
 
@@ -294,6 +323,13 @@ def test_encode_range():
         b"\x01\x02\x03\x04",
         b"\x01\x02\x03\x05",
     )
+
+
+def test_encode_range_fail():
+    "Test the encode_range function."
+
+    with pytest.raises(ValueError, match="unexpected value"):
+        p4values.encode_range(1 + 2j, 32)  # type: ignore
 
 
 def test_decode_range():
