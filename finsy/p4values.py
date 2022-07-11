@@ -214,7 +214,7 @@ def encode_range(value: _RangeValue, bitwidth: int) -> tuple[bytes, bytes]:
 
     match value:
         case str(val):
-            low, high = val.split("-", 1)
+            low, high = val.split("...", 1)
         case (low, high):
             pass
         case other:

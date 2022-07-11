@@ -323,7 +323,7 @@ def test_encode_range():
     "Test the encode_range function."
 
     assert p4values.encode_range((1, 2), 32) == (b"\x01", b"\x02")
-    assert p4values.encode_range("1-2", 32) == (b"\x01", b"\x02")
+    assert p4values.encode_range("1 ... 2", 32) == (b"\x01", b"\x02")
     assert p4values.encode_range((IP("1.2.3.4"), IP("1.2.3.5")), 32) == (
         b"\x01\x02\x03\x04",
         b"\x01\x02\x03\x05",
