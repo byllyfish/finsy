@@ -180,7 +180,9 @@ class P4TableMatch(dict[str, Any]):
 
         for key, value in self.items():
             try:
-                result.append(match_fields[key].encode(value))
+                field = match_fields[key].encode(value)
+                if field is not None:
+                    result.append(field)
             except Exception as ex:
                 raise ValueError(f"{table.name!r}: Match field {key!r}: {ex}") from ex
 

@@ -32,7 +32,8 @@ asyncio_mode = "auto"
 addopts = '--log-cli-format="%(created).03f %(levelname)s %(name)s %(message)s" --log-cli-level=DEBUG --log-file-format="%(created).03f %(levelname)s %(name)s %(message)s"'
 
 [tool.pyright]
-ignore = ["finsy/proto/**/*_pb2.py", "finsy/proto/**/*_pb2_grpc.py", "tests/test_*.py"]
+ignore = ["finsy/proto/**/*_pb2.py", "finsy/proto/**/*_pb2_grpc.py"]
+#, "tests/test_*.py"]
 #reportMissingParameterType = true
 #reportMissingTypeArgument = true
 

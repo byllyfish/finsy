@@ -3,6 +3,7 @@ from ipaddress import ip_address as IP
 
 import pytest
 from finsy import p4values
+from finsy.p4values import DecodeHint
 from macaddress import MAC
 
 
@@ -135,27 +136,41 @@ def test_decode_exact_int():
 def test_decode_exact_mac():
     "Test the decode_exact function with a 'mac' hint."
 
-    assert p4values.decode_exact(b"\x00", 48, "mac") == MAC("00-00-00-00-00-00")
-    assert p4values.decode_exact(b"\x00\x00\x00", 48, "mac") == MAC("00-00-00-00-00-00")
-    assert p4values.decode_exact(b"\x01", 48, "mac") == MAC("00-00-00-00-00-01")
-    assert p4values.decode_exact(b"\xFF", 48, "mac") == MAC("00-00-00-00-00-FF")
-    assert p4values.decode_exact(b"\x00\xFF", 48, "mac") == MAC("00-00-00-00-00-FF")
-    assert p4values.decode_exact(b"\x01\x00", 48, "mac") == MAC("00-00-00-00-01-00")
+    assert p4values.decode_exact(b"\x00", 48, DecodeHint.ADDRESS) == MAC(
+        "00-00-00-00-00-00"
+    )
+    assert p4values.decode_exact(b"\x00\x00\x00", 48, DecodeHint.ADDRESS) == MAC(
+        "00-00-00-00-00-00"
+    )
+    assert p4values.decode_exact(b"\x01", 48, DecodeHint.ADDRESS) == MAC(
+        "00-00-00-00-00-01"
+    )
+    assert p4values.decode_exact(b"\xFF", 48, DecodeHint.ADDRESS) == MAC(
+        "00-00-00-00-00-FF"
+    )
+    assert p4values.decode_exact(b"\x00\xFF", 48, DecodeHint.ADDRESS) == MAC(
+        "00-00-00-00-00-FF"
+    )
+    assert p4values.decode_exact(b"\x01\x00", 48, DecodeHint.ADDRESS) == MAC(
+        "00-00-00-00-01-00"
+    )
 
 
 def test_decode_exact_ip():
     "Test the decode_exact function with an 'ip' hint."
 
-    assert p4values.decode_exact(b"\x00", 32, "ip") == IP("0.0.0.0")
-    assert p4values.decode_exact(b"\x00\x00\x00", 32, "ip") == IP("0.0.0.0")
-    assert p4values.decode_exact(b"\x01", 32, "ip") == IP("0.0.0.1")
-    assert p4values.decode_exact(b"\xFF", 32, "ip") == IP("0.0.0.255")
-    assert p4values.decode_exact(b"\x00\xFF", 32, "ip") == IP("0.0.0.255")
-    assert p4values.decode_exact(b"\x01\x00", 32, "ip") == IP("0.0.1.0")
+    assert p4values.decode_exact(b"\x00", 32, DecodeHint.ADDRESS) == IP("0.0.0.0")
+    assert p4values.decode_exact(b"\x00\x00\x00", 32, DecodeHint.ADDRESS) == IP(
+        "0.0.0.0"
+    )
+    assert p4values.decode_exact(b"\x01", 32, DecodeHint.ADDRESS) == IP("0.0.0.1")
+    assert p4values.decode_exact(b"\xFF", 32, DecodeHint.ADDRESS) == IP("0.0.0.255")
+    assert p4values.decode_exact(b"\x00\xFF", 32, DecodeHint.ADDRESS) == IP("0.0.0.255")
+    assert p4values.decode_exact(b"\x01\x00", 32, DecodeHint.ADDRESS) == IP("0.0.1.0")
 
     _IPV6 = b"\x20" + b"\x00" * 14 + b"\x01"
-    assert p4values.decode_exact(_IPV6, 128, "ip") == IP("2000::1")
-    assert p4values.decode_exact(b"\x01", 128, "ip") == IP("::1")
+    assert p4values.decode_exact(_IPV6, 128, DecodeHint.ADDRESS) == IP("2000::1")
+    assert p4values.decode_exact(b"\x01", 128, DecodeHint.ADDRESS) == IP("::1")
 
 
 def test_decode_exact_fail():
@@ -201,12 +216,12 @@ def test_encode_lpm():
 def test_decode_lpm():
     "Test the decode_lpm function."
 
-    assert p4values.decode_lpm(b"\xc0\xa8\x01\x00", 24, 32, "ip") == IPv4Network(
-        "192.168.1.0/24"
-    )
-    assert p4values.decode_lpm(b"\xc0\xa8\x01\x01", 32, 32, "ip") == IPv4Network(
-        "192.168.1.1/32"
-    )
+    assert p4values.decode_lpm(
+        b"\xc0\xa8\x01\x00", 24, 32, DecodeHint.ADDRESS
+    ) == IPv4Network("192.168.1.0/24")
+    assert p4values.decode_lpm(
+        b"\xc0\xa8\x01\x01", 32, 32, DecodeHint.ADDRESS
+    ) == IPv4Network("192.168.1.1/32")
 
 
 def test_encode_ternary():
@@ -254,19 +269,19 @@ def test_decode_ternary():
 def test_decode_ternary_ip():
     "Test the decode_ternary function."
 
-    assert p4values.decode_ternary(b"\x01", b"\x01", 32, "ip") == (
+    assert p4values.decode_ternary(b"\x01", b"\x01", 32, DecodeHint.ADDRESS) == (
         IP("0.0.0.1"),
         IP("0.0.0.1"),
     )
     assert p4values.decode_ternary(
-        b"\xc0\xa8\x01\x01", b"\xff\xff\xff\x00", 32, "ip"
+        b"\xc0\xa8\x01\x01", b"\xff\xff\xff\x00", 32, DecodeHint.ADDRESS
     ) == (IP("192.168.1.1"), IP("255.255.255.0"))
 
     assert p4values.decode_ternary(
         b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
         b"\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00",
         128,
-        "ip",
+        DecodeHint.ADDRESS,
     ) == (IP("2000::"), IP("ffff:ffff:ffff:ffff::"))
 
 
@@ -286,5 +301,5 @@ def test_decode_range():
 
     assert p4values.decode_range(b"\x01", b"\x02", 32) == (1, 2)
     assert p4values.decode_range(
-        b"\x01\x02\x03\x04", b"\x01\x02\x03\x05", 32, "ip"
+        b"\x01\x02\x03\x04", b"\x01\x02\x03\x05", 32, DecodeHint.ADDRESS
     ) == (IP("1.2.3.4"), IP("1.2.3.5"))

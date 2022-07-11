@@ -884,8 +884,9 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
         assert which_one == "other_match_type"
         return self.pbuf.other_match_type
 
-    def encode(self, value) -> p4r.FieldMatch:
+    def encode(self, value) -> p4r.FieldMatch | None:
         "Encode value as protobuf type."
+
         match self.match_type:
             case P4MatchType.EXACT:
                 data = p4values.encode_exact(value, self.bitwidth)
@@ -906,7 +907,9 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
                     ternary=p4r.FieldMatch.Ternary(value=data, mask=mask),
                 )
             case P4MatchType.OPTIONAL:
-                data = p4values.encode_optional(value, self.bitwidth)
+                if value is None:
+                    return None
+                data = p4values.encode_exact(value, self.bitwidth)
                 return p4r.FieldMatch(
                     field_id=self.id,
                     optional=p4r.FieldMatch.Optional(value=data),
@@ -924,6 +927,17 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
                 return p4values.decode_lpm(
                     field.lpm.value, field.lpm.prefix_len, self.bitwidth
                 )
+            case "ternary":
+                return p4values.decode_ternary(
+                    field.ternary.value, field.ternary.mask, self.bitwidth
+                )
+            case "range":
+                return p4values.decode_range(
+                    field.range.low, field.range.high, self.bitwidth
+                )
+            case "optional":
+                # Decode "optional" as exact value, if field is present.
+                return p4values.decode_exact(field.exact.value, self.bitwidth)
             case other:
                 raise ValueError(f"Unsupported match_type: {other!r}")
 
