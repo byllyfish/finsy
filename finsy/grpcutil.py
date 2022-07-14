@@ -20,7 +20,7 @@ import enum
 from dataclasses import dataclass
 from typing import Sequence
 
-import grpc
+import grpc  # pyright: ignore [reportMissingTypeStubs]
 from typing_extensions import Self
 
 from finsy.log import LOGGER
@@ -68,7 +68,7 @@ class GRPCStatusCode(_EnumBase):
 
 
 # Check GRPCStatusCode against grpc.StatusCode.
-GRPCStatusCode._validate_enum()
+GRPCStatusCode._validate_enum()  # pyright: ignore [reportPrivateUsage]
 
 
 class GRPCArg(str, enum.Enum):
@@ -90,7 +90,7 @@ class GRPCOptions:
     max_reconnect_backoff_ms: int | None = None
 
     def args(self) -> Sequence[tuple[str, int]]:
-        results = []
+        results: list[tuple[str, int]] = []
 
         if self.max_metadata_size is not None:
             results.append((GRPCArg.MAX_METADATA_SIZE, self.max_metadata_size))

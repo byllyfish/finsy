@@ -30,7 +30,7 @@ from pathlib import Path
 from types import TracebackType
 from typing import Any, AsyncIterator, Callable, Coroutine, SupportsBytes, TypeVar
 
-import grpc  # pyright: ignore
+import grpc  # pyright: ignore [reportMissingTypeStubs]
 import pyee
 
 from finsy import p4entity

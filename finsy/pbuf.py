@@ -17,7 +17,7 @@
 import re
 from typing import TypeVar
 
-import grpc
+import grpc  # pyright: ignore [reportMissingTypeStubs]
 from google.protobuf import json_format, text_format
 from google.protobuf.any_pb2 import Any as _Any  # pylint: disable=E0611
 from google.protobuf.message import Message as _Message
@@ -167,6 +167,8 @@ def _log_annotate(text: str, schema: "finsy.P4Schema") -> str:
                 case "param_id":
                     name = schema.actions[action_id].params[int(value)].name
                 # TODO: Annotate more identifier types.
+                case _:
+                    pass
 
         except (LookupError, ValueError):
             # If there is a failure, don't replace anything.

@@ -33,7 +33,7 @@ addopts = '--log-cli-format="%(created).03f %(levelname)s %(name)s %(message)s" 
 
 [tool.pyright]
 ignore = ["finsy/proto/**/*_pb2.py", "finsy/proto/**/*_pb2_grpc.py"]
-strict = ["examples/**/*.py", "finsy/switch.py"]
+strict = ["examples/**/*.py", "finsy/p4values.py", "finsy/pbuf.py", "finsy/util.py", "finsy/log.py", "finsy/grpcutil.py"]
 
 #, "tests/test_*.py"]
 #reportMissingParameterType = true

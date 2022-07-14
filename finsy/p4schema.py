@@ -203,7 +203,7 @@ class _P4AnnoMixin:
     """
 
     def __init__(self, pbuf):
-        super().__init__(pbuf)  # pyright: ignore
+        super().__init__(pbuf)
         self._annotations = _parse_annotations(pbuf)
 
     @property
