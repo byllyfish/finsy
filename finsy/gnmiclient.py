@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import asyncio
-from typing import Any, AsyncIterator, Iterable
+from typing import Any, AsyncIterator, Sequence
 
 import grpc
 
@@ -145,7 +145,7 @@ class gNMIClient:
         *path: gNMIPath,
         prefix: gNMIPath | None = None,
         config: bool = False,
-    ) -> Iterable[gnmi.Notification]:
+    ) -> Sequence[gnmi.Notification]:
         "Retrieve value(s) using a GetRequest."
         assert self._stub is not None
 

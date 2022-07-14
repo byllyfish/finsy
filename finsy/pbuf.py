@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import re
-from typing import Type, TypeVar
+from typing import TypeVar
 
 import grpc
 from google.protobuf import json_format, text_format
@@ -33,7 +33,7 @@ PBMessage = _Message
 _MT = TypeVar("_MT", bound=PBMessage)
 
 
-def from_text(data: str, msg_class: Type[_MT]) -> _MT:
+def from_text(data: str, msg_class: type[_MT]) -> _MT:
     "Read protobuf message from given text/json string."
     assert isinstance(data, str)
 
@@ -46,7 +46,7 @@ def from_text(data: str, msg_class: Type[_MT]) -> _MT:
     return msg
 
 
-def from_dict(value: dict[str, int | str], msg_class: Type[_MT]) -> _MT:
+def from_dict(value: dict[str, int | str], msg_class: type[_MT]) -> _MT:
     "Convert Python dict to protobuf message."
     return json_format.ParseDict(value, msg_class())
 

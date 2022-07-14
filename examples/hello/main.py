@@ -47,7 +47,7 @@ class HelloWorldApp:
             )
 
     @staticmethod
-    def _learn(addr, port):
+    def _learn(addr: bytes, port: int):
         return fy.P4TableEntry(
             "ipv4",
             match=fy.P4TableMatch(ipv4_dst=addr),

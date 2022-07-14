@@ -27,9 +27,10 @@ import re
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, AsyncIterator, Awaitable, Callable, SupportsBytes
+from types import TracebackType
+from typing import Any, AsyncIterator, Callable, Coroutine, SupportsBytes, TypeVar
 
-import grpc
+import grpc  # pyright: ignore
 import pyee
 
 from finsy import p4entity
@@ -54,6 +55,8 @@ _FAIL_THROTTLE_SECS = 10.0
 
 _ApiVersion = tuple[int, int, int]
 
+_T = TypeVar("_T")
+
 
 @dataclasses.dataclass(frozen=True)
 class SwitchOptions:
@@ -74,7 +77,7 @@ class SwitchOptions:
     device_id: int = 1
     initial_election_id: int = 10
     credentials: grpc.ChannelCredentials | None = None
-    ready_handler: Callable[["Switch"], Awaitable[None]] | None = None
+    ready_handler: Callable[["Switch"], Coroutine[Any, Any, None]] | None = None
 
     def __call__(self, **kwds: Any):
         return dataclasses.replace(self, **kwds)
@@ -195,12 +198,12 @@ class Switch:
     ) -> AsyncIterator["p4entity.P4DigestList"]:
         return self._queue_iter("digest", size)
 
-    async def _queue_iter(self, name: str, size: int):
+    async def _queue_iter(self, name: str, size: int) -> AsyncIterator[Any]:
         if name in self._queues:
             raise RuntimeError(f"iterator {name!r} already open")
 
         LOGGER.debug("_queue_iter: opening queue %r", name)
-        queue = asyncio.Queue(size)
+        queue = asyncio.Queue[Any](size)
         self._queues[name] = queue
 
         try:
@@ -241,11 +244,11 @@ class Switch:
 
     def create_task(
         self,
-        coro: Awaitable[Any],
+        coro: Coroutine[Any, Any, _T],
         *,
         background: bool = False,
         name: str | None = None,
-    ) -> asyncio.Task:
+    ) -> asyncio.Task[_T]:
         assert self._tasks is not None
 
         return self._tasks.create_task(
@@ -327,12 +330,17 @@ class Switch:
             # Wait for CHANNEL_READY event from the switch.
             await self.ee.wait_for_event(SwitchEvent.CHANNEL_READY)
         except BaseException:
-            await self.__aexit__()
+            await self.__aexit__(None, None, None)
             raise
 
         return self
 
-    async def __aexit__(self, *args):
+    async def __aexit__(
+        self,
+        _exc_type: type[BaseException] | None,
+        _exc_val: BaseException | None,
+        _exc_tb: TracebackType | None,
+    ) -> None:
         "Similar to run() but provides a one-time context manager interface."
         assert self._p4client is not None
         assert self._tasks is not None
@@ -648,7 +656,7 @@ class SwitchEvent(str, enum.Enum):
 
 
 class SwitchEmitter(pyee.EventEmitter):
-    def __init__(self, switch):
+    def __init__(self, switch: Switch):
         super().__init__()
         self._switch = switch
 
@@ -662,7 +670,7 @@ class SwitchEmitter(pyee.EventEmitter):
             if asyncio.iscoroutine(coro):
                 self._switch.create_task(coro)
 
-    async def wait_for_event(self, event):
+    async def wait_for_event(self, event: SwitchEvent):
         "Wait for a specific event."
 
         ready = asyncio.Event()
@@ -680,7 +688,14 @@ class SwitchTasks:
         self._tasks = set()
         self._task_count = CountdownFuture()
 
-    def create_task(self, coro, *, switch, background, name=None):
+    def create_task(
+        self,
+        coro: Coroutine[Any, Any, _T],
+        *,
+        switch: Switch,
+        background: bool,
+        name: str | None = None,
+    ) -> asyncio.Task[_T]:
         "Create a new task managed by switch."
         if name is None:
             name = coro.__name__

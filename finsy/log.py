@@ -19,7 +19,7 @@ import logging
 import os
 import sys
 from functools import wraps
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Any, MutableMapping, TypeAlias
 
 
 def get_setting(name: str, default: str = "") -> bool:
@@ -44,7 +44,9 @@ else:
 class _CustomAdapter(_LoggerAdapter):
     """Custom log adapter to include the name of the current task."""
 
-    def process(self, msg, kwargs):
+    def process(
+        self, msg: Any, kwargs: MutableMapping[str, Any]
+    ) -> tuple[Any, MutableMapping[str, Any]]:
         task_name = ""
         try:
             # current_task() will raise a RuntimeError if there is no running
@@ -87,7 +89,7 @@ def _trace(func):
     return _wrapper
 
 
-def _trace_noop(func):
+def _trace_noop(func: Any) -> Any:
     return func
 
 

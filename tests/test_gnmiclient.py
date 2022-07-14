@@ -4,13 +4,13 @@ import pytest
 from finsy.gnmiclient import gNMIClient, gNMIPath
 
 
-async def test_gnmi_get_top(gnmi_client):
+async def test_gnmi_get_top(gnmi_client: gNMIClient):
     # Stratum only supports config elements.
     result = await gnmi_client.get(gNMIPath("/"), config=True)
     assert len(result) == 1
 
 
-async def test_gnmi_get_interfaces(gnmi_client):
+async def test_gnmi_get_interfaces(gnmi_client: gNMIClient):
     interfaces = gNMIPath("interfaces/interface")
     result = await gnmi_client.get(interfaces)
 
@@ -19,7 +19,7 @@ async def test_gnmi_get_interfaces(gnmi_client):
             assert gNMIPath(update.path).first == "interfaces"
 
 
-async def test_gnmi_get_ifstuff(gnmi_client):
+async def test_gnmi_get_ifstuff(gnmi_client: gNMIClient):
     ifindex = gNMIPath("interfaces/interface[name=*]/state/ifindex")
     state_id = gNMIPath("interfaces/interface[name=*]/state/id")
 
@@ -30,7 +30,7 @@ async def test_gnmi_get_ifstuff(gnmi_client):
             assert gNMIPath(update.path).last in ("ifindex", "id")
 
 
-async def test_gnmi_subscribe_once(gnmi_client):
+async def test_gnmi_subscribe_once(gnmi_client: gNMIClient):
     interfaces = await _get_interfaces(gnmi_client)
 
     oper_status = gNMIPath("interfaces/interface/state/oper-status")
@@ -44,7 +44,7 @@ async def test_gnmi_subscribe_once(gnmi_client):
     assert sub._stream is None
 
 
-async def test_gnmi_subscribe_on_change(gnmi_client):
+async def test_gnmi_subscribe_on_change(gnmi_client: gNMIClient):
     interfaces = await _get_interfaces(gnmi_client)
 
     oper_status = gNMIPath("interfaces/interface/state/oper-status")
@@ -84,16 +84,16 @@ async def test_gnmi_subscribe_sample(gnmi_client: gNMIClient):
         await asyncio.wait_for(_read_stream(), 1.0)
 
 
-async def test_gnmi_capabilities(gnmi_client):
+async def test_gnmi_capabilities(gnmi_client: gNMIClient):
     result = await gnmi_client.capabilities()
     assert result.gNMI_version[:2] in ("0.", "1.")
 
 
-async def _get_interfaces(client):
+async def _get_interfaces(gnmi_client: gNMIClient):
     ifindex = gNMIPath("interfaces/interface/state/ifindex")
     expected_last = ifindex.last
 
-    result = await client.get(ifindex.key("interface", name="*"))
+    result = await gnmi_client.get(ifindex.key("interface", name="*"))
 
     interfaces = {}
     for notification in result:
