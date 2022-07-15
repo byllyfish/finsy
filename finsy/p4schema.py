@@ -776,7 +776,7 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
 
     # TODO: type_name property
 
-    def encode(self, value) -> p4r.Action.Param:
+    def encode(self, value: p4values.P4ParamValue) -> p4r.Action.Param:
         "Encode `param` to protobuf."
         return p4r.Action.Param(
             param_id=self.id,
@@ -884,7 +884,7 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
         assert which_one == "other_match_type"
         return self.pbuf.other_match_type
 
-    def encode(self, value) -> p4r.FieldMatch | None:
+    def encode(self, value: p4values.P4FieldValue) -> p4r.FieldMatch | None:
         "Encode value as protobuf type."
 
         match self.match_type:
