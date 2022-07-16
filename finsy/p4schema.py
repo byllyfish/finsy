@@ -1184,11 +1184,12 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
             # No union members are valid.
             return p4d.P4HeaderUnion()
 
-        header_name, header = next(value.items())
+        header_name, header = next(iter(value.items()))
+        header_type = self.members[header_name]
 
         return p4d.P4HeaderUnion(
             valid_header_name=header_name,
-            valid_header=self.members[header_name].encode_header(header),
+            valid_header=header_type.encode_header(header),
         )
 
     def decode_data(self, data: p4d.P4Data) -> _HeaderUnionValue:
@@ -1205,12 +1206,12 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
         return {header_name: header}
 
 
-class P4HeaderStackType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderStackTypeSpec]):
+class P4HeaderStackType(_P4Bridged[p4t.P4HeaderStackTypeSpec]):
     "Represents P4HeaderStackTypeSpec."
 
     _header: P4HeaderType
 
-    def __init__(self, pbuf, type_info: P4TypeInfo):
+    def __init__(self, pbuf: p4t.P4HeaderStackTypeSpec, type_info: P4TypeInfo):
         super().__init__(pbuf)
         self._header = type_info.headers[self.pbuf.header.name]
 
@@ -1231,12 +1232,12 @@ class P4HeaderStackType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderStackTypeSpec]):
         return [self.header.decode_header(header) for header in entries]
 
 
-class P4HeaderUnionStackType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
+class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
     "Represents P4HeaderUnionStackTypeSpec."
 
     _header_union: P4HeaderUnionType
 
-    def __init__(self, pbuf, type_info: P4TypeInfo):
+    def __init__(self, pbuf: p4t.P4HeaderUnionStackTypeSpec, type_info: P4TypeInfo):
         super().__init__(pbuf)
         self._header_union = type_info.header_unions[self.pbuf.header_union.name]
 
@@ -1294,7 +1295,7 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
         return result
 
 
-class P4TupleType(_P4AnnoMixin, _P4Bridged[p4t.P4TupleTypeSpec]):
+class P4TupleType(_P4Bridged[p4t.P4TupleTypeSpec]):
     "Represents P4TupleTypeSpec."
 
     _members: list["_P4Type"]
@@ -1311,7 +1312,7 @@ class P4TupleType(_P4AnnoMixin, _P4Bridged[p4t.P4TupleTypeSpec]):
 
     def encode_data(self, value: tuple[Any]) -> p4d.P4Data:
         members = [typ.encode_data(value[i]) for i, typ in enumerate(self.members)]
-        return p4d.P4Data(tuple=members)
+        return p4d.P4Data(tuple=p4d.P4StructLike(members=members))
 
     def decode_data(self, data: p4d.P4Data) -> tuple[Any]:
         tuple_ = data.tuple
