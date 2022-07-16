@@ -4,7 +4,16 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
-from finsy.p4schema import P4EntityMap, P4MatchType, P4Schema
+from finsy import pbuf
+from finsy.p4schema import (
+    P4BitsType,
+    P4BoolType,
+    P4EntityMap,
+    P4HeaderType,
+    P4MatchType,
+    P4Schema,
+)
+from finsy.proto import p4t
 
 P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
 
@@ -170,3 +179,93 @@ def test_p4info_lookup():
         match="no P4Register named 'bloom'. Did you mean 'counter_bloom_filter'?",
     ):
         schema.registers["bloom"]
+
+
+def test_p4bitstype():
+    "Test P4BitsType."
+
+    bit_like = p4t.P4BitstringLikeTypeSpec(
+        bit=p4t.P4BitTypeSpec(
+            bitwidth=8,
+        )
+    )
+
+    bits = P4BitsType(bit_like)
+    assert bits.bitwidth == 8
+    assert not bits.signed and not bits.varbit
+
+    assert bits.encode_bytes(0) == b"\x00"
+    assert bits.decode_bytes(b"\x00") == 0
+
+    assert bits.encode_bytes(255) == b"\xFF"
+    assert bits.decode_bytes(b"\xFF") == 255
+
+    data = bits.encode_data(0)
+    assert pbuf.to_dict(data) == {"bitstring": "AA=="}
+    assert bits.decode_data(data) == 0
+
+    data = bits.encode_data(255)
+    assert pbuf.to_dict(data) == {"bitstring": "/w=="}
+    assert bits.decode_data(data) == 255
+
+    # Test invalid data value.
+    with pytest.raises(OverflowError, match="invalid value for bitwidth 8"):
+        bits.encode_data(65535)
+
+
+def test_p4booltype():
+    "Test P4BoolType."
+
+    bool_type = P4BoolType(p4t.P4BoolType())
+
+    data = bool_type.encode_data(True)
+    assert pbuf.to_dict(data) == {"bool": True}
+    assert bool_type.decode_data(data) == True
+
+    data = bool_type.encode_data(False)
+    assert pbuf.to_dict(data) == {"bool": False}
+    assert bool_type.decode_data(data) == False
+
+
+def test_p4headertype():
+    "Test P4HeaderType."
+
+    bits_spec = p4t.P4BitstringLikeTypeSpec(
+        bit=p4t.P4BitTypeSpec(
+            bitwidth=8,
+        )
+    )
+
+    header_spec = p4t.P4HeaderTypeSpec(
+        members=[
+            p4t.P4HeaderTypeSpec.Member(
+                name="a",
+                type_spec=bits_spec,
+            ),
+        ]
+    )
+
+    header = P4HeaderType(header_spec)
+
+    # Test valid header.
+    data = header.encode_data({"a": 0})
+    assert pbuf.to_dict(data) == {
+        "header": {
+            "bitstrings": ["AA=="],
+            "is_valid": True,
+        }
+    }
+    assert header.decode_data(data) == {"a": 0}
+
+    # Test !is_valid header.
+    data = header.encode_data({})
+    assert pbuf.to_dict(data) == {"header": {}}
+    assert header.decode_data(data) == {}
+
+    # Test header with missing field name.
+    with pytest.raises(KeyError, match="a"):  # FIXME: better error message
+        header.encode_data({"b": 0})
+
+    # Test header with extra field "b".
+    data = header.encode_data({"a": 0, "b": 1})  # FIXME: should error!
+    assert pbuf.to_dict(data) == {"header": {"bitstrings": ["AA=="], "is_valid": True}}
