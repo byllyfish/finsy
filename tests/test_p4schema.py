@@ -9,9 +9,15 @@ from finsy.p4schema import (
     P4BitsType,
     P4BoolType,
     P4EntityMap,
+    P4HeaderStackType,
     P4HeaderType,
+    P4HeaderUnionStackType,
+    P4HeaderUnionType,
     P4MatchType,
     P4Schema,
+    P4StructType,
+    P4TupleType,
+    P4TypeInfo,
 )
 from finsy.proto import p4t
 
@@ -181,16 +187,18 @@ def test_p4info_lookup():
         schema.registers["bloom"]
 
 
-def test_p4bitstype():
-    "Test P4BitsType."
-
-    bit_like = p4t.P4BitstringLikeTypeSpec(
+def _make_bitstring(bitwidth) -> p4t.P4BitstringLikeTypeSpec:
+    return p4t.P4BitstringLikeTypeSpec(
         bit=p4t.P4BitTypeSpec(
-            bitwidth=8,
+            bitwidth=bitwidth,
         )
     )
 
-    bits = P4BitsType(bit_like)
+
+def test_p4bitstype():
+    "Test P4BitsType."
+
+    bits = P4BitsType(_make_bitstring(8))
     assert bits.bitwidth == 8
     assert not bits.signed and not bits.varbit
 
@@ -220,31 +228,42 @@ def test_p4booltype():
 
     data = bool_type.encode_data(True)
     assert pbuf.to_dict(data) == {"bool": True}
-    assert bool_type.decode_data(data) == True
+    assert bool_type.decode_data(data) is True
 
     data = bool_type.encode_data(False)
     assert pbuf.to_dict(data) == {"bool": False}
-    assert bool_type.decode_data(data) == False
+    assert bool_type.decode_data(data) is False
+
+
+def _make_header_spec(*fields: str) -> p4t.P4HeaderTypeSpec:
+    "Define a new P4HeaderTypeSpec."
+
+    return p4t.P4HeaderTypeSpec(
+        members=[
+            p4t.P4HeaderTypeSpec.Member(name=field, type_spec=_make_bitstring(8))
+            for field in fields
+        ]
+    )
+
+
+def _make_header_union_spec(*headers: str) -> p4t.P4HeaderUnionTypeSpec:
+    "Define a new P4HeaderUnionTypeSpec."
+
+    return p4t.P4HeaderUnionTypeSpec(
+        members=[
+            p4t.P4HeaderUnionTypeSpec.Member(
+                name=name,
+                header=p4t.P4NamedType(name=name),
+            )
+            for name in headers
+        ]
+    )
 
 
 def test_p4headertype():
     "Test P4HeaderType."
 
-    bits_spec = p4t.P4BitstringLikeTypeSpec(
-        bit=p4t.P4BitTypeSpec(
-            bitwidth=8,
-        )
-    )
-
-    header_spec = p4t.P4HeaderTypeSpec(
-        members=[
-            p4t.P4HeaderTypeSpec.Member(
-                name="a",
-                type_spec=bits_spec,
-            ),
-        ]
-    )
-
+    header_spec = _make_header_spec("a")
     header = P4HeaderType(header_spec)
 
     # Test valid header.
@@ -269,3 +288,186 @@ def test_p4headertype():
     # Test header with extra field "b".
     data = header.encode_data({"a": 0, "b": 1})  # FIXME: should error!
     assert pbuf.to_dict(data) == {"header": {"bitstrings": ["AA=="], "is_valid": True}}
+
+
+def test_p4headeruniontype():
+    "Test P4HeaderUnionType."
+
+    headerA = _make_header_spec("a")
+    headerB = _make_header_spec("b")
+
+    p4types = p4t.P4TypeInfo(headers={"A": headerA, "B": headerB})
+    type_info = P4TypeInfo(p4types)
+
+    union_type = P4HeaderUnionType(_make_header_union_spec("A", "B"))
+    union_type._finish_init(type_info)
+
+    data = union_type.encode_union({"A": {"a": 0}})
+    assert pbuf.to_dict(data) == {
+        "valid_header": {"bitstrings": ["AA=="], "is_valid": True},
+        "valid_header_name": "A",
+    }
+    assert union_type.decode_union(data) == {"A": {"a": 0}}
+
+    data = union_type.encode_data({"A": {"a": 0}})
+    assert pbuf.to_dict(data) == {
+        "header_union": {
+            "valid_header": {"bitstrings": ["AA=="], "is_valid": True},
+            "valid_header_name": "A",
+        }
+    }
+    assert union_type.decode_data(data) == {"A": {"a": 0}}
+
+
+def test_p4headerstacktype():
+    "Test P4HeaderStackType."
+
+    headerA = _make_header_spec("a")
+    stack_type = p4t.P4HeaderStackTypeSpec(
+        header=p4t.P4NamedType(name="A"),
+        size=2,
+    )
+    p4types = p4t.P4TypeInfo(headers={"A": headerA})
+    type_info = P4TypeInfo(p4types)
+
+    stack_type = P4HeaderStackType(stack_type, type_info)
+
+    data = stack_type.encode_data([{"a": 1}, {"a": 2}])
+    assert pbuf.to_dict(data) == {
+        "header_stack": {
+            "entries": [
+                {"bitstrings": ["AQ=="], "is_valid": True},
+                {"bitstrings": ["Ag=="], "is_valid": True},
+            ]
+        }
+    }
+    assert stack_type.decode_data(data) == [{"a": 1}, {"a": 2}]
+
+    # FIXME: wrong number of headers SHOULD FAIL!
+    data = stack_type.encode_data([{"a": 3}])
+    assert pbuf.to_dict(data) == {
+        "header_stack": {
+            "entries": [
+                {"bitstrings": ["Aw=="], "is_valid": True},
+            ]
+        }
+    }
+    assert stack_type.decode_data(data) == [{"a": 3}]
+
+
+def test_p4headerunionstacktype():
+    "Test P4HeaderUnionStackType."
+
+    headerA = _make_header_spec("a")
+    headerB = _make_header_spec("b")
+    unionU = _make_header_union_spec("A", "B")
+
+    p4types = p4t.P4TypeInfo(
+        headers={"A": headerA, "B": headerB},
+        header_unions={"U": unionU},
+    )
+    type_info = P4TypeInfo(p4types)
+
+    union_stack = p4t.P4HeaderUnionStackTypeSpec(
+        header_union=p4t.P4NamedType(name="U"),
+        size=2,
+    )
+    stack = P4HeaderUnionStackType(union_stack, type_info)
+
+    data = stack.encode_data([{"A": {"a": 0}}, {"B": {"b": 1}}])
+    assert pbuf.to_dict(data) == {
+        "header_union_stack": {
+            "entries": [
+                {
+                    "valid_header": {"bitstrings": ["AA=="], "is_valid": True},
+                    "valid_header_name": "A",
+                },
+                {
+                    "valid_header": {"bitstrings": ["AQ=="], "is_valid": True},
+                    "valid_header_name": "B",
+                },
+            ]
+        }
+    }
+    assert stack.decode_data(data) == [{"A": {"a": 0}}, {"B": {"b": 1}}]
+
+
+def test_p4structtype():
+    "Test P4StructType."
+
+    bits_t = p4t.P4DataTypeSpec(bitstring=_make_bitstring(8))
+    header_t = p4t.P4DataTypeSpec(header=p4t.P4NamedType(name="H"))
+
+    struct_spec = p4t.P4StructTypeSpec(
+        members=[
+            p4t.P4StructTypeSpec.Member(name="a", type_spec=bits_t),
+            p4t.P4StructTypeSpec.Member(name="b", type_spec=header_t),
+        ]
+    )
+
+    type_info_t = p4t.P4TypeInfo(headers={"H": _make_header_spec("h")})
+    type_info = P4TypeInfo(type_info_t)
+
+    struct = P4StructType(struct_spec)
+    struct._finish_init(type_info)
+
+    data = struct.encode_data({"a": 1, "b": {"h": 2}})
+    assert pbuf.to_dict(data) == {
+        "struct": {
+            "members": [
+                {"bitstring": "AQ=="},
+                {"header": {"bitstrings": ["Ag=="], "is_valid": True}},
+            ]
+        }
+    }
+    assert struct.decode_data(data) == {"a": 1, "b": {"h": 2}}
+
+    with pytest.raises(KeyError, match="a"):  # FIXME: better error message
+        struct.encode_data({})
+
+    data = struct.encode_data({"a": 1, "b": {"h": 2}, "z": 10})  # FIXME: extra member
+    assert pbuf.to_dict(data) == {  # FIXME: should error!
+        "struct": {
+            "members": [
+                {"bitstring": "AQ=="},
+                {"header": {"bitstrings": ["Ag=="], "is_valid": True}},
+            ]
+        }
+    }
+
+
+def test_p4tupletype():
+    "Test P4TupleType."
+
+    bits_t = p4t.P4DataTypeSpec(bitstring=_make_bitstring(8))
+    header_t = p4t.P4DataTypeSpec(header=p4t.P4NamedType(name="H"))
+    struct_spec = p4t.P4TupleTypeSpec(members=[bits_t, header_t])
+
+    type_info_t = p4t.P4TypeInfo(headers={"H": _make_header_spec("h")})
+    type_info = P4TypeInfo(type_info_t)
+
+    tple = P4TupleType(struct_spec, type_info)
+
+    data = tple.encode_data((1, {"h": 2}))
+    assert pbuf.to_dict(data) == {
+        "tuple": {
+            "members": [
+                {"bitstring": "AQ=="},
+                {"header": {"bitstrings": ["Ag=="], "is_valid": True}},
+            ]
+        }
+    }
+    assert tple.decode_data(data) == (1, {"h": 2})
+
+    with pytest.raises(IndexError):  # FIXME: better error message
+        tple.encode_data(())
+
+    data = tple.encode_data((1, {"h": 2}, 3))  # FIXME: extra value
+    assert pbuf.to_dict(data) == {  # FIXME: should error!
+        "tuple": {
+            "members": [
+                {"bitstring": "AQ=="},
+                {"header": {"bitstrings": ["Ag=="], "is_valid": True}},
+            ]
+        }
+    }
