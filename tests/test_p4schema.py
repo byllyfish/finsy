@@ -281,13 +281,13 @@ def test_p4headertype():
     assert pbuf.to_dict(data) == {"header": {}}
     assert header.decode_data(data) == {}
 
-    # Test header with missing field name.
-    with pytest.raises(KeyError, match="a"):  # FIXME: better error message
+    # Test header with missing field "a".
+    with pytest.raises(ValueError, match="P4Header: missing field"):
         header.encode_data({"b": 0})
 
     # Test header with extra field "b".
-    data = header.encode_data({"a": 0, "b": 1})  # FIXME: should error!
-    assert pbuf.to_dict(data) == {"header": {"bitstrings": ["AA=="], "is_valid": True}}
+    with pytest.raises(ValueError, match="P4Header: extra parameters"):
+        header.encode_data({"a": 0, "b": 1})
 
 
 def test_p4headeruniontype():
@@ -318,6 +318,17 @@ def test_p4headeruniontype():
     }
     assert union_type.decode_data(data) == {"A": {"a": 0}}
 
+    # Empty union.
+    data = union_type.encode_data({})
+    assert pbuf.to_dict(data) == {"header_union": {}}
+    assert union_type.decode_data(data) == {}
+
+    with pytest.raises(ValueError, match="P4HeaderUnion: wrong header"):
+        union_type.encode_data({"C": {"a": 0}})
+
+    with pytest.raises(ValueError, match="P4HeaderUnion: too many headers"):
+        union_type.encode_data({"A": {"a": 0}, "B": {"b": 0}})
+
 
 def test_p4headerstacktype():
     "Test P4HeaderStackType."
@@ -343,16 +354,8 @@ def test_p4headerstacktype():
     }
     assert stack_type.decode_data(data) == [{"a": 1}, {"a": 2}]
 
-    # FIXME: wrong number of headers SHOULD FAIL!
-    data = stack_type.encode_data([{"a": 3}])
-    assert pbuf.to_dict(data) == {
-        "header_stack": {
-            "entries": [
-                {"bitstrings": ["Aw=="], "is_valid": True},
-            ]
-        }
-    }
-    assert stack_type.decode_data(data) == [{"a": 3}]
+    with pytest.raises(ValueError, match="P4HeaderStack: expected 2 items"):
+        stack_type.encode_data([{"a": 3}])
 
 
 def test_p4headerunionstacktype():
@@ -391,6 +394,9 @@ def test_p4headerunionstacktype():
     }
     assert stack.decode_data(data) == [{"A": {"a": 0}}, {"B": {"b": 1}}]
 
+    with pytest.raises(ValueError, match="P4HeaderUnionStack: expected 2 items"):
+        stack.encode_data([{"A": {"a": 0}}])
+
 
 def test_p4structtype():
     "Test P4StructType."
@@ -422,18 +428,11 @@ def test_p4structtype():
     }
     assert struct.decode_data(data) == {"a": 1, "b": {"h": 2}}
 
-    with pytest.raises(KeyError, match="a"):  # FIXME: better error message
+    with pytest.raises(ValueError, match="P4Struct: missing field"):
         struct.encode_data({})
 
-    data = struct.encode_data({"a": 1, "b": {"h": 2}, "z": 10})  # FIXME: extra member
-    assert pbuf.to_dict(data) == {  # FIXME: should error!
-        "struct": {
-            "members": [
-                {"bitstring": "AQ=="},
-                {"header": {"bitstrings": ["Ag=="], "is_valid": True}},
-            ]
-        }
-    }
+    with pytest.raises(ValueError, match="P4Struct: extra parameters {'z'}"):
+        struct.encode_data({"a": 1, "b": {"h": 2}, "z": 10})
 
 
 def test_p4tupletype():
@@ -459,15 +458,11 @@ def test_p4tupletype():
     }
     assert tple.decode_data(data) == (1, {"h": 2})
 
-    with pytest.raises(IndexError):  # FIXME: better error message
+    with pytest.raises(ValueError, match="P4Tuple: expected 2 items"):
         tple.encode_data(())
 
-    data = tple.encode_data((1, {"h": 2}, 3))  # FIXME: extra value
-    assert pbuf.to_dict(data) == {  # FIXME: should error!
-        "tuple": {
-            "members": [
-                {"bitstring": "AQ=="},
-                {"header": {"bitstrings": ["Ag=="], "is_valid": True}},
-            ]
-        }
-    }
+    with pytest.raises(ValueError, match="P4Tuple: expected 2 items"):
+        tple.encode_data((1, {"h": 2}, 3))
+
+    with pytest.raises(ValueError, match="invalid value type"):
+        tple.encode_data(({"h": 2}, 1))

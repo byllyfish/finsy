@@ -416,6 +416,8 @@ class _P4Defs:
 def _load_p4info(data: p4i.P4Info | Path | None) -> tuple[p4i.P4Info | None, _P4Defs]:
     "Load P4Info from cache if possible."
 
+    # FIXME: Actually implement a cache!?!
+
     if data is None:
         return None, _EMPTY_P4DEFS
 
@@ -969,16 +971,10 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
             result.append(mdata.encode(value))
 
         if len(metadata) > len(result):
-            self._report_extra_metadata(metadata)
+            seen = set(metadata.keys()) - set(mdata.name for mdata in self.metadata)
+            raise ValueError(f"{self.name!r}: extra parameters {seen!r}")
 
         return result
-
-    def _report_extra_metadata(self, metadata):
-        "Report metadata that contains extra values."
-        seen = set(metadata.keys())
-        for mdata in self.metadata:
-            seen.remove(mdata.name)
-        raise ValueError(f"{self.name!r}: extra parameters {seen!r}")
 
     def decode(self, metadata: Sequence[p4r.PacketMetadata]) -> dict[str, Any]:
         "Convert protobuf `metadata` to a python dict."
@@ -1125,7 +1121,17 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
         if not value:
             return p4d.P4Header(is_valid=False)
 
-        bitstrings = [typ.encode_bytes(value[key]) for key, typ in self.members.items()]
+        try:
+            bitstrings = [
+                typ.encode_bytes(value[key]) for key, typ in self.members.items()
+            ]
+        except KeyError as ex:
+            raise ValueError(f"P4Header: missing field {ex.args[0]!r}") from None
+
+        if len(value) > len(bitstrings):
+            seen = set(value.keys()) - set(self.members.keys())
+            raise ValueError(f"P4Header: extra parameters {seen!r}")
+
         return p4d.P4Header(is_valid=True, bitstrings=bitstrings)
 
     def decode_data(self, data: p4d.P4Data) -> dict[str, Any]:
@@ -1178,14 +1184,19 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
         return p4d.P4Data(header_union=self.encode_union(value))
 
     def encode_union(self, value: _HeaderUnionValue) -> p4d.P4HeaderUnion:
-        assert len(value) <= 1
+        if len(value) > 1:
+            raise ValueError(f"P4HeaderUnion: too many headers {value!r}")
 
         if not value:
             # No union members are valid.
             return p4d.P4HeaderUnion()
 
         header_name, header = next(iter(value.items()))
-        header_type = self.members[header_name]
+
+        try:
+            header_type = self.members[header_name]
+        except KeyError:
+            raise ValueError(f"P4HeaderUnion: wrong header {header_name!r}") from None
 
         return p4d.P4HeaderUnion(
             valid_header_name=header_name,
@@ -1224,6 +1235,9 @@ class P4HeaderStackType(_P4Bridged[p4t.P4HeaderStackTypeSpec]):
         return self.pbuf.size
 
     def encode_data(self, value: Sequence[dict[str, Any]]) -> p4d.P4Data:
+        if len(value) != self.size:
+            raise ValueError(f"P4HeaderStack: expected {self.size} items")
+
         entries = [self.header.encode_header(val) for val in value]
         return p4d.P4Data(header_stack=p4d.P4HeaderStack(entries=entries))
 
@@ -1250,6 +1264,9 @@ class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
         return self.pbuf.size
 
     def encode_data(self, value: Sequence[_HeaderUnionValue]) -> p4d.P4Data:
+        if len(value) != self.size:
+            raise ValueError(f"P4HeaderUnionStack: expected {self.size} items")
+
         entries = [self.header_union.encode_union(val) for val in value]
         return p4d.P4Data(header_union_stack=p4d.P4HeaderUnionStack(entries=entries))
 
@@ -1278,7 +1295,15 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
         return self._members
 
     def encode_data(self, value: dict[str, Any]) -> p4d.P4Data:
-        members = [typ.encode_data(value[key]) for key, typ in self.members.items()]
+        try:
+            members = [typ.encode_data(value[key]) for key, typ in self.members.items()]
+        except KeyError as ex:
+            raise ValueError(f"P4Struct: missing field {ex.args[0]!r}")
+
+        if len(value) > len(members):
+            seen = set(value.keys()) - set(self.members.keys())
+            raise ValueError(f"P4Struct: extra parameters {seen!r}")
+
         return p4d.P4Data(struct=p4d.P4StructLike(members=members))
 
     def decode_data(self, data: p4d.P4Data) -> dict[str, Any]:
@@ -1310,11 +1335,14 @@ class P4TupleType(_P4Bridged[p4t.P4TupleTypeSpec]):
     def members(self) -> list["_P4Type"]:
         return self._members
 
-    def encode_data(self, value: tuple[Any]) -> p4d.P4Data:
+    def encode_data(self, value: tuple[Any, ...]) -> p4d.P4Data:
+        if len(value) != len(self.members):
+            raise ValueError(f"P4Tuple: expected {len(self.members)} items")
+
         members = [typ.encode_data(value[i]) for i, typ in enumerate(self.members)]
         return p4d.P4Data(tuple=p4d.P4StructLike(members=members))
 
-    def decode_data(self, data: p4d.P4Data) -> tuple[Any]:
+    def decode_data(self, data: p4d.P4Data) -> tuple[Any, ...]:
         tuple_ = data.tuple
         if len(tuple_.members) != len(self.members):
             raise ValueError(f"invalid tuple size: {tuple_!r}")

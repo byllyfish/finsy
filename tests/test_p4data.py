@@ -65,5 +65,5 @@ def test_encode_struct2():
 def test_encode_struct_malformed():
     struct1 = SCHEMA.type_info.structs["S1"]
 
-    with pytest.raises(KeyError, match="c"):
+    with pytest.raises(ValueError, match="P4Struct: missing field 'c'"):
         struct1.encode_data({"a": 1, "b": 2, "z": 3})
