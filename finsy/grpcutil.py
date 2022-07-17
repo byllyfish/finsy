@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ("GRPCStatusCode",)
-
 import enum
 from dataclasses import dataclass
 from typing import Sequence
