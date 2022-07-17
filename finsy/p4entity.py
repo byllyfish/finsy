@@ -16,7 +16,7 @@
 
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
-from typing import Any, NoReturn, Sequence
+from typing import Any, Iterator, NoReturn, Protocol, Sequence
 
 from typing_extensions import Self
 
@@ -24,55 +24,69 @@ from finsy.log import LOGGER
 from finsy.p4schema import P4Action, P4ActionRef, P4Schema, P4Table, P4UpdateType
 from finsy.proto import p4r
 
-_DECODE_ENTITY = {}
-_DECODE_STREAM = {}
+
+class _SupportsDecode(Protocol):
+    # FIXME: This is a class method that returns an instance of that class.
+    def decode(self, msg: Any, schema: P4Schema) -> Any:
+        ...
 
 
-def decodable(msg_class, *keys: str):
-    "Decorator to specify the class used to decode various P4Runtime messages."
+class _SupportsEncodeEntity(Protocol):
+    def encode(self, schema: P4Schema) -> p4r.Entity:
+        ...
 
-    def _decorate(cls):
-        if msg_class is p4r.Entity:
-            table1 = _DECODE_ENTITY
-        elif msg_class is p4r.StreamMessageResponse:
-            table1 = _DECODE_STREAM
-        else:
-            raise ValueError(f"unexpected msg_class: {msg_class!r}")
 
-        match keys:
-            case (key1,):
-                table1[key1] = cls
-            case (key1, key2):
-                table2 = table1.setdefault(key1, {})
-                table2[key2] = cls
-            case _:
-                raise ValueError(f"unexpected keys: {keys!r}")
+class _SupportsEncodeUpdate(Protocol):
+    def encode_update(self, schema: P4Schema) -> p4r.Update | p4r.StreamMessageRequest:
+        ...
 
+
+_DECODER: dict[str, _SupportsDecode] = {}
+
+
+def decodable(key: str):
+    "Class decorator to specify the class used to decode P4Runtime messages."
+
+    def _decorate(cls: Any):
+        assert key not in _DECODER
+        _DECODER[key] = cls
         return cls
 
     return _decorate
 
 
 def decode_entity(msg: p4r.Entity, schema: P4Schema) -> Any:
+    "Decode a P4Runtime Entity to the Python class registered in _DECODER."
+
     key = msg.WhichOneof("entity")
     if key is None:
-        raise ValueError(f"unexpected entity: {msg!r}")
+        raise ValueError("missing entity")
 
-    cls = _DECODE_ENTITY[key]
-    if isinstance(cls, dict):
-        submsg = getattr(msg, key)
-        assert isinstance(submsg, p4r.PacketReplicationEngineEntry)
-        cls = cls[submsg.WhichOneof("type")]
-    return cls.decode(msg, schema)
+    if key == "packet_replication_engine_entry":
+        submsg = msg.packet_replication_engine_entry
+        key = submsg.WhichOneof("type")
+        if key is None:
+            raise ValueError("missing type")
+
+    return _DECODER[key].decode(msg, schema)
 
 
 def decode_stream(msg: p4r.StreamMessageResponse, schema: P4Schema) -> Any:
+    "Decode a StreamMessageResponse to the class registered in _DECODER."
+
     key = msg.WhichOneof("update")
-    cls = _DECODE_STREAM[key]
-    return cls.decode(msg, schema)
+    if key is None:
+        raise ValueError("missing update")
+
+    return _DECODER[key].decode(msg, schema)
 
 
-def _flatten(values):
+# Recursive typedefs.
+_EntityList = p4r.Entity | _SupportsEncodeEntity | Sequence["_EntityList"]
+_UpdateList = p4r.Update | p4r.StreamMessageRequest | Sequence["_UpdateList"]
+
+
+def _flatten(values: Any) -> Iterator[Any]:
     "Flatten lists and tuples."
     for val in values:
         if isinstance(val, collections.abc.Sequence):
@@ -81,19 +95,20 @@ def _flatten(values):
             yield val
 
 
-def _encode_entity(value, schema):
+def _encode_entity(
+    value: p4r.Entity | _SupportsEncodeEntity,
+    schema: P4Schema,
+) -> p4r.Entity:
     "Encode an entity, if necessary."
 
     if isinstance(value, p4r.Entity):
         return value
+
     return value.encode(schema)
 
 
-def encode_entities(values, schema: P4Schema) -> list[p4r.Entity]:
-    """Convert list of python objects to list of P4Runtime Entities.
-
-    Note: The list is flattened.
-    """
+def encode_entities(values: _EntityList, schema: P4Schema) -> list[p4r.Entity]:
+    """Convert list of python objects to list of P4Runtime Entities."""
 
     if not isinstance(values, collections.abc.Sequence):
         return [_encode_entity(values, schema)]
@@ -101,18 +116,23 @@ def encode_entities(values, schema: P4Schema) -> list[p4r.Entity]:
     return [_encode_entity(val, schema) for val in _flatten(values)]
 
 
-def _encode_update(value, schema):
+def _encode_update(
+    value: p4r.Update | p4r.StreamMessageRequest | _SupportsEncodeUpdate,
+    schema: P4Schema,
+) -> p4r.Update | p4r.StreamMessageRequest:
     "Encode an Update or outgoing message request, if necessary."
 
     if isinstance(value, (p4r.Update, p4r.StreamMessageRequest)):
         return value
+
     return value.encode_update(schema)
 
 
 def encode_updates(
-    values, schema: P4Schema
+    values: _UpdateList,
+    schema: P4Schema,
 ) -> list[p4r.Update | p4r.StreamMessageRequest]:
-    """Convert list of python objects to P4Runtime Update's or stream messages."""
+    """Convert list of python objects to P4Runtime Updates or request messages."""
 
     if not isinstance(values, collections.abc.Sequence):
         return [_encode_update(values, schema)]
@@ -175,7 +195,7 @@ class P4TableMatch(dict[str, Any]):
 
     def encode(self, table: P4Table) -> list[p4r.FieldMatch]:
         "Encode TableMatch data as protobuf."
-        result = []
+        result: list[p4r.FieldMatch] = []
         match_fields = table.match_fields
 
         for key, value in self.items():
@@ -211,7 +231,7 @@ class P4TableAction:
     name: str
     args: dict[str, Any]
 
-    def __init__(self, __name, /, **args):
+    def __init__(self, __name: str, /, **args: Any):
         self.name = __name
         self.args = args
 
@@ -245,7 +265,7 @@ class P4TableAction:
     def _encode_action(self, action: P4ActionRef | P4Action) -> p4r.Action:
         "Helper to encode an action."
 
-        params = []
+        params: list[p4r.Action.Param] = []
         for name, value in self.args.items():
             try:
                 param = action.params[name]
@@ -339,7 +359,7 @@ class P4MeterCounterData:
         )
 
 
-@decodable(p4r.Entity, "table_entry")
+@decodable("table_entry")
 @dataclass
 class P4TableEntry(_Writable):
     "Represents a P4Runtime TableEntry."
@@ -466,7 +486,7 @@ class P4TableEntry(_Writable):
         )
 
 
-@decodable(p4r.Entity, "register_entry")
+@decodable("register_entry")
 @dataclass
 class P4RegisterEntry(_Writable):
     "Represents a P4Runtime RegisterEntry."
@@ -528,7 +548,7 @@ class P4RegisterEntry(_Writable):
         )
 
 
-@decodable(p4r.Entity, "packet_replication_engine_entry", "multicast_group_entry")
+@decodable("multicast_group_entry")
 @dataclass
 class P4MulticastGroupEntry(_Writable):
     "Represents a P4Runtime MulticastGroupEntry."
@@ -561,7 +581,7 @@ class P4MulticastGroupEntry(_Writable):
         )
 
 
-@decodable(p4r.Entity, "packet_replication_engine_entry", "clone_session_entry")
+@decodable("clone_session_entry")
 @dataclass
 class P4CloneSessionEntry(_Writable):
     "Represents a P4Runtime CloneSessionEntry."
@@ -600,7 +620,7 @@ class P4CloneSessionEntry(_Writable):
         )
 
 
-@decodable(p4r.Entity, "digest_entry")
+@decodable("digest_entry")
 @dataclass
 class P4DigestEntry(_Writable):
     "Represents a P4Runtime DigestEntry."
@@ -642,7 +662,7 @@ class P4DigestEntry(_Writable):
         )
 
 
-@decodable(p4r.Entity, "action_profile_member")
+@decodable("action_profile_member")
 @dataclass
 class P4ActionProfileMember(_Writable):
     "Represents a P4Runtime ActionProfileMember."
@@ -734,7 +754,7 @@ class P4Member:
         return cls(member_id=msg.member_id, weight=weight)
 
 
-@decodable(p4r.Entity, "action_profile_group")
+@decodable("action_profile_group")
 @dataclass
 class P4ActionProfileGroup(_Writable):
     "Represents a P4Runtime ActionProfileGroup."
@@ -745,7 +765,7 @@ class P4ActionProfileGroup(_Writable):
     max_size: int = 0
     members: Sequence[P4Member] | None = None
 
-    def encode(self, schema: P4Schema) -> p4r.Entity:
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
         "Encode P4ActionProfileGroup as protobuf."
 
         if self.members is not None:
@@ -762,7 +782,7 @@ class P4ActionProfileGroup(_Writable):
         return p4r.Entity(action_profile_group=entry)
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
         "Decode protobuf to ActionProfileGroup data."
         entry = msg.action_profile_group
 
@@ -779,7 +799,7 @@ class P4ActionProfileGroup(_Writable):
         )
 
 
-@decodable(p4r.Entity, "meter_entry")
+@decodable("meter_entry")
 @dataclass
 class P4MeterEntry(_Writable):
     "Represents a P4Runtime MeterEntry."
@@ -790,7 +810,7 @@ class P4MeterEntry(_Writable):
     config: P4MeterConfig | None = None
     counter_data: P4MeterCounterData | None = None
 
-    def encode(self, schema: P4Schema) -> p4r.Entity:
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
         "Encode P4MeterEntry to protobuf."
 
         if self.index is not None:
@@ -817,7 +837,7 @@ class P4MeterEntry(_Writable):
         return p4r.Entity(meter_entry=entry)
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
         "Decode protobuf to P4MeterEntry."
 
         entry = msg.meter_entry
@@ -845,7 +865,7 @@ class P4MeterEntry(_Writable):
         )
 
 
-@decodable(p4r.Entity, "direct_meter_entry")
+@decodable("direct_meter_entry")
 @dataclass
 class P4DirectMeterEntry(_Writable):
     "Represents a P4Runtime DirectMeterEntry."
@@ -904,7 +924,7 @@ class P4DirectMeterEntry(_Writable):
         )
 
 
-@decodable(p4r.Entity, "counter_entry")
+@decodable("counter_entry")
 @dataclass
 class P4CounterEntry(_Writable):
     "Represents a P4Runtime CounterEntry."
@@ -914,7 +934,7 @@ class P4CounterEntry(_Writable):
     index: int | None = None
     data: P4CounterData | None = None
 
-    def encode(self, schema: P4Schema) -> p4r.Entity:
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
         "Encode P4CounterEntry as protobuf."
 
         if self.index is not None:
@@ -935,7 +955,7 @@ class P4CounterEntry(_Writable):
         return p4r.Entity(counter_entry=entry)
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
         "Decode protobuf to P4CounterEntry."
 
         entry = msg.counter_entry
@@ -953,7 +973,7 @@ class P4CounterEntry(_Writable):
         return cls(counter_id=entry.counter_id, index=index, data=data)
 
 
-@decodable(p4r.Entity, "direct_counter_entry")
+@decodable("direct_counter_entry")
 @dataclass
 class P4DirectCounterEntry(_Writable):
     "Represents a P4Runtime DirectCounterEntry."
@@ -1000,7 +1020,7 @@ class P4DirectCounterEntry(_Writable):
         return cls(table_entry=table_entry, data=data)
 
 
-@decodable(p4r.StreamMessageResponse, "packet")
+@decodable("packet")
 @dataclass
 class P4PacketIn:
     "Represents a P4Runtime PacketIn."
@@ -1026,7 +1046,7 @@ class P4PacketIn:
             metadata=cpm.decode(packet.metadata),
         )
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         "Retrieve metadata value."
 
         return self.metadata[key]
@@ -1048,7 +1068,7 @@ class P4PacketOut:
     payload: bytes
     metadata: _MetadataDictType
 
-    def __init__(self, __payload: bytes, /, **metadata):
+    def __init__(self, __payload: bytes, /, **metadata: Any):
         self.payload = __payload
         self.metadata = metadata
 
@@ -1063,7 +1083,7 @@ class P4PacketOut:
             )
         )
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         "Retrieve metadata value."
 
         return self.metadata[key]
@@ -1076,7 +1096,7 @@ class P4PacketOut:
         return f"PacketOut(payload=h'{self.payload.hex()}')"
 
 
-@decodable(p4r.StreamMessageResponse, "digest")
+@decodable("digest")
 @dataclass
 class P4DigestList:
     "Represents a P4Runtime DigestList."
@@ -1106,7 +1126,7 @@ class P4DigestList:
         "Return number of values in digest list."
         return len(self.data)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int):
         "Retrieve value at given index from digest list."
         return self.data[key]
 
@@ -1120,7 +1140,7 @@ class P4DigestListAck:
     "Represents a P4Runtime DigestListAck."
 
 
-@decodable(p4r.StreamMessageResponse, "idle_timeout_notification")
+@decodable("idle_timeout_notification")
 @dataclass
 class P4IdleTimeoutNotification:
     "Represents a P4Runtime IdleTimeoutNotification."

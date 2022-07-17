@@ -160,6 +160,8 @@ _validate_enum(GRPCStatusCode, rpc_code.Code)
 # Base Classes
 # ~~~~~~~~~~~~
 
+_EXEMPT_PROPERTIES = {"pbuf", "p4info", "p4blob"}
+
 
 class _ReprMixin:
     """Mixin class to implement a generic __repr__ method.
@@ -169,13 +171,11 @@ class _ReprMixin:
     """
 
     def __repr__(self) -> str:
-        EXEMPT_PROPERTIES = {"pbuf", "p4info", "p4blob"}
-
         cls = type(self)
         properties = [
             name
             for (name, _) in inspect.getmembers(cls, inspect.isdatadescriptor)
-            if not name.startswith("_") and name not in EXEMPT_PROPERTIES
+            if not name.startswith("_") and name not in _EXEMPT_PROPERTIES
         ]
 
         attrs = [f"{name}={getattr(self, name)!r}" for name in properties]
@@ -203,7 +203,7 @@ class _P4AnnoMixin:
     """
 
     def __init__(self, pbuf):
-        super().__init__(pbuf)  # pyright: ignore
+        super().__init__(pbuf)
         self._annotations = _parse_annotations(pbuf)
 
     @property
@@ -415,6 +415,8 @@ class _P4Defs:
 
 def _load_p4info(data: p4i.P4Info | Path | None) -> tuple[p4i.P4Info | None, _P4Defs]:
     "Load P4Info from cache if possible."
+
+    # FIXME: Actually implement a cache!?!
 
     if data is None:
         return None, _EMPTY_P4DEFS
@@ -776,7 +778,7 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
 
     # TODO: type_name property
 
-    def encode(self, value) -> p4r.Action.Param:
+    def encode(self, value: p4values.P4ParamValue) -> p4r.Action.Param:
         "Encode `param` to protobuf."
         return p4r.Action.Param(
             param_id=self.id,
@@ -884,7 +886,7 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
         assert which_one == "other_match_type"
         return self.pbuf.other_match_type
 
-    def encode(self, value) -> p4r.FieldMatch | None:
+    def encode(self, value: p4values.P4FieldValue) -> p4r.FieldMatch | None:
         "Encode value as protobuf type."
 
         match self.match_type:
@@ -969,16 +971,10 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
             result.append(mdata.encode(value))
 
         if len(metadata) > len(result):
-            self._report_extra_metadata(metadata)
+            seen = set(metadata.keys()) - set(mdata.name for mdata in self.metadata)
+            raise ValueError(f"{self.name!r}: extra parameters {seen!r}")
 
         return result
-
-    def _report_extra_metadata(self, metadata):
-        "Report metadata that contains extra values."
-        seen = set(metadata.keys())
-        for mdata in self.metadata:
-            seen.remove(mdata.name)
-        raise ValueError(f"{self.name!r}: extra parameters {seen!r}")
 
     def decode(self, metadata: Sequence[p4r.PacketMetadata]) -> dict[str, Any]:
         "Convert protobuf `metadata` to a python dict."
@@ -1118,17 +1114,33 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
         return self._members
 
     def encode_data(self, value: dict[str, Any]) -> p4d.P4Data:
+        return p4d.P4Data(header=self.encode_header(value))
+
+    def encode_header(self, value: dict[str, Any]) -> p4d.P4Header:
         # TODO: Handle valid but memberless header?
         if not value:
-            return p4d.P4Data(header=p4d.P4Header(is_valid=False))
+            return p4d.P4Header(is_valid=False)
 
-        bitstrings = [typ.encode_bytes(value[key]) for key, typ in self.members.items()]
-        return p4d.P4Data(header=p4d.P4Header(is_valid=True, bitstrings=bitstrings))
+        try:
+            bitstrings = [
+                typ.encode_bytes(value[key]) for key, typ in self.members.items()
+            ]
+        except KeyError as ex:
+            raise ValueError(f"P4Header: missing field {ex.args[0]!r}") from None
+
+        if len(value) > len(bitstrings):
+            seen = set(value.keys()) - set(self.members.keys())
+            raise ValueError(f"P4Header: extra parameters {seen!r}")
+
+        return p4d.P4Header(is_valid=True, bitstrings=bitstrings)
 
     def decode_data(self, data: p4d.P4Data) -> dict[str, Any]:
-        # TODO: Handle valid but memberless header?
-        header = data.header
+        return self.decode_header(data.header)
 
+    def decode_header(self, header: p4d.P4Header) -> dict[str, Any]:
+        "Decode P4 header."
+
+        # TODO: Handle valid but memberless header?
         if not header.is_valid:
             if header.bitstrings:
                 raise ValueError(f"invalid header with bitstrings: {header!r}")
@@ -1144,6 +1156,9 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
             i += 1
 
         return result
+
+
+_HeaderUnionValue = dict[str, dict[str, Any]]
 
 
 class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
@@ -1165,19 +1180,49 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
     def members(self) -> dict[str, P4HeaderType]:
         return self._members
 
-    def encode_data(self, value: dict) -> p4d.P4Data:
-        raise NotImplementedError("unimplemented")
+    def encode_data(self, value: _HeaderUnionValue) -> p4d.P4Data:
+        return p4d.P4Data(header_union=self.encode_union(value))
 
-    def decode_data(self, data: p4d.P4Data) -> dict:
-        raise NotImplementedError("unimplemented")
+    def encode_union(self, value: _HeaderUnionValue) -> p4d.P4HeaderUnion:
+        if len(value) > 1:
+            raise ValueError(f"P4HeaderUnion: too many headers {value!r}")
+
+        if not value:
+            # No union members are valid.
+            return p4d.P4HeaderUnion()
+
+        header_name, header = next(iter(value.items()))
+
+        try:
+            header_type = self.members[header_name]
+        except KeyError:
+            raise ValueError(f"P4HeaderUnion: wrong header {header_name!r}") from None
+
+        return p4d.P4HeaderUnion(
+            valid_header_name=header_name,
+            valid_header=header_type.encode_header(header),
+        )
+
+    def decode_data(self, data: p4d.P4Data) -> _HeaderUnionValue:
+        return self.decode_union(data.header_union)
+
+    def decode_union(self, header_union: p4d.P4HeaderUnion) -> _HeaderUnionValue:
+        header_name = header_union.valid_header_name
+
+        if not header_name:
+            # No union members are valid.
+            return {}
+
+        header = self.members[header_name].decode_header(header_union.valid_header)
+        return {header_name: header}
 
 
-class P4HeaderStackType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderStackTypeSpec]):
+class P4HeaderStackType(_P4Bridged[p4t.P4HeaderStackTypeSpec]):
     "Represents P4HeaderStackTypeSpec."
 
     _header: P4HeaderType
 
-    def __init__(self, pbuf, type_info: P4TypeInfo):
+    def __init__(self, pbuf: p4t.P4HeaderStackTypeSpec, type_info: P4TypeInfo):
         super().__init__(pbuf)
         self._header = type_info.headers[self.pbuf.header.name]
 
@@ -1189,19 +1234,24 @@ class P4HeaderStackType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderStackTypeSpec]):
     def size(self) -> int:
         return self.pbuf.size
 
-    def encode_data(self, value: dict) -> p4d.P4Data:
-        raise NotImplementedError("unimplemented")
+    def encode_data(self, value: Sequence[dict[str, Any]]) -> p4d.P4Data:
+        if len(value) != self.size:
+            raise ValueError(f"P4HeaderStack: expected {self.size} items")
 
-    def decode_data(self, data: p4d.P4Data) -> dict:
-        raise NotImplementedError("unimplemented")
+        entries = [self.header.encode_header(val) for val in value]
+        return p4d.P4Data(header_stack=p4d.P4HeaderStack(entries=entries))
+
+    def decode_data(self, data: p4d.P4Data) -> Sequence[dict[str, Any]]:
+        entries = data.header_stack.entries
+        return [self.header.decode_header(header) for header in entries]
 
 
-class P4HeaderUnionStackType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
+class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
     "Represents P4HeaderUnionStackTypeSpec."
 
     _header_union: P4HeaderUnionType
 
-    def __init__(self, pbuf, type_info: P4TypeInfo):
+    def __init__(self, pbuf: p4t.P4HeaderUnionStackTypeSpec, type_info: P4TypeInfo):
         super().__init__(pbuf)
         self._header_union = type_info.header_unions[self.pbuf.header_union.name]
 
@@ -1213,11 +1263,16 @@ class P4HeaderUnionStackType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionStackType
     def size(self) -> int:
         return self.pbuf.size
 
-    def encode_data(self, value: dict) -> p4d.P4Data:
-        raise NotImplementedError("unimplemented")
+    def encode_data(self, value: Sequence[_HeaderUnionValue]) -> p4d.P4Data:
+        if len(value) != self.size:
+            raise ValueError(f"P4HeaderUnionStack: expected {self.size} items")
 
-    def decode_data(self, data: p4d.P4Data) -> dict:
-        raise NotImplementedError("unimplemented")
+        entries = [self.header_union.encode_union(val) for val in value]
+        return p4d.P4Data(header_union_stack=p4d.P4HeaderUnionStack(entries=entries))
+
+    def decode_data(self, data: p4d.P4Data) -> _HeaderUnionValue:
+        entries = data.header_union_stack.entries
+        return [self.header_union.decode_union(union) for union in entries]
 
 
 class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
@@ -1240,7 +1295,15 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
         return self._members
 
     def encode_data(self, value: dict[str, Any]) -> p4d.P4Data:
-        members = [typ.encode_data(value[key]) for key, typ in self.members.items()]
+        try:
+            members = [typ.encode_data(value[key]) for key, typ in self.members.items()]
+        except KeyError as ex:
+            raise ValueError(f"P4Struct: missing field {ex.args[0]!r}") from None
+
+        if len(value) > len(members):
+            seen = set(value.keys()) - set(self.members.keys())
+            raise ValueError(f"P4Struct: extra parameters {seen!r}")
+
         return p4d.P4Data(struct=p4d.P4StructLike(members=members))
 
     def decode_data(self, data: p4d.P4Data) -> dict[str, Any]:
@@ -1257,7 +1320,7 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
         return result
 
 
-class P4TupleType(_P4AnnoMixin, _P4Bridged[p4t.P4TupleTypeSpec]):
+class P4TupleType(_P4Bridged[p4t.P4TupleTypeSpec]):
     "Represents P4TupleTypeSpec."
 
     _members: list["_P4Type"]
@@ -1272,11 +1335,22 @@ class P4TupleType(_P4AnnoMixin, _P4Bridged[p4t.P4TupleTypeSpec]):
     def members(self) -> list["_P4Type"]:
         return self._members
 
-    def encode_data(self, value: dict) -> p4d.P4Data:
-        raise NotImplementedError("unimplemented")
+    def encode_data(self, value: tuple[Any, ...]) -> p4d.P4Data:
+        if len(value) != len(self.members):
+            raise ValueError(f"P4Tuple: expected {len(self.members)} items")
 
-    def decode_data(self, data: p4d.P4Data) -> dict:
-        raise NotImplementedError("unimplemented")
+        members = [typ.encode_data(value[i]) for i, typ in enumerate(self.members)]
+        return p4d.P4Data(tuple=p4d.P4StructLike(members=members))
+
+    def decode_data(self, data: p4d.P4Data) -> tuple[Any, ...]:
+        tuple_ = data.tuple
+        if len(tuple_.members) != len(self.members):
+            raise ValueError(f"invalid tuple size: {tuple_!r}")
+
+        return tuple(
+            typ.decode_data(val)
+            for typ, val in zip(self.members, tuple_.members, strict=True)
+        )
 
 
 _P4Type = (

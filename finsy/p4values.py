@@ -16,7 +16,7 @@
 
 import enum
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
-from typing import Literal, SupportsInt
+from typing import SupportsInt
 
 from macaddress import MAC as MACAddress
 
@@ -39,6 +39,9 @@ _TernaryReturn = tuple[_ExactReturn, _ExactReturn]
 
 _RangeValue = str | tuple[_ExactValue, _ExactValue]
 _RangeReturn = tuple[_ExactReturn, _ExactReturn]
+
+P4FieldValue = _ExactValue | _LPMValue | _TernaryValue | _RangeValue | None
+P4ParamValue = _ExactValue
 
 
 def p4r_minimum_string_size(bitwidth: int) -> int:
@@ -94,7 +97,9 @@ def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
 
     if isinstance(value, str):
         ival = _parse_str(value, bitwidth)
-    elif isinstance(value, SupportsInt):
+    elif isinstance(
+        value, SupportsInt
+    ):  # pyright: ignore [reportUnnecessaryIsInstance]
         ival = _parse_int(value)
     else:
         raise ValueError(f"invalid value type: {value!r}")
@@ -149,7 +154,7 @@ def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
         vals = [value]
     elif isinstance(value, str):
         vals = value.split("/", 1)
-    elif isinstance(value, tuple):
+    elif isinstance(value, tuple):  # pyright: ignore [reportUnnecessaryIsInstance]
         if len(value) != 2:
             raise ValueError(f"invalid tuple value: {value!r}")
         vals = value

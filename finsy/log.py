@@ -15,11 +15,11 @@
 # limitations under the License.
 
 import asyncio
+import functools
 import logging
 import os
 import sys
-from functools import wraps
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Any, MutableMapping, TypeAlias
 
 
 def get_setting(name: str, default: str = "") -> bool:
@@ -44,7 +44,15 @@ else:
 class _CustomAdapter(_LoggerAdapter):
     """Custom log adapter to include the name of the current task."""
 
-    def process(self, msg, kwargs):
+    def process(
+        self,
+        msg: Any,
+        kwargs: MutableMapping[str, Any],
+    ) -> tuple[Any, MutableMapping[str, Any]]:
+        """Process the logging message and keyword arguments passed in to a
+        logging call to insert contextual information.
+        """
+
         task_name = ""
         try:
             # current_task() will raise a RuntimeError if there is no running
@@ -75,9 +83,11 @@ def _exc() -> BaseException | None:
     return sys.exc_info()[1]
 
 
-def _trace(func):
-    @wraps(func)
-    async def _wrapper(*args, **kwd):
+def _trace_step(func: Any) -> Any:
+    "Decorator to log when we step in and step out of a coroutine function."
+
+    @functools.wraps(func)
+    async def _wrapper(*args: Any, **kwd: Any):
         try:
             TRACE_LOG.info("%s stepin", func.__qualname__)
             return await func(*args, **kwd)
@@ -87,11 +97,9 @@ def _trace(func):
     return _wrapper
 
 
-def _trace_noop(func):
+def _trace_noop(func: Any) -> Any:
+    "No op decorator"
     return func
 
 
-if FINSY_DEBUG:
-    TRACE = _trace
-else:
-    TRACE = _trace_noop
+TRACE = _trace_step if FINSY_DEBUG else _trace_noop

@@ -15,14 +15,14 @@
 # limitations under the License.
 
 import re
-from typing import Type, TypeVar
+from typing import TypeVar
 
-import grpc
+import grpc  # pyright: ignore [reportMissingTypeStubs]
 from google.protobuf import json_format, text_format
 from google.protobuf.any_pb2 import Any as _Any  # pylint: disable=E0611
 from google.protobuf.message import Message as _Message
 
-import finsy
+import finsy as _fy
 from finsy.gnmiclient import gNMIPath
 from finsy.log import FINSY_TRANSLATE_LOGS, MSG_LOG
 from finsy.proto import gnmi, p4r
@@ -33,7 +33,7 @@ PBMessage = _Message
 _MT = TypeVar("_MT", bound=PBMessage)
 
 
-def from_text(data: str, msg_class: Type[_MT]) -> _MT:
+def from_text(data: str, msg_class: type[_MT]) -> _MT:
     "Read protobuf message from given text/json string."
     assert isinstance(data, str)
 
@@ -46,7 +46,7 @@ def from_text(data: str, msg_class: Type[_MT]) -> _MT:
     return msg
 
 
-def from_dict(value: dict[str, int | str], msg_class: Type[_MT]) -> _MT:
+def from_dict(value: dict[str, int | str], msg_class: type[_MT]) -> _MT:
     "Convert Python dict to protobuf message."
     return json_format.ParseDict(value, msg_class())
 
@@ -100,7 +100,7 @@ def _message_formatter(msg: PBMessage, _indent: int, _as_one_line: bool):
 def log_msg(
     state: grpc.ChannelConnectivity,
     msg: PBMessage,
-    schema: "finsy.P4Schema | None",
+    schema: "_fy.P4Schema | None",
 ):
     """Log a sent/received client message.
 
@@ -140,7 +140,7 @@ def log_msg(
 _ANNOTATE_REGEX = re.compile(r"([a-z]+_id): (\d+)\n", re.MULTILINE)
 
 
-def _log_annotate(text: str, schema: "finsy.P4Schema") -> str:
+def _log_annotate(text: str, schema: "_fy.P4Schema") -> str:
     "Annotate table_id, action_id, etc. in log messages."
 
     action_id = 0
@@ -167,6 +167,8 @@ def _log_annotate(text: str, schema: "finsy.P4Schema") -> str:
                 case "param_id":
                     name = schema.actions[action_id].params[int(value)].name
                 # TODO: Annotate more identifier types.
+                case _:
+                    pass
 
         except (LookupError, ValueError):
             # If there is a failure, don't replace anything.
