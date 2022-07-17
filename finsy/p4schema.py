@@ -1298,7 +1298,7 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
         try:
             members = [typ.encode_data(value[key]) for key, typ in self.members.items()]
         except KeyError as ex:
-            raise ValueError(f"P4Struct: missing field {ex.args[0]!r}")
+            raise ValueError(f"P4Struct: missing field {ex.args[0]!r}") from None
 
         if len(value) > len(members):
             seen = set(value.keys()) - set(self.members.keys())

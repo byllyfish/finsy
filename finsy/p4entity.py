@@ -765,7 +765,7 @@ class P4ActionProfileGroup(_Writable):
     max_size: int = 0
     members: Sequence[P4Member] | None = None
 
-    def encode(self, schema: P4Schema) -> p4r.Entity:
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
         "Encode P4ActionProfileGroup as protobuf."
 
         if self.members is not None:
@@ -782,7 +782,7 @@ class P4ActionProfileGroup(_Writable):
         return p4r.Entity(action_profile_group=entry)
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
         "Decode protobuf to ActionProfileGroup data."
         entry = msg.action_profile_group
 
@@ -810,7 +810,7 @@ class P4MeterEntry(_Writable):
     config: P4MeterConfig | None = None
     counter_data: P4MeterCounterData | None = None
 
-    def encode(self, schema: P4Schema) -> p4r.Entity:
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
         "Encode P4MeterEntry to protobuf."
 
         if self.index is not None:
@@ -837,7 +837,7 @@ class P4MeterEntry(_Writable):
         return p4r.Entity(meter_entry=entry)
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
         "Decode protobuf to P4MeterEntry."
 
         entry = msg.meter_entry
@@ -934,7 +934,7 @@ class P4CounterEntry(_Writable):
     index: int | None = None
     data: P4CounterData | None = None
 
-    def encode(self, schema: P4Schema) -> p4r.Entity:
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
         "Encode P4CounterEntry as protobuf."
 
         if self.index is not None:
@@ -955,7 +955,7 @@ class P4CounterEntry(_Writable):
         return p4r.Entity(counter_entry=entry)
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
         "Decode protobuf to P4CounterEntry."
 
         entry = msg.counter_entry

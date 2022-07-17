@@ -22,7 +22,7 @@ from google.protobuf import json_format, text_format
 from google.protobuf.any_pb2 import Any as _Any  # pylint: disable=E0611
 from google.protobuf.message import Message as _Message
 
-import finsy
+import finsy as _fy
 from finsy.gnmiclient import gNMIPath
 from finsy.log import FINSY_TRANSLATE_LOGS, MSG_LOG
 from finsy.proto import gnmi, p4r
@@ -100,7 +100,7 @@ def _message_formatter(msg: PBMessage, _indent: int, _as_one_line: bool):
 def log_msg(
     state: grpc.ChannelConnectivity,
     msg: PBMessage,
-    schema: "finsy.P4Schema | None",
+    schema: "_fy.P4Schema | None",
 ):
     """Log a sent/received client message.
 
@@ -140,7 +140,7 @@ def log_msg(
 _ANNOTATE_REGEX = re.compile(r"([a-z]+_id): (\d+)\n", re.MULTILINE)
 
 
-def _log_annotate(text: str, schema: "finsy.P4Schema") -> str:
+def _log_annotate(text: str, schema: "_fy.P4Schema") -> str:
     "Annotate table_id, action_id, etc. in log messages."
 
     action_id = 0
