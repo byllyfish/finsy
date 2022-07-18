@@ -53,7 +53,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
     def _create_server(self):
         server = grpc.aio.server()
-        p4r_grpc.add_P4RuntimeServicer_to_server(self, server)
+        p4r_grpc.add_P4RuntimeServicer_to_server(self, server)  # type: ignore
         server.add_insecure_port(self.listen_addr)
         return server
 

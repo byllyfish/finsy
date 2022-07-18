@@ -889,7 +889,7 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
         assert which_one == "other_match_type"
         return self.pbuf.other_match_type
 
-    def encode(self, value: p4values.P4FieldValue) -> p4r.FieldMatch | None:
+    def encode(self, value: Any) -> p4r.FieldMatch | None:
         "Encode value as protobuf type."
 
         match self.match_type:
@@ -981,10 +981,12 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
 
     def decode(self, metadata: Sequence[p4r.PacketMetadata]) -> dict[str, Any]:
         "Convert protobuf `metadata` to a python dict."
-        result = {}
+        result: dict[str, Any] = {}
+
         for field in metadata:
             data = self.metadata[field.metadata_id]
             result[data.name] = data.decode(field)
+
         return result
 
 
@@ -1152,7 +1154,7 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
         if len(header.bitstrings) != len(self.members):
             raise ValueError(f"invalid header size: {header!r}")
 
-        result = {}
+        result: dict[str, Any] = {}
         i = 0
         for key, typ in self.members.items():
             result[key] = typ.decode_bytes(header.bitstrings[i])
@@ -1314,7 +1316,7 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
         if len(struct.members) != len(self.members):
             raise ValueError(f"invalid struct size: {struct!r}")
 
-        result = {}
+        result: dict[str, Any] = {}
         i = 0
         for key, typ in self.members.items():
             result[key] = typ.decode_data(struct.members[i])

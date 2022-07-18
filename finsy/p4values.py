@@ -40,7 +40,6 @@ _TernaryReturn = tuple[_ExactReturn, _ExactReturn]
 _RangeValue = str | tuple[_ExactValue, _ExactValue]
 _RangeReturn = tuple[_ExactReturn, _ExactReturn]
 
-P4FieldValue = _ExactValue | _LPMValue | _TernaryValue | _RangeValue | None
 P4ParamValue = _ExactValue
 
 
