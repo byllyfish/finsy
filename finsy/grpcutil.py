@@ -69,7 +69,7 @@ class GRPCStatusCode(_EnumBase):
 
 
 # Check GRPCStatusCode against grpc.StatusCode.
-GRPCStatusCode._validate_enum()  # pyright: ignore [reportPrivateUsage]
+GRPCStatusCode._validate_enum()  # pyright: ignore[reportPrivateUsage]
 
 
 class GRPCArg(str, enum.Enum):
@@ -112,8 +112,6 @@ def grpc_channel(
     client_type: str = "GRPC",
 ) -> grpc.aio.Channel:
     "Create a GRPC AIO channel."
-
-    assert address
 
     args = options.args() if options else None
 

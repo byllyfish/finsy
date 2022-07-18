@@ -14,13 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pyright: reportPrivateUsage=false
+
 import asyncio
-from typing import Any, AsyncIterator, Sequence
+from typing import Any, AsyncIterator, Sequence, TypeAlias
 
-import grpc
+import grpc  # pyright: ignore[reportMissingTypeStubs]
 
-from finsy import grpcutil, pbuf
+from finsy import pbuf
 from finsy.gnmipath import gNMIPath
+from finsy.grpcutil import GRPC_EOF, GRPCStatusCode, grpc_channel
 from finsy.log import LOGGER, TRACE
 from finsy.proto import gnmi, gnmi_grpc
 
@@ -28,13 +31,15 @@ from finsy.proto import gnmi, gnmi_grpc
 class gNMIClientError(Exception):
     "Wrap grpc.RpcError."
 
-    _code: grpcutil.GRPCStatusCode
+    _code: GRPCStatusCode
     _message: str
 
-    def __init__(self, error: grpc.aio.AioRpcError):
+    def __init__(self, error: grpc.RpcError):
         super().__init__()
-        self._code = grpcutil.GRPCStatusCode.from_status_code(error.code())
-        self._message = error.details()
+        assert isinstance(error, grpc.aio.AioRpcError)
+
+        self._code = GRPCStatusCode.from_status_code(error.code())
+        self._message = error.details() or ""
 
         LOGGER.debug("gNMI failed: %s", self)
 
@@ -48,7 +53,7 @@ class gNMIClientError(Exception):
 
     @property
     def is_unimplemented(self):
-        return self.code == grpcutil.GRPCStatusCode.UNIMPLEMENTED
+        return self.code == GRPCStatusCode.UNIMPLEMENTED
 
     def __str__(self) -> str:
         return f"gNMIClientError(code={self.code!r}, message={self.message!r})"
@@ -120,13 +125,13 @@ class gNMIClient:
             self._channel = channel
             self._channel_reused = True
         else:
-            self._channel = grpcutil.grpc_channel(
+            self._channel = grpc_channel(
                 self._address,
                 credentials=self._credentials,
                 client_type="gNMIClient",
             )
 
-        self._stub = gnmi_grpc.gNMIStub(self._channel)
+        self._stub = gnmi_grpc.gNMIStub(self._channel)  # type: ignore
 
     @TRACE
     async def close(self) -> None:
@@ -162,7 +167,7 @@ class gNMIClient:
 
         self.log_msg(request)
         try:
-            reply = await self._stub.Get(request)
+            reply: gnmi.GetResponse = await self._stub.Get(request)
         except grpc.RpcError as ex:
             raise gNMIClientError(ex) from None
 
@@ -203,7 +208,7 @@ class gNMIClient:
         """
         return gNMISubscription(self, prefix)
 
-    async def capabilities(self):
+    async def capabilities(self) -> gnmi.CapabilityResponse:
         "Issue a CapabilitiesRequest."
         assert self._stub is not None
 
@@ -211,7 +216,7 @@ class gNMIClient:
 
         self.log_msg(request)
         try:
-            reply = await self._stub.Capabilities(request)
+            reply: gnmi.CapabilityResponse = await self._stub.Capabilities(request)
         except grpc.RpcError as ex:
             raise gNMIClientError(ex) from None
 
@@ -223,8 +228,16 @@ class gNMIClient:
         pbuf.log_msg(self._channel.get_state(), msg, None)
 
 
+_StreamTypeAlias: TypeAlias = grpc.aio.StreamStreamCall[
+    gnmi.SubscribeRequest, gnmi.SubscribeResponse
+]
+
+
 class gNMISubscription:
     """Represents a gNMI subscription stream."""
+
+    _client: gNMIClient
+    _stream: _StreamTypeAlias | None
 
     def __init__(self, client: gNMIClient, prefix: gNMIPath | None = None):
         self._client = client
@@ -271,7 +284,7 @@ class gNMISubscription:
             )
             self._sublist.subscription.append(sub)
 
-    async def synchronize(self):
+    async def synchronize(self) -> AsyncIterator[gnmi.Notification]:
         await self._subscribe()
 
         try:
@@ -299,7 +312,8 @@ class gNMISubscription:
         assert self._stream is None
         assert self._client._stub is not None
 
-        self._stream = self._client._stub.Subscribe(wait_for_ready=True)
+        s: _StreamTypeAlias = self._client._stub.Subscribe(wait_for_ready=True)  # type: ignore
+        self._stream = s
         request = gnmi.SubscribeRequest(subscribe=self._sublist)
 
         self._client.log_msg(request)
@@ -308,12 +322,12 @@ class gNMISubscription:
         except grpc.RpcError as ex:
             raise gNMIClientError(ex) from None
 
-    async def _read(self, stop_at_sync: bool):
+    async def _read(self, stop_at_sync: bool) -> AsyncIterator[gnmi.Notification]:
         assert self._stream is not None
 
         while True:
             msg = await self._stream.read()
-            if msg == grpc.aio.EOF:
+            if msg == GRPC_EOF:
                 LOGGER.warning("gNMI _read: unexpected EOF")
                 return
 
@@ -336,6 +350,6 @@ class gNMISubscription:
                 case other:
                     LOGGER.warning("gNMI _read: unexpected oneof: %s", other)
 
-    def _is_once(self):
+    def _is_once(self) -> bool:
         "Return true if the subscription is in ONCE mode."
         return self._sublist.mode == gnmi.SubscriptionList.Mode.ONCE

@@ -123,7 +123,7 @@ class gNMIPath:
         "Return True if path's are equal."
         if not isinstance(rhs, gNMIPath):
             return False
-        return self.path == rhs.path
+        return self.path == rhs.path  # pyright: ignore[reportUnknownVariableType]
 
     def __repr__(self) -> str:
         "Return string representation of path."
