@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pyright: reportPrivateUsage=false
+
 import hashlib
 import inspect
 import re
@@ -22,6 +24,7 @@ from typing import (
     Any,
     Generic,
     Iterator,
+    Mapping,
     NamedTuple,
     Sequence,
     SupportsBytes,
@@ -133,7 +136,7 @@ class P4UpdateType(_EnumBase):
         return cast(p4r.Update.Type.ValueType, self)
 
 
-def _validate_enum(enum_class, pbuf_class):
+def _validate_enum(enum_class: Any, pbuf_class: Any):
     "Verify that our enum class contains the same members as the protobuf."
     for name, value in pbuf_class.items():
         assert enum_class[name].value == value, name
@@ -202,8 +205,8 @@ class _P4AnnoMixin:
     Overrides __init__. Must be placed first.
     """
 
-    def __init__(self, pbuf):
-        super().__init__(pbuf)
+    def __init__(self, pbuf: Any):
+        super().__init__(pbuf)  # pyright: ignore[reportGeneralTypeIssues]
         self._annotations = _parse_annotations(pbuf)
 
     @property
@@ -303,8 +306,8 @@ class P4EntityMap(Generic[_T]):
 
     def _add(self, entity: _T, split_suffix: bool = False) -> None:
         "Add entity."
-        ident = entity.id  # type: ignore[attr-defined]
-        name = entity.name  # type: ignore[attr-defined]
+        ident: int = entity.id  # type: ignore[attr-defined]
+        name: str = entity.name  # type: ignore[attr-defined]
 
         if ident in self._by_id:
             raise ValueError(f"id already exists: {ident!r}")
@@ -313,14 +316,14 @@ class P4EntityMap(Generic[_T]):
         self._add_name(name, entity)
 
         if hasattr(entity, "alias"):
-            alias = entity.alias  # type: ignore[attr-defined]
+            alias: str = entity.alias  # type: ignore[attr-defined]
             if name != alias:
                 self._add_name(alias, entity)
             elif split_suffix and "." in alias:
                 _, suffix = alias.rsplit(".", 2)
                 self._add_name(suffix, entity)
 
-    def _add_name(self, name, entity):
+    def _add_name(self, name: str, entity: _T):
         "Add entity by name."
         if name in self._by_name:
             raise ValueError(r"name already exists: {name!r}")
@@ -330,7 +333,7 @@ class P4EntityMap(Generic[_T]):
         if isinstance(key, int):
             raise ValueError(f"no {self._entry_type} with id={key!r}") from None
 
-        def _lev(val):
+        def _lev(val: str) -> int:
             return pylev.wfi_levenshtein(val, key)
 
         if not self._by_name:
@@ -583,7 +586,7 @@ class P4Schema(_ReprMixin):
         self._p4cookie = int.from_bytes(digest[0:8], "big")
 
 
-def _sort_map(value):
+def _sort_map(value: Mapping[Any, Any]):
     "Sort items in protobuf map in alphabetic order."
 
     result = list(value.items())
@@ -659,14 +662,14 @@ class P4Annotation(NamedTuple):
     "Location of the annotation."
 
 
-def _parse_annotations(pbuf) -> list[P4Annotation]:
+def _parse_annotations(pbuf: Any) -> list[P4Annotation]:
     """Return list of annotations in the protobuf message."""
 
     # If pbuf doesn't have an "annotations" property, try pbuf's "preamble".
     if not hasattr(pbuf, "annotations"):
         pbuf = pbuf.preamble
 
-    result = []
+    result: list[P4Annotation] = []
 
     # Scan unstructured annotations.
     for i, annotation in enumerate(pbuf.annotations):
@@ -793,7 +796,7 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
 class P4Action(_P4TopLevel[p4i.Action]):
     "Represents Action in schema."
 
-    def __init__(self, pbuf) -> None:
+    def __init__(self, pbuf: p4i.Action) -> None:
         super().__init__(pbuf)
         self._params = P4EntityMap[P4ActionParam]("action parameter")
         for param in self.pbuf.params:
@@ -886,7 +889,7 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
         assert which_one == "other_match_type"
         return self.pbuf.other_match_type
 
-    def encode(self, value: p4values.P4FieldValue) -> p4r.FieldMatch | None:
+    def encode(self, value: Any) -> p4r.FieldMatch | None:
         "Encode value as protobuf type."
 
         match self.match_type:
@@ -959,7 +962,7 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
 
     def encode(self, metadata: dict[str, Any]) -> list[p4r.PacketMetadata]:
         "Encode python dict as protobuf `metadata`."
-        result = []
+        result: list[p4r.PacketMetadata] = []
 
         for mdata in self.metadata:
             try:
@@ -978,10 +981,12 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
 
     def decode(self, metadata: Sequence[p4r.PacketMetadata]) -> dict[str, Any]:
         "Convert protobuf `metadata` to a python dict."
-        result = {}
+        result: dict[str, Any] = {}
+
         for field in metadata:
             data = self.metadata[field.metadata_id]
             result[data.name] = data.decode(field)
+
         return result
 
 
@@ -992,7 +997,7 @@ class P4CPMetadata(_P4AnnoMixin, _P4NamedMixin[p4i.ControllerPacketMetadata.Meta
     def bitwidth(self):
         return self.pbuf.bitwidth
 
-    def encode(self, value) -> p4r.PacketMetadata:
+    def encode(self, value: p4values.P4ParamValue) -> p4r.PacketMetadata:
         data = p4values.encode_exact(value, self.bitwidth)
         return p4r.PacketMetadata(metadata_id=self.id, value=data)
 
@@ -1149,7 +1154,7 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
         if len(header.bitstrings) != len(self.members):
             raise ValueError(f"invalid header size: {header!r}")
 
-        result = {}
+        result: dict[str, Any] = {}
         i = 0
         for key, typ in self.members.items():
             result[key] = typ.decode_bytes(header.bitstrings[i])
@@ -1270,7 +1275,7 @@ class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
         entries = [self.header_union.encode_union(val) for val in value]
         return p4d.P4Data(header_union_stack=p4d.P4HeaderUnionStack(entries=entries))
 
-    def decode_data(self, data: p4d.P4Data) -> _HeaderUnionValue:
+    def decode_data(self, data: p4d.P4Data) -> list[_HeaderUnionValue]:
         entries = data.header_union_stack.entries
         return [self.header_union.decode_union(union) for union in entries]
 
@@ -1311,7 +1316,7 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
         if len(struct.members) != len(self.members):
             raise ValueError(f"invalid struct size: {struct!r}")
 
-        result = {}
+        result: dict[str, Any] = {}
         i = 0
         for key, typ in self.members.items():
             result[key] = typ.decode_data(struct.members[i])
@@ -1499,7 +1504,8 @@ class P4SchemaDescription:
 
     def _describe_profile(self, profile: P4ActionProfile) -> str:
         "Describe P4ActionProfile."
-        opts = []
+        opts: list[str] = []
+
         if profile.with_selector:
             opts.append("selector")
             opts.append(f"max_group_size={profile.max_group_size}")

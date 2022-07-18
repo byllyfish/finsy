@@ -14,12 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = (
-    "SwitchOptions",
-    "Switch",
-    "SwitchEvent",
-)
-
 import asyncio
 import dataclasses
 import enum
@@ -30,7 +24,7 @@ from pathlib import Path
 from types import TracebackType
 from typing import Any, AsyncIterator, Callable, Coroutine, SupportsBytes, TypeVar
 
-import grpc  # pyright: ignore [reportMissingTypeStubs]
+import grpc  # pyright: ignore[reportMissingTypeStubs]
 import pyee
 
 from finsy import p4entity
@@ -509,7 +503,7 @@ class Switch:
             )
         )
 
-    async def read(self, *entities):
+    async def read(self, *entities: p4entity.EntityList):
         assert self._p4client is not None
 
         request = p4r.ReadRequest(
@@ -521,12 +515,12 @@ class Switch:
             for ent in reply.entities:
                 yield p4entity.decode_entity(ent, self.p4info)
 
-    async def write(self, *entities):
+    async def write(self, *entities: p4entity.UpdateList):
         assert self._p4client is not None
 
         msgs = p4entity.encode_updates(entities, self.p4info)
 
-        updates = []
+        updates: list[p4r.Update] = []
         for msg in msgs:
             if isinstance(msg, p4r.StreamMessageRequest):
                 await self._p4client.send(msg)
@@ -541,13 +535,17 @@ class Switch:
                 )
             )
 
-    async def insert(self, *entities):
+    async def insert(self, *entities: p4entity.EntityList):
         await self._write(entities, P4UpdateType.INSERT)
 
-    async def modify(self, *entities):
+    async def modify(self, *entities: p4entity.EntityList):
         await self._write(entities, P4UpdateType.MODIFY)
 
-    async def delete(self, *entities, ignore_not_found_error=False):
+    async def delete(
+        self,
+        *entities: p4entity.EntityList,
+        ignore_not_found_error: bool = False,
+    ):
         """Delete the specified entities.
 
         It is an error to delete entities that do not exist. If
@@ -587,7 +585,7 @@ class Switch:
         if digest_entries:
             await self.delete(digest_entries, ignore_not_found_error=True)
 
-    async def _write(self, entities, update_type: P4UpdateType):
+    async def _write(self, entities: p4entity.EntityList, update_type: P4UpdateType):
         assert self._p4client is not None
 
         updates = [
@@ -656,13 +654,15 @@ class SwitchEvent(str, enum.Enum):
 
 
 class SwitchEmitter(pyee.EventEmitter):
+    "EventEmitter subclass for emitting Switch events."
+
     def __init__(self, switch: Switch):
         super().__init__()
         self._switch = switch
 
-    def _emit_run(self, f, args, kwargs):
+    def _emit_run(self, f: Any, args: Any, kwargs: Any):
         try:
-            coro = f(*args, **kwargs)
+            coro: Any = f(*args, **kwargs)
         except Exception as exc:  # pylint: disable=broad-except
             LOGGER.error("Error in SwitchEmitter._emit_run", exc_info=exc)
             # TODO: Have synchronous callback failures affect Switch?
@@ -674,7 +674,7 @@ class SwitchEmitter(pyee.EventEmitter):
         "Wait for a specific event."
 
         ready = asyncio.Event()
-        self.once(event, lambda _: ready.set())
+        self.once(event, lambda _: ready.set())  # type: ignore
         await ready.wait()
 
 

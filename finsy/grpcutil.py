@@ -14,17 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ("GRPCStatusCode",)
-
 import enum
 from dataclasses import dataclass
 from typing import Sequence
 
-import grpc  # pyright: ignore [reportMissingTypeStubs]
+import grpc  # pyright: ignore[reportMissingTypeStubs]
 from typing_extensions import Self
 
 from finsy.log import LOGGER
 from finsy.proto import rpc_code
+
+# `grpc.aio.EOF` is not typed.
+GRPC_EOF: object = grpc.aio.EOF  # pyright: ignore[reportUnknownMemberType]
 
 
 class _EnumBase(enum.IntEnum):
@@ -68,7 +69,7 @@ class GRPCStatusCode(_EnumBase):
 
 
 # Check GRPCStatusCode against grpc.StatusCode.
-GRPCStatusCode._validate_enum()  # pyright: ignore [reportPrivateUsage]
+GRPCStatusCode._validate_enum()  # pyright: ignore[reportPrivateUsage]
 
 
 class GRPCArg(str, enum.Enum):
@@ -111,8 +112,6 @@ def grpc_channel(
     client_type: str = "GRPC",
 ) -> grpc.aio.Channel:
     "Create a GRPC AIO channel."
-
-    assert address
 
     args = options.args() if options else None
 

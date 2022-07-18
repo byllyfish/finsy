@@ -52,7 +52,7 @@ class gNMIServer(gnmi_grpc.gNMIServicer):
         "Create AIO server."
 
         server = grpc.aio.server()
-        gnmi_grpc.add_gNMIServicer_to_server(self, server)
+        gnmi_grpc.add_gNMIServicer_to_server(self, server)  # type: ignore
         server.add_insecure_port(self._listen_addr)
         return server
 

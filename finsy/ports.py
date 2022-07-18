@@ -56,13 +56,13 @@ class Port:
 class PortList:
     "Represents a list of switch ports."
 
-    _ports: dict[int, Port]
+    _ports: dict[str, Port]
     _subscription: gNMISubscription | None = None
 
     def __init__(self):
         self._ports = {}
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         "Retrieve interface by ID."
         return self._ports[key]
 
@@ -80,7 +80,7 @@ class PortList:
         self._subscription = await self._get_subscription(client)
 
     @TRACE
-    async def update(self, switch=None):
+    async def update(self, switch: "_sw.Switch | None" = None):
         assert self._subscription is not None
 
         async for notification in self._subscription.updates():
@@ -93,9 +93,9 @@ class PortList:
             self._subscription = None
             self._ports = {}
 
-    async def _get_ports(self, client: gNMIClient) -> dict[int, Port]:
+    async def _get_ports(self, client: gNMIClient) -> dict[str, Port]:
         "Retrieve ID and name of each port."
-        ports = {}
+        ports: dict[str, Port] = {}
 
         result = await client.get(_ifIndex.key("interface", name="*"))
         for notification in result:
@@ -135,7 +135,7 @@ class PortList:
             case _:
                 LOGGER.warning(f"PortList: unknown gNMI path: {path}")
 
-    def _update_port(self, name, status: OperStatus, switch: "_sw.Switch | None"):
+    def _update_port(self, name: str, status: OperStatus, switch: "_sw.Switch | None"):
         port = self._ports[name]
 
         prev_up = port.up

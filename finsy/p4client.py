@@ -18,10 +18,10 @@ import re
 from dataclasses import dataclass
 from typing import Any, AsyncIterator, Callable, Sequence, TypeAlias, overload
 
-import grpc
+import grpc  # pyright: ignore[reportMissingTypeStubs]
 
 from finsy import pbuf
-from finsy.grpcutil import GRPCOptions, GRPCStatusCode, grpc_channel
+from finsy.grpcutil import GRPC_EOF, GRPCOptions, GRPCStatusCode, grpc_channel
 from finsy.log import LOGGER, TRACE
 from finsy.p4schema import P4Schema
 from finsy.proto import p4r, p4r_grpc, rpc_code, rpc_status
@@ -94,13 +94,16 @@ class P4Status:
     @staticmethod
     def from_rpc_error(error: grpc.RpcError) -> "P4Status":
         "Construct status from RpcError."
+        assert isinstance(error, grpc.aio.AioRpcError)
+
         for key, value in error.trailing_metadata():
             if key == "grpc-status-details-bin":
+                assert isinstance(value, bytes)
                 return P4Status.from_bytes(value)
 
         return P4Status(
             GRPCStatusCode.from_status_code(error.code()),
-            error.details(),
+            error.details() or "",
             {},
         )
 
@@ -113,6 +116,7 @@ class P4Status:
 
     @staticmethod
     def from_status(status: rpc_status.Status) -> "P4Status":
+        "Construct status from RPC status."
         return P4Status(
             GRPCStatusCode(status.code),
             status.message,
@@ -121,11 +125,10 @@ class P4Status:
 
     @staticmethod
     def _parse_error(details: Sequence[pbuf.PBAny]) -> dict[int, P4SubError]:
-        result = {}
+        result: dict[int, P4SubError] = {}
+
         for i in range(len(details)):
-            err = p4r.Error()
-            if not details[i].Unpack(err):
-                raise ValueError(f"Not a p4r.Error: {details[i]!r}")
+            err = pbuf.from_any(details[i], p4r.Error)
             if err.canonical_code != rpc_code.OK:
                 result[i] = P4SubError(
                     GRPCStatusCode(err.canonical_code),
@@ -139,6 +142,11 @@ class P4Status:
 class P4ClientError(Exception):
     "Wrap grpc.RpcError."
 
+    _operation: str
+    _status: P4Status
+    _outer_code: GRPCStatusCode
+    _outer_message: str
+
     def __init__(
         self,
         error: grpc.RpcError,
@@ -147,10 +155,12 @@ class P4ClientError(Exception):
         msg: pbuf.PBMessage | None = None,
     ):
         super().__init__()
+        assert isinstance(error, grpc.aio.AioRpcError)
+
         self._operation = operation
         self._status = P4Status.from_rpc_error(error)
         self._outer_code = GRPCStatusCode.from_status_code(error.code())
-        self._outer_message = error.details()
+        self._outer_message = error.details() or ""
 
         if msg is not None and self.details:
             self._attach_details(msg)
@@ -278,7 +288,7 @@ class P4Client:
             client_type="P4Client",
         )
 
-        self._stub = p4r_grpc.P4RuntimeStub(self._channel)
+        self._stub = p4r_grpc.P4RuntimeStub(self._channel)  # type: ignore
         self._schema = schema
         self._complete_request = complete_request
 
@@ -305,7 +315,8 @@ class P4Client:
         assert self._stub is not None
 
         if not self._stream or self._stream.done():
-            self._stream = self._stub.StreamChannel(wait_for_ready=True)
+            s: _P4StreamTypeAlias = self._stub.StreamChannel(wait_for_ready=True)  # type: ignore
+            self._stream = s
 
         self.log_msg(msg)
 
@@ -321,7 +332,7 @@ class P4Client:
 
         try:
             msg = await self._stream.read()
-            if msg == grpc.aio.EOF:
+            if msg == GRPC_EOF:
                 # Treat EOF as a protocol violation.
                 raise RuntimeError("P4Client.receive got EOF!")
 

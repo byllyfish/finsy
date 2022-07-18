@@ -10,7 +10,7 @@ def test_ports():
     assert list(ports) == []
 
     with pytest.raises(KeyError):
-        ports[0]
+        ports["x"]
 
 
 async def test_gnmi_ports_subscribe(gnmi_client):
@@ -19,6 +19,7 @@ async def test_gnmi_ports_subscribe(gnmi_client):
     await ports.subscribe(gnmi_client)
     for port in ports:
         print(port)
+        assert ports[port.name] is port
 
     with pytest.raises(asyncio.TimeoutError):
         await asyncio.wait_for(ports.update(), 0.5)

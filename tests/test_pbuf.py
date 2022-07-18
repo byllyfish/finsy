@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from finsy import pbuf
 from finsy.p4schema import P4Schema
 from finsy.proto import p4i
@@ -52,3 +53,21 @@ def test_to_text2():
 def test_to_dict():
     data = pbuf.to_dict(_P4INFO)
     assert data == {"pkg_info": {"arch": "v1model"}}
+
+
+def test_from_any():
+    "Test the `from_any` function."
+
+    any_obj = pbuf.PBAny()
+    any_obj.Pack(_P4INFO)
+
+    assert pbuf.to_dict(any_obj) == {
+        "@type": "type.googleapis.com/p4.config.v1.P4Info",
+        "pkg_info": {"arch": "v1model"},
+    }
+
+    obj = pbuf.from_any(any_obj, p4i.P4Info)
+    assert pbuf.to_dict(obj) == {"pkg_info": {"arch": "v1model"}}
+
+    with pytest.raises(ValueError, match="Not a Extern"):
+        pbuf.from_any(any_obj, p4i.Extern)

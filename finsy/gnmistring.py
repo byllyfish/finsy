@@ -90,7 +90,7 @@ def _elems():
 # This module does NOT allow the `origin` or `target` prefix properties to be
 # specified in the string. Set these in `gNMIPath`.
 #
-# This module does not support Unicode surrogate pairs.
+# FIXME: This module does not support Unicode surrogate pairs.
 #
 # Reference:
 # https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-strings.md

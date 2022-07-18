@@ -82,8 +82,13 @@ def decode_stream(msg: p4r.StreamMessageResponse, schema: P4Schema) -> Any:
 
 
 # Recursive typedefs.
-_EntityList = p4r.Entity | _SupportsEncodeEntity | Sequence["_EntityList"]
-_UpdateList = p4r.Update | p4r.StreamMessageRequest | Sequence["_UpdateList"]
+EntityList = p4r.Entity | _SupportsEncodeEntity | Sequence["EntityList"]
+UpdateList = (
+    p4r.Update
+    | p4r.StreamMessageRequest
+    | _SupportsEncodeUpdate
+    | Sequence["UpdateList"]
+)
 
 
 def _flatten(values: Any) -> Iterator[Any]:
@@ -107,7 +112,7 @@ def _encode_entity(
     return value.encode(schema)
 
 
-def encode_entities(values: _EntityList, schema: P4Schema) -> list[p4r.Entity]:
+def encode_entities(values: EntityList, schema: P4Schema) -> list[p4r.Entity]:
     """Convert list of python objects to list of P4Runtime Entities."""
 
     if not isinstance(values, collections.abc.Sequence):
@@ -129,7 +134,7 @@ def _encode_update(
 
 
 def encode_updates(
-    values: _UpdateList,
+    values: UpdateList,
     schema: P4Schema,
 ) -> list[p4r.Update | p4r.StreamMessageRequest]:
     """Convert list of python objects to P4Runtime Updates or request messages."""
