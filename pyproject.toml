@@ -1,8 +1,20 @@
 [tool.poetry]
 name = "finsy"
 version = "0.1.0"
-description = ""
+description = "Async P4Runtime/gNMI Framework"
+license = "Apache-2.0"
 authors = ["Bill Fisher <william.w.fisher@gmail.com>"]
+readme = "README.md"
+homepage = "https://github.com/byllyfish/finsy"
+classifiers = [
+  "Development Status :: 3 - Alpha", 
+  "Programming Language :: Python :: 3.10",
+  "Framework :: AsyncIO",
+]
+
+[tool.poetry.urls]
+"Release Notes" = "https://github.com/byllyfish/finsy/blob/main/CHANGELOG.md"
+"Issue Tracker" = "https://github.com/byllyfish/finsy/issues"
 
 [tool.poetry.dependencies]
 python = "^3.10"
