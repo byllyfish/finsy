@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import logging
 from typing import AsyncIterator
@@ -172,11 +173,24 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         return p4r.WriteResponse()
 
 
-async def main():
-    logging.basicConfig(level=logging.INFO)
-    LOGGER.setLevel(logging.DEBUG)
+def _parse_args():
+    "Parse command line arguments."
 
-    server = P4RuntimeServer("localhost:9559")
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=9559,
+        help="TCP listen port number",
+    )
+    return parser.parse_args()
+
+
+async def main():
+    args = _parse_args()
+    logging.basicConfig(level=logging.DEBUG)
+
+    server = P4RuntimeServer(f"localhost:{args.port}")
     await server.run()
 
 

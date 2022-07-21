@@ -18,7 +18,7 @@ I recommend using the latest release of Python 3 when using asyncio. Finsy requi
 
 Poetry is a useful tool for managing Python projects.
 
-Visual Studio Code (VSCode) is an IDE that includes support for Python.
+Visual Studio Code (VSCode) is an IDE that supports Python.
 
 
 ## ◉ Create the Python Project
@@ -26,32 +26,42 @@ Visual Studio Code (VSCode) is an IDE that includes support for Python.
 Open a Terminal and navigate to the directory where you want to place your new project. Use the `poetry new`
 command to create a new project directory and fill it with boilerplate.
 
-```
-poetry new finsy_demo
+```console
+$ poetry new finsy_demo
+Created package finsy_demo in finsy_demo
 ```
 
 Change into your new project directory and list the contents:
 
-```
-cd finsy_demo
-ls
+```console
+$ cd finsy_demo
+$ ls -F
+README.rst      finsy_demo/     pyproject.toml  tests/
 ```
 
-Check the current python interpreter version.  Then, create a new virtual environment named `.venv` using
+Check the current python interpreter version. Then, create a new virtual environment named `.venv` using
 Python 3.10:
 
-```
-python3 --version
-python3 -m venv .venv
+```console
+$ python3 --version
+Python 3.10.5
+$ python3 -m venv .venv
 ```
 
 Activate the virtual environment, then upgrade pip and setuptools. This is the last time
 we will use pip. After this, we will only use poetry to install dependencies.
 
-```
-source .venv/bin/activate
-pip list
-pip install -U pip setuptools
+```console
+$ source .venv/bin/activate
+(.venv) $ pip list
+Package    Version
+---------- -------
+pip        22.0.4
+setuptools 58.1.0
+WARNING: You are using pip version 22.0.4; however, version 22.1.2 is available.
+You should consider upgrading via the '/Users/bfish/code/finsy_demo/.venv/bin/python3 -m pip install --upgrade pip' command.
+(.venv) $ pip install -U pip setuptools
+...
 ```
 
 Note: I like to keep the Python virtual environment in a `.venv` directory local to the
@@ -60,25 +70,51 @@ project directory. Always make sure you activate the python environment before d
 Add `finsy` as a dependency to your project. This will install finsy inside your virtual 
 environment.
 
-```
-poetry add finsy
+```console
+(.venv) $ poetry add finsy
+Using version ^0.1.0 for finsy
+
+Updating dependencies
+Resolving dependencies... (1.7s)
+
+Writing lock file
+
+Package operations: 17 installs, 0 updates, 0 removals
+
+  • Installing pyparsing (3.0.9)
+  • Installing six (1.16.0)
+  • Installing typing-extensions (4.3.0)
+  • Installing attrs (21.4.0)
+  • Installing grpcio (1.47.0)
+  • Installing macaddress (1.2.0)
+  • Installing more-itertools (8.13.0)
+  • Installing packaging (21.3)
+  • Installing parsy (1.4.0)
+  • Installing pluggy (0.13.1)
+  • Installing protobuf (4.21.2)
+  • Installing py (1.11.0)
+  • Installing pyee (9.0.4)
+  • Installing pylev (1.4.0)
+  • Installing wcwidth (0.2.5)
+  • Installing finsy (0.1.0)
+  • Installing pytest (5.4.3)
 ```
 
 Start Visual Studio Code and open a window to your project directory:
 
-```
-code .
+```console
+(.venv) $ code .
 ```
 
 Tell pyright/pylance where to find the `finsy/proto` directory. To do this, add the following
 text to your `pyproject.toml` file.
 
-```
+```toml
 [tool.pyright]
 
 [[executionEnvironments]]
 root = ".venv/lib/python3.10/site-packages/finsy"
-extraPaths = [".venv/lib/python3.10/site-packages/finsy/proto",]
+extraPaths = [".venv/lib/python3.10/site-packages/finsy/proto"]
 ```
 
 With this snippet, VSCode will be able to analyze the syntax of the protobuf "_pb2" files
@@ -105,8 +141,8 @@ asyncio.run(main())
 
 In your terminal, run this program:
 
-```
-python demo0.py
+```console
+(.venv) $ python demo0.py
 ```
 
 You can edit the `ADDRESS` variable to specify a different P4Runtime GRPC service. GRPC uses 
@@ -114,9 +150,11 @@ a string of the form "HOST:PORT".
 
 ### Local Testing
 
-If you don't have an existing P4Runtime target, you can start a test P4Runtime server. Open a
-second terminal and start the test P4Runtime server:
+If you don't have an existing P4Runtime target, you can start a test P4Runtime server. 
+Open a second terminal and start the test P4Runtime server:
 
+```console
+(.venv) $ python -m finsy.test.p4runtime_server --port=50001
 ```
-python -m finsy.test.p4runtime_server --port=50001
-```
+
+Now, re-run `python demo0.py`.
