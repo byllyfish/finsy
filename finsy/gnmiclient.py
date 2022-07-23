@@ -29,7 +29,7 @@ from finsy.proto import gnmi, gnmi_grpc
 
 
 class gNMIClientError(Exception):
-    "Wrap grpc.RpcError."
+    "Represents a `grpc.RpcError`."
 
     _code: GRPCStatusCode
     _message: str
@@ -60,22 +60,26 @@ class gNMIClientError(Exception):
 
 
 class gNMIClient:
-    """Simple read-only GNMI client.
+    """Async GNMI client.
 
-    This client only implements `get` and `subscribe`.
+    This client implements `get`, `set`, `subscribe` and `capabilities`.
 
-    Basic usage:
+    The API depends on and exposes protobuf definitions of `gnmi.Notification`
+    and `gnmi.TypedValue`.
+
+    Get usage:
     ```
     client = gNMIClient('127.0.0.1:9339')
 
     path = gNMIPath("interfaces/interface")
     result = await client.get(path)
-    print(result)
+    for notification in result:
+        print(notification)
     ```
 
-    Subscribe to change notifications:
+    Subscribe usage:
     ```
-    path = gNMIPath("interfaces/interface[name=Ethernet1]/state/oper-status")
+    path = gNMIPath("interfaces/interface[name=eth1]/state/oper-status")
     sub = client.subscribe()
     sub.on_change(path)
 
@@ -84,6 +88,15 @@ class gNMIClient:
 
     async for update in sub.updates():
         print(update)
+    ```
+
+    Set usage:
+    ```
+    enabled = gNMIPath("interfaces/interface[name=eth1]/config/enabled")
+
+    await client.set(update={
+        enabled: gnmi.TypedValue(boolValue=True),
+    })
     ```
     """
 
@@ -230,8 +243,11 @@ class gNMIClient:
         replace: dict[gNMIPath, gnmi.TypedValue] | None = None,
         delete: Sequence[gNMIPath] | None = None,
         prefix: gNMIPath | None = None,
-    ):
-        """Set value(s) using SetRequest."""
+    ) -> int:
+        """Set value(s) using SetRequest.
+
+        Returns the timestamp from the successful `SetResponse`.
+        """
         assert self._stub is not None
 
         if update is not None:
@@ -270,6 +286,19 @@ class gNMIClient:
             raise gNMIClientError(ex) from None
 
         self._log_msg(reply)
+
+        # According to the comments in the current protobuf, I expect all error
+        # results to be raised as an exception. The only useful value in a
+        # successful response is the timestamp.
+
+        if reply.HasField("message"):
+            raise NotImplementedError("SetResponse error not supported")
+
+        for result in reply.response:
+            if result.HasField("message"):
+                raise NotImplementedError("SetResponse suberror not supported")
+
+        return reply.timestamp
 
     def _log_msg(self, msg: "pbuf.PBMessage"):
         "Log a gNMI message."
