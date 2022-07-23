@@ -26,6 +26,9 @@ class gNMIPath:
     A `gNMIPath` should be treated as an immutable object. You can access
     the wrapped `gnmi.Path` protobuf class using the `.path` property.
 
+    `gNMIPath` objects are hashable, but you must be careful that you do not
+    mutate them via the underlying `gnmi.Path`.
+
     You can construct a gNMIPath object from a `gnmi.Path` directly.
     ```
     path = gNMIPath(update.path)
@@ -125,6 +128,10 @@ class gNMIPath:
             return False
         return self.path == rhs.path  # pyright: ignore[reportUnknownVariableType]
 
+    def __hash__(self) -> int:
+        "Return hash of path."
+        return hash(tuple(_to_tuple(elem) for elem in self.path.elem))
+
     def __repr__(self) -> str:
         "Return string representation of path."
         return gnmistring.to_str(self.path)
@@ -136,3 +143,8 @@ def _find_index(value: str, path: gnmi.Path) -> int:
         if elem.name == value:
             return i
     raise KeyError(value)
+
+
+def _to_tuple(elem: gnmi.PathElem) -> tuple[str, ...]:
+    "Return a tuple of name and key'd values."
+    return (elem.name,) + tuple(sorted(elem.key.values()))

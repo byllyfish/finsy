@@ -165,13 +165,13 @@ class gNMIClient:
         if config:
             request.type = gnmi.GetRequest.CONFIG
 
-        self.log_msg(request)
+        self._log_msg(request)
         try:
             reply: gnmi.GetResponse = await self._stub.Get(request)
         except grpc.RpcError as ex:
             raise gNMIClientError(ex) from None
 
-        self.log_msg(reply)
+        self._log_msg(reply)
         return reply.notification
 
     def subscribe(
@@ -214,16 +214,65 @@ class gNMIClient:
 
         request = gnmi.CapabilityRequest()
 
-        self.log_msg(request)
+        self._log_msg(request)
         try:
             reply: gnmi.CapabilityResponse = await self._stub.Capabilities(request)
         except grpc.RpcError as ex:
             raise gNMIClientError(ex) from None
 
-        self.log_msg(reply)
+        self._log_msg(reply)
         return reply
 
-    def log_msg(self, msg: "pbuf.PBMessage"):
+    async def set(
+        self,
+        *,
+        update: dict[gNMIPath, gnmi.TypedValue] | None = None,
+        replace: dict[gNMIPath, gnmi.TypedValue] | None = None,
+        delete: Sequence[gNMIPath] | None = None,
+        prefix: gNMIPath | None = None,
+    ):
+        """Set value(s) using SetRequest."""
+        assert self._stub is not None
+
+        if update is not None:
+            updates = [
+                gnmi.Update(path=path.path, val=value) for path, value in update.items()
+            ]
+        else:
+            updates = None
+
+        if replace is not None:
+            replaces = [
+                gnmi.Update(path=path.path, val=value)
+                for path, value in replace.items()
+            ]
+        else:
+            replaces = None
+
+        if delete is not None:
+            deletes = [path.path for path in delete]
+        else:
+            deletes = None
+
+        request = gnmi.SetRequest(
+            update=updates,
+            replace=replaces,
+            delete=deletes,
+        )
+
+        if prefix is not None:
+            request.prefix.CopyFrom(prefix.path)
+
+        self._log_msg(request)
+        try:
+            reply: gnmi.SetResponse = await self._stub.Set(request)
+        except grpc.RpcError as ex:
+            raise gNMIClientError(ex) from None
+
+        self._log_msg(reply)
+
+    def _log_msg(self, msg: "pbuf.PBMessage"):
+        "Log a gNMI message."
         assert self._channel is not None
         pbuf.log_msg(self._channel.get_state(), msg, None)
 
@@ -316,7 +365,7 @@ class gNMISubscription:
         self._stream = s
         request = gnmi.SubscribeRequest(subscribe=self._sublist)
 
-        self._client.log_msg(request)
+        self._client._log_msg(request)
         try:
             await self._stream.write(request)
         except grpc.RpcError as ex:
@@ -331,7 +380,7 @@ class gNMISubscription:
                 LOGGER.warning("gNMI _read: unexpected EOF")
                 return
 
-            self._client.log_msg(msg)
+            self._client._log_msg(msg)
 
             match msg.WhichOneof("response"):
                 case "update":

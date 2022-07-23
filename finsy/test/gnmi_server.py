@@ -77,7 +77,26 @@ class gNMIServer(gnmi_grpc.gNMIServicer):
         "Handle the set request."
 
         # TODO: Does not actually do anything.
-        return gnmi.SetResponse()
+        results = (
+            [
+                gnmi.UpdateResult(
+                    path=update.path, op=gnmi.UpdateResult.Operation.UPDATE
+                )
+                for update in request.update
+            ]
+            + [
+                gnmi.UpdateResult(
+                    path=update.path, op=gnmi.UpdateResult.Operation.REPLACE
+                )
+                for update in request.replace
+            ]
+            + [
+                gnmi.UpdateResult(path=path, op=gnmi.UpdateResult.Operation.DELETE)
+                for path in request.delete
+            ]
+        )
+
+        return gnmi.SetResponse(response=results)
 
     async def Capabilities(
         self,

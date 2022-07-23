@@ -2,6 +2,7 @@ import asyncio
 
 import pytest
 from finsy.gnmiclient import gNMIClient, gNMIPath
+from finsy.proto import gnmi
 
 
 async def test_gnmi_get_top(gnmi_client: gNMIClient):
@@ -87,6 +88,21 @@ async def test_gnmi_subscribe_sample(gnmi_client: gNMIClient):
 async def test_gnmi_capabilities(gnmi_client: gNMIClient):
     result = await gnmi_client.capabilities()
     assert result.gNMI_version[:2] in ("0.", "1.")
+
+
+async def test_gnmi_set(gnmi_client: gNMIClient):
+    enabled = gNMIPath("interfaces/interface[name=s1-eth1]/config/enabled")
+    result = await gnmi_client.get(enabled)
+
+    await gnmi_client.set(
+        replace={
+            enabled: gnmi.TypedValue(bool_val=False),
+        }
+    )
+
+    result = await gnmi_client.get(
+        gNMIPath("interfaces/interface[name=s1-eth1]/state/admin-status")
+    )
 
 
 async def _get_interfaces(gnmi_client: gNMIClient):

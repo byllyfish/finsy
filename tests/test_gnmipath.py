@@ -70,7 +70,9 @@ def test_path_origin():
 def test_path_equals():
     path1 = gNMIPath("a")
     path2 = gNMIPath("a", origin="b")
+    path3 = gNMIPath("a")
 
+    assert path1 == path3
     assert path1 != path2
     assert path1.path != path2.path
     assert not path1 == 3
@@ -102,3 +104,20 @@ def test_path_getitem():
 
     with pytest.raises(TypeError, match="invalid key type"):
         path1["interface", 3]  # type: ignore
+
+
+def test_hash():
+    "Test hash operation on gNMIPath."
+
+    path1 = gNMIPath("a")
+    path2 = gNMIPath("a", origin="b")
+    path3 = gNMIPath("a")
+
+    assert hash(path1) == hash(path3)
+    assert hash(path1) == hash(path2)  # N.B. origin not included in hash
+
+    path4 = gNMIPath("a/b[name=s]")
+    path5 = gNMIPath("a/b")
+
+    assert hash(path4) != hash(path5)
+    assert path4 != path5
