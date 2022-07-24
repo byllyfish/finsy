@@ -152,6 +152,7 @@ class Arbitrator:
     async def _send(self, switch: "_sw.Switch") -> None:
         "Send MasterArbitrationUpdate message to switch."
         assert self.election_id >= 0
+        assert switch._p4client is not None
 
         request = p4r.StreamMessageRequest(
             arbitration=p4r.MasterArbitrationUpdate(
@@ -161,7 +162,7 @@ class Arbitrator:
             )
         )
 
-        await switch.p4client.send(request)
+        await switch._p4client.send(request)
 
     async def _receive(
         self,
@@ -171,10 +172,11 @@ class Arbitrator:
 
         Return None if the response indicates the `election_id` is in use.
         """
+        assert switch._p4client is not None
 
         try:
             # TODO: Maybe put a timeout on this receive?
-            response = await switch.p4client.receive()
+            response = await switch._p4client.receive()
 
         except P4ClientError as ex:
             if ex.status.is_election_id_used:
