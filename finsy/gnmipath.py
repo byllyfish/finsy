@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import itertools
+
 from typing_extensions import Self
 
 from finsy import gnmistring
@@ -135,6 +137,25 @@ class gNMIPath:
     def __repr__(self) -> str:
         "Return string representation of path."
         return gnmistring.to_str(self.path)
+
+    def __len__(self) -> int:
+        "Return the length of the path."
+        return len(self.path.elem)
+
+    def __truediv__(self, rhs: Self | str) -> Self:
+        "Append values to end of path."
+        if not isinstance(rhs, gNMIPath):
+            rhs = gNMIPath(rhs)
+
+        result = gnmi.Path(elem=itertools.chain(self.path.elem, rhs.path.elem))
+        return gNMIPath(result)
+
+    def __rtruediv__(self, lhs: str) -> Self:
+        "Prepend values to the beginning of the path."
+        path = gNMIPath(lhs)
+
+        result = gnmi.Path(elem=itertools.chain(path.path.elem, self.path.elem))
+        return gNMIPath(result)
 
 
 def _find_index(value: str, path: gnmi.Path) -> int:

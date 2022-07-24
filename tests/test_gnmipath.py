@@ -22,6 +22,8 @@ def test_path_basics():
     assert path3 == path2
     assert path3.path is not path2.path
 
+    assert len(path1) == 4
+
 
 def test_path_repr():
     assert repr(gNMIPath()) == "/"
@@ -121,3 +123,26 @@ def test_hash():
 
     assert hash(path4) != hash(path5)
     assert path4 != path5
+
+
+def test_truediv():
+    "Test path append operator (/)."
+
+    path1 = gNMIPath("a")
+    path2 = gNMIPath("b[x=1]")
+    path3 = path1 / path2
+    assert path3 == gNMIPath("a/b[x=1]")
+
+    path4 = path3 / "r/s/t"
+    assert str(path4) == "a/b[x=1]/r/s/t"
+
+
+def test_rtruediv():
+    "Test path prepend operator (/)."
+
+    path1 = gNMIPath("b[x=1]")
+    path2 = "a" / path1
+    assert path2 == gNMIPath("a/b[x=1]")
+
+    path3 = "r/s/t" / path2
+    assert str(path3) == "r/s/t/a/b[x=1]"

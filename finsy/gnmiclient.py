@@ -131,7 +131,9 @@ class gNMIClient:
 
         Note: This method is `async` for forward-compatible reasons.
         """
-        assert self._channel is None
+        if self._channel is not None:
+            raise RuntimeError("gNMIClient: client is already open")
+
         assert self._stub is None
 
         if channel is not None:
@@ -165,7 +167,8 @@ class gNMIClient:
         config: bool = False,
     ) -> Sequence[gnmi.Notification]:
         "Retrieve value(s) using a GetRequest."
-        assert self._stub is not None
+        if self._stub is None:
+            raise RuntimeError("gNMIClient: client is not open")
 
         request = gnmi.GetRequest(
             path=(i.path for i in path),
@@ -219,11 +222,15 @@ class gNMIClient:
         The subscription object is not re-entrant, but a fully consumed
         subscription may be reused.
         """
+        if self._stub is None:
+            raise RuntimeError("gNMIClient: client is not open")
+
         return gNMISubscription(self, prefix)
 
     async def capabilities(self) -> gnmi.CapabilityResponse:
         "Issue a CapabilitiesRequest."
-        assert self._stub is not None
+        if self._stub is None:
+            raise RuntimeError("gNMIClient: client is not open")
 
         request = gnmi.CapabilityRequest()
 
@@ -248,7 +255,8 @@ class gNMIClient:
 
         Returns the timestamp from the successful `SetResponse`.
         """
-        assert self._stub is not None
+        if self._stub is None:
+            raise RuntimeError("gNMIClient: client is not open")
 
         if update is not None:
             updates = [
