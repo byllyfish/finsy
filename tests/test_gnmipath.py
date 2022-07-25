@@ -26,9 +26,9 @@ def test_path_basics():
 
 
 def test_path_repr():
-    assert repr(gNMIPath()) == "/"
-    assert repr(gNMIPath("interfaces/interface")) == "interfaces/interface"
-    assert repr(gNMIPath("/interfaces/")) == "interfaces"
+    assert repr(gNMIPath()) == "gNMIPath('/')"
+    assert repr(gNMIPath("interfaces/interface")) == "gNMIPath('interfaces/interface')"
+    assert repr(gNMIPath("/interfaces/")) == "gNMIPath('interfaces')"
 
 
 def test_path_str():
@@ -54,6 +54,8 @@ def test_path_keys():
     path2 = path1.key("interface", name="eth1")
     assert path2["interface", "name"] == "eth1"
     assert path2 != path1
+
+    assert path2["interface"] == {"name": "eth1"}
 
 
 def test_path_origin():
@@ -92,11 +94,11 @@ def test_path_getitem():
     assert path1["interface", "a"] == "A"
     assert path1["interface", "b"] == "B"
 
-    assert path1[0, "a"] == ""
-    assert path1["interfaces", "b"] == ""
+    with pytest.raises(KeyError, match="a"):
+        path1[0, "a"]
 
-    with pytest.raises(TypeError, match="invalid key type"):
-        path1["interface"]  # type: ignore
+    with pytest.raises(KeyError, match="b"):
+        path1["interfaces", "b"]
 
     with pytest.raises(KeyError, match="x"):
         path1["x", "a"]
@@ -106,6 +108,27 @@ def test_path_getitem():
 
     with pytest.raises(TypeError, match="invalid key type"):
         path1["interface", 3]  # type: ignore
+
+    assert path1["interface"] == {"a": "A", "b": "B"}
+    assert path1["interfaces"] == {}
+
+
+def test_path_slice():
+    "Test __getitem__ with slice."
+
+    path1 = gNMIPath("interfaces/interface[a=A][b=B]/state")
+
+    path2 = path1[:]
+    assert path1 is not path2
+    assert path1 == path2
+
+    assert path1[0:1] == gNMIPath("interfaces")
+    assert path1[0:2] == gNMIPath("interfaces/interface[a=A][b=B]")
+    assert path1[1:2] == gNMIPath("interface[a=A][b=B]")
+    assert path1[1:] == gNMIPath("interface[a=A][b=B]/state")
+    assert path1[:1] == gNMIPath("interfaces")
+    assert path1[::2] == gNMIPath("interfaces/state")
+    assert path1[:-1] == gNMIPath("interfaces/interface[a=A][b=B]")
 
 
 def test_hash():
@@ -146,3 +169,11 @@ def test_rtruediv():
 
     path3 = "r/s/t" / path2
     assert str(path3) == "r/s/t/a/b[x=1]"
+
+
+def test_contains():
+    "Test path `in` operator."
+
+    path1 = gNMIPath("a/b/c")
+    assert "b" in path1
+    assert "z" not in path1

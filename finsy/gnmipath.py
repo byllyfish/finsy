@@ -27,22 +27,21 @@ class gNMIPath:
 
     A `gNMIPath` should be treated as an immutable object. You can access
     the wrapped `gnmi.Path` protobuf class using the `.path` property.
-
     `gNMIPath` objects are hashable, but you must be careful that you do not
     mutate them via the underlying `gnmi.Path`.
-
-    You can construct a gNMIPath object from a `gnmi.Path` directly.
-    ```
-    path = gNMIPath(update.path)
-    ```
 
     You can construct a gNMIPath from a string:
     ```
     path = gNMIPath("interfaces/interface[name=eth1]/state")
     ```
 
+    You can construct a gNMIPath object from a `gnmi.Path` directly.
+    ```
+    path = gNMIPath(update.path)
+    ```
+
     You can create paths by using an existing path as a template, without
-    modifying the original path:
+    modifying the original path. Use the `key` method:
     ```
     operStatus = gNMIPath("interfaces/interface/state/oper-status")
     path = operStatus.key("interface", name="eth1")
@@ -52,6 +51,7 @@ class gNMIPath:
     ```
     path[1] == "interface"
     path["interface", "name"] == "eth1"
+    path["interface"] == { "name": "eth1" }
     ```
     """
 
@@ -102,8 +102,10 @@ class gNMIPath:
         if isinstance(elem, str):
             elem = _find_index(elem, self.path)
 
+        # Convert kwds values to string, if necessary.
+        new_kwds = {key: str(val) for key, val in kwds.items()}
         result = self.copy()
-        result.path.elem[elem].key.update(kwds)
+        result.path.elem[elem].key.update(new_kwds)
         return result
 
     def copy(self) -> Self:
@@ -112,17 +114,30 @@ class gNMIPath:
         new_path.CopyFrom(self.path)
         return gNMIPath(new_path)
 
-    def __getitem__(self, key: int | tuple[int | str, str]) -> str:
+    def __getitem__(
+        self,
+        key: int | str | tuple[int | str, str] | slice,
+    ) -> str | dict[str, str] | Self:
         "Return the specified element or key value."
         match key:
             case int(idx):
                 return self.path.elem[idx].name
+            case str(name):
+                return dict(self.path.elem[_find_index(name, self.path)].key)
             case (int(idx), str(k)):
-                return self.path.elem[idx].key[k]
+                result = self.path.elem[idx].key.get(k)
+                if result is None:
+                    raise KeyError(k)
+                return result
             case (str(name), str(k)):
-                return self.path.elem[_find_index(name, self.path)].key[k]
-            case _:
-                raise TypeError(f"invalid key type: {key!r}")
+                result = self.path.elem[_find_index(name, self.path)].key.get(k)
+                if result is None:
+                    raise KeyError(k)
+                return result
+            case other:
+                if isinstance(other, slice):
+                    return self._slice(other.start, other.stop, other.step)
+                raise TypeError(f"invalid key type: {other!r}")
 
     def __eq__(self, rhs: Self) -> bool:
         "Return True if path's are equal."
@@ -136,6 +151,10 @@ class gNMIPath:
 
     def __repr__(self) -> str:
         "Return string representation of path."
+        return f"gNMIPath({gnmistring.to_str(self.path)!r})"
+
+    def __str__(self) -> str:
+        "Return path as string."
         return gnmistring.to_str(self.path)
 
     def __len__(self) -> int:
@@ -156,6 +175,27 @@ class gNMIPath:
 
         result = gnmi.Path(elem=itertools.chain(path.path.elem, self.path.elem))
         return gNMIPath(result)
+
+    def _slice(self, start: int | None, stop: int | None, step: int | None) -> Self:
+        "Return specified slice of gNMIPath."
+
+        if start is None:
+            start = 0
+
+        if stop is None:
+            stop = len(self)
+        elif stop < 0:
+            stop = len(self) + stop
+
+        if step is None:
+            step = 1
+
+        path = gnmi.Path()
+        for i in range(start, stop, step):
+            elem = self.path.elem[i]
+            path.elem.append(gnmi.PathElem(name=elem.name, key=elem.key))
+
+        return gNMIPath(path)
 
 
 def _find_index(value: str, path: gnmi.Path) -> int:
