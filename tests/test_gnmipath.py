@@ -50,12 +50,25 @@ def test_path_keys():
     assert path1[2] == "state"
     assert path1["interface", "name"] == "eth0"
     assert path1[1, "name"] == "eth0"
+    assert path1["name"] == "eth0"
 
     path2 = path1.key("interface", name="eth1")
     assert path2["interface", "name"] == "eth1"
     assert path2 != path1
+    assert path2["name"] == "eth1"
 
-    assert path2["interface"] == {"name": "eth1"}
+
+def test_path_keys2():
+    path1 = gNMIPath("a/b[name=x][alias=z]/c[name=y]")
+
+    path2 = path1.key(name="eth0")
+    assert path2 == gNMIPath("a/b[name=eth0][alias=z]/c[name=eth0]")
+
+    with pytest.raises(ValueError, match="no keys found in path"):
+        path1.key(x="d")
+
+    with pytest.raises(ValueError, match="empty keys"):
+        path1.key()
 
 
 def test_path_origin():
@@ -93,6 +106,8 @@ def test_path_getitem():
     assert path1[1, "b"] == "B"
     assert path1["interface", "a"] == "A"
     assert path1["interface", "b"] == "B"
+    assert path1["a"] == "A"
+    assert path1["b"] == "B"
 
     with pytest.raises(KeyError, match="a"):
         path1[0, "a"]
@@ -103,14 +118,14 @@ def test_path_getitem():
     with pytest.raises(KeyError, match="x"):
         path1["x", "a"]
 
+    with pytest.raises(KeyError, match="x"):
+        path1["x"]
+
     with pytest.raises(IndexError):
         path1[3]
 
     with pytest.raises(TypeError, match="invalid key type"):
         path1["interface", 3]  # type: ignore
-
-    assert path1["interface"] == {"a": "A", "b": "B"}
-    assert path1["interfaces"] == {}
 
 
 def test_path_slice():

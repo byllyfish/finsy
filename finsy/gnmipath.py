@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import itertools
+from typing import Any, overload
 
 from typing_extensions import Self
 
@@ -97,15 +98,19 @@ class gNMIPath:
         "Return the path's target."
         return self.path.target
 
-    def key(self, elem: str | int, **kwds: str) -> Self:
+    def key(self, __elem: str | int | None = None, **kwds: Any) -> Self:
         "Construct a new gNMIPath with keys set for the given elem."
-        if isinstance(elem, str):
-            elem = _find_index(elem, self.path)
+        if __elem is None:
+            return self._rekey(kwds)
+        elif isinstance(__elem, str):
+            elem = _find_index(__elem, self.path)
+        else:
+            elem = __elem
 
-        # Convert kwds values to string, if necessary.
-        new_kwds = {key: str(val) for key, val in kwds.items()}
         result = self.copy()
-        result.path.elem[elem].key.update(new_kwds)
+        keys = result.path.elem[elem].key
+        keys.clear()
+        keys.update({key: str(val) for key, val in kwds.items()})
         return result
 
     def copy(self) -> Self:
@@ -114,16 +119,27 @@ class gNMIPath:
         new_path.CopyFrom(self.path)
         return gNMIPath(new_path)
 
+    @overload
+    def __getitem__(self, key: int | str | tuple[int | str, str]) -> str:
+        ...
+
+    @overload
+    def __getitem__(self, key: slice) -> Self:
+        ...
+
     def __getitem__(
         self,
         key: int | str | tuple[int | str, str] | slice,
-    ) -> str | dict[str, str] | Self:
+    ) -> str | Self:
         "Return the specified element or key value."
         match key:
             case int(idx):
                 return self.path.elem[idx].name
             case str(name):
-                return dict(self.path.elem[_find_index(name, self.path)].key)
+                result = self.path.elem[_find_key(name, self.path)].key.get(name)
+                if result is None:
+                    raise KeyError(name)
+                return result
             case (int(idx), str(k)):
                 result = self.path.elem[idx].key.get(k)
                 if result is None:
@@ -134,9 +150,9 @@ class gNMIPath:
                 if result is None:
                     raise KeyError(k)
                 return result
+            case slice() as s:
+                return self._slice(s.start, s.stop, s.step)
             case other:
-                if isinstance(other, slice):
-                    return self._slice(other.start, other.stop, other.step)
                 raise TypeError(f"invalid key type: {other!r}")
 
     def __eq__(self, rhs: Self) -> bool:
@@ -148,6 +164,13 @@ class gNMIPath:
     def __hash__(self) -> int:
         "Return hash of path."
         return hash(tuple(_to_tuple(elem) for elem in self.path.elem))
+
+    def __contains__(self, name: str) -> bool:
+        "Return True if element name is in path."
+        for elem in self.path.elem:
+            if elem.name == name:
+                return True
+        return False
 
     def __repr__(self) -> str:
         "Return string representation of path."
@@ -197,13 +220,40 @@ class gNMIPath:
 
         return gNMIPath(path)
 
+    def _rekey(self, keys: dict[str, Any]) -> Self:
+        """Construct a new path with specified keys replaced."""
+        if not keys:
+            raise ValueError("empty keys")
 
-def _find_index(value: str, path: gnmi.Path) -> int:
-    "Return index in path of specified element `value`."
+        result = self.copy()
+
+        found = False
+        for elem in result.path.elem:
+            for key, value in keys.items():
+                if key in elem.key:
+                    elem.key[key] = str(value)
+                    found = True
+
+        if not found:
+            raise ValueError(f"no keys found in path: {keys!r}")
+
+        return result
+
+
+def _find_index(name: str, path: gnmi.Path) -> int:
+    "Return index in path of specified element `name`."
     for i, elem in enumerate(path.elem):
-        if elem.name == value:
+        if elem.name == name:
             return i
-    raise KeyError(value)
+    raise KeyError(name)
+
+
+def _find_key(key: str, path: gnmi.Path) -> int:
+    "Return index in path of element with specified key."
+    for i, elem in enumerate(path.elem):
+        if key in elem.key:
+            return i
+    raise KeyError(key)
 
 
 def _to_tuple(elem: gnmi.PathElem) -> tuple[str, ...]:

@@ -17,7 +17,8 @@
 # pyright: reportPrivateUsage=false
 
 import asyncio
-from typing import Any, AsyncIterator, Sequence, TypeAlias
+from dataclasses import dataclass
+from typing import Any, AsyncIterator, Iterator, Sequence, TypeAlias
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 
@@ -59,22 +60,47 @@ class gNMIClientError(Exception):
         return f"gNMIClientError(code={self.code!r}, message={self.message!r})"
 
 
+@dataclass
+class gNMIUpdate:
+    "Represents a gNMI update returned from gNMIClient."
+
+    timestamp: int
+    path: gNMIPath
+    typed_value: gnmi.TypedValue | None
+
+    @property
+    def value(self) -> Any:
+        "Return the value as a Python value."
+        if self.typed_value is None:
+            return None
+
+        attr = self.typed_value.WhichOneof("value")
+        if attr is None:
+            raise ValueError("typed_value is not set")
+        return getattr(self.typed_value, attr)
+
+    def __repr__(self):
+        "Override repr to strip newline from end of `TypedValue`."
+
+        value = repr(self.typed_value).rstrip()
+        return f"gNMIUpdate(timestamp={self.timestamp!r}, path={self.path!r}, typed_value=`{value}`)"
+
+
 class gNMIClient:
     """Async GNMI client.
 
     This client implements `get`, `set`, `subscribe` and `capabilities`.
 
-    The API depends on and exposes protobuf definitions of `gnmi.Notification`
-    and `gnmi.TypedValue`.
+    The API depends on the protobuf definition of `gnmi.TypedValue`.
 
     Get usage:
     ```
     client = gNMIClient('127.0.0.1:9339')
+    await client.open()
 
     path = gNMIPath("interfaces/interface")
-    result = await client.get(path)
-    for notification in result:
-        print(notification)
+    async for update in client.get(path):
+        print(update)
     ```
 
     Subscribe usage:
@@ -165,7 +191,7 @@ class gNMIClient:
         *path: gNMIPath,
         prefix: gNMIPath | None = None,
         config: bool = False,
-    ) -> Sequence[gnmi.Notification]:
+    ) -> Sequence[gNMIUpdate]:
         "Retrieve value(s) using a GetRequest."
         if self._stub is None:
             raise RuntimeError("gNMIClient: client is not open")
@@ -188,7 +214,13 @@ class gNMIClient:
             raise gNMIClientError(ex) from None
 
         self._log_msg(reply)
-        return reply.notification
+
+        result: list[gNMIUpdate] = []
+        for notification in reply.notification:
+            for update in _read_updates(notification):
+                result.append(update)
+
+        return result
 
     def subscribe(
         self,
@@ -370,7 +402,7 @@ class gNMISubscription:
             )
             self._sublist.subscription.append(sub)
 
-    async def synchronize(self) -> AsyncIterator[gnmi.Notification]:
+    async def synchronize(self) -> AsyncIterator[gNMIUpdate]:
         await self._subscribe()
 
         try:
@@ -379,7 +411,7 @@ class gNMISubscription:
         except grpc.RpcError as ex:
             raise gNMIClientError(ex) from None
 
-    async def updates(self) -> AsyncIterator[gnmi.Notification]:
+    async def updates(self) -> AsyncIterator[gNMIUpdate]:
         if self._stream is None:
             await self._subscribe()
 
@@ -408,7 +440,7 @@ class gNMISubscription:
         except grpc.RpcError as ex:
             raise gNMIClientError(ex) from None
 
-    async def _read(self, stop_at_sync: bool) -> AsyncIterator[gnmi.Notification]:
+    async def _read(self, stop_at_sync: bool) -> AsyncIterator[gNMIUpdate]:
         assert self._stream is not None
 
         while True:
@@ -421,7 +453,8 @@ class gNMISubscription:
 
             match msg.WhichOneof("response"):
                 case "update":
-                    yield msg.update
+                    for update in _read_updates(msg.update):
+                        yield update
                 case "sync_response":
                     if stop_at_sync:
                         if self._is_once():
@@ -439,3 +472,21 @@ class gNMISubscription:
     def _is_once(self) -> bool:
         "Return true if the subscription is in ONCE mode."
         return self._sublist.mode == gnmi.SubscriptionList.Mode.ONCE
+
+
+def _read_updates(notification: gnmi.Notification) -> Iterator[gNMIUpdate]:
+    "Generator to retrieve all updates from a notification."
+
+    for update in notification.update:
+        yield gNMIUpdate(
+            timestamp=notification.timestamp,
+            path=gNMIPath(update.path),
+            typed_value=update.val,
+        )
+
+    for delete in notification.delete:
+        yield gNMIUpdate(
+            timestamp=notification.timestamp,
+            path=gNMIPath(delete),
+            typed_value=None,
+        )
