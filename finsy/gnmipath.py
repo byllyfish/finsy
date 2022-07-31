@@ -42,17 +42,17 @@ class gNMIPath:
     ```
 
     You can create paths by using an existing path as a template, without
-    modifying the original path. Use the `key` method:
+    modifying the original path. Use the `set` method:
     ```
     operStatus = gNMIPath("interfaces/interface/state/oper-status")
-    path = operStatus.key("interface", name="eth1")
+    path = operStatus.set("interface", name="eth1")
     ```
 
     Use [] to access the name/key of path elements:
     ```
     path[1] == "interface"
     path["interface", "name"] == "eth1"
-    path["interface"] == { "name": "eth1" }
+    path["name"] == "eth1"
     ```
     """
 
@@ -98,7 +98,7 @@ class gNMIPath:
         "Return the path's target."
         return self.path.target
 
-    def key(self, __elem: str | int | None = None, **kwds: Any) -> Self:
+    def set(self, __elem: str | int | None = None, **kwds: Any) -> Self:
         "Construct a new gNMIPath with keys set for the given elem."
         if __elem is None:
             return self._rekey(kwds)

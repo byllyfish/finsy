@@ -36,7 +36,7 @@ async def test_gnmi_subscribe_once(gnmi_client: gNMIClient):
     oper_status = gNMIPath("interfaces/interface/state/oper-status")
     sub = gnmi_client.subscribe()
     for ifname in interfaces:
-        sub.once(oper_status.key("interface", name=ifname))
+        sub.once(oper_status.set("interface", name=ifname))
 
     async for _update in sub.synchronize():
         pass
@@ -50,7 +50,7 @@ async def test_gnmi_subscribe_on_change(gnmi_client: gNMIClient):
     oper_status = gNMIPath("interfaces/interface/state/oper-status")
     sub = gnmi_client.subscribe()
     for ifname in interfaces:
-        sub.on_change(oper_status.key("interface", name=ifname))
+        sub.on_change(oper_status.set("interface", name=ifname))
 
     # Place test code in a coroutine so I can set a timeout.
     async def _read_stream():
@@ -72,7 +72,7 @@ async def test_gnmi_subscribe_sample(gnmi_client: gNMIClient):
     for ifname in interfaces:
         # FIXME: stratum sample_interval appears to be in milliseconds? (not
         # nanoseconds as it says in GNMI spec)
-        sub.sample(in_octets.key("interface", name=ifname), sample_interval=100)
+        sub.sample(in_octets.set("interface", name=ifname), sample_interval=100)
 
     # Place test code in a coroutine so I can set a timeout.
     async def _read_stream():

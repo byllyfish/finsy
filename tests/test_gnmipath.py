@@ -57,7 +57,7 @@ def test_path_keys():
     assert path1[1, "name"] == "eth0"
     assert path1["name"] == "eth0"
 
-    path2 = path1.key("interface", name="eth1")
+    path2 = path1.set("interface", name="eth1")
     assert path2["interface", "name"] == "eth1"
     assert path2 != path1
     assert path2["name"] == "eth1"
@@ -66,14 +66,14 @@ def test_path_keys():
 def test_path_keys2():
     path1 = gNMIPath("a/b[name=x][alias=z]/c[name=y]")
 
-    path2 = path1.key(name="eth0")
+    path2 = path1.set(name="eth0")
     assert path2 == gNMIPath("a/b[name=eth0][alias=z]/c[name=eth0]")
 
     with pytest.raises(ValueError, match="no keys found in path"):
-        path1.key(x="d")
+        path1.set(x="d")
 
     with pytest.raises(ValueError, match="empty keys"):
-        path1.key()
+        path1.set()
 
 
 def test_path_origin():

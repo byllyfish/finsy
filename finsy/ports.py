@@ -110,7 +110,7 @@ class PortList:
 
         # Subscribe to change notifications.
         for port in self._ports.values():
-            sub.on_change(_ifOperStatus.key(name=port.name))
+            sub.on_change(_ifOperStatus.set(name=port.name))
 
         # Synchronize initial settings for ports.
         async for update in sub.synchronize():
