@@ -30,6 +30,11 @@ def test_path_repr():
     assert repr(gNMIPath("interfaces/interface")) == "gNMIPath('interfaces/interface')"
     assert repr(gNMIPath("/interfaces/")) == "gNMIPath('interfaces')"
 
+    assert (
+        repr(gNMIPath("/a/b", origin="c", target="d"))
+        == "gNMIPath('a/b', origin='c', target='d')"
+    )
+
 
 def test_path_str():
     assert str(gNMIPath()) == "/"

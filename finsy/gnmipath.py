@@ -174,7 +174,10 @@ class gNMIPath:
 
     def __repr__(self) -> str:
         "Return string representation of path."
-        return f"gNMIPath({gnmistring.to_str(self.path)!r})"
+        path = gnmistring.to_str(self.path)
+        if self.target or self.origin:
+            return f"gNMIPath({path!r}, origin={self.origin!r}, target={self.target!r})"
+        return f"gNMIPath({path!r})"
 
     def __str__(self) -> str:
         "Return path as string."
