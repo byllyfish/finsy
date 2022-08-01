@@ -24,6 +24,8 @@ optionally have one or more key-value pairs. Each key-value pair is enclosed in 
 e.g. \[key=value\]. The specification for the string format is 
 [here](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-strings.md).
 
+Start the Python3 asyncio REPL by typing `python -m asyncio`.
+
 ```pycon
 >>> from finsy import gNMIPath
 >>> p = gNMIPath("a/b[x=1]/c")
@@ -71,8 +73,8 @@ two subscripts. The first subscript identifies the element and the second identi
 '1'
 ```
 
-In most cases, the key name will be unique to a specific element of the path. As a shorthand, 
-you can retrieve the value of the first element key using a single string subscript.
+In most cases, a key's name will be unique to a specific element of the path. As a shorthand, 
+you can retrieve the key's value using a single string subscript.
 
 ```pycon
 >>> p["x"]
@@ -162,41 +164,51 @@ specifies we want to match any interface name.
 ... 
 >>> len(result)
 2
->>> foreach(result, print)
-[gNMIUpdate(timestamp=1659231504941800059, path=gNMIPath('interfaces/interface[name=s1-eth1]/state/id'), typed_value=`uint_val: 1`), gNMIUpdate(timestamp=1659231504941825659, path=gNMIPath('interfaces/interface[name=s1-eth2]/state/id'), typed_value=`uint_val: 2`)]
+>>> for i in result: print(i)
+...
+gNMIUpdate(timestamp=1659325786657061923, path=gNMIPath('interfaces/interface[name=s1-eth1]/state/id'), typed_value=`uint_val: 1`)
+gNMIUpdate(timestamp=1659325786657089008, path=gNMIPath('interfaces/interface[name=s1-eth2]/state/id'), typed_value=`uint_val: 2`)
 ```
 
 The output shows two values because our `s1` switch has two interfaces. From the "name" key, we see that
 the interface names are "s1-eth1" and "s1-eth2". Their interface id values are `1` and `2` respectively.
 
-The value in a gNMIUpdate is in backticks, because value is a `gnmi.TypedValue`, which is a protobuf union.
-Depending on the path, the value may have different types. In the output above, the value of `id` is of type uint_val.
-To access this in your Python program, you will use `update.typed_value.uint_val`. As you will see below, you 
-can also access the value as `update.value`.
+The value of `typed_value` is in backticks, because value is a `gnmi.TypedValue`. This is a protobuf 
+derived class, not a Finsy class.
 
-Here is the definition of `gnmi.TypedValue` from gnmi.proto:
+In the output above, the value of `id` is of type uint_val.
+To access this in your Python program, you will type `update.typed_value.uint_val`. As you will see below, you 
+can also access the value as just `update.value`.
+
+For reference, here is the definition of `gnmi.TypedValue` from gnmi.proto:
 
 ```protobuf
-// ==> Excerpted from TypedValue in gnmi.proto (v0.8.0).
-oneof value {
-  string string_val = 1;            // String value.
-  int64 int_val = 2;                // Integer value.
-  uint64 uint_val = 3;              // Unsigned integer value.
-  bool bool_val = 4;                // Bool value.
-  bytes bytes_val = 5;              // Arbitrary byte sequence value.
-  float float_val = 6 [deprecated=true]; // Deprecated - use double_val.
-  double double_val = 14;           // Floating point value.
-  Decimal64 decimal_val = 7 [deprecated=true]; // Deprecated - use double_val.
-  ScalarArray leaflist_val = 8;     // Mixed type scalar array value.
-  google.protobuf.Any any_val = 9;  // protobuf.Any encoded bytes.
-  bytes json_val = 10;              // JSON-encoded text.
-  bytes json_ietf_val = 11;         // JSON-encoded text per RFC7951.
-  string ascii_val = 12;            // Arbitrary ASCII text.
-  // Protobuf binary encoded bytes. The message type is not included.
-  // See the specification at
-  // github.com/openconfig/reference/blob/master/rpc/gnmi/protobuf-vals.md
-  // for a complete specification. [Experimental]
-  bytes proto_bytes = 13;
+message TypedValue {
+  // One of the fields within the val oneof is populated with the value
+  // of the update. The type of the value being included in the Update
+  // determines which field should be populated. In the case that the
+  // encoding is a particular form of the base protobuf type, a specific
+  // field is used to store the value (e.g., json_val).
+  oneof value {
+    string string_val = 1;            // String value.
+    int64 int_val = 2;                // Integer value.
+    uint64 uint_val = 3;              // Unsigned integer value.
+    bool bool_val = 4;                // Bool value.
+    bytes bytes_val = 5;              // Arbitrary byte sequence value.
+    float float_val = 6 [deprecated=true]; // Deprecated - use double_val.
+    double double_val = 14;           // Floating point value.
+    Decimal64 decimal_val = 7 [deprecated=true]; // Deprecated - use double_val.
+    ScalarArray leaflist_val = 8;     // Mixed type scalar array value.
+    google.protobuf.Any any_val = 9;  // protobuf.Any encoded bytes.
+    bytes json_val = 10;              // JSON-encoded text.
+    bytes json_ietf_val = 11;         // JSON-encoded text per RFC7951.
+    string ascii_val = 12;            // Arbitrary ASCII text.
+    // Protobuf binary encoded bytes. The message type is not included.
+    // See the specification at
+    // github.com/openconfig/reference/blob/master/rpc/gnmi/protobuf-vals.md
+    // for a complete specification. [Experimental]
+    bytes proto_bytes = 13;
+  }
 }
 ```
 
