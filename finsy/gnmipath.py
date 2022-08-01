@@ -102,7 +102,8 @@ class gNMIPath:
         "Construct a new gNMIPath with keys set for the given elem."
         if __elem is None:
             return self._rekey(kwds)
-        elif isinstance(__elem, str):
+
+        if isinstance(__elem, str):
             elem = _find_index(__elem, self.path)
         else:
             elem = __elem

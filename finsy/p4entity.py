@@ -230,7 +230,7 @@ class P4TableMatch(dict[str, Any]):
 class P4TableAction:
     """Represents a P4Runtime Action reference.
 
-    e.g. TableAction("ipv4_forward", port=1)
+    e.g. P4TableAction("ipv4_forward", port=1)
     """
 
     name: str
@@ -316,6 +316,8 @@ class P4TableAction:
 
 @dataclass(kw_only=True)
 class P4MeterConfig:
+    "Represents a P4Runtime MeterConfig."
+
     cir: int
     cburst: int
     pir: int
@@ -331,6 +333,8 @@ class P4MeterConfig:
 
 @dataclass(kw_only=True)
 class P4CounterData:
+    "Represents a P4Runtime CounterData."
+
     byte_count: int
     packet_count: int
 
@@ -344,6 +348,8 @@ class P4CounterData:
 
 @dataclass(kw_only=True)
 class P4MeterCounterData:
+    "Represents a P4Runtime MeterCounterData."
+
     green: P4CounterData
     yellow: P4CounterData
     red: P4CounterData
