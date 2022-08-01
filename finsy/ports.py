@@ -18,13 +18,12 @@ import enum
 from dataclasses import dataclass
 
 import finsy.switch as _sw  # circular import
-from finsy.gnmiclient import gNMIClient, gNMIPath, gNMISubscription
+from finsy.gnmiclient import gNMIClient, gNMIPath, gNMISubscription, gNMIUpdate
 from finsy.log import LOGGER, TRACE
-from finsy.proto import gnmi
 
 # FIXME: Use GNMI id or ifIndex?
-_ifIndex = gNMIPath("interfaces/interface/state/ifindex")
-_ifOperStatus = gNMIPath("interfaces/interface/state/oper-status")
+_ifIndex = gNMIPath("interfaces/interface[name=*]/state/ifindex")
+_ifOperStatus = gNMIPath("interfaces/interface[name=*]/state/oper-status")
 
 
 class OperStatus(enum.Enum):
@@ -83,9 +82,8 @@ class PortList:
     async def update(self, switch: "_sw.Switch | None" = None):
         assert self._subscription is not None
 
-        async for notification in self._subscription.updates():
-            for update in notification.update:
-                self._update(update, switch)
+        async for update in self._subscription.updates():
+            self._update(update, switch)
 
     def close(self):
         if self._subscription is not None:
@@ -97,14 +95,13 @@ class PortList:
         "Retrieve ID and name of each port."
         ports: dict[str, Port] = {}
 
-        result = await client.get(_ifIndex.key("interface", name="*"))
-        for notification in result:
-            for update in notification.update:
-                path = gNMIPath(update.path)
-                assert path.last == _ifIndex.last
+        result = await client.get(_ifIndex)
+        for update in result:
+            path = update.path
+            assert path.last == _ifIndex.last
 
-                port = Port(update.val.uint_val, path["interface", "name"])
-                ports[port.name] = port
+            port = Port(update.value, path["name"])
+            ports[port.name] = port
 
         return ports
 
@@ -113,24 +110,21 @@ class PortList:
 
         # Subscribe to change notifications.
         for port in self._ports.values():
-            sub.on_change(
-                _ifOperStatus.key("interface", name=port.name),
-            )
+            sub.on_change(_ifOperStatus.set(name=port.name))
 
         # Synchronize initial settings for ports.
-        async for notification in sub.synchronize():
-            for update in notification.update:
-                self._update(update, None)
+        async for update in sub.synchronize():
+            self._update(update, None)
 
         return sub
 
-    def _update(self, update: gnmi.Update, switch: "_sw.Switch | None"):
-        path = gNMIPath(update.path)
-        name = path["interface", "name"]
+    def _update(self, update: gNMIUpdate, switch: "_sw.Switch | None"):
+        path = update.path
+        name = path["name"]
 
         match path.last:
             case _ifOperStatus.last:
-                status = OperStatus(update.val.string_val)
+                status = OperStatus(update.value)
                 self._update_port(name, status, switch)
             case _:
                 LOGGER.warning(f"PortList: unknown gNMI path: {path}")

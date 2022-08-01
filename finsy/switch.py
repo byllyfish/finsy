@@ -162,9 +162,8 @@ class Switch:
         return self._p4schema
 
     @property
-    def p4client(self) -> P4Client:
-        assert self._p4client is not None
-        return self._p4client
+    def gnmi_client(self) -> gNMIClient | None:
+        return self._gnmi_client
 
     @property
     def ports(self) -> PortList:

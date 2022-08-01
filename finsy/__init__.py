@@ -22,6 +22,8 @@ if sys.version_info < (3, 10):  # pragma: no cover
     raise RuntimeError("Requires Python 3.10+.")
 
 from .controller import Controller
+from .gnmiclient import gNMIClient
+from .gnmipath import gNMIPath
 from .p4entity import (
     P4CounterData,
     P4DigestEntry,
@@ -58,4 +60,6 @@ __all__ = [
     "Switch",
     "SwitchEvent",
     "SwitchOptions",
+    "gNMIClient",
+    "gNMIPath",
 ]
