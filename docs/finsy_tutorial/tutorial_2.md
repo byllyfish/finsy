@@ -1,5 +1,7 @@
 # 🐟 Tutorial 2: Using gNMI
 
+🚧 This tutorial is [under development](## "Working on Technical content...").
+
 In this tutorial, we will demonstrate how to use the `Finsy` gNMI client.
 gNMI is a protocol for reading and writing a key/value store that describes a 
 device's configuration and runtime state.
@@ -217,13 +219,22 @@ Let's examine the first result.
 ```pycon
 >>> update1 = result[0]
 >>> update1
-gNMIUpdate(timestamp=1659128669262256490, path=gNMIPath('interfaces/interface[name=s1-eth1]/state/id'), value=`uint_val: 1`)
+gNMIUpdate(timestamp=1659128669262256490, path=gNMIPath('interfaces/interface[name=s1-eth1]/state/id'), typed_value=`uint_val: 1`)
+```
+
+We are interested in the name of the interface and the value of 'id'. Note that we can obtain the value
+using the convenient `.value` property. If necessary, you can determine the underlying protobuf type 
+using the `WhichOneof()` method on `.typed_value`.
+
+```pycon
 >>> update1.path["name"]
 's1-eth1'
 >>> update1.value
 1
 >>> update1.typed_value.WhichOneof("value")
 'uint_val'
+>>> update1.typed_value.uint_val
+1
 ```
 
 Let's collect the interface names and values into a Python dictionary.
@@ -250,9 +261,113 @@ s1-eth2 UP
 
 ### gNMI Subscribe
 
-*TODO*
+In this section, we show how to use gNMI subscribe. Before we begin, let's open the gNMI
+client and leave it open:
+
+```pycon
+>>> await client.open()
+```
+
+In previous examples, we used `async with`, which opened and closed the client for us. To
+use the subscribe API, we'll want the client to remain open.
+
+First, we create a `gNMISubscription` object tied to a client. Then, we call methods on
+the subscription object to register for the events we are interested in.
+
+Here we create oper_status paths for each interface name in `ports`.
+
+```pycon
+>>> sub = client.subscribe()
+>>> port_status = [oper_status.set(name=name) for name in ports]
+>>> sub.on_change(*port_status)
+```
+
+A gNMI subscription does not send the actual `SubscribeRequest` until we
+call `synchronize`. The `synchronize()` method returns the initial state
+of the values we are subscribing to.
+
+```pycon
+>>> async for update in sub.synchronize():
+...   print(update)
+...
+gNMIUpdate(timestamp=1659380663818110532, path=gNMIPath('interfaces/interface[name=s1-eth1]/state/oper-status'), typed_value=`string_val: "UP"`)
+gNMIUpdate(timestamp=1659380663818678235, path=gNMIPath('interfaces/interface[name=s1-eth2]/state/oper-status'), typed_value=`string_val: "UP"`)
+```
+
+We are not allowed to make changes to the subscription after calling `synchronize`.
+To receive further changes to the subscription, we call the `updates` method.
+Here we will create an asyncio task to do that.
+
+```pycon
+>>> async def listen():
+...   async for update in sub.updates():
+...     print("\n  ***", update)
+... 
+>>> listen_task = asyncio.create_task(listen())
+```
+
+If we check the topology in Mininet, we can see that interface `s1-eth1` on switch `s1` is
+connected to interface `s2-eth3` on switch `s2`. Let's disable interface `s2-eth3` and see
+how this changes that status of `s1-eth1`.
+
+```shell
+mininet> net
+h1 h1-eth0:s2-eth1
+h2 h2-eth0:s2-eth2
+h3 h3-eth0:s3-eth1
+h4 h4-eth0:s3-eth2
+s1 lo:  s1-eth1:s2-eth3 s1-eth2:s3-eth3
+s2 lo:  s2-eth1:h1-eth0 s2-eth2:h2-eth0 s2-eth3:s1-eth1
+s3 lo:  s3-eth1:h3-eth0 s3-eth2:h4-eth0 s3-eth3:s1-eth2
+mininet> sh ifconfig s2-eth3 down
+```
+
+We should see some new output in the asyncio REPL from our "listen_task". The status of the 
+interface is now down.
+
+```pycon
+>>> 
+  *** gNMIUpdate(timestamp=1659376837812996081, path=gNMIPath('interfaces/interface[name=s1-eth1]/state/oper-status'), typed_value=`string_val: "DOWN"`)
+```
+
+Use Mininet to re-enable the interface. You should see another gNMIUpdate message for interface
+"s1-eth1".
+
+```shell
+mininet> sh ifconfig s2-eth3 up
+```
+
+Let's leave our `listen_task` running. In the next section, we will disable the interface using gNMI set.
 
 ### gNMI Set
 
-*TODO*
+We use a gNMI Set operation to create, modify or delete a value. Let's use gNMI set to re-enable the 
+interface we just disabled.
 
+We'll need to use the `TypedValue` class directly. Let's import the "gnmi" protobuf definitions.
+We also create a path to the "enabled" variable we'll need to set.
+
+```pycon
+>>> from finsy.proto import gnmi
+>>> enabled = gNMIPath("interfaces/interface[name=s2-eth3]/config/enabled")
+```
+
+Before starting, let's double-check the status of interface "s2-eth3". This 
+interface is on switch "s2", so we temporarily create another client:
+
+```pycon
+>>> async with gNMIClient("127.0.0.1:50002") as s2:
+...   result = await s2.get(oper_status.set(name="s2-eth3"))
+...
+>>> result
+[gNMIUpdate(timestamp=1659379912824896183, path=gNMIPath('interfaces/interface[name=s2-eth3]/state/oper-status'), typed_value=`string_val: "DOWN"`)]
+```
+
+Now, let's re-enable the interface:
+
+```pycon
+>>> async with gNMIClient("127.0.0.1:50002") as s2:
+...   result = await s2.set(update={enabled: gnmi.TypedValue(bool_val=True)})
+...
+(something is not working right?)
+```

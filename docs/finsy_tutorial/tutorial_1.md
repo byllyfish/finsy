@@ -1,6 +1,6 @@
-# 🐟 Tutorial 1: Using Stratum and bmv2 Docker Images
+# 🐟 Tutorial 1: Using the Stratum Mininet Docker Image
 
-🚧 This tutorial is under development.
+🚧 This tutorial is [under development](## "Technical content okay; grammar not read good ;)").
 
 This tutorial shows how to connect Finsy to a software switch running in a Docker container. If you
 already have a P4Runtime switch or you are familiar with docker/mininet/stratum, you can skip this 
@@ -17,7 +17,7 @@ machine. You will activate the SSH tunnel to Mininet by running `ssh mininet`.
 ## ◉ Requirements
 
 - Ubuntu Server 22.04, running on x86_64, with SSH access.
-- Docker engine.
+- Docker engine (or podman).
 
 Follow the directions for [installing Docker Engine](https://docs.docker.com/engine/install/ubuntu/) 
 on Ubuntu using the APT repository.
@@ -97,5 +97,11 @@ graph TD
 ```
 
 
+## 🎉 Next Steps
+
 That's it. The remaining tutorials assume that they can connect to P4Runtime/gNMI devices
 running on localhost at ports 50001, 50002, and 50003.
+
+The next tutorial shows how to use Finsy's gNMI client.
+
+[➡️ Go to Tutorial 2.](tutorial_2.md)

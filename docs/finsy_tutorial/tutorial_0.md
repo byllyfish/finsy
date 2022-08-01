@@ -1,6 +1,6 @@
 # 🐟 Tutorial 0: Installation and Setup
 
-🚧 This tutorial is under development.
+🚧 This tutorial is [under development](## "Technical content okay; grammar not read good ;)").
 
 This tutorial shows how to create a **Finsy** project from scratch.
 
@@ -14,6 +14,7 @@ Before we begin, you must install the following software:
 - Visual Studio Code ([code.visualstudio.com](https://code.visualstudio.com/))
 
 I recommend using the latest release of Python 3 when using asyncio. Finsy requires Python 3.10 or later.
+On Mac OS, I use pyenv (installed via homebrew) to manage my python versions.
 
 Poetry is a useful tool for managing Python projects.
 
@@ -248,3 +249,5 @@ Now, re-run `python demo0.py` from the first Terminal.
 All done with this tutorial.
 
 The next tutorial will show you how to test Finsy against bmv2 and stratum docker images.
+
+[➡️ Go to Tutorial 1.](tutorial_1.md)
