@@ -630,12 +630,45 @@ global___Action = Action
 
 class ActionProfile(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    class _SelectorSizeSemantics:
+        ValueType = typing.NewType('ValueType', builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+    class _SelectorSizeSemanticsEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ActionProfile._SelectorSizeSemantics.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        SUM_OF_WEIGHTS: ActionProfile._SelectorSizeSemantics.ValueType  # 0
+        """indicates that `size` and `max_group_size` represent the maximum sum of
+        weights that can be present across all selector groups and within a
+        single selector group respectively.
+        """
+
+        SUM_OF_MEMBERS: ActionProfile._SelectorSizeSemantics.ValueType  # 1
+        """indicates that `size` and `max_group_size` represent the maximum number
+        of members that can be present across all selector groups and within a
+        single selector group respectively.
+        """
+
+    class SelectorSizeSemantics(_SelectorSizeSemantics, metaclass=_SelectorSizeSemanticsEnumTypeWrapper):
+        pass
+
+    SUM_OF_WEIGHTS: ActionProfile.SelectorSizeSemantics.ValueType  # 0
+    """indicates that `size` and `max_group_size` represent the maximum sum of
+    weights that can be present across all selector groups and within a
+    single selector group respectively.
+    """
+
+    SUM_OF_MEMBERS: ActionProfile.SelectorSizeSemantics.ValueType  # 1
+    """indicates that `size` and `max_group_size` represent the maximum number
+    of members that can be present across all selector groups and within a
+    single selector group respectively.
+    """
+
+
     PREAMBLE_FIELD_NUMBER: builtins.int
     TABLE_IDS_FIELD_NUMBER: builtins.int
     WITH_SELECTOR_FIELD_NUMBER: builtins.int
     SIZE_FIELD_NUMBER: builtins.int
-    MAX_NUM_MEMBERS_FIELD_NUMBER: builtins.int
     MAX_GROUP_SIZE_FIELD_NUMBER: builtins.int
+    SELECTOR_SIZE_SEMANTICS_FIELD_NUMBER: builtins.int
     @property
     def preamble(self) -> global___Preamble: ...
     @property
@@ -646,18 +679,18 @@ class ActionProfile(google.protobuf.message.Message):
     """true iff the action profile used dynamic selection"""
 
     size: builtins.int
-    """max total weight of all member entries across all groups, or max number of
-    member entries across all groups if the action profile does not have a
-    selector
+    """max number of member entries across all groups if the action profile does
+    not have a selector. Otherwise, semantics as specified by
+    `selector_size_semantics` below.
     """
-
-    max_num_members: builtins.int
-    """max number of member entries across all groups"""
 
     max_group_size: builtins.int
-    """max number of weighted member entries in any given selector group, or 0 if
-    the action profile does not have a selector
+    """0 if the action profile does not have a selector. Otherwise, semantics as
+    specified by `selector_size_semantics` below.
     """
+
+    selector_size_semantics: global___ActionProfile.SelectorSizeSemantics.ValueType
+    """specifies the semantics of `size` and `max_group_size` above"""
 
     def __init__(self,
         *,
@@ -665,11 +698,11 @@ class ActionProfile(google.protobuf.message.Message):
         table_ids: typing.Optional[typing.Iterable[builtins.int]] = ...,
         with_selector: builtins.bool = ...,
         size: builtins.int = ...,
-        max_num_members: builtins.int = ...,
         max_group_size: builtins.int = ...,
+        selector_size_semantics: global___ActionProfile.SelectorSizeSemantics.ValueType = ...,
         ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["preamble",b"preamble"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["max_group_size",b"max_group_size","max_num_members",b"max_num_members","preamble",b"preamble","size",b"size","table_ids",b"table_ids","with_selector",b"with_selector"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["max_group_size",b"max_group_size","preamble",b"preamble","selector_size_semantics",b"selector_size_semantics","size",b"size","table_ids",b"table_ids","with_selector",b"with_selector"]) -> None: ...
 global___ActionProfile = ActionProfile
 
 class CounterSpec(google.protobuf.message.Message):
