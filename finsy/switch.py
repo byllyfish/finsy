@@ -67,11 +67,22 @@ class SwitchOptions:
     """
 
     p4info: Path | None = None
+    "Path to P4Info protobuf text file."
+
     p4blob: Path | SupportsBytes | None = None
+    "Path to P4Blob file, or an object that can provide the bytes value."
+
     device_id: int = 1
+    "Default P4Runtime device ID."
+
     initial_election_id: int = 10
+    "Initial P4Runtime election ID."
+
     credentials: grpc.ChannelCredentials | None = None
+    "P4Runtime channel credentials. Used for TLS support."
+
     ready_handler: Callable[["Switch"], Coroutine[Any, Any, None]] | None = None
+    "Ready handler async function callback."
 
     def __call__(self, **kwds: Any):
         return dataclasses.replace(self, **kwds)
@@ -126,14 +137,17 @@ class Switch:
 
     @property
     def name(self) -> str:
+        "Name of the switch."
         return self._name
 
     @property
     def options(self) -> SwitchOptions:
+        "Switch options."
         return self._options
 
     @options.setter
     def options(self, opts: SwitchOptions):
+        "Set switch options to a new value."
         if self._p4client is not None:
             raise RuntimeError("Cannot change switch options while client is open.")
 
@@ -143,38 +157,47 @@ class Switch:
 
     @property
     def device_id(self) -> int:
+        "Switch's device ID."
         return self._options.device_id
 
     @property
     def is_primary(self) -> bool:
+        "True if switch is primary."
         return self._arbitrator.is_primary
 
     @property
     def primary_id(self) -> int:
+        "Election ID of switch that is currently primary."
         return self._arbitrator.primary_id
 
     @property
     def election_id(self) -> int:
+        "Switch's current election ID."
         return self._arbitrator.election_id
 
     @property
     def p4info(self) -> P4Schema:
+        "Switch's P4 schema."
         return self._p4schema
 
     @property
     def gnmi_client(self) -> gNMIClient | None:
+        "Switch's gNMI client."
         return self._gnmi_client
 
     @property
     def ports(self) -> PortList:
+        "Switch's list of interfaces."
         return self._ports
 
     @property
     def api_version(self) -> _ApiVersion:
+        "P4Runtime protocol version."
         return self._api_version
 
     @property
     def api_version_string(self) -> str:
+        "P4Runtime protocol version as a string."
         return ".".join(map(str, self.api_version))
 
     def packet_iterator(
@@ -182,6 +205,7 @@ class Switch:
         *,
         size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4PacketIn"]:
+        "Async iterator for incoming packets (P4PacketIn)."
         return self._queue_iter("packet", size)
 
     def digest_iterator(
@@ -189,9 +213,11 @@ class Switch:
         *,
         size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4DigestList"]:
+        "Async iterator for incoming digest lists (P4DigestList)."
         return self._queue_iter("digest", size)
 
     async def _queue_iter(self, name: str, size: int) -> AsyncIterator[Any]:
+        "Helper function to iterate over a Packet/Digest queue."
         if name in self._queues:
             raise RuntimeError(f"iterator {name!r} already open")
 
@@ -242,6 +268,7 @@ class Switch:
         background: bool = False,
         name: str | None = None,
     ) -> asyncio.Task[_T]:
+        "Create an asyncio task tied to the Switch's lifecycle."
         assert self._tasks is not None
 
         return self._tasks.create_task(
@@ -345,6 +372,7 @@ class Switch:
         self._tasks = None
 
     def _channel_up(self):
+        "Called when P4Runtime channel is UP."
         assert not self._is_channel_up
 
         ports = " ".join(f"({port.id}){port.name}" for port in self.ports)
@@ -362,6 +390,7 @@ class Switch:
         self.ee.emit(SwitchEvent.CHANNEL_UP, self)
 
     def _channel_down(self):
+        "Called when P4Runtime channel is DOWN."
         if not self._is_channel_up:
             return  # do nothing!
 
@@ -376,6 +405,7 @@ class Switch:
         self.ee.emit(SwitchEvent.CHANNEL_DOWN, self)
 
     def _become_primary(self):
+        "Called when a P4Runtime backup channel becomes the primary."
         assert self._tasks is not None
 
         LOGGER.info(
@@ -391,6 +421,7 @@ class Switch:
         self.ee.emit(SwitchEvent.BECOME_PRIMARY, self)
 
     def _become_backup(self):
+        "Called when a P4Runtime primary channel becomes a backup."
         assert self._tasks is not None
 
         LOGGER.info(
@@ -406,6 +437,7 @@ class Switch:
         self.ee.emit(SwitchEvent.BECOME_BACKUP, self)
 
     def _channel_ready(self):
+        "Called when a P4Runtime channel is READY."
         LOGGER.info("Channel ready (is_primary=%r)", self.is_primary)
 
         if self._options.ready_handler:
@@ -503,6 +535,7 @@ class Switch:
         )
 
     async def read(self, *entities: p4entity.EntityList):
+        "Async iterator that reads entities from the switch."
         assert self._p4client is not None
 
         request = p4r.ReadRequest(
@@ -515,6 +548,7 @@ class Switch:
                 yield p4entity.decode_entity(ent, self.p4info)
 
     async def write(self, *entities: p4entity.UpdateList):
+        "Write updates and stream messages to the switch."
         assert self._p4client is not None
 
         msgs = p4entity.encode_updates(entities, self.p4info)
@@ -535,9 +569,11 @@ class Switch:
             )
 
     async def insert(self, *entities: p4entity.EntityList):
+        "Insert the specified entities."
         await self._write(entities, P4UpdateType.INSERT)
 
     async def modify(self, *entities: p4entity.EntityList):
+        "Modify the specified entities."
         await self._write(entities, P4UpdateType.MODIFY)
 
     async def delete(
@@ -559,6 +595,7 @@ class Switch:
             raise
 
     async def delete_all(self):
+        "Delete all entities."
         assert self._p4client is not None
 
         everything = [
@@ -585,6 +622,7 @@ class Switch:
             await self.delete(digest_entries, ignore_not_found_error=True)
 
     async def _write(self, entities: p4entity.EntityList, update_type: P4UpdateType):
+        "Helper to insert/modify/delete specified entities."
         assert self._p4client is not None
 
         updates = [
@@ -612,6 +650,7 @@ class Switch:
             LOGGER.warning("CapabilitiesRequest is not implemented")
 
     async def _start_gnmi(self):
+        "Start the associated gNMI client."
         assert self._gnmi_client is None
         assert self._p4client is not None
 
@@ -630,12 +669,14 @@ class Switch:
             self._gnmi_client = None
 
     async def _stop_gnmi(self):
+        "Stop the associated gNMI client."
         if self._gnmi_client is not None:
             self._ports.close()
             await self._gnmi_client.close()
             self._gnmi_client = None
 
     def __repr__(self):
+        "Return string representation of switch."
         return f"Switch(name={self._name!r}, address={self._address!r})"
 
 
