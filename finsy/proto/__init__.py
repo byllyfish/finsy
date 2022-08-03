@@ -42,6 +42,9 @@ import sys
 # modules for global "p4" and "google.rpc" modules. After we've imported the
 # protobuf modules, we switch `sys.path` back.
 
+if "p4.v1.p4runtime_pb2" in sys.modules:
+    raise RuntimeError("p4runtime_pb2 already imported?")
+
 sys.path.insert(0, os.path.dirname(__file__))
 
 from gnmi1 import gnmi_ext_pb2 as gnmi_ext
