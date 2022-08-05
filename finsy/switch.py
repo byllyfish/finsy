@@ -595,13 +595,18 @@ class Switch:
             raise
 
     async def delete_all(self):
-        "Delete all entities."
+        """Delete all entities.
+
+        This method does not affect indirect counters or meters.
+
+        TODO: ActionProfileGroup/Member, ValueSet.
+        """
         assert self._p4client is not None
 
         everything = [
             p4entity.P4TableEntry(),
             p4entity.P4MulticastGroupEntry(),
-            # TODO: This isn't everything...
+            p4entity.P4CloneSessionEntry(),
         ]
 
         request = p4r.ReadRequest(
