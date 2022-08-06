@@ -145,7 +145,9 @@ def encode_updates(
     return [_encode_update(val, schema) for val in _flatten(values)]
 
 
-class _Writable:
+class _P4Writable:
+    "Abstract base class for entities that support insert/modify/delete."
+
     _update_type: P4UpdateType = P4UpdateType.UNSPECIFIED
 
     def __pos__(self):
@@ -167,6 +169,19 @@ class _Writable:
         if self._update_type == P4UpdateType.UNSPECIFIED:
             raise ValueError("unspecified update type")
         return p4r.Update(type=self._update_type.vt(), entity=self.encode(schema))
+
+
+class _P4ModifyOnly:
+    "Abstract base class for entities that only support modify (no insert/delete)."
+
+    def __invert__(self):
+        return self
+
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
+        raise NotImplementedError()
+
+    def encode_update(self, schema: P4Schema) -> p4r.Update:
+        return p4r.Update(type=P4UpdateType.MODIFY.vt(), entity=self.encode(schema))
 
 
 _DataValueType = Any  # TODO: tighten P4Data type constraint later
@@ -372,7 +387,7 @@ class P4MeterCounterData:
 
 @decodable("table_entry")
 @dataclass
-class P4TableEntry(_Writable):
+class P4TableEntry(_P4Writable):
     "Represents a P4Runtime TableEntry."
 
     table_id: str = ""
@@ -499,7 +514,7 @@ class P4TableEntry(_Writable):
 
 @decodable("register_entry")
 @dataclass
-class P4RegisterEntry(_Writable):
+class P4RegisterEntry(_P4ModifyOnly):
     "Represents a P4Runtime RegisterEntry."
 
     register_id: str = ""
@@ -561,7 +576,7 @@ class P4RegisterEntry(_Writable):
 
 @decodable("multicast_group_entry")
 @dataclass
-class P4MulticastGroupEntry(_Writable):
+class P4MulticastGroupEntry(_P4Writable):
     "Represents a P4Runtime MulticastGroupEntry."
 
     multicast_group_id: int = 0
@@ -594,7 +609,7 @@ class P4MulticastGroupEntry(_Writable):
 
 @decodable("clone_session_entry")
 @dataclass
-class P4CloneSessionEntry(_Writable):
+class P4CloneSessionEntry(_P4Writable):
     "Represents a P4Runtime CloneSessionEntry."
 
     session_id: int = 0
@@ -633,7 +648,7 @@ class P4CloneSessionEntry(_Writable):
 
 @decodable("digest_entry")
 @dataclass
-class P4DigestEntry(_Writable):
+class P4DigestEntry(_P4Writable):
     "Represents a P4Runtime DigestEntry."
 
     digest_id: str
@@ -675,7 +690,7 @@ class P4DigestEntry(_Writable):
 
 @decodable("action_profile_member")
 @dataclass
-class P4ActionProfileMember(_Writable):
+class P4ActionProfileMember(_P4Writable):
     "Represents a P4Runtime ActionProfileMember."
 
     action_profile_id: int = 0
@@ -767,7 +782,7 @@ class P4Member:
 
 @decodable("action_profile_group")
 @dataclass
-class P4ActionProfileGroup(_Writable):
+class P4ActionProfileGroup(_P4Writable):
     "Represents a P4Runtime ActionProfileGroup."
 
     action_profile_id: int = 0
@@ -812,7 +827,7 @@ class P4ActionProfileGroup(_Writable):
 
 @decodable("meter_entry")
 @dataclass
-class P4MeterEntry(_Writable):
+class P4MeterEntry(_P4ModifyOnly):
     "Represents a P4Runtime MeterEntry."
 
     meter_id: int = 0
@@ -878,7 +893,7 @@ class P4MeterEntry(_Writable):
 
 @decodable("direct_meter_entry")
 @dataclass
-class P4DirectMeterEntry(_Writable):
+class P4DirectMeterEntry(_P4ModifyOnly):
     "Represents a P4Runtime DirectMeterEntry."
 
     table_entry: P4TableEntry | None = None
@@ -937,7 +952,7 @@ class P4DirectMeterEntry(_Writable):
 
 @decodable("counter_entry")
 @dataclass
-class P4CounterEntry(_Writable):
+class P4CounterEntry(_P4ModifyOnly):
     "Represents a P4Runtime CounterEntry."
 
     counter_id: int = 0
@@ -986,7 +1001,7 @@ class P4CounterEntry(_Writable):
 
 @decodable("direct_counter_entry")
 @dataclass
-class P4DirectCounterEntry(_Writable):
+class P4DirectCounterEntry(_P4ModifyOnly):
     "Represents a P4Runtime DirectCounterEntry."
 
     table_entry: P4TableEntry | None = None
