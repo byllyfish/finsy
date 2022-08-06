@@ -30,13 +30,13 @@ import pyee
 
 from finsy import p4entity, pbuf
 from finsy.arbitrator import Arbitrator
+from finsy.futures import CountdownFuture
 from finsy.gnmiclient import gNMIClient, gNMIClientError
 from finsy.log import LOGGER, TRACE
 from finsy.p4client import P4Client, P4ClientError
 from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema, P4UpdateType
 from finsy.ports import PortList
 from finsy.proto import p4r
-from finsy.util import CountdownFuture
 
 # Maximum size of queues used for PacketIn, DigestList, etc.
 

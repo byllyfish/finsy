@@ -17,9 +17,9 @@
 import asyncio
 from typing import Any, Iterable
 
+from finsy.futures import CountdownFuture, wait_for_cancel
 from finsy.log import LOGGER, TRACE
 from finsy.switch import Switch, SwitchEvent
-from finsy.util import CountdownFuture, wait_for_cancel
 
 
 class Controller:
