@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import re
 from typing import Any, TypeVar
 
@@ -110,6 +111,8 @@ def log_msg(
     state: grpc.ChannelConnectivity,
     msg: PBMessage,
     schema: "_fy.P4Schema | None",
+    *,
+    level: int = logging.DEBUG,
 ):
     """Log a sent/received client message.
 
@@ -137,7 +140,8 @@ def log_msg(
 
     size = msg.ByteSize()
 
-    MSG_LOG.debug(
+    MSG_LOG.log(
+        level,
         "%s%s (%d bytes): %s",
         state_name,
         type(msg).__name__,

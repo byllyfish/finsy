@@ -17,6 +17,7 @@
 import asyncio
 import dataclasses
 import enum
+import logging
 import re
 import time
 from contextlib import asynccontextmanager
@@ -27,7 +28,7 @@ from typing import Any, AsyncIterator, Callable, Coroutine, SupportsBytes, TypeV
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 import pyee
 
-from finsy import p4entity
+from finsy import p4entity, pbuf
 from finsy.arbitrator import Arbitrator
 from finsy.gnmiclient import gNMIClient, gNMIClientError
 from finsy.log import LOGGER, TRACE
@@ -340,6 +341,8 @@ class Switch:
 
         if msg_type == "arbitration":
             await self._arbitrator.update(self, msg.arbitration)
+        elif msg_type == "error":
+            self._stream_error_message(msg)
         else:
             queue = self._queues.get(msg_type)
             if queue:
@@ -454,6 +457,16 @@ class Switch:
             self.create_task(self._options.ready_handler(self))
 
         self.ee.emit(SwitchEvent.CHANNEL_READY, self)
+
+    def _stream_error_message(self, msg: p4r.StreamMessageResponse):
+        "Called when a P4Runtime stream error response is received."
+        assert self._p4client is not None
+
+        channel = self._p4client.channel
+        assert channel is not None
+
+        # Log the message at the ERROR level.
+        pbuf.log_msg(channel.get_state(), msg, self.p4info, level=logging.ERROR)
 
     @TRACE
     async def _ready(self):
