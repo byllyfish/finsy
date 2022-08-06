@@ -29,7 +29,7 @@ async def test_switch(p4rt_server):
         )
         await sw.insert(entry)
 
-        packet_ins = sw.packet_iterator()
+        packet_ins = sw.read_packets()
         async for packet in packet_ins:
             print("test_switch._read", packet)
 

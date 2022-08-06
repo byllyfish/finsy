@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import re
-from typing import TypeVar
+from typing import Any, TypeVar
 
 import grpc  # pyright: ignore [reportMissingTypeStubs]
 from google.protobuf import json_format, text_format
@@ -55,7 +56,7 @@ def from_text(data: str, msg_class: type[_MT]) -> _MT:
     return msg
 
 
-def from_dict(value: dict[str, int | str], msg_class: type[_MT]) -> _MT:
+def from_dict(value: dict[str, Any], msg_class: type[_MT]) -> _MT:
     "Convert Python dict to protobuf message."
     return json_format.ParseDict(value, msg_class())
 
@@ -83,7 +84,7 @@ def to_json(msg: PBMessage) -> str:
     return json_format.MessageToJson(msg, preserving_proto_field_name=True)
 
 
-def to_dict(msg: PBMessage) -> dict[str, int | str]:
+def to_dict(msg: PBMessage) -> dict[str, Any]:
     "Convert protobuf message to Python dict."
     assert isinstance(msg, PBMessage), f"not a Message: {msg!r}"
     return json_format.MessageToDict(msg, preserving_proto_field_name=True)
@@ -110,6 +111,8 @@ def log_msg(
     state: grpc.ChannelConnectivity,
     msg: PBMessage,
     schema: "_fy.P4Schema | None",
+    *,
+    level: int = logging.DEBUG,
 ):
     """Log a sent/received client message.
 
@@ -137,7 +140,8 @@ def log_msg(
 
     size = msg.ByteSize()
 
-    MSG_LOG.debug(
+    MSG_LOG.log(
+        level,
         "%s%s (%d bytes): %s",
         state_name,
         type(msg).__name__,

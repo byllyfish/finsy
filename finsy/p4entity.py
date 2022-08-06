@@ -16,7 +16,7 @@
 
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
-from typing import Any, Iterator, NoReturn, Protocol, Sequence
+from typing import Any, Iterator, NoReturn, Protocol, Sequence, TypeVar
 
 from typing_extensions import Self
 
@@ -43,11 +43,13 @@ class _SupportsEncodeUpdate(Protocol):
 
 _DECODER: dict[str, _SupportsDecode] = {}
 
+_D = TypeVar("_D", bound=_SupportsDecode)
+
 
 def decodable(key: str):
     "Class decorator to specify the class used to decode P4Runtime messages."
 
-    def _decorate(cls: Any):
+    def _decorate(cls: _D) -> _D:
         assert key not in _DECODER
         _DECODER[key] = cls
         return cls
@@ -66,7 +68,7 @@ def decode_entity(msg: p4r.Entity, schema: P4Schema) -> Any:
         submsg = msg.packet_replication_engine_entry
         key = submsg.WhichOneof("type")
         if key is None:
-            raise ValueError("missing type")
+            raise ValueError("missing packet_relication_engine type")
 
     return _DECODER[key].decode(msg, schema)
 
@@ -1165,8 +1167,49 @@ class P4DigestList:
 class P4DigestListAck:
     "Represents a P4Runtime DigestListAck."
 
+    digest_id: str
+    list_id: int
+
+    def encode_update(self, schema: P4Schema) -> p4r.StreamMessageRequest:
+        "Encode DigestListAck data as protobuf."
+        digest = schema.digests[self.digest_id]
+
+        return p4r.StreamMessageRequest(
+            digest_ack=p4r.DigestListAck(
+                digest_id=digest.id,
+                list_id=self.list_id,
+            )
+        )
+
 
 @decodable("idle_timeout_notification")
 @dataclass
 class P4IdleTimeoutNotification:
     "Represents a P4Runtime IdleTimeoutNotification."
+
+    table_entry: list[P4TableEntry]
+    timestamp: int
+
+    @classmethod
+    def decode(cls, msg: p4r.StreamMessageResponse, schema: P4Schema) -> Self:
+        "Decode protobuf to IdleTimeoutNotification data."
+
+        notification = msg.idle_timeout_notification
+        table_entry = [
+            P4TableEntry.decode_entry(entry, schema)
+            for entry in notification.table_entry
+        ]
+
+        return cls(table_entry=table_entry, timestamp=notification.timestamp)
+
+    def __len__(self) -> int:
+        "Return number of table entries."
+        return len(self.table_entry)
+
+    def __getitem__(self, key: int) -> P4TableEntry:
+        "Retrieve table entry at given index."
+        return self.table_entry[key]
+
+    def __iter__(self) -> Iterator[P4TableEntry]:
+        "Iterate over table entries."
+        return iter(self.table_entry)

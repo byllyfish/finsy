@@ -17,6 +17,7 @@
 import asyncio
 import dataclasses
 import enum
+import logging
 import re
 import time
 from contextlib import asynccontextmanager
@@ -27,7 +28,7 @@ from typing import Any, AsyncIterator, Callable, Coroutine, SupportsBytes, TypeV
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 import pyee
 
-from finsy import p4entity
+from finsy import p4entity, pbuf
 from finsy.arbitrator import Arbitrator
 from finsy.gnmiclient import gNMIClient, gNMIClientError
 from finsy.log import LOGGER, TRACE
@@ -200,24 +201,34 @@ class Switch:
         "P4Runtime protocol version as a string."
         return ".".join(map(str, self.api_version))
 
-    def packet_iterator(
+    def read_packets(
         self,
         *,
-        size: int = _DEFAULT_QUEUE_SIZE,
+        queue_size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4PacketIn"]:
         "Async iterator for incoming packets (P4PacketIn)."
-        return self._queue_iter("packet", size)
+        return self._queue_iter("packet", queue_size)
 
-    def digest_iterator(
+    def read_digests(
         self,
         *,
-        size: int = _DEFAULT_QUEUE_SIZE,
+        queue_size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4DigestList"]:
         "Async iterator for incoming digest lists (P4DigestList)."
-        return self._queue_iter("digest", size)
+        return self._queue_iter("digest", queue_size)
+
+    def read_idle_timeouts(
+        self,
+        *,
+        queue_size: int = _DEFAULT_QUEUE_SIZE,
+    ) -> AsyncIterator["p4entity.P4IdleTimeoutNotification"]:
+        "Async iterator for incoming idle timeouts (P4IdleTimeoutNotification)."
+        return self._queue_iter("idle_timeout_notification", queue_size)
 
     async def _queue_iter(self, name: str, size: int) -> AsyncIterator[Any]:
         "Helper function to iterate over a Packet/Digest queue."
+        assert name != "arbitration"
+
         if name in self._queues:
             raise RuntimeError(f"iterator {name!r} already open")
 
@@ -330,6 +341,8 @@ class Switch:
 
         if msg_type == "arbitration":
             await self._arbitrator.update(self, msg.arbitration)
+        elif msg_type == "error":
+            self._stream_error_message(msg)
         else:
             queue = self._queues.get(msg_type)
             if queue:
@@ -444,6 +457,18 @@ class Switch:
             self.create_task(self._options.ready_handler(self))
 
         self.ee.emit(SwitchEvent.CHANNEL_READY, self)
+
+    def _stream_error_message(self, msg: p4r.StreamMessageResponse):
+        "Called when a P4Runtime stream error response is received."
+        assert self._p4client is not None
+
+        channel = self._p4client.channel
+        assert channel is not None
+
+        # Log the message at the ERROR level.
+        pbuf.log_msg(channel.get_state(), msg, self.p4info, level=logging.ERROR)
+
+        self.ee.emit(SwitchEvent.STREAM_ERROR, self, msg)
 
     @TRACE
     async def _ready(self):
@@ -696,6 +721,7 @@ class SwitchEvent(str, enum.Enum):
     PORT_UP = "port_up"  # (switch, port)
     PORT_DOWN = "port_down"  # (switch, port)
     SWITCH_DONE = "switch_done"  # (switch)
+    STREAM_ERROR = "stream_error"  # (switch, p4r.StreamMessageResponse)
 
 
 class SwitchEmitter(pyee.EventEmitter):

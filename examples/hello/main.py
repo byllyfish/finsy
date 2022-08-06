@@ -8,10 +8,11 @@ import finsy as fy
 class HelloWorldApp:
     "Hello World, demo app."
 
+    CONTROLLER_PORT = 255
     P4SRC = Path(__file__).parent / "p4src"
     P4INFO = P4SRC / "hello.p4info.txt"
     P4BLOB = P4SRC / "hello.json"
-    PORTS = [1, 2, 3, 4, 255]
+    PORTS = [1, 2, 3, 4, CONTROLLER_PORT]
 
     options: fy.SwitchOptions
 
@@ -23,31 +24,36 @@ class HelloWorldApp:
         )
 
     async def on_ready(self, switch: fy.Switch):
+        "Switch's ready handler."
         await switch.delete_all()
         await switch.insert(fy.P4MulticastGroupEntry(1, replicas=self.PORTS))
 
         switch.create_task(self._send_packet_out(switch))
 
-        seen = set()
-        async for packet in switch.packet_iterator():
+        seen = set[bytes]()
+        async for packet in switch.read_packets():
             addr = packet.payload[28:32]  # source IPv4 address from ARP
             if addr and addr not in seen:
                 seen.add(addr)
                 port = packet["ingress_port"]
-                await switch.insert(self._learn(addr, port))
-                print(f"{switch.name} learned {addr.hex()} on port {port}")
+                await switch.insert(self._learn(switch, addr, port))
 
     async def _send_packet_out(self, switch: fy.Switch):
+        "Once a second, send a packet which will come right back to us."
         while True:
             await asyncio.sleep(1.0)
             await switch.write(
                 fy.P4PacketOut(
-                    bytes.fromhex("deadbeefdeadbeef"), egress_port=255, _pad=0
+                    bytes.fromhex("deadbeefdeadbeef"),
+                    egress_port=self.CONTROLLER_PORT,
+                    _pad=0,
                 )
             )
 
     @staticmethod
-    def _learn(addr: bytes, port: int):
+    def _learn(switch: fy.Switch, addr: bytes, port: int):
+        "Return a P4TableEntry which tells where to forward this IPv4 address."
+        print(f"{switch.name} learned {addr.hex()} on port {port}")
         return fy.P4TableEntry(
             "ipv4",
             match=fy.P4TableMatch(ipv4_dst=addr),
