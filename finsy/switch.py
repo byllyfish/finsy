@@ -200,7 +200,7 @@ class Switch:
         "P4Runtime protocol version as a string."
         return ".".join(map(str, self.api_version))
 
-    def packet_iterator(
+    def read_packets(
         self,
         *,
         size: int = _DEFAULT_QUEUE_SIZE,
@@ -208,7 +208,7 @@ class Switch:
         "Async iterator for incoming packets (P4PacketIn)."
         return self._queue_iter("packet", size)
 
-    def digest_iterator(
+    def read_digests(
         self,
         *,
         size: int = _DEFAULT_QUEUE_SIZE,

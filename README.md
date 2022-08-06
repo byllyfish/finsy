@@ -28,7 +28,7 @@ async def ready_handler(sw: fy.Switch):
     await sw.delete_all()
     await sw.insert(fy.P4MulticastGroupEntry(1, replicas=[1, 2, 3, 255]))
 
-    async for packet in sw.packet_iterator():
+    async for packet in sw.read_packets():
         print(packet)
 ```
 
