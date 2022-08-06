@@ -9,6 +9,7 @@ from finsy.p4entity import (
     P4CounterData,
     P4CounterEntry,
     P4DigestList,
+    P4DigestListAck,
     P4DirectCounterEntry,
     P4DirectMeterEntry,
     P4IdleTimeoutNotification,
@@ -640,3 +641,18 @@ def test_idle_timeout_notification1():
 
     for entry in notification:
         assert entry.table_id == "ipv4_lpm"
+
+
+def test_digest_list_ack1():
+    "Test P4DigestListAck."
+
+    schema = P4Schema(_P4INFO_TEST_DIR / "layer2.p4.p4info.txt")
+    ack = P4DigestListAck("Digest_t", 1)
+    msg = ack.encode_update(schema)
+
+    assert pbuf.to_dict(msg) == {
+        "digest_ack": {
+            "digest_id": 401827287,
+            "list_id": "1",
+        }
+    }

@@ -1,0 +1,174 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 33967849
+    name: "MyIngress.l2src"
+    alias: "l2src"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ethernet.eth_src"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  match_fields {
+    id: 2
+    name: "std_meta.ingress_port"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  action_refs {
+    id: 21257015
+  }
+  action_refs {
+    id: 23630042
+  }
+  size: 1024
+}
+tables {
+  preamble {
+    id: 36698212
+    name: "MyIngress.l2dst"
+    alias: "l2dst"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ethernet.eth_dst"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 25652968
+  }
+  action_refs {
+    id: 31763006
+  }
+  action_refs {
+    id: 29683729
+  }
+  size: 1024
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 25652968
+    name: "MyIngress.drop"
+    alias: "MyIngress.drop"
+  }
+}
+actions {
+  preamble {
+    id: 31763006
+    name: "MyIngress.flood"
+    alias: "flood"
+  }
+}
+actions {
+  preamble {
+    id: 23630042
+    name: "MyIngress.learn"
+    alias: "learn"
+  }
+}
+actions {
+  preamble {
+    id: 29683729
+    name: "MyIngress.forward"
+    alias: "forward"
+  }
+  params {
+    id: 1
+    name: "port"
+    bitwidth: 9
+  }
+}
+actions {
+  preamble {
+    id: 20880156
+    name: "MyEgress.drop"
+    alias: "MyEgress.drop"
+  }
+}
+actions {
+  preamble {
+    id: 23324791
+    name: "MyEgress.send_to_controller"
+    alias: "send_to_controller"
+  }
+}
+controller_packet_metadata {
+  preamble {
+    id: 79923730
+    name: "packet_in"
+    alias: "packet_in"
+    annotations: "@controller_header(\"packet_in\")"
+  }
+  metadata {
+    id: 1
+    name: "ingress_port"
+    bitwidth: 9
+  }
+  metadata {
+    id: 2
+    name: "_pad"
+    bitwidth: 7
+  }
+}
+digests {
+  preamble {
+    id: 401827287
+    name: "Digest_t"
+    alias: "Digest_t"
+  }
+  type_spec {
+    struct {
+      name: "Digest_t"
+    }
+  }
+}
+type_info {
+  structs {
+    key: "Digest_t"
+    value {
+      members {
+        name: "eth_src"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 48
+            }
+          }
+        }
+      }
+      members {
+        name: "in_port"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 9
+            }
+          }
+        }
+      }
+      members {
+        name: "modify"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 1
+            }
+          }
+        }
+      }
+    }
+  }
+}
