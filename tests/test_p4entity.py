@@ -11,6 +11,7 @@ from finsy.p4entity import (
     P4DigestList,
     P4DirectCounterEntry,
     P4DirectMeterEntry,
+    P4IdleTimeoutNotification,
     P4Member,
     P4MeterConfig,
     P4MeterCounterData,
@@ -603,3 +604,39 @@ def test_digest_list1():
     assert len(digest_list) == 3
     assert list(digest_list) == digest_list.data
     assert digest_list[0] == {"a": 1}
+
+
+def test_idle_timeout_notification1():
+    "Test P4IdleTimeoutNotification."
+
+    data = pbuf.from_dict(
+        {
+            "idle_timeout_notification": {
+                "table_entry": [
+                    {
+                        "match": [
+                            {
+                                "field_id": 1,
+                                "lpm": {"prefix_len": 24, "value": "CgAAAA=="},
+                            }
+                        ],
+                        "table_id": 37375156,
+                    },
+                ],
+                "timestamp": 1000,
+            }
+        },
+        p4r.StreamMessageResponse,
+    )
+
+    notification = P4IdleTimeoutNotification.decode(data, _SCHEMA)
+
+    expected = P4TableEntry("ipv4_lpm", match=P4TableMatch(dstAddr=(167772160, 24)))
+    assert notification.timestamp == 1000
+    assert notification.table_entry == [expected]
+
+    assert len(notification) == 1
+    assert notification[0] == expected
+
+    for entry in notification:
+        assert entry.table_id == "ipv4_lpm"

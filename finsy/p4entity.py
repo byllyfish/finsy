@@ -1170,3 +1170,30 @@ class P4DigestListAck:
 @dataclass
 class P4IdleTimeoutNotification:
     "Represents a P4Runtime IdleTimeoutNotification."
+
+    table_entry: list[P4TableEntry]
+    timestamp: int
+
+    @classmethod
+    def decode(cls, msg: p4r.StreamMessageResponse, schema: P4Schema) -> Self:
+        "Decode protobuf to IdleTimeoutNotification data."
+
+        notification = msg.idle_timeout_notification
+        table_entry = [
+            P4TableEntry.decode_entry(entry, schema)
+            for entry in notification.table_entry
+        ]
+
+        return cls(table_entry=table_entry, timestamp=notification.timestamp)
+
+    def __len__(self) -> int:
+        "Return number of table entries."
+        return len(self.table_entry)
+
+    def __getitem__(self, key: int) -> P4TableEntry:
+        "Retrieve table entry at given index."
+        return self.table_entry[key]
+
+    def __iter__(self) -> Iterator[P4TableEntry]:
+        "Iterate over table entries."
+        return iter(self.table_entry)

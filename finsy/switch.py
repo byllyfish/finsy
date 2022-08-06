@@ -216,8 +216,18 @@ class Switch:
         "Async iterator for incoming digest lists (P4DigestList)."
         return self._queue_iter("digest", size)
 
+    def read_idle_timeouts(
+        self,
+        *,
+        size: int = _DEFAULT_QUEUE_SIZE,
+    ) -> AsyncIterator["p4entity.P4IdleTimeoutNotification"]:
+        "Async iterator for incoming idle timeouts (P4IdleTimeoutNotification)."
+        return self._queue_iter("idle_timeout_notification", size)
+
     async def _queue_iter(self, name: str, size: int) -> AsyncIterator[Any]:
         "Helper function to iterate over a Packet/Digest queue."
+        assert name != "arbitration"
+
         if name in self._queues:
             raise RuntimeError(f"iterator {name!r} already open")
 
