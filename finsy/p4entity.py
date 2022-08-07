@@ -1056,7 +1056,29 @@ class P4DirectCounterEntry(_P4ModifyOnly):
 
 
 class P4ValueSetMember(dict[str, Any]):
-    "Represents a sequence of P4Runtime FieldMatch in a ValueSet."
+    """Represents a sequence of P4Runtime FieldMatch in a ValueSet.
+
+    To access an unnamed, singular value, use `member.value`.
+    """
+
+    def __init__(
+        self,
+        __value: int | dict[str, Any] | None = None,
+        **kwds: Any,
+    ):
+        if __value is None:
+            super().__init__(**kwds)
+        elif isinstance(__value, int):
+            if kwds:
+                raise ValueError("invalid keyword arguments")
+            super().__init__({"": __value})
+        else:
+            super().__init__(__value, **kwds)
+
+    @property
+    def value(self) -> Any:
+        "Return the unnamed, singular value."
+        return self[""]
 
     def encode(self, value_set: P4ValueSet) -> list[p4r.FieldMatch]:
         "Encode P4ValueSetMember data as protobuf."

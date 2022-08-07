@@ -666,8 +666,8 @@ def test_value_set_entry1():
     entry = P4ValueSetEntry(
         "pvs",
         members=[
-            P4ValueSetMember([("", 1)]),  # FIXME: one unnamed value
-            P4ValueSetMember([("", 2)]),
+            P4ValueSetMember(1),
+            P4ValueSetMember(2),
         ],
     )
 
@@ -682,3 +682,6 @@ def test_value_set_entry1():
         }
     }
     assert entry == P4ValueSetEntry.decode(msg, _SCHEMA)
+
+    assert entry.members[0].value == 1
+    assert entry.members[1].value == 2
