@@ -23,20 +23,29 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from types import TracebackType
-from typing import Any, AsyncIterator, Callable, Coroutine, SupportsBytes, TypeVar
+from typing import (
+    Any,
+    AsyncIterator,
+    Callable,
+    Coroutine,
+    NamedTuple,
+    SupportsBytes,
+    TypeVar,
+)
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 import pyee
+from typing_extensions import Self
 
 from finsy import p4entity, pbuf
 from finsy.arbitrator import Arbitrator
+from finsy.futures import CountdownFuture
 from finsy.gnmiclient import gNMIClient, gNMIClientError
 from finsy.log import LOGGER, TRACE
 from finsy.p4client import P4Client, P4ClientError
 from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema, P4UpdateType
 from finsy.ports import PortList
 from finsy.proto import p4r
-from finsy.util import CountdownFuture
 
 # Maximum size of queues used for PacketIn, DigestList, etc.
 
@@ -47,8 +56,6 @@ _DEFAULT_QUEUE_SIZE = 50
 
 _FAIL_MIN_TIME_SECS = 2.0
 _FAIL_THROTTLE_SECS = 10.0
-
-_ApiVersion = tuple[int, int, int]
 
 _T = TypeVar("_T")
 
@@ -89,6 +96,30 @@ class SwitchOptions:
         return dataclasses.replace(self, **kwds)
 
 
+# This regex deliberately ignores any information that follows the version.
+_SEMVER_REGEX = re.compile(r"^(\d+)\.(\d+)\.(\d+)")
+
+
+class ApiVersion(NamedTuple):
+    "Represents the semantic version of an API."
+
+    major: int
+    minor: int
+    patch: int
+
+    @classmethod
+    def parse(cls, version_str: str) -> Self:
+        "Parse the API version string."
+        m = _SEMVER_REGEX.match(version_str)
+        if not m:
+            raise ValueError(f"unexpected version string: {version_str}")
+        return cls(int(m[1]), int(m[2]), int(m[3]))
+
+    def __str__(self) -> str:
+        "Return the version string."
+        return ".".join(map(str, self))
+
+
 class Switch:
     """`Switch` manages a P4Runtime Switch.
 
@@ -107,7 +138,7 @@ class Switch:
     _gnmi_client: gNMIClient | None
     _ports: PortList
     _is_channel_up: bool = False
-    _api_version: _ApiVersion = (1, 0, 0)
+    _api_version: ApiVersion = ApiVersion(1, 0, 0)
 
     control_task: asyncio.Task[Any] | None = None
     "Used by Controller to track switch's main task."
@@ -192,14 +223,9 @@ class Switch:
         return self._ports
 
     @property
-    def api_version(self) -> _ApiVersion:
+    def api_version(self) -> ApiVersion:
         "P4Runtime protocol version."
         return self._api_version
-
-    @property
-    def api_version_string(self) -> str:
-        "P4Runtime protocol version as a string."
-        return ".".join(map(str, self.api_version))
 
     def read_packets(
         self,
@@ -394,7 +420,7 @@ class Switch:
             self.is_primary,
             self.election_id,
             self.primary_id,
-            self.api_version_string,
+            self.api_version,
             ports,
         )
         self._is_channel_up = True
@@ -672,7 +698,7 @@ class Switch:
 
         try:
             reply = await self._p4client.request(p4r.CapabilitiesRequest())
-            self._api_version = _parse_semantic_version(reply.p4runtime_api_version)
+            self._api_version = ApiVersion.parse(reply.p4runtime_api_version)
 
         except P4ClientError as ex:
             if not ex.is_unimplemented:
@@ -830,16 +856,3 @@ async def _throttle_failure():
     else:
         # Otherwise, always yield to other tasks here.
         await asyncio.sleep(0)
-
-
-_SEMVER_REGEX = re.compile(r"^(\d+)\.(\d+)\.(\d+)")
-
-
-def _parse_semantic_version(version_str: str) -> _ApiVersion:
-    "Parse version string and return a 3-tuple (major, minor, patch)."
-
-    m = _SEMVER_REGEX.match(version_str)
-    if not m:
-        raise ValueError(f"unexpected version string: {version_str}")
-
-    return (int(m[1]), int(m[2]), int(m[3]))
