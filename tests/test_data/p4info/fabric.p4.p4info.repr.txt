@@ -2272,5 +2272,6 @@ P4Schema(
         ),
     ],
     type_info=P4TypeInfo(header_unions={}, headers={}, structs={}),
+    value_sets=[],
     version="",
 )

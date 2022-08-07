@@ -88,7 +88,7 @@ P4Schema(
     is_configured=True,
     meters=[],
     name="",
-    p4cookie=7763530581045656154,
+    p4cookie=16121636256661781565,
     registers=[
         P4Register(
             alias="counter_bloom_filter",
@@ -176,5 +176,28 @@ P4Schema(
         )
     ],
     type_info=P4TypeInfo(header_unions={}, headers={}, structs={}),
+    value_sets=[
+        P4ValueSet(
+            alias="pvs",
+            annotations=[],
+            brief="",
+            description="",
+            id=56033750,
+            match=[
+                P4MatchField(
+                    alias="",
+                    annotations=[],
+                    bitwidth=16,
+                    brief="",
+                    description="",
+                    id=1,
+                    match_type=P4MatchType.EXACT,
+                    name="",
+                )
+            ],
+            name="MyParser.pvs",
+            size=4,
+        )
+    ],
     version="",
 )

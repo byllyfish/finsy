@@ -107,5 +107,18 @@ controller_packet_metadata {
     bitwidth: 7
   }
 }
+value_sets {
+  preamble {
+    id: 56033750
+    name: "MyParser.pvs"
+    alias: "pvs"
+  }
+  match {
+    id: 1
+    bitwidth: 16
+    match_type: EXACT
+  }
+  size: 4
+}
 type_info {
 }
