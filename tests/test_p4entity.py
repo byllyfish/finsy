@@ -24,6 +24,8 @@ from finsy.p4entity import (
     P4TableAction,
     P4TableEntry,
     P4TableMatch,
+    P4ValueSetEntry,
+    P4ValueSetMember,
 )
 from finsy.p4schema import P4Schema
 from finsy.proto import p4r
@@ -656,3 +658,27 @@ def test_digest_list_ack1():
             "list_id": "1",
         }
     }
+
+
+def test_value_set_entry1():
+    "Test P4ValueSetEntry."
+
+    entry = P4ValueSetEntry(
+        "pvs",
+        members=[
+            P4ValueSetMember([("", 1)]),  # FIXME: one unnamed value
+            P4ValueSetMember([("", 2)]),
+        ],
+    )
+
+    msg = entry.encode(_SCHEMA)
+    assert pbuf.to_dict(msg) == {
+        "value_set_entry": {
+            "members": [
+                {"match": [{"exact": {"value": "AQ=="}, "field_id": 1}]},
+                {"match": [{"exact": {"value": "Ag=="}, "field_id": 1}]},
+            ],
+            "value_set_id": 56033750,
+        }
+    }
+    assert entry == P4ValueSetEntry.decode(msg, _SCHEMA)
