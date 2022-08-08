@@ -3,7 +3,14 @@ import contextlib
 from pathlib import Path
 
 import pytest
-from finsy import P4TableAction, P4TableEntry, P4TableMatch, Switch, SwitchOptions
+from finsy import (
+    P4TableAction,
+    P4TableEntry,
+    P4TableMatch,
+    Switch,
+    SwitchEvent,
+    SwitchOptions,
+)
 from finsy.log import TRACE
 from finsy.test.p4runtime_server import P4RuntimeServer
 
@@ -21,7 +28,7 @@ async def p4rt_server():
 
 async def test_switch(p4rt_server):
     @TRACE
-    async def _read(sw):
+    async def _read(sw: Switch):
         entry = P4TableEntry(
             "ipv4_lpm",
             match=P4TableMatch(dstAddr=(167772160, 24)),
@@ -38,7 +45,7 @@ async def test_switch(p4rt_server):
     )
 
     sw1 = Switch("sw1", p4rt_server.listen_addr, options)
-    sw1.ee.add_listener("channel_up", _read)
+    sw1.ee.add_listener(SwitchEvent.CHANNEL_UP, _read)  # FIXME: incorrect!
 
     with pytest.raises(asyncio.TimeoutError):
         await asyncio.wait_for(sw1.run(), 2.0)

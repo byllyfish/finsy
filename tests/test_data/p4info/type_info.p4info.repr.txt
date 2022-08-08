@@ -118,5 +118,6 @@ P4Schema(
             ),
         },
     ),
+    value_sets=[],
     version="",
 )

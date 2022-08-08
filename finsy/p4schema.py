@@ -371,6 +371,7 @@ class _P4Defs:
     meters: P4EntityMap["P4Meter"]
     registers: P4EntityMap["P4Register"]
     digests: P4EntityMap["P4Digest"]
+    value_sets: P4EntityMap["P4ValueSet"]
     type_info: "P4TypeInfo"
 
     def __init__(self, p4info: p4i.P4Info):
@@ -386,6 +387,7 @@ class _P4Defs:
         self.meters = P4EntityMap("P4Meter")
         self.registers = P4EntityMap("P4Register")
         self.digests = P4EntityMap("P4Digest")
+        self.value_sets = P4EntityMap("P4ValueSet")
         self.type_info = P4TypeInfo(p4info.type_info)
 
         for (name, cls) in [
@@ -398,6 +400,7 @@ class _P4Defs:
             ("meters", P4Meter),
             ("registers", P4Register),
             ("digests", P4Digest),
+            ("value_sets", P4ValueSet),
         ]:
             obj = getattr(self, name)
             for entity in getattr(p4info, name):
@@ -567,6 +570,11 @@ class P4Schema(_ReprMixin):
     def digests(self) -> P4EntityMap["P4Digest"]:
         "Collection of P4 digests."
         return self._p4defs.digests
+
+    @property
+    def value_sets(self) -> P4EntityMap["P4ValueSet"]:
+        "Collection of P4 value sets."
+        return self._p4defs.value_sets
 
     @property
     def type_info(self) -> "P4TypeInfo":
@@ -1425,6 +1433,27 @@ class P4Digest(_P4TopLevel[p4i.Digest]):
     @property
     def type_spec(self) -> _P4Type:
         return self._type_spec
+
+
+class P4ValueSet(_P4TopLevel[p4i.ValueSet]):
+    "Represents ValueSet in schema."
+
+    _match: P4EntityMap[P4MatchField]
+
+    def __init__(self, pbuf: p4i.ValueSet):
+        super().__init__(pbuf)
+        self._match = P4EntityMap[P4MatchField]("match field")
+
+        for field in self.pbuf.match:
+            self._match._add(P4MatchField(field))
+
+    @property
+    def match(self):
+        return self._match
+
+    @property
+    def size(self) -> int:
+        return self.pbuf.size
 
 
 def _make_alias(name: str) -> str:

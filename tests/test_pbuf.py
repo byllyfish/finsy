@@ -47,7 +47,7 @@ def test_to_text1():
 def test_to_text2():
     schema = P4Schema(P4INFO_TEST_DIR / "basic.p4.p4info.txt")
     data = pbuf.to_text(schema.get_pipeline_config(), custom_format=True)
-    assert data == "\U0001f4e6[p4cookie=0x6bbd99ee361bba5a]"
+    assert data == "\U0001f4e6[p4cookie=0xdfbb8ec264623c3d]"
 
 
 def test_to_dict():

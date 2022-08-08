@@ -21,7 +21,14 @@ from typing import Any, Iterator, NoReturn, Protocol, Sequence, TypeVar
 from typing_extensions import Self
 
 from finsy.log import LOGGER
-from finsy.p4schema import P4Action, P4ActionRef, P4Schema, P4Table, P4UpdateType
+from finsy.p4schema import (
+    P4Action,
+    P4ActionRef,
+    P4Schema,
+    P4Table,
+    P4UpdateType,
+    P4ValueSet,
+)
 from finsy.proto import p4r
 
 
@@ -1046,6 +1053,99 @@ class P4DirectCounterEntry(_P4ModifyOnly):
             data = None
 
         return cls(table_entry=table_entry, data=data)
+
+
+class P4ValueSetMember(dict[str, Any]):
+    """Represents a sequence of P4Runtime FieldMatch in a ValueSet.
+
+    To access an unnamed, singular value, use `member.value`.
+    """
+
+    def __init__(
+        self,
+        __value: int | dict[str, Any] | None = None,
+        **kwds: Any,
+    ):
+        if __value is None:
+            super().__init__(**kwds)
+        elif isinstance(__value, int):
+            if kwds:
+                raise ValueError("invalid keyword arguments")
+            super().__init__({"": __value})
+        else:
+            super().__init__(__value, **kwds)
+
+    @property
+    def value(self) -> Any:
+        "Return the unnamed, singular value."
+        return self[""]
+
+    def encode(self, value_set: P4ValueSet) -> list[p4r.FieldMatch]:
+        "Encode P4ValueSetMember data as protobuf."
+        result: list[p4r.FieldMatch] = []
+        match = value_set.match
+
+        for key, value in self.items():
+            try:
+                field = match[key].encode(value)
+                if field is not None:
+                    result.append(field)
+            except Exception as ex:
+                raise ValueError(
+                    f"{value_set.name!r}: Match field {key!r}: {ex}"
+                ) from ex
+
+        return result
+
+    @classmethod
+    def decode(cls, msgs: Sequence[p4r.FieldMatch], value_set: P4ValueSet) -> Self:
+        "Decode protobuf to P4ValueSetMember data."
+        result = {}
+        match = value_set.match
+
+        for field in msgs:
+            fld = match[field.field_id]
+            result[fld.alias] = fld.decode(field)
+
+        return cls(result)
+
+
+@decodable("value_set_entry")
+@dataclass
+class P4ValueSetEntry(_P4ModifyOnly):
+    "Represents a P4Runtime ValueSetEntry."
+
+    value_set_id: str
+    _: KW_ONLY
+    members: list[P4ValueSetMember]
+
+    def encode(self, schema: P4Schema) -> p4r.Entity:
+        "Encode P4ValueSetEntry as protobuf."
+
+        value_set = schema.value_sets[self.value_set_id]
+        members = [
+            p4r.ValueSetMember(match=member.encode(value_set))
+            for member in self.members
+        ]
+
+        return p4r.Entity(
+            value_set_entry=p4r.ValueSetEntry(
+                value_set_id=value_set.id, members=members
+            )
+        )
+
+    @classmethod
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+        "Decode protobuf to P4ValueSetEntry."
+
+        entry = msg.value_set_entry
+        value_set = schema.value_sets[entry.value_set_id]
+
+        members = [
+            P4ValueSetMember.decode(member.match, value_set) for member in entry.members
+        ]
+
+        return cls(value_set.alias, members=members)
 
 
 @decodable("packet")
