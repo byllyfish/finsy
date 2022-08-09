@@ -752,6 +752,13 @@ class P4Table(_P4TopLevel[p4i.Table]):
                     self._direct_counter,
                 )
 
+        if self._direct_meter is not None:
+            if self._direct_meter.direct_table_id != self.id:
+                LOGGER.warning(
+                    "P4Schema: Direct meter ID mismatch: %r",
+                    self._direct_meter,
+                )
+
     @property
     def size(self) -> int:
         return self.pbuf.size
@@ -1041,6 +1048,10 @@ class P4DirectMeter(_P4TopLevel[p4i.DirectMeter]):
     @property
     def unit(self):
         return P4MeterUnit(self.pbuf.spec.unit)
+
+    @property
+    def direct_table_id(self) -> int:
+        return self.pbuf.direct_table_id
 
 
 class P4Counter(_P4TopLevel[p4i.Counter]):
