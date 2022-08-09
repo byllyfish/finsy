@@ -276,7 +276,7 @@ def test_meter_entry2():
     "Test P4MeterEntry class."
 
     entry = P4MeterEntry(
-        meter_id=1,
+        meter_id="other_meter",
         index=2,
         config=P4MeterConfig(cir=1, cburst=2, pir=3, pburst=4),
         counter_data=P4MeterCounterData(
@@ -296,7 +296,7 @@ def test_meter_entry2():
                 "yellow": {"byte_count": "1", "packet_count": "2"},
             },
             "index": {"index": "2"},
-            "meter_id": 1,
+            "meter_id": 341473317,
         }
     }
     assert entry == P4MeterEntry.decode(msg, _SCHEMA)
@@ -305,10 +305,10 @@ def test_meter_entry2():
 def test_direct_meter_entry1():
     "Test P4MeterEntry class."
 
-    entry = P4DirectMeterEntry(P4TableEntry())
+    entry = P4DirectMeterEntry()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"direct_meter_entry": {"table_entry": {}}}
+    assert pbuf.to_dict(msg) == {"direct_meter_entry": {}}
     assert entry == P4DirectMeterEntry.decode(msg, _SCHEMA)
 
 
@@ -316,7 +316,7 @@ def test_direct_meter_entry2():
     "Test P4MeterEntry class."
 
     entry = P4DirectMeterEntry(
-        P4TableEntry(
+        table_entry=P4TableEntry(
             "ipv4_lpm",
             match=P4TableMatch(dstAddr=(167772160, 24)),
         ),
@@ -372,7 +372,7 @@ def test_counter_entry2():
     "Test P4CounterEntry class."
 
     entry = P4CounterEntry(
-        1,
+        "other_counter",
         index=2,
         data=P4CounterData(byte_count=1, packet_count=2),
     )
@@ -380,7 +380,7 @@ def test_counter_entry2():
 
     assert pbuf.to_dict(msg) == {
         "counter_entry": {
-            "counter_id": 1,
+            "counter_id": 307710742,
             "data": {"byte_count": "1", "packet_count": "2"},
             "index": {"index": "2"},
         }

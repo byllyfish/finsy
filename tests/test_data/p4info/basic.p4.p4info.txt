@@ -22,6 +22,8 @@ tables {
   action_refs {
     id: 21257015
   }
+  direct_resource_ids: 328946011
+  direct_resource_ids: 357216394
   size: 1024
 }
 actions {
@@ -54,6 +56,25 @@ actions {
     id: 2
     name: "port"
     bitwidth: 9
+  }
+}
+actions {
+  preamble {
+    id: 17315918
+    name: "MyIngress.mtr_action"
+    alias: "mtr_action"
+  }
+  params {
+    id: 1
+    name: "meter_index"
+    bitwidth: 32
+  }
+}
+actions {
+  preamble {
+    id: 24729989
+    name: "MyIngress.m_action"
+    alias: "m_action"
   }
 }
 registers {
@@ -106,6 +127,50 @@ controller_packet_metadata {
     name: "_pad"
     bitwidth: 7
   }
+}
+counters {
+  preamble {
+    id: 307710742
+    name: "MyIngress.other_counter"
+    alias: "other_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  size: 10
+}
+direct_counters {
+  preamble {
+    id: 328946011
+    name: "MyIngress.ipv4_counter"
+    alias: "ipv4_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 37375156
+}
+meters {
+  preamble {
+    id: 341473317
+    name: "MyIngress.other_meter"
+    alias: "other_meter"
+  }
+  spec {
+    unit: PACKETS
+  }
+  size: 1024
+}
+direct_meters {
+  preamble {
+    id: 357216394
+    name: "MyIngress.ipv4_meter"
+    alias: "ipv4_meter"
+  }
+  spec {
+    unit: PACKETS
+  }
+  direct_table_id: 37375156
 }
 value_sets {
   preamble {

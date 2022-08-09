@@ -37,6 +37,7 @@ import pylev
 from finsy import p4values
 from finsy import pbuf as pbuf_util
 from finsy.grpcutil import GRPCStatusCode, _EnumBase
+from finsy.log import LOGGER
 from finsy.proto import p4d, p4i, p4r, p4t, rpc_code
 
 # Enums
@@ -732,8 +733,10 @@ class P4Table(_P4TopLevel[p4i.Table]):
         self._direct_counter = None
         self._direct_meter = None
 
+        # Load direct resources.
         direct_resources = pbuf.direct_resource_ids
         assert len(direct_resources) <= 2
+
         for resource_id in direct_resources:
             if _check_id(resource_id, "direct_counter"):
                 self._direct_counter = defs.direct_counters[resource_id]
@@ -741,6 +744,20 @@ class P4Table(_P4TopLevel[p4i.Table]):
                 self._direct_meter = defs.direct_meters[resource_id]
             else:
                 assert False, "Unexpected resource id"
+
+        if self._direct_counter is not None:
+            if self._direct_counter.direct_table_id != self.id:
+                LOGGER.warning(
+                    "P4Schema: Direct counter ID mismatch: %r",
+                    self._direct_counter,
+                )
+
+        if self._direct_meter is not None:
+            if self._direct_meter.direct_table_id != self.id:
+                LOGGER.warning(
+                    "P4Schema: Direct meter ID mismatch: %r",
+                    self._direct_meter,
+                )
 
     @property
     def size(self) -> int:
@@ -1020,6 +1037,10 @@ class P4DirectCounter(_P4TopLevel[p4i.DirectCounter]):
     def unit(self):
         return P4CounterUnit(self.pbuf.spec.unit)
 
+    @property
+    def direct_table_id(self) -> int:
+        return self.pbuf.direct_table_id
+
 
 class P4DirectMeter(_P4TopLevel[p4i.DirectMeter]):
     "Represents DirectMeter in schema."
@@ -1027,6 +1048,10 @@ class P4DirectMeter(_P4TopLevel[p4i.DirectMeter]):
     @property
     def unit(self):
         return P4MeterUnit(self.pbuf.spec.unit)
+
+    @property
+    def direct_table_id(self) -> int:
+        return self.pbuf.direct_table_id
 
 
 class P4Counter(_P4TopLevel[p4i.Counter]):
