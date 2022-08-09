@@ -839,14 +839,19 @@ class P4ActionProfileGroup(_P4Writable):
 class P4MeterEntry(_P4ModifyOnly):
     "Represents a P4Runtime MeterEntry."
 
-    meter_id: int = 0
+    meter_id: str = ""
     _: KW_ONLY
     index: int | None = None
     config: P4MeterConfig | None = None
     counter_data: P4MeterCounterData | None = None
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
+    def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4MeterEntry to protobuf."
+
+        if not self.meter_id:
+            return p4r.Entity(meter_entry=p4r.MeterEntry())
+
+        meter = schema.meters[self.meter_id]
 
         if self.index is not None:
             index = p4r.Index(index=self.index)
@@ -864,7 +869,7 @@ class P4MeterEntry(_P4ModifyOnly):
             counter_data = None
 
         entry = p4r.MeterEntry(
-            meter_id=self.meter_id,
+            meter_id=meter.id,
             index=index,
             config=config,
             counter_data=counter_data,
@@ -872,10 +877,14 @@ class P4MeterEntry(_P4ModifyOnly):
         return p4r.Entity(meter_entry=entry)
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to P4MeterEntry."
 
         entry = msg.meter_entry
+        if not entry.meter_id:
+            return cls()
+
+        meter = schema.meters[entry.meter_id]
 
         if entry.HasField("index"):
             index = entry.index.index
@@ -893,7 +902,7 @@ class P4MeterEntry(_P4ModifyOnly):
             counter_data = None
 
         return cls(
-            meter_id=entry.meter_id,
+            meter_id=meter.alias,
             index=index,
             config=config,
             counter_data=counter_data,
@@ -901,12 +910,11 @@ class P4MeterEntry(_P4ModifyOnly):
 
 
 @decodable("direct_meter_entry")
-@dataclass
+@dataclass(kw_only=True)
 class P4DirectMeterEntry(_P4ModifyOnly):
     "Represents a P4Runtime DirectMeterEntry."
 
     table_entry: P4TableEntry | None = None
-    _: KW_ONLY
     config: P4MeterConfig | None = None
     counter_data: P4MeterCounterData | None = None
 
@@ -916,7 +924,7 @@ class P4DirectMeterEntry(_P4ModifyOnly):
         if self.table_entry is not None:
             table_entry = self.table_entry.encode_entry(schema)
         else:
-            table_entry = p4r.TableEntry()
+            table_entry = None
 
         if self.config is not None:
             config = self.config.encode()
@@ -940,7 +948,11 @@ class P4DirectMeterEntry(_P4ModifyOnly):
         "Decode protobuf to P4DirectMeterEntry."
 
         entry = msg.direct_meter_entry
-        table_entry = P4TableEntry.decode_entry(entry.table_entry, schema)
+
+        if entry.HasField("table_entry"):
+            table_entry = P4TableEntry.decode_entry(entry.table_entry, schema)
+        else:
+            table_entry = None
 
         if entry.HasField("config"):
             config = P4MeterConfig.decode(entry.config)
@@ -999,7 +1011,7 @@ class P4CounterEntry(_P4ModifyOnly):
         "Decode protobuf to P4CounterEntry."
 
         entry = msg.counter_entry
-        if entry.counter_id == 0:
+        if not entry.counter_id:
             return cls()
 
         counter = schema.counters[entry.counter_id]
