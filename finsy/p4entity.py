@@ -964,13 +964,18 @@ class P4DirectMeterEntry(_P4ModifyOnly):
 class P4CounterEntry(_P4ModifyOnly):
     "Represents a P4Runtime CounterEntry."
 
-    counter_id: int = 0
+    counter_id: str = ""
     _: KW_ONLY
     index: int | None = None
     data: P4CounterData | None = None
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
+    def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4CounterEntry as protobuf."
+
+        if not self.counter_id:
+            return p4r.Entity(counter_entry=p4r.CounterEntry())
+
+        counter = schema.counters[self.counter_id]
 
         if self.index is not None:
             index = p4r.Index(index=self.index)
@@ -983,17 +988,21 @@ class P4CounterEntry(_P4ModifyOnly):
             data = None
 
         entry = p4r.CounterEntry(
-            counter_id=self.counter_id,
+            counter_id=counter.id,
             index=index,
             data=data,
         )
         return p4r.Entity(counter_entry=entry)
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to P4CounterEntry."
 
         entry = msg.counter_entry
+        if entry.counter_id == 0:
+            return cls()
+
+        counter = schema.counters[entry.counter_id]
 
         if entry.HasField("index"):
             index = entry.index.index
@@ -1005,16 +1014,15 @@ class P4CounterEntry(_P4ModifyOnly):
         else:
             data = None
 
-        return cls(counter_id=entry.counter_id, index=index, data=data)
+        return cls(counter_id=counter.alias, index=index, data=data)
 
 
 @decodable("direct_counter_entry")
-@dataclass
+@dataclass(kw_only=True)
 class P4DirectCounterEntry(_P4ModifyOnly):
     "Represents a P4Runtime DirectCounterEntry."
 
     table_entry: P4TableEntry | None = None
-    _: KW_ONLY
     data: P4CounterData | None = None
 
     def encode(self, schema: P4Schema) -> p4r.Entity:

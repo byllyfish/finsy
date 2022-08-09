@@ -372,7 +372,7 @@ def test_counter_entry2():
     "Test P4CounterEntry class."
 
     entry = P4CounterEntry(
-        1,
+        "other_counter",
         index=2,
         data=P4CounterData(byte_count=1, packet_count=2),
     )
@@ -380,7 +380,7 @@ def test_counter_entry2():
 
     assert pbuf.to_dict(msg) == {
         "counter_entry": {
-            "counter_id": 1,
+            "counter_id": 307710742,
             "data": {"byte_count": "1", "packet_count": "2"},
             "index": {"index": "2"},
         }

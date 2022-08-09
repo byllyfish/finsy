@@ -81,14 +81,36 @@ P4Schema(
             name="packet_out",
         ),
     ],
-    counters=[],
+    counters=[
+        P4Counter(
+            alias="other_counter",
+            annotations=[],
+            brief="",
+            description="",
+            id=307710742,
+            name="MyIngress.other_counter",
+            size=10,
+            unit=P4CounterUnit.BOTH,
+        )
+    ],
     digests=[],
-    direct_counters=[],
+    direct_counters=[
+        P4DirectCounter(
+            alias="ipv4_counter",
+            annotations=[],
+            brief="",
+            description="",
+            direct_table_id=37375156,
+            id=328946011,
+            name="MyIngress.ipv4_counter",
+            unit=P4CounterUnit.BOTH,
+        )
+    ],
     direct_meters=[],
     is_configured=True,
     meters=[],
     name="",
-    p4cookie=16121636256661781565,
+    p4cookie=8004544482829537355,
     registers=[
         P4Register(
             alias="counter_bloom_filter",
@@ -154,7 +176,16 @@ P4Schema(
             brief="",
             const_default_action=None,
             description="",
-            direct_counter=None,
+            direct_counter=P4DirectCounter(
+                alias="ipv4_counter",
+                annotations=[],
+                brief="",
+                description="",
+                direct_table_id=37375156,
+                id=328946011,
+                name="MyIngress.ipv4_counter",
+                unit=P4CounterUnit.BOTH,
+            ),
             direct_meter=None,
             id=37375156,
             idle_timeout_behavior=P4IdleTimeoutBehavior.NO_TIMEOUT,

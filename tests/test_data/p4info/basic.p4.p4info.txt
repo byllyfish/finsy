@@ -22,6 +22,7 @@ tables {
   action_refs {
     id: 21257015
   }
+  direct_resource_ids: 328946011
   size: 1024
 }
 actions {
@@ -106,6 +107,28 @@ controller_packet_metadata {
     name: "_pad"
     bitwidth: 7
   }
+}
+counters {
+  preamble {
+    id: 307710742
+    name: "MyIngress.other_counter"
+    alias: "other_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  size: 10
+}
+direct_counters {
+  preamble {
+    id: 328946011
+    name: "MyIngress.ipv4_counter"
+    alias: "ipv4_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 37375156
 }
 value_sets {
   preamble {
