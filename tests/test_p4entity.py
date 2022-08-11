@@ -27,12 +27,31 @@ from finsy.p4entity import (
     P4TableMatch,
     P4ValueSetEntry,
     P4ValueSetMember,
+    decode_replica,
+    encode_replica,
+    encode_updates,
 )
 from finsy.p4schema import P4Schema
 from finsy.proto import p4r
 
 _P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
 _SCHEMA = P4Schema(_P4INFO_TEST_DIR / "basic.p4.p4info.txt")
+
+
+def test_replica1():
+    "Test encode_replica and decode_replica functions."
+
+    msg = encode_replica(1)
+    assert pbuf.to_dict(msg) == {"egress_port": 1}
+    assert decode_replica(msg) == (1, 0)
+
+
+def test_replica2():
+    "Test encode_replica and decode_replica functions"
+
+    msg = encode_replica((1, 2))
+    assert pbuf.to_dict(msg) == {"egress_port": 1, "instance": 2}
+    assert decode_replica(msg) == (1, 2)
 
 
 def test_table_match1():
@@ -227,6 +246,63 @@ def test_table_entry4():
     }
 
     assert entry == P4TableEntry.decode(msg, _SCHEMA)
+
+
+def test_encode_updates1():
+    "Test encode_updates with P4TableEntry."
+
+    entry1 = P4TableEntry("ipv4_lpm")
+    entry2 = P4TableEntry("ipv4_lpm")
+    entry3 = P4TableEntry("ipv4_lpm")
+
+    result = encode_updates([+entry1, -entry2, ~entry3], _SCHEMA)
+    assert [pbuf.to_dict(msg) for msg in result] == [
+        {"entity": {"table_entry": {"table_id": 37375156}}, "type": "INSERT"},
+        {"entity": {"table_entry": {"table_id": 37375156}}, "type": "DELETE"},
+        {"entity": {"table_entry": {"table_id": 37375156}}, "type": "MODIFY"},
+    ]
+
+
+def test_encode_updates2():
+    "Test encode_updates with P4TableEntry."
+
+    entry1 = P4RegisterEntry("counter_bloom_filter", index=1, data=1)
+    entry2 = P4RegisterEntry("counter_bloom_filter", index=2, data=2)
+    entry3 = P4RegisterEntry("counter_bloom_filter", index=3, data=3)
+
+    result = encode_updates([entry1, ~entry2, ~entry3], _SCHEMA)
+    assert [pbuf.to_dict(msg) for msg in result] == [
+        {
+            "entity": {
+                "register_entry": {
+                    "data": {"bitstring": "AQ=="},
+                    "index": {"index": "1"},
+                    "register_id": 369140025,
+                }
+            },
+            "type": "MODIFY",
+        },
+        {
+            "entity": {
+                "register_entry": {
+                    "data": {"bitstring": "Ag=="},
+                    "index": {"index": "2"},
+                    "register_id": 369140025,
+                }
+            },
+            "type": "MODIFY",
+        },
+        {
+            "entity": {
+                "register_entry": {
+                    "data": {"bitstring": "Aw=="},
+                    "index": {"index": "3"},
+                    "register_id": 369140025,
+                }
+            },
+            "type": "MODIFY",
+        },
+    ]
 
 
 def test_action_profile_member1():

@@ -176,7 +176,7 @@ class _P4Writable:
         return self
 
     def encode(self, _schema: P4Schema) -> p4r.Entity:
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: no cover
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         if self._update_type == P4UpdateType.UNSPECIFIED:
@@ -191,7 +191,7 @@ class _P4ModifyOnly:
         return self
 
     def encode(self, _schema: P4Schema) -> p4r.Entity:
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: no cover
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         return p4r.Update(type=P4UpdateType.MODIFY.vt(), entity=self.encode(schema))
