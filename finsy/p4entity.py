@@ -674,7 +674,7 @@ class P4CloneSessionEntry(_P4Writable):
 class P4DigestEntry(_P4Writable):
     "Represents a P4Runtime DigestEntry."
 
-    digest_id: str
+    digest_id: str = ""
     _: KW_ONLY
     max_list_size: int = 0
     max_timeout_ns: int = 0
@@ -682,6 +682,10 @@ class P4DigestEntry(_P4Writable):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode DigestEntry data as protobuf."
+
+        if not self.digest_id:
+            return p4r.Entity(digest_entry=p4r.DigestEntry())
+
         digest = schema.digests[self.digest_id]
 
         if self.max_list_size == self.max_timeout_ns == self.ack_timeout_ns == 0:
@@ -699,7 +703,11 @@ class P4DigestEntry(_P4Writable):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to DigestEntry data."
+
         entry = msg.digest_entry
+        if entry.digest_id == 0:
+            return cls()
+
         digest = schema.digests[entry.digest_id]
 
         config = entry.config

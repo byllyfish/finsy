@@ -8,6 +8,7 @@ from finsy.p4entity import (
     P4CloneSessionEntry,
     P4CounterData,
     P4CounterEntry,
+    P4DigestEntry,
     P4DigestList,
     P4DigestListAck,
     P4DirectCounterEntry,
@@ -534,6 +535,41 @@ def test_clone_session_entry1():
         }
     }
     assert entry == P4CloneSessionEntry.decode(msg, _SCHEMA)
+
+
+def test_digest_entry1():
+    "Test P4DigestEntry class."
+
+    entry = P4DigestEntry()
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {"digest_entry": {}}
+    assert entry == P4DigestEntry.decode(msg, _SCHEMA)
+
+
+def test_digest_entry2():
+    "Test P4DigestEntry class."
+
+    schema = P4Schema(_P4INFO_TEST_DIR / "layer2.p4.p4info.txt")
+    entry = P4DigestEntry(
+        "Digest_t",
+        max_list_size=1,
+        max_timeout_ns=2,
+        ack_timeout_ns=3,
+    )
+    msg = entry.encode(schema)
+
+    assert pbuf.to_dict(msg) == {
+        "digest_entry": {
+            "config": {
+                "ack_timeout_ns": "3",
+                "max_list_size": 1,
+                "max_timeout_ns": "2",
+            },
+            "digest_id": 401827287,
+        }
+    }
+    assert entry == P4DigestEntry.decode(msg, schema)
 
 
 def test_packet_out1():
