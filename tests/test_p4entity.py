@@ -188,6 +188,46 @@ def test_table_entry3():
     assert entry == P4TableEntry.decode(msg, _SCHEMA)
 
 
+def test_table_entry4():
+    "Test TableEntry class."
+
+    ctr_data = P4CounterData(byte_count=5, packet_count=6)
+    entry = P4TableEntry(
+        "ipv4_lpm",
+        priority=10,
+        meter_config=P4MeterConfig(cir=1, cburst=2, pir=3, pburst=4),
+        counter_data=ctr_data,
+        meter_counter_data=P4MeterCounterData(
+            green=ctr_data, yellow=ctr_data, red=ctr_data
+        ),
+        metadata=b"abc",
+        is_default_action=True,
+        idle_timeout_ns=10_000_000_000_000,
+        time_since_last_hit=20_000_000_000_000,
+    )
+
+    msg = entry.encode(_SCHEMA)
+    assert pbuf.to_dict(msg) == {
+        "table_entry": {
+            "counter_data": {"byte_count": "5", "packet_count": "6"},
+            "idle_timeout_ns": "10000000000000",
+            "is_default_action": True,
+            "metadata": "YWJj",
+            "meter_config": {"cburst": "2", "cir": "1", "pburst": "4", "pir": "3"},
+            "meter_counter_data": {
+                "green": {"byte_count": "5", "packet_count": "6"},
+                "red": {"byte_count": "5", "packet_count": "6"},
+                "yellow": {"byte_count": "5", "packet_count": "6"},
+            },
+            "priority": 10,
+            "table_id": 37375156,
+            "time_since_last_hit": {"elapsed_ns": "20000000000000"},
+        }
+    }
+
+    assert entry == P4TableEntry.decode(msg, _SCHEMA)
+
+
 def test_action_profile_member1():
     "Test P4ActionProfileMember class."
 

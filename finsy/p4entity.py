@@ -33,19 +33,23 @@ from finsy.proto import p4r
 
 
 class _SupportsDecode(Protocol):
-    # FIXME: This is a class method that returns an instance of that class.
-    def decode(self, msg: Any, schema: P4Schema) -> Any:
-        ...
+    @classmethod
+    def decode(
+        cls,
+        msg: Any,  # FIXME: improve typing
+        schema: P4Schema,
+    ) -> Self:
+        ...  # pragma: no cover
 
 
 class _SupportsEncodeEntity(Protocol):
     def encode(self, schema: P4Schema) -> p4r.Entity:
-        ...
+        ...  # pragma: no cover
 
 
 class _SupportsEncodeUpdate(Protocol):
     def encode_update(self, schema: P4Schema) -> p4r.Update | p4r.StreamMessageRequest:
-        ...
+        ...  # pragma: no cover
 
 
 _DECODER: dict[str, _SupportsDecode] = {}
@@ -506,7 +510,15 @@ class P4TableEntry(_P4Writable):
         else:
             meter_config = None
 
-        # TODO: More fields.
+        if entry.HasField("counter_data"):
+            counter_data = P4CounterData.decode(entry.counter_data)
+        else:
+            counter_data = None
+
+        if entry.HasField("meter_counter_data"):
+            meter_counter_data = P4MeterCounterData.decode(entry.meter_counter_data)
+        else:
+            meter_counter_data = None
 
         return cls(
             table_id=table.alias,
@@ -514,6 +526,8 @@ class P4TableEntry(_P4Writable):
             action=action,
             priority=entry.priority,
             meter_config=meter_config,
+            counter_data=counter_data,
+            meter_counter_data=meter_counter_data,
             is_default_action=entry.is_default_action,
             idle_timeout_ns=entry.idle_timeout_ns,
             time_since_last_hit=last_hit,
