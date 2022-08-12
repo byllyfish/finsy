@@ -832,6 +832,25 @@ def test_digest_list1():
     assert digest_list[0] == {"a": 1}
 
 
+def test_digest_list2():
+    "Test P4DigestList."
+
+    schema = P4Schema(_P4INFO_TEST_DIR / "layer2.p4.p4info.txt")
+    msg = pbuf.from_text(
+        r"""
+        digest {
+            digest_id: 401827287
+            list_id: 2
+            timestamp: 3
+        }
+        """,
+        p4r.StreamMessageResponse,
+    )
+
+    digest = P4DigestList.decode(msg, schema)
+    assert digest == P4DigestList("Digest_t", list_id=2, timestamp=3, data=[])
+
+
 def test_idle_timeout_notification1():
     "Test P4IdleTimeoutNotification."
 
