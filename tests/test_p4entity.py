@@ -27,7 +27,10 @@ from finsy.p4entity import (
     P4TableMatch,
     P4ValueSetEntry,
     P4ValueSetMember,
+    decode_entity,
     decode_replica,
+    decode_stream,
+    encode_entities,
     encode_replica,
     encode_updates,
 )
@@ -246,6 +249,74 @@ def test_table_entry4():
     }
 
     assert entry == P4TableEntry.decode(msg, _SCHEMA)
+
+
+def test_decode_entity1():
+    "Test decode_entity function."
+
+    entity = p4r.Entity()
+    with pytest.raises(ValueError, match="missing entity"):
+        decode_entity(entity, _SCHEMA)
+
+
+def test_decode_entity2():
+    "Test decode_entity function."
+
+    entity = P4TableEntry().encode(_SCHEMA)
+    entry = decode_entity(entity, _SCHEMA)
+    assert entry == P4TableEntry()
+
+
+def test_decode_entity3():
+    "Test decode_entity function."
+
+    entity = P4MulticastGroupEntry().encode(_SCHEMA)
+    entry = decode_entity(entity, _SCHEMA)
+    assert entry == P4MulticastGroupEntry()
+
+
+def test_decode_entity4():
+    "Test decode_entity function."
+
+    entity = p4r.Entity(
+        packet_replication_engine_entry=p4r.PacketReplicationEngineEntry()
+    )
+    with pytest.raises(ValueError, match="missing packet_replication_engine type"):
+        decode_entity(entity, _SCHEMA)
+
+
+def test_decode_stream1():
+    "Test decode_stream function."
+
+    msg = p4r.StreamMessageResponse()
+    with pytest.raises(ValueError, match="missing update"):
+        decode_stream(msg, _SCHEMA)
+
+
+def test_decode_stream2():
+    "Test decode_stream function."
+
+    msg = pbuf.from_text(
+        r"""
+        packet {
+            payload: "abc"
+        }
+        """,
+        p4r.StreamMessageResponse,
+    )
+    packet = decode_stream(msg, _SCHEMA)
+    assert packet == P4PacketIn(b"abc", metadata={})
+
+
+def test_encode_entities1():
+    "Test encode_entities function."
+
+    entity = P4TableEntry().encode(_SCHEMA)
+    msgs1 = encode_entities(entity, _SCHEMA)
+    msgs2 = encode_entities([entity], _SCHEMA)
+    msgs3 = encode_entities(P4TableEntry(), _SCHEMA)
+    msgs4 = encode_entities([P4TableEntry()], _SCHEMA)
+    assert msgs1 == msgs2 == msgs3 == [entity]
 
 
 def test_encode_updates1():

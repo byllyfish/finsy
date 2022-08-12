@@ -79,7 +79,7 @@ def decode_entity(msg: p4r.Entity, schema: P4Schema) -> Any:
         submsg = msg.packet_replication_engine_entry
         key = submsg.WhichOneof("type")
         if key is None:
-            raise ValueError("missing packet_relication_engine type")
+            raise ValueError("missing packet_replication_engine type")
 
     return _DECODER[key].decode(msg, schema)
 
@@ -1236,6 +1236,7 @@ class P4PacketOut:
     "Represents a P4Runtime PacketOut."
 
     payload: bytes
+    _: KW_ONLY
     metadata: _MetadataDictType
 
     def __init__(self, __payload: bytes, /, **metadata: Any):
