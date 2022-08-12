@@ -8,6 +8,7 @@ from finsy.p4entity import (
     P4CloneSessionEntry,
     P4CounterData,
     P4CounterEntry,
+    P4DigestEntry,
     P4DigestList,
     P4DigestListAck,
     P4DirectCounterEntry,
@@ -26,12 +27,34 @@ from finsy.p4entity import (
     P4TableMatch,
     P4ValueSetEntry,
     P4ValueSetMember,
+    decode_entity,
+    decode_replica,
+    decode_stream,
+    encode_entities,
+    encode_replica,
+    encode_updates,
 )
 from finsy.p4schema import P4Schema
 from finsy.proto import p4r
 
 _P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
 _SCHEMA = P4Schema(_P4INFO_TEST_DIR / "basic.p4.p4info.txt")
+
+
+def test_replica1():
+    "Test encode_replica and decode_replica functions."
+
+    msg = encode_replica(1)
+    assert pbuf.to_dict(msg) == {"egress_port": 1}
+    assert decode_replica(msg) == (1, 0)
+
+
+def test_replica2():
+    "Test encode_replica and decode_replica functions"
+
+    msg = encode_replica((1, 2))
+    assert pbuf.to_dict(msg) == {"egress_port": 1, "instance": 2}
+    assert decode_replica(msg) == (1, 2)
 
 
 def test_table_match1():
@@ -186,6 +209,171 @@ def test_table_entry3():
         }
     }
     assert entry == P4TableEntry.decode(msg, _SCHEMA)
+
+
+def test_table_entry4():
+    "Test TableEntry class."
+
+    ctr_data = P4CounterData(byte_count=5, packet_count=6)
+    entry = P4TableEntry(
+        "ipv4_lpm",
+        priority=10,
+        meter_config=P4MeterConfig(cir=1, cburst=2, pir=3, pburst=4),
+        counter_data=ctr_data,
+        meter_counter_data=P4MeterCounterData(
+            green=ctr_data, yellow=ctr_data, red=ctr_data
+        ),
+        metadata=b"abc",
+        is_default_action=True,
+        idle_timeout_ns=10_000_000_000_000,
+        time_since_last_hit=20_000_000_000_000,
+    )
+
+    msg = entry.encode(_SCHEMA)
+    assert pbuf.to_dict(msg) == {
+        "table_entry": {
+            "counter_data": {"byte_count": "5", "packet_count": "6"},
+            "idle_timeout_ns": "10000000000000",
+            "is_default_action": True,
+            "metadata": "YWJj",
+            "meter_config": {"cburst": "2", "cir": "1", "pburst": "4", "pir": "3"},
+            "meter_counter_data": {
+                "green": {"byte_count": "5", "packet_count": "6"},
+                "red": {"byte_count": "5", "packet_count": "6"},
+                "yellow": {"byte_count": "5", "packet_count": "6"},
+            },
+            "priority": 10,
+            "table_id": 37375156,
+            "time_since_last_hit": {"elapsed_ns": "20000000000000"},
+        }
+    }
+
+    assert entry == P4TableEntry.decode(msg, _SCHEMA)
+
+
+def test_decode_entity1():
+    "Test decode_entity function."
+
+    entity = p4r.Entity()
+    with pytest.raises(ValueError, match="missing entity"):
+        decode_entity(entity, _SCHEMA)
+
+
+def test_decode_entity2():
+    "Test decode_entity function."
+
+    entity = P4TableEntry().encode(_SCHEMA)
+    entry = decode_entity(entity, _SCHEMA)
+    assert entry == P4TableEntry()
+
+
+def test_decode_entity3():
+    "Test decode_entity function."
+
+    entity = P4MulticastGroupEntry().encode(_SCHEMA)
+    entry = decode_entity(entity, _SCHEMA)
+    assert entry == P4MulticastGroupEntry()
+
+
+def test_decode_entity4():
+    "Test decode_entity function."
+
+    entity = p4r.Entity(
+        packet_replication_engine_entry=p4r.PacketReplicationEngineEntry()
+    )
+    with pytest.raises(ValueError, match="missing packet_replication_engine type"):
+        decode_entity(entity, _SCHEMA)
+
+
+def test_decode_stream1():
+    "Test decode_stream function."
+
+    msg = p4r.StreamMessageResponse()
+    with pytest.raises(ValueError, match="missing update"):
+        decode_stream(msg, _SCHEMA)
+
+
+def test_decode_stream2():
+    "Test decode_stream function."
+
+    msg = pbuf.from_text(
+        r"""
+        packet {
+            payload: "abc"
+        }
+        """,
+        p4r.StreamMessageResponse,
+    )
+    packet = decode_stream(msg, _SCHEMA)
+    assert packet == P4PacketIn(b"abc", metadata={})
+
+
+def test_encode_entities1():
+    "Test encode_entities function."
+
+    entity = P4TableEntry().encode(_SCHEMA)
+    msgs1 = encode_entities(entity, _SCHEMA)
+    msgs2 = encode_entities([entity], _SCHEMA)
+    msgs3 = encode_entities(P4TableEntry(), _SCHEMA)
+    msgs4 = encode_entities([P4TableEntry()], _SCHEMA)
+    assert msgs1 == msgs2 == msgs3 == msgs4 == [entity]
+
+
+def test_encode_updates1():
+    "Test encode_updates with P4TableEntry."
+
+    entry1 = P4TableEntry("ipv4_lpm")
+    entry2 = P4TableEntry("ipv4_lpm")
+    entry3 = P4TableEntry("ipv4_lpm")
+
+    result = encode_updates([+entry1, -entry2, ~entry3], _SCHEMA)
+    assert [pbuf.to_dict(msg) for msg in result] == [
+        {"entity": {"table_entry": {"table_id": 37375156}}, "type": "INSERT"},
+        {"entity": {"table_entry": {"table_id": 37375156}}, "type": "DELETE"},
+        {"entity": {"table_entry": {"table_id": 37375156}}, "type": "MODIFY"},
+    ]
+
+
+def test_encode_updates2():
+    "Test encode_updates with P4TableEntry."
+
+    entry1 = P4RegisterEntry("counter_bloom_filter", index=1, data=1)
+    entry2 = P4RegisterEntry("counter_bloom_filter", index=2, data=2)
+    entry3 = P4RegisterEntry("counter_bloom_filter", index=3, data=3)
+
+    result = encode_updates([entry1, ~entry2, ~entry3], _SCHEMA)
+    assert [pbuf.to_dict(msg) for msg in result] == [
+        {
+            "entity": {
+                "register_entry": {
+                    "data": {"bitstring": "AQ=="},
+                    "index": {"index": "1"},
+                    "register_id": 369140025,
+                }
+            },
+            "type": "MODIFY",
+        },
+        {
+            "entity": {
+                "register_entry": {
+                    "data": {"bitstring": "Ag=="},
+                    "index": {"index": "2"},
+                    "register_id": 369140025,
+                }
+            },
+            "type": "MODIFY",
+        },
+        {
+            "entity": {
+                "register_entry": {
+                    "data": {"bitstring": "Aw=="},
+                    "index": {"index": "3"},
+                    "register_id": 369140025,
+                }
+            },
+            "type": "MODIFY",
+        },
+    ]
 
 
 def test_action_profile_member1():
@@ -496,6 +684,41 @@ def test_clone_session_entry1():
     assert entry == P4CloneSessionEntry.decode(msg, _SCHEMA)
 
 
+def test_digest_entry1():
+    "Test P4DigestEntry class."
+
+    entry = P4DigestEntry()
+    msg = entry.encode(_SCHEMA)
+
+    assert pbuf.to_dict(msg) == {"digest_entry": {}}
+    assert entry == P4DigestEntry.decode(msg, _SCHEMA)
+
+
+def test_digest_entry2():
+    "Test P4DigestEntry class."
+
+    schema = P4Schema(_P4INFO_TEST_DIR / "layer2.p4.p4info.txt")
+    entry = P4DigestEntry(
+        "Digest_t",
+        max_list_size=1,
+        max_timeout_ns=2,
+        ack_timeout_ns=3,
+    )
+    msg = entry.encode(schema)
+
+    assert pbuf.to_dict(msg) == {
+        "digest_entry": {
+            "config": {
+                "ack_timeout_ns": "3",
+                "max_list_size": 1,
+                "max_timeout_ns": "2",
+            },
+            "digest_id": 401827287,
+        }
+    }
+    assert entry == P4DigestEntry.decode(msg, schema)
+
+
 def test_packet_out1():
     "Test P4PacketOut class."
 
@@ -607,6 +830,25 @@ def test_digest_list1():
     assert len(digest_list) == 3
     assert list(digest_list) == digest_list.data
     assert digest_list[0] == {"a": 1}
+
+
+def test_digest_list2():
+    "Test P4DigestList."
+
+    schema = P4Schema(_P4INFO_TEST_DIR / "layer2.p4.p4info.txt")
+    msg = pbuf.from_text(
+        r"""
+        digest {
+            digest_id: 401827287
+            list_id: 2
+            timestamp: 3
+        }
+        """,
+        p4r.StreamMessageResponse,
+    )
+
+    digest = P4DigestList.decode(msg, schema)
+    assert digest == P4DigestList("Digest_t", list_id=2, timestamp=3, data=[])
 
 
 def test_idle_timeout_notification1():

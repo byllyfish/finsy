@@ -33,19 +33,23 @@ from finsy.proto import p4r
 
 
 class _SupportsDecode(Protocol):
-    # FIXME: This is a class method that returns an instance of that class.
-    def decode(self, msg: Any, schema: P4Schema) -> Any:
-        ...
+    @classmethod
+    def decode(
+        cls,
+        msg: Any,  # FIXME: improve typing
+        schema: P4Schema,
+    ) -> Self:
+        ...  # pragma: no cover
 
 
 class _SupportsEncodeEntity(Protocol):
     def encode(self, schema: P4Schema) -> p4r.Entity:
-        ...
+        ...  # pragma: no cover
 
 
 class _SupportsEncodeUpdate(Protocol):
     def encode_update(self, schema: P4Schema) -> p4r.Update | p4r.StreamMessageRequest:
-        ...
+        ...  # pragma: no cover
 
 
 _DECODER: dict[str, _SupportsDecode] = {}
@@ -75,7 +79,7 @@ def decode_entity(msg: p4r.Entity, schema: P4Schema) -> Any:
         submsg = msg.packet_replication_engine_entry
         key = submsg.WhichOneof("type")
         if key is None:
-            raise ValueError("missing packet_relication_engine type")
+            raise ValueError("missing packet_replication_engine type")
 
     return _DECODER[key].decode(msg, schema)
 
@@ -172,7 +176,7 @@ class _P4Writable:
         return self
 
     def encode(self, _schema: P4Schema) -> p4r.Entity:
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: no cover
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         if self._update_type == P4UpdateType.UNSPECIFIED:
@@ -187,7 +191,7 @@ class _P4ModifyOnly:
         return self
 
     def encode(self, _schema: P4Schema) -> p4r.Entity:
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: no cover
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         return p4r.Update(type=P4UpdateType.MODIFY.vt(), entity=self.encode(schema))
@@ -506,7 +510,15 @@ class P4TableEntry(_P4Writable):
         else:
             meter_config = None
 
-        # TODO: More fields.
+        if entry.HasField("counter_data"):
+            counter_data = P4CounterData.decode(entry.counter_data)
+        else:
+            counter_data = None
+
+        if entry.HasField("meter_counter_data"):
+            meter_counter_data = P4MeterCounterData.decode(entry.meter_counter_data)
+        else:
+            meter_counter_data = None
 
         return cls(
             table_id=table.alias,
@@ -514,6 +526,8 @@ class P4TableEntry(_P4Writable):
             action=action,
             priority=entry.priority,
             meter_config=meter_config,
+            counter_data=counter_data,
+            meter_counter_data=meter_counter_data,
             is_default_action=entry.is_default_action,
             idle_timeout_ns=entry.idle_timeout_ns,
             time_since_last_hit=last_hit,
@@ -660,7 +674,7 @@ class P4CloneSessionEntry(_P4Writable):
 class P4DigestEntry(_P4Writable):
     "Represents a P4Runtime DigestEntry."
 
-    digest_id: str
+    digest_id: str = ""
     _: KW_ONLY
     max_list_size: int = 0
     max_timeout_ns: int = 0
@@ -668,6 +682,10 @@ class P4DigestEntry(_P4Writable):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode DigestEntry data as protobuf."
+
+        if not self.digest_id:
+            return p4r.Entity(digest_entry=p4r.DigestEntry())
+
         digest = schema.digests[self.digest_id]
 
         if self.max_list_size == self.max_timeout_ns == self.ack_timeout_ns == 0:
@@ -685,7 +703,11 @@ class P4DigestEntry(_P4Writable):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to DigestEntry data."
+
         entry = msg.digest_entry
+        if entry.digest_id == 0:
+            return cls()
+
         digest = schema.digests[entry.digest_id]
 
         config = entry.config
@@ -1214,6 +1236,7 @@ class P4PacketOut:
     "Represents a P4Runtime PacketOut."
 
     payload: bytes
+    _: KW_ONLY
     metadata: _MetadataDictType
 
     def __init__(self, __payload: bytes, /, **metadata: Any):
