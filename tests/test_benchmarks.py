@@ -45,7 +45,7 @@ def _timer(label):
     start = time.perf_counter()
     yield
     end = time.perf_counter()
-    print(f"{label!r} took {end - start:0.5f} seconds")
+    print(f"::notice::Benchmark {label!r} took {end - start:0.5f} seconds")
 
 
 @contextlib.contextmanager
