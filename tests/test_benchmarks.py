@@ -1,0 +1,58 @@
+import contextlib
+import time
+from pathlib import Path
+
+from finsy import P4TableAction, P4TableEntry, P4TableMatch, Switch, SwitchOptions
+from finsy.log import LOGGER
+
+P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
+
+
+async def test_benchmark_table_entry1(p4rt_server_target):
+    "Test writing table entries using P4TableEntry."
+
+    opts = SwitchOptions(p4info=P4INFO_TEST_DIR / "basic.p4.p4info.txt")
+
+    async with Switch("sw1", p4rt_server_target, opts) as sw:
+
+        with _logger_disabled(LOGGER):
+            entries1 = _make_entries1()
+            with _timer("entries1"):
+                await sw.write(entries1)
+
+            entries2 = _make_entries2(sw)
+            with _timer("entries2"):
+                await sw.write(entries2)
+
+
+def _make_entries1():
+    return [
+        +P4TableEntry(
+            "ipv4_lpm",
+            match=P4TableMatch(dstAddr=(1024 * i, 32)),
+            action=P4TableAction("ipv4_forward", dstAddr=i, port=1),
+        )
+        for i in range(1, 10001)
+    ]
+
+
+def _make_entries2(sw):
+    return [entry.encode_update(sw.p4info) for entry in _make_entries1()]
+
+
+@contextlib.contextmanager
+def _timer(label):
+    start = time.perf_counter()
+    yield
+    end = time.perf_counter()
+    print(f"{label!r} took {end - start:0.5f} seconds")
+
+
+@contextlib.contextmanager
+def _logger_disabled(logger):
+    level = logger.getEffectiveLevel()
+    logger.setLevel("ERROR")
+    try:
+        yield
+    finally:
+        logger.setLevel(level)

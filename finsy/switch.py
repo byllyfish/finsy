@@ -86,7 +86,7 @@ class SwitchOptions:
     initial_election_id: int = 10
     "Initial P4Runtime election ID."
 
-    credentials: grpc.ChannelCredentials | None = None
+    channel_credentials: grpc.ChannelCredentials | None = None
     "P4Runtime channel credentials. Used for TLS support."
 
     ready_handler: Callable[["Switch"], Coroutine[Any, Any, None]] | None = None
@@ -277,7 +277,7 @@ class Switch:
         assert self._tasks is None
 
         self._tasks = SwitchTasks()
-        self._p4client = P4Client(self._address, self._options.credentials)
+        self._p4client = P4Client(self._address, self._options.channel_credentials)
 
         try:
             while True:
@@ -382,7 +382,7 @@ class Switch:
         assert self._tasks is None
 
         self._tasks = SwitchTasks()
-        self._p4client = P4Client(self._address, self._options.credentials)
+        self._p4client = P4Client(self._address, self._options.channel_credentials)
         self.create_task(self._run(), background=True)
 
         try:
@@ -488,11 +488,8 @@ class Switch:
         "Called when a P4Runtime stream error response is received."
         assert self._p4client is not None
 
-        channel = self._p4client.channel
-        assert channel is not None
-
         # Log the message at the ERROR level.
-        pbuf.log_msg(channel.get_state(), msg, self.p4info, level=logging.ERROR)
+        pbuf.log_msg(self._p4client.channel, msg, self.p4info, level=logging.ERROR)
 
         self.ee.emit(SwitchEvent.STREAM_ERROR, self, msg)
 
@@ -710,7 +707,7 @@ class Switch:
         assert self._gnmi_client is None
         assert self._p4client is not None
 
-        self._gnmi_client = gNMIClient(self._address, self._options.credentials)
+        self._gnmi_client = gNMIClient(self._address, self._options.channel_credentials)
         await self._gnmi_client.open(channel=self._p4client.channel)
 
         try:

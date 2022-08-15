@@ -36,7 +36,7 @@ class _SupportsDecode(Protocol):
     @classmethod
     def decode(
         cls,
-        msg: Any,  # FIXME: improve typing
+        msg: Any,  # (p4r.Entity | p4r.StreamMessageResponse)
         schema: P4Schema,
     ) -> Self:
         ...  # pragma: no cover
@@ -180,7 +180,7 @@ class _P4Writable:
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         if self._update_type == P4UpdateType.UNSPECIFIED:
-            raise ValueError("unspecified update type")
+            raise ValueError(f"unspecified update type (+, ~, -): {self!r}")
         return p4r.Update(type=self._update_type.vt(), entity=self.encode(schema))
 
 

@@ -318,7 +318,7 @@ class P4Client:
             s: _P4StreamTypeAlias = self._stub.StreamChannel(wait_for_ready=True)  # type: ignore
             self._stream = s
 
-        self.log_msg(msg)
+        self._log_msg(msg)
 
         try:
             await self._stream.write(msg)
@@ -339,7 +339,7 @@ class P4Client:
         except grpc.RpcError as ex:
             raise P4ClientError(ex, "receive") from None
 
-        self.log_msg(msg)
+        self._log_msg(msg)
         return msg
 
     @overload
@@ -372,7 +372,7 @@ class P4Client:
         assert msg_type.endswith("Request")
         rpc_method = getattr(self._stub, msg_type[:-7])
 
-        self.log_msg(msg)
+        self._log_msg(msg)
         try:
             reply = await rpc_method(
                 msg,
@@ -381,7 +381,7 @@ class P4Client:
         except grpc.RpcError as ex:
             raise P4ClientError(ex, msg_type, msg=msg) from None
 
-        self.log_msg(reply)
+        self._log_msg(reply)
         return reply
 
     async def request_iter(
@@ -396,19 +396,17 @@ class P4Client:
         assert msg_type.endswith("Request")
         rpc_method = getattr(self._stub, msg_type[:-7])
 
-        self.log_msg(msg)
+        self._log_msg(msg)
         try:
             async for reply in rpc_method(
                 msg,
                 timeout=_DEFAULT_RPC_TIMEOUT,
             ):
-                self.log_msg(reply)
+                self._log_msg(reply)
                 yield reply
         except grpc.RpcError as ex:
             raise P4ClientError(ex, msg_type) from None
 
-    def log_msg(self, msg: pbuf.PBMessage) -> None:
+    def _log_msg(self, msg: pbuf.PBMessage) -> None:
         "Log a P4Runtime request or response."
-        assert self._channel is not None
-
-        pbuf.log_msg(self._channel.get_state(), msg, self._schema)
+        pbuf.log_msg(self._channel, msg, self._schema)
