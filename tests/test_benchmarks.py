@@ -2,13 +2,17 @@ import contextlib
 import time
 from pathlib import Path
 
+import pytest
 from finsy import P4TableAction, P4TableEntry, P4TableMatch, Switch, SwitchOptions
-from finsy.log import LOGGER
+from finsy.log import LOGGER, get_setting
 from finsy.proto import p4r
 
 P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
 
+NO_BENCHMARK = get_setting("FINSY_NO_BENCHMARK")
 
+
+@pytest.mark.skipif(NO_BENCHMARK, reason="NO_BECNHMARK")
 async def test_benchmark_table_entry1(p4rt_server_target):
     "Test writing table entries using P4TableEntry."
 
