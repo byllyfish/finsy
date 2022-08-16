@@ -27,6 +27,7 @@ async def test_benchmark_table_entry1(p4rt_server_target):
             with _timer("entries2"):
                 await sw.write(entries2)
 
+            assert sw._p4client is not None
             req = p4r.WriteRequest(updates=_make_entries2(sw))
             with _timer("entries3"):
                 await sw._p4client.request(req)

@@ -233,7 +233,7 @@ class P4TableMatch(dict[str, Any]):
 
         for key, value in self.items():
             try:
-                field = match_fields[key].encode(value)
+                field = match_fields[key].encode_field(value)
                 if field is not None:
                     result.append(field)
             except Exception as ex:
@@ -249,7 +249,7 @@ class P4TableMatch(dict[str, Any]):
 
         for field in msgs:
             fld = match_fields[field.field_id]
-            result[fld.alias] = fld.decode(field)
+            result[fld.alias] = fld.decode_field(field)
 
         return cls(result)
 
@@ -300,7 +300,7 @@ class P4TableAction:
 
         ap = action.params
         try:
-            params = [ap[name].encode(value) for name, value in self.args.items()]
+            params = [ap[name].encode_param(value) for name, value in self.args.items()]
         except ValueError as ex:
             raise ValueError(f"{action.alias!r}: {ex}") from ex
 
@@ -334,7 +334,7 @@ class P4TableAction:
         args = {}
         for param in msg.params:
             action_param = action.params[param.param_id]
-            value = action_param.decode(param)
+            value = action_param.decode_param(param)
             args[action_param.name] = value
 
         return cls(action.alias, **args)
@@ -1127,7 +1127,7 @@ class P4ValueSetMember(dict[str, Any]):
 
         for key, value in self.items():
             try:
-                field = match[key].encode(value)
+                field = match[key].encode_field(value)
                 if field is not None:
                     result.append(field)
             except Exception as ex:
@@ -1145,7 +1145,7 @@ class P4ValueSetMember(dict[str, Any]):
 
         for field in msgs:
             fld = match[field.field_id]
-            result[fld.alias] = fld.decode(field)
+            result[fld.alias] = fld.decode_field(field)
 
         return cls(result)
 

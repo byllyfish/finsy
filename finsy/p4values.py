@@ -55,8 +55,7 @@ def p4r_truncate(value: bytes, signed: bool = False) -> bytes:
     "Truncate a bytes value to the specified bitwidth."
     assert not signed, "TODO: signed not yet supported"
 
-    result = value.lstrip(b"\x00")
-    return result if result else b"\x00"
+    return value.lstrip(b"\x00") or b"\x00"
 
 
 def _parse_str(value: str, bitwidth: int) -> int:
