@@ -108,7 +108,7 @@ def _message_formatter(msg: PBMessage, _indent: int, _as_one_line: bool):
 
 
 def log_msg(
-    state: grpc.ChannelConnectivity,
+    channel: grpc.aio.Channel | None,
     msg: PBMessage,
     schema: "_fy.P4Schema | None",
     *,
@@ -122,7 +122,12 @@ def log_msg(
     <state> is empty if the client state is READY. Otherwise, it's the
     channel connectivity state.
     """
+    if not MSG_LOG.isEnabledFor(level):
+        return
+
     # Include the channel's state if it's not READY.
+    assert channel is not None
+    state = channel.get_state()
     state_name = ""
     if state != grpc.ChannelConnectivity.READY:
         state_name = f"{state.name} "  # trailing space necessary

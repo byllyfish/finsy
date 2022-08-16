@@ -216,7 +216,6 @@ notification {
 _GNMI_SUBSCRIBE_RESPONSES_INITIAL = [
     r"""
     update { timestamp: 1656723692816736079 update { path { elem { name: "interfaces" } elem { name: "interface" key { key: "name" value: "s1-eth1" } } elem { name: "state" } elem { name: "oper-status" } } val { string_val: "UP" } } }
-
     """,
     r"""
     update { timestamp: 1656723692817152380 update { path { elem { name: "interfaces" } elem { name: "interface" key { key: "name" value: "s1-eth2" } } elem { name: "state" } elem { name: "oper-status" } } val { string_val: "UP" } } }

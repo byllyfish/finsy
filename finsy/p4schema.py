@@ -206,6 +206,8 @@ class _P4AnnoMixin:
     Overrides __init__. Must be placed first.
     """
 
+    _annotations: list["P4Annotation"]
+
     def __init__(self, pbuf: Any):
         super().__init__(pbuf)  # pyright: ignore[reportGeneralTypeIssues]
         self._annotations = _parse_annotations(pbuf)
@@ -231,10 +233,16 @@ class _P4DocMixin:
 class _P4TopLevel(_P4AnnoMixin, _P4Bridged[_T]):
     """Generic base class for entities at the top level of the P4Info file."""
 
+    _id: int  # cache for performance
+
+    def __init__(self, pbuf: Any):
+        super().__init__(pbuf)
+        self._id = pbuf.preamble.id
+
     @property
     def id(self) -> int:
         "Entity ID."
-        return self.pbuf.preamble.id  # type: ignore[attr-defined]
+        return self._id
 
     @property
     def name(self) -> str:
@@ -260,10 +268,16 @@ class _P4TopLevel(_P4AnnoMixin, _P4Bridged[_T]):
 class _P4NamedMixin(_P4Bridged[_T]):
     """Generic base class for entities with an ID and name (not at top level)."""
 
+    _id: int  # cache for performance
+
+    def __init__(self, pbuf: Any):
+        super().__init__(pbuf)
+        self._id = pbuf.id
+
     @property
     def id(self) -> int:
         "Entity ID."
-        return self.pbuf.id  # type: ignore[attr-defined]
+        return self._id
 
     @property
     def name(self) -> str:
@@ -800,22 +814,28 @@ class P4Table(_P4TopLevel[p4i.Table]):
 class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
     "Represents 'Action.Param' in schema."
 
+    _bitwidth: int  # cache for performance
+
+    def __init__(self, pbuf: p4i.Action.Param):
+        super().__init__(pbuf)
+        self._bitwidth = pbuf.bitwidth
+
     @property
-    def bitwidth(self):
-        return self.pbuf.bitwidth
+    def bitwidth(self) -> int:
+        return self._bitwidth
 
     # TODO: type_name property
 
-    def encode(self, value: p4values.P4ParamValue) -> p4r.Action.Param:
+    def encode_param(self, value: p4values.P4ParamValue) -> p4r.Action.Param:
         "Encode `param` to protobuf."
         return p4r.Action.Param(
             param_id=self.id,
-            value=p4values.encode_exact(value, self.bitwidth),
+            value=p4values.encode_exact(value, self._bitwidth),
         )
 
-    def decode(self, param: p4r.Action.Param):
+    def decode_param(self, param: p4r.Action.Param):
         "Decode protobuf `param`."
-        return p4values.decode_exact(param.value, self.bitwidth)
+        return p4values.decode_exact(param.value, self._bitwidth)
 
 
 class P4Action(_P4TopLevel[p4i.Action]):
@@ -835,13 +855,17 @@ class P4Action(_P4TopLevel[p4i.Action]):
 class P4ActionRef(_P4AnnoMixin, _P4Bridged[p4i.ActionRef]):
     "Represents ActionRef in schema."
 
+    _id: int  # cache for performance
+    _action: P4Action
+
     def __init__(self, pbuf: p4i.ActionRef, defs: _P4Defs) -> None:
         super().__init__(pbuf)
         self._action = defs.actions[pbuf.id]
+        self._id = self._action.id
 
     @property
     def id(self):
-        return self._action.id
+        return self._id
 
     @property
     def name(self):
@@ -894,9 +918,22 @@ class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
 class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
     "Represents the P4Info MatchField protobuf."
 
+    _alias: str
+    _bitwidth: int  # cache for performance
+    _match_type: P4MatchType | str
+
     def __init__(self, pbuf: p4i.MatchField) -> None:
         super().__init__(pbuf)
         self._alias = _make_alias(self.name)
+        self._bitwidth = pbuf.bitwidth
+
+        match pbuf.WhichOneof("match"):
+            case "match_type":
+                self._match_type = P4MatchType(pbuf.match_type)
+            case "other_match_type":
+                self._match_type = pbuf.other_match_type
+            case other:
+                raise ValueError(f"unknown oneof: {other!r}")
 
     @property
     def alias(self) -> str:
@@ -904,34 +941,30 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
 
     @property
     def bitwidth(self) -> int:
-        return self.pbuf.bitwidth
+        return self._bitwidth
 
     @property
     def match_type(self) -> P4MatchType | str:
-        which_one = self.pbuf.WhichOneof("match")
-        if which_one == "match_type":
-            return P4MatchType(self.pbuf.match_type)
-        assert which_one == "other_match_type"
-        return self.pbuf.other_match_type
+        return self._match_type
 
-    def encode(self, value: Any) -> p4r.FieldMatch | None:
+    def encode_field(self, value: Any) -> p4r.FieldMatch | None:
         "Encode value as protobuf type."
 
         match self.match_type:
             case P4MatchType.EXACT:
-                data = p4values.encode_exact(value, self.bitwidth)
+                data = p4values.encode_exact(value, self._bitwidth)
                 return p4r.FieldMatch(
                     field_id=self.id,
                     exact=p4r.FieldMatch.Exact(value=data),
                 )
             case P4MatchType.LPM:
-                data, prefix = p4values.encode_lpm(value, self.bitwidth)
+                data, prefix = p4values.encode_lpm(value, self._bitwidth)
                 return p4r.FieldMatch(
                     field_id=self.id,
                     lpm=p4r.FieldMatch.LPM(value=data, prefix_len=prefix),
                 )
             case P4MatchType.TERNARY:
-                data, mask = p4values.encode_ternary(value, self.bitwidth)
+                data, mask = p4values.encode_ternary(value, self._bitwidth)
                 return p4r.FieldMatch(
                     field_id=self.id,
                     ternary=p4r.FieldMatch.Ternary(value=data, mask=mask),
@@ -939,7 +972,7 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
             case P4MatchType.OPTIONAL:
                 if value is None:
                     return None
-                data = p4values.encode_exact(value, self.bitwidth)
+                data = p4values.encode_exact(value, self._bitwidth)
                 return p4r.FieldMatch(
                     field_id=self.id,
                     optional=p4r.FieldMatch.Optional(value=data),
@@ -947,27 +980,27 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
             case other:
                 raise ValueError(f"Unsupported match_type: {other!r}")
 
-    def decode(self, field: p4r.FieldMatch):
+    def decode_field(self, field: p4r.FieldMatch):
         "Decode protobuf FieldMatch value."
         # TODO: check field type against self.match_type? Check id?
         match field.WhichOneof("field_match_type"):
             case "exact":
-                return p4values.decode_exact(field.exact.value, self.bitwidth)
+                return p4values.decode_exact(field.exact.value, self._bitwidth)
             case "lpm":
                 return p4values.decode_lpm(
-                    field.lpm.value, field.lpm.prefix_len, self.bitwidth
+                    field.lpm.value, field.lpm.prefix_len, self._bitwidth
                 )
             case "ternary":
                 return p4values.decode_ternary(
-                    field.ternary.value, field.ternary.mask, self.bitwidth
+                    field.ternary.value, field.ternary.mask, self._bitwidth
                 )
             case "range":
                 return p4values.decode_range(
-                    field.range.low, field.range.high, self.bitwidth
+                    field.range.low, field.range.high, self._bitwidth
                 )
             case "optional":
                 # Decode "optional" as exact value, if field is present.
-                return p4values.decode_exact(field.exact.value, self.bitwidth)
+                return p4values.decode_exact(field.exact.value, self._bitwidth)
             case other:
                 raise ValueError(f"Unsupported match_type: {other!r}")
 

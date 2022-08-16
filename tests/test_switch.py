@@ -1,5 +1,4 @@
 import asyncio
-import contextlib
 from pathlib import Path
 
 import pytest
@@ -12,21 +11,16 @@ from finsy import (
     SwitchOptions,
 )
 from finsy.log import TRACE
-from finsy.test.p4runtime_server import P4RuntimeServer
 
 
-@pytest.fixture
-async def p4rt_server():
-    server = P4RuntimeServer("127.0.0.1:19559")
-    task = asyncio.create_task(server.run())
-    yield server
+async def test_switch1(p4rt_server_target):
+    "Test switch and P4RT server."
 
-    task.cancel()
-    with contextlib.suppress(asyncio.CancelledError):
-        await task
+    async with Switch("sw1", p4rt_server_target):
+        pass
 
 
-async def test_switch(p4rt_server):
+async def test_switch2(p4rt_server_target):
     @TRACE
     async def _read(sw: Switch):
         entry = P4TableEntry(
@@ -44,14 +38,14 @@ async def test_switch(p4rt_server):
         p4info=Path("tests/test_data/p4info/basic.p4.p4info.txt"),
     )
 
-    sw1 = Switch("sw1", p4rt_server.listen_addr, options)
+    sw1 = Switch("sw1", p4rt_server_target, options)
     sw1.ee.add_listener(SwitchEvent.CHANNEL_UP, _read)  # FIXME: incorrect!
 
     with pytest.raises(asyncio.TimeoutError):
         await asyncio.wait_for(sw1.run(), 2.0)
 
 
-def test_switch2():
+def test_switch3():
     options = SwitchOptions(
         p4info=Path("tests/test_data/p4info/basic.p4.p4info.txt"),
     )

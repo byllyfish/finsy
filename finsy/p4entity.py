@@ -36,7 +36,7 @@ class _SupportsDecode(Protocol):
     @classmethod
     def decode(
         cls,
-        msg: Any,  # FIXME: improve typing
+        msg: Any,  # (p4r.Entity | p4r.StreamMessageResponse)
         schema: P4Schema,
     ) -> Self:
         ...  # pragma: no cover
@@ -107,7 +107,7 @@ UpdateList = (
 def _flatten(values: Any) -> Iterator[Any]:
     "Flatten lists and tuples."
     for val in values:
-        if isinstance(val, collections.abc.Sequence):
+        if isinstance(val, collections.abc.Iterable):
             yield from _flatten(val)
         else:
             yield val
@@ -128,7 +128,7 @@ def _encode_entity(
 def encode_entities(values: EntityList, schema: P4Schema) -> list[p4r.Entity]:
     """Convert list of python objects to list of P4Runtime Entities."""
 
-    if not isinstance(values, collections.abc.Sequence):
+    if not isinstance(values, collections.abc.Iterable):
         return [_encode_entity(values, schema)]
 
     return [_encode_entity(val, schema) for val in _flatten(values)]
@@ -152,7 +152,7 @@ def encode_updates(
 ) -> list[p4r.Update | p4r.StreamMessageRequest]:
     """Convert list of python objects to P4Runtime Updates or request messages."""
 
-    if not isinstance(values, collections.abc.Sequence):
+    if not isinstance(values, collections.abc.Iterable):
         return [_encode_update(values, schema)]
 
     return [_encode_update(val, schema) for val in _flatten(values)]
@@ -180,7 +180,7 @@ class _P4Writable:
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         if self._update_type == P4UpdateType.UNSPECIFIED:
-            raise ValueError("unspecified update type")
+            raise ValueError(f"unspecified update type (+, ~, -): {self!r}")
         return p4r.Update(type=self._update_type.vt(), entity=self.encode(schema))
 
 
@@ -233,7 +233,7 @@ class P4TableMatch(dict[str, Any]):
 
         for key, value in self.items():
             try:
-                field = match_fields[key].encode(value)
+                field = match_fields[key].encode_field(value)
                 if field is not None:
                     result.append(field)
             except Exception as ex:
@@ -249,7 +249,7 @@ class P4TableMatch(dict[str, Any]):
 
         for field in msgs:
             fld = match_fields[field.field_id]
-            result[fld.alias] = fld.decode(field)
+            result[fld.alias] = fld.decode_field(field)
 
         return cls(result)
 
@@ -298,16 +298,14 @@ class P4TableAction:
     def _encode_action(self, action: P4ActionRef | P4Action) -> p4r.Action:
         "Helper to encode an action."
 
-        params: list[p4r.Action.Param] = []
-        for name, value in self.args.items():
-            try:
-                param = action.params[name]
-                params.append(param.encode(value))
-            except ValueError as ex:
-                raise ValueError(f"{action.alias!r}: {ex}") from ex
+        ap = action.params
+        try:
+            params = [ap[name].encode_param(value) for name, value in self.args.items()]
+        except ValueError as ex:
+            raise ValueError(f"{action.alias!r}: {ex}") from ex
 
         # Check for missing action parameters.
-        if len(params) != len(action.params):
+        if len(params) != len(ap):
             self._fail_missing_params(action)
 
         return p4r.Action(action_id=action.id, params=params)
@@ -336,7 +334,7 @@ class P4TableAction:
         args = {}
         for param in msg.params:
             action_param = action.params[param.param_id]
-            value = action_param.decode(param)
+            value = action_param.decode_param(param)
             args[action_param.name] = value
 
         return cls(action.alias, **args)
@@ -1129,7 +1127,7 @@ class P4ValueSetMember(dict[str, Any]):
 
         for key, value in self.items():
             try:
-                field = match[key].encode(value)
+                field = match[key].encode_field(value)
                 if field is not None:
                     result.append(field)
             except Exception as ex:
@@ -1147,7 +1145,7 @@ class P4ValueSetMember(dict[str, Any]):
 
         for field in msgs:
             fld = match[field.field_id]
-            result[fld.alias] = fld.decode(field)
+            result[fld.alias] = fld.decode_field(field)
 
         return cls(result)
 

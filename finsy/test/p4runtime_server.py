@@ -1,38 +1,36 @@
 import argparse
 import asyncio
+import contextlib
 import logging
 from typing import AsyncIterator
 
 import grpc
+from finsy.futures import wait_for_cancel
 from finsy.log import LOGGER, TRACE
 from finsy.proto import p4r, p4r_grpc
 
 
-class TaskDict:
-    def __init__(self):
-        self._tasks = {}
-
-    def start(self, coro):
-        name = coro.__qualname__
-        i = 0
-        while name in self._tasks:
-            i += 1
-            name = f"{name}#{i}"
-        task = asyncio.create_task(coro, name=name)
-        self._tasks[name] = task
-        task.add_done_callback(self._remove_task)
+class _TaskSet(set[asyncio.Task]):
+    def create_task(self, coro):
+        task = asyncio.create_task(coro)
+        self.add(task)
+        task.add_done_callback(self.discard)
         return task
-
-    def _remove_task(self, task):
-        del self._tasks[task.get_name()]
 
 
 class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
-    def __init__(self, listen_addr: str, api_version="1.3.0"):
-        self.listen_addr = listen_addr
+    "Test P4Runtime server."
+
+    _listen_addr: str
+    _api_version: str
+
+    def __init__(self, listen_addr: str, api_version: str = "1.3.0"):
+        "Initialize P4Runtime server."
+
+        self._listen_addr = listen_addr
         self._api_version = api_version
         self._server = None
-        self._tasks = TaskDict()
+        self._tasks = _TaskSet()
         self._stream_context = None
         self._stream_closed = None
         self._stream_queue = asyncio.Queue()
@@ -40,22 +38,27 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     def __del__(self):
         LOGGER.debug("P4RuntimeServer: destroy server")
 
-    @TRACE
+    @contextlib.asynccontextmanager
     async def run(self):
+        "Run server inside an async context manager."
+
         self._server = self._create_server()
         try:
             await self._server.start()
-            await asyncio.sleep(5)
+            yield self
 
-            # await self._server.wait_for_termination()
         finally:
+            for task in self._tasks:
+                task.cancel()
             await self._server.stop(0)
             self._server = None
 
-    def _create_server(self):
+    def _create_server(self) -> grpc.aio.Server:
+        "Create AIO server."
+
         server = grpc.aio.server()
         p4r_grpc.add_P4RuntimeServicer_to_server(self, server)  # type: ignore
-        server.add_insecure_port(self.listen_addr)
+        server.add_insecure_port(self._listen_addr)
         return server
 
     @TRACE
@@ -64,14 +67,17 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         _request_iter,
         context: grpc.aio.ServicerContext,
     ):
+        "Handle StreamChannel."
+
+        # If another stream RPC is already open, return an error.
         if self._stream_context is not None:
             return "ERROR"
 
         self._stream_context = context
         self._stream_closed = asyncio.Event()
 
-        read_task = self._tasks.start(self._stream_read())
-        write_task = self._tasks.start(self._stream_write())
+        read_task = self._tasks.create_task(self._stream_read())
+        write_task = self._tasks.create_task(self._stream_write())
 
         try:
             await self._stream_closed.wait()
@@ -101,7 +107,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
             match request.WhichOneof("update"):  # type: ignore
                 case "arbitration":
-                    self._tasks.start(self._do_arbitration(request))
+                    self._tasks.create_task(self._do_arbitration(request))
                 case kind:
                     LOGGER.debug("_stream_read: unknown message %r", kind)
 
@@ -191,7 +197,8 @@ async def main():
     logging.basicConfig(level=logging.DEBUG)
 
     server = P4RuntimeServer(f"localhost:{args.port}")
-    await server.run()
+    async with server.run():
+        await wait_for_cancel()
 
 
 if __name__ == "__main__":

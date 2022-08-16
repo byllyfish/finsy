@@ -342,8 +342,7 @@ class gNMIClient:
 
     def _log_msg(self, msg: "pbuf.PBMessage"):
         "Log a gNMI message."
-        assert self._channel is not None
-        pbuf.log_msg(self._channel.get_state(), msg, None)
+        pbuf.log_msg(self._channel, msg, None)
 
 
 _StreamTypeAlias: TypeAlias = grpc.aio.StreamStreamCall[
