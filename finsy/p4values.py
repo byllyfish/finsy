@@ -78,37 +78,30 @@ def _parse_str(value: str, bitwidth: int) -> int:
         raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}") from None
 
 
-def _parse_int(value: SupportsInt) -> int:
-    "Convert SupportsInt value to an integer."
-    if isinstance(value, float) and not value.is_integer():
-        raise ValueError(f"fractional float value: {value!r}")
-
-    # Handle int, non-fractional float and IP address objects.
-    return int(value)
-
-
 def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
     "Encode an exact field value into a byte encoding."
     assert value is not None
 
-    if isinstance(value, bytes):
-        return p4r_truncate(value)
-
-    if isinstance(value, str):
-        ival = _parse_str(value, bitwidth)
-    elif isinstance(
-        value, SupportsInt
-    ):  # pyright: ignore [reportUnnecessaryIsInstance]
-        ival = _parse_int(value)
-    else:
-        raise ValueError(f"invalid value type: {value!r}")
+    match value:
+        case bytes():
+            return p4r_truncate(value)
+        case str():
+            ival = _parse_str(value, bitwidth)
+        case float():
+            if not value.is_integer():
+                raise ValueError(f"fractional float value: {value!r}")
+            ival = int(value)
+        case _:
+            try:
+                ival = int(value)
+            except TypeError:
+                raise ValueError(f"invalid value type: {value!r}") from None
 
     if ival >= (1 << bitwidth):
         raise OverflowError(f"invalid value for bitwidth {bitwidth}: {value!r}")
 
     size = p4r_minimum_string_size(bitwidth)
-    bval = ival.to_bytes(size, "big")
-    return p4r_truncate(bval)
+    return p4r_truncate(ival.to_bytes(size, "big"))
 
 
 def decode_exact(

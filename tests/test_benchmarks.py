@@ -4,6 +4,7 @@ from pathlib import Path
 
 from finsy import P4TableAction, P4TableEntry, P4TableMatch, Switch, SwitchOptions
 from finsy.log import LOGGER
+from finsy.proto import p4r
 
 P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
 
@@ -16,13 +17,19 @@ async def test_benchmark_table_entry1(p4rt_server_target):
     async with Switch("sw1", p4rt_server_target, opts) as sw:
 
         with _logger_disabled(LOGGER):
-            entries1 = _make_entries1()
+            with _timer("entries0"):
+                entries1 = _make_entries1()
+
             with _timer("entries1"):
                 await sw.write(entries1)
 
             entries2 = _make_entries2(sw)
             with _timer("entries2"):
                 await sw.write(entries2)
+
+            req = p4r.WriteRequest(updates=_make_entries2(sw))
+            with _timer("entries3"):
+                await sw._p4client.request(req)
 
 
 def _make_entries1():

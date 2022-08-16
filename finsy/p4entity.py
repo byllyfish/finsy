@@ -107,7 +107,7 @@ UpdateList = (
 def _flatten(values: Any) -> Iterator[Any]:
     "Flatten lists and tuples."
     for val in values:
-        if isinstance(val, collections.abc.Sequence):
+        if isinstance(val, collections.abc.Iterable):
             yield from _flatten(val)
         else:
             yield val
@@ -128,7 +128,7 @@ def _encode_entity(
 def encode_entities(values: EntityList, schema: P4Schema) -> list[p4r.Entity]:
     """Convert list of python objects to list of P4Runtime Entities."""
 
-    if not isinstance(values, collections.abc.Sequence):
+    if not isinstance(values, collections.abc.Iterable):
         return [_encode_entity(values, schema)]
 
     return [_encode_entity(val, schema) for val in _flatten(values)]
@@ -152,7 +152,7 @@ def encode_updates(
 ) -> list[p4r.Update | p4r.StreamMessageRequest]:
     """Convert list of python objects to P4Runtime Updates or request messages."""
 
-    if not isinstance(values, collections.abc.Sequence):
+    if not isinstance(values, collections.abc.Iterable):
         return [_encode_update(values, schema)]
 
     return [_encode_update(val, schema) for val in _flatten(values)]
