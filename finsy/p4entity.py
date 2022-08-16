@@ -298,16 +298,14 @@ class P4TableAction:
     def _encode_action(self, action: P4ActionRef | P4Action) -> p4r.Action:
         "Helper to encode an action."
 
-        params: list[p4r.Action.Param] = []
-        for name, value in self.args.items():
-            try:
-                param = action.params[name]
-                params.append(param.encode(value))
-            except ValueError as ex:
-                raise ValueError(f"{action.alias!r}: {ex}") from ex
+        ap = action.params
+        try:
+            params = [ap[name].encode(value) for name, value in self.args.items()]
+        except ValueError as ex:
+            raise ValueError(f"{action.alias!r}: {ex}") from ex
 
         # Check for missing action parameters.
-        if len(params) != len(action.params):
+        if len(params) != len(ap):
             self._fail_missing_params(action)
 
         return p4r.Action(action_id=action.id, params=params)
