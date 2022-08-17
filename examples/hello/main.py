@@ -26,7 +26,7 @@ class HelloWorldApp:
     async def on_ready(self, switch: fy.Switch):
         "Switch's ready handler."
         await switch.delete_all()
-        await switch.insert(fy.P4MulticastGroupEntry(1, replicas=self.PORTS))
+        await switch.insert([fy.P4MulticastGroupEntry(1, replicas=self.PORTS)])
 
         switch.create_task(self._send_packet_out(switch))
 
@@ -43,22 +43,26 @@ class HelloWorldApp:
         while True:
             await asyncio.sleep(1.0)
             await switch.write(
-                fy.P4PacketOut(
-                    bytes.fromhex("deadbeefdeadbeef"),
-                    egress_port=self.CONTROLLER_PORT,
-                    _pad=0,
-                )
+                [
+                    fy.P4PacketOut(
+                        bytes.fromhex("deadbeefdeadbeef"),
+                        egress_port=self.CONTROLLER_PORT,
+                        _pad=0,
+                    )
+                ]
             )
 
     @staticmethod
     def _learn(switch: fy.Switch, addr: bytes, port: int):
         "Return a P4TableEntry which tells where to forward this IPv4 address."
         print(f"{switch.name} learned {addr.hex()} on port {port}")
-        return fy.P4TableEntry(
-            "ipv4",
-            match=fy.P4TableMatch(ipv4_dst=addr),
-            action=fy.P4TableAction("forward", port=port),
-        )
+        return [
+            fy.P4TableEntry(
+                "ipv4",
+                match=fy.P4TableMatch(ipv4_dst=addr),
+                action=fy.P4TableAction("forward", port=port),
+            ),
+        ]
 
 
 async def main():

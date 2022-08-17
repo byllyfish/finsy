@@ -16,7 +16,7 @@
 
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
-from typing import Any, Iterator, NoReturn, Protocol, Sequence, TypeVar
+from typing import Any, Iterable, Iterator, NoReturn, Protocol, Sequence, TypeVar
 
 from typing_extensions import Self
 
@@ -95,12 +95,12 @@ def decode_stream(msg: p4r.StreamMessageResponse, schema: P4Schema) -> Any:
 
 
 # Recursive typedefs.
-EntityList = p4r.Entity | _SupportsEncodeEntity | Sequence["EntityList"]
-UpdateList = (
+P4EntityList = p4r.Entity | _SupportsEncodeEntity | Iterable["P4EntityList"]
+P4UpdateList = (
     p4r.Update
     | p4r.StreamMessageRequest
     | _SupportsEncodeUpdate
-    | Sequence["UpdateList"]
+    | Iterable["P4UpdateList"]
 )
 
 
@@ -125,7 +125,7 @@ def _encode_entity(
     return value.encode(schema)
 
 
-def encode_entities(values: EntityList, schema: P4Schema) -> list[p4r.Entity]:
+def encode_entities(values: P4EntityList, schema: P4Schema) -> list[p4r.Entity]:
     """Convert list of python objects to list of P4Runtime Entities."""
 
     if not isinstance(values, collections.abc.Iterable):
@@ -147,7 +147,7 @@ def _encode_update(
 
 
 def encode_updates(
-    values: UpdateList,
+    values: P4UpdateList,
     schema: P4Schema,
 ) -> list[p4r.Update | p4r.StreamMessageRequest]:
     """Convert list of python objects to P4Runtime Updates or request messages."""
@@ -242,7 +242,7 @@ class P4TableMatch(dict[str, Any]):
         return result
 
     @classmethod
-    def decode(cls, msgs: Sequence[p4r.FieldMatch], table: P4Table) -> Self:
+    def decode(cls, msgs: Iterable[p4r.FieldMatch], table: P4Table) -> Self:
         "Decode protobuf to TableMatch data."
         result = {}
         match_fields = table.match_fields
@@ -1138,7 +1138,7 @@ class P4ValueSetMember(dict[str, Any]):
         return result
 
     @classmethod
-    def decode(cls, msgs: Sequence[p4r.FieldMatch], value_set: P4ValueSet) -> Self:
+    def decode(cls, msgs: Iterable[p4r.FieldMatch], value_set: P4ValueSet) -> Self:
         "Decode protobuf to P4ValueSetMember data."
         result = {}
         match = value_set.match

@@ -28,6 +28,7 @@ from typing import (
     AsyncIterator,
     Callable,
     Coroutine,
+    Iterable,
     NamedTuple,
     SupportsBytes,
     TypeVar,
@@ -582,7 +583,7 @@ class Switch:
             )
         )
 
-    async def read(self, *entities: p4entity.EntityList):
+    async def read(self, entities: Iterable[p4entity.P4EntityList]):
         "Async iterator that reads entities from the switch."
         assert self._p4client is not None
 
@@ -595,7 +596,7 @@ class Switch:
             for ent in reply.entities:
                 yield p4entity.decode_entity(ent, self.p4info)
 
-    async def write(self, *entities: p4entity.UpdateList):
+    async def write(self, entities: Iterable[p4entity.P4UpdateList]):
         "Write updates and stream messages to the switch."
         assert self._p4client is not None
 
@@ -616,17 +617,17 @@ class Switch:
                 )
             )
 
-    async def insert(self, *entities: p4entity.EntityList):
+    async def insert(self, entities: Iterable[p4entity.P4EntityList]):
         "Insert the specified entities."
         await self._write(entities, P4UpdateType.INSERT)
 
-    async def modify(self, *entities: p4entity.EntityList):
+    async def modify(self, entities: Iterable[p4entity.P4EntityList]):
         "Modify the specified entities."
         await self._write(entities, P4UpdateType.MODIFY)
 
     async def delete(
         self,
-        *entities: p4entity.EntityList,
+        entities: Iterable[p4entity.P4EntityList],
         ignore_not_found_error: bool = False,
     ):
         """Delete the specified entities.
@@ -674,7 +675,7 @@ class Switch:
         if digest_entries:
             await self.delete(digest_entries, ignore_not_found_error=True)
 
-    async def _write(self, entities: p4entity.EntityList, update_type: P4UpdateType):
+    async def _write(self, entities: p4entity.P4EntityList, update_type: P4UpdateType):
         "Helper to insert/modify/delete specified entities."
         assert self._p4client is not None
 

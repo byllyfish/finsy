@@ -28,7 +28,7 @@ async def test_switch2(p4rt_server_target):
             match=P4TableMatch(dstAddr=(167772160, 24)),
             action=P4TableAction("ipv4_forward", dstAddr=1108152157446, port=1),
         )
-        await sw.insert(entry)
+        await sw.insert([entry])
 
         packet_ins = sw.read_packets()
         async for packet in packet_ins:
