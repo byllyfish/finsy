@@ -125,11 +125,10 @@ def _encode_entity(
     return value.encode(schema)
 
 
-def encode_entities(values: P4EntityList, schema: P4Schema) -> list[p4r.Entity]:
+def encode_entities(
+    values: Iterable[P4EntityList], schema: P4Schema
+) -> list[p4r.Entity]:
     """Convert list of python objects to list of P4Runtime Entities."""
-
-    if not isinstance(values, collections.abc.Iterable):
-        return [_encode_entity(values, schema)]
 
     return [_encode_entity(val, schema) for val in _flatten(values)]
 

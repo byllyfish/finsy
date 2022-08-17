@@ -675,7 +675,11 @@ class Switch:
         if digest_entries:
             await self.delete(digest_entries, ignore_not_found_error=True)
 
-    async def _write(self, entities: p4entity.P4EntityList, update_type: P4UpdateType):
+    async def _write(
+        self,
+        entities: Iterable[p4entity.P4EntityList],
+        update_type: P4UpdateType,
+    ):
         "Helper to insert/modify/delete specified entities."
         assert self._p4client is not None
 

@@ -312,11 +312,9 @@ def test_encode_entities1():
     "Test encode_entities function."
 
     entity = P4TableEntry().encode(_SCHEMA)
-    msgs1 = encode_entities(entity, _SCHEMA)
-    msgs2 = encode_entities([entity], _SCHEMA)
-    msgs3 = encode_entities(P4TableEntry(), _SCHEMA)
-    msgs4 = encode_entities([P4TableEntry()], _SCHEMA)
-    assert msgs1 == msgs2 == msgs3 == msgs4 == [entity]
+    msgs1 = encode_entities([entity], _SCHEMA)
+    msgs2 = encode_entities([P4TableEntry()], _SCHEMA)
+    assert msgs1 == msgs2 == [entity]
 
 
 def test_encode_updates1():
