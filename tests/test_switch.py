@@ -16,8 +16,10 @@ from finsy.log import TRACE
 async def test_switch1(p4rt_server_target):
     "Test switch and P4RT server."
 
-    async with Switch("sw1", p4rt_server_target):
-        pass
+    # target = f"grpc://{p4rt_server_target}?device_id=99"
+    target = p4rt_server_target
+    async with Switch("sw1", target) as sw1:
+        assert sw1.device_id == 1
 
 
 async def test_switch2(p4rt_server_target):

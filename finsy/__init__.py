@@ -24,20 +24,11 @@ if sys.version_info < (3, 10):  # pragma: no cover
 from .controller import Controller
 from .gnmiclient import gNMIClient
 from .gnmipath import gNMIPath
-from .p4entity import (
-    P4CounterData,
-    P4DigestEntry,
-    P4DigestList,
-    P4MeterConfig,
-    P4MeterCounterData,
-    P4MulticastGroupEntry,
-    P4PacketIn,
-    P4PacketOut,
-    P4RegisterEntry,
-    P4TableAction,
-    P4TableEntry,
-    P4TableMatch,
-)
+from .p4entity import (P4CloneSessionEntry, P4CounterData, P4DigestEntry,
+                       P4DigestList, P4MeterConfig, P4MeterCounterData,
+                       P4MulticastGroupEntry, P4PacketIn, P4PacketOut,
+                       P4RegisterEntry, P4TableAction, P4TableEntry,
+                       P4TableMatch)
 from .p4schema import P4ConfigAction, P4Schema
 from .switch import Switch, SwitchEvent, SwitchOptions
 

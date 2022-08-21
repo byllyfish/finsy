@@ -2,38 +2,17 @@ from pathlib import Path
 
 import pytest
 from finsy import pbuf
-from finsy.p4entity import (
-    P4ActionProfileGroup,
-    P4ActionProfileMember,
-    P4CloneSessionEntry,
-    P4CounterData,
-    P4CounterEntry,
-    P4DigestEntry,
-    P4DigestList,
-    P4DigestListAck,
-    P4DirectCounterEntry,
-    P4DirectMeterEntry,
-    P4IdleTimeoutNotification,
-    P4Member,
-    P4MeterConfig,
-    P4MeterCounterData,
-    P4MeterEntry,
-    P4MulticastGroupEntry,
-    P4PacketIn,
-    P4PacketOut,
-    P4RegisterEntry,
-    P4TableAction,
-    P4TableEntry,
-    P4TableMatch,
-    P4ValueSetEntry,
-    P4ValueSetMember,
-    decode_entity,
-    decode_replica,
-    decode_stream,
-    encode_entities,
-    encode_replica,
-    encode_updates,
-)
+from finsy.p4entity import (P4ActionProfileGroup, P4ActionProfileMember,
+                            P4CloneSessionEntry, P4CounterData, P4CounterEntry,
+                            P4DigestEntry, P4DigestList, P4DigestListAck,
+                            P4DirectCounterEntry, P4DirectMeterEntry,
+                            P4IdleTimeoutNotification, P4Member, P4MeterConfig,
+                            P4MeterCounterData, P4MeterEntry,
+                            P4MulticastGroupEntry, P4PacketIn, P4PacketOut,
+                            P4RegisterEntry, P4TableAction, P4TableEntry,
+                            P4TableMatch, P4ValueSetEntry, P4ValueSetMember,
+                            decode_entity, decode_replica, decode_stream,
+                            encode_entities, encode_replica, encode_updates)
 from finsy.p4schema import P4Schema
 from finsy.proto import p4r
 

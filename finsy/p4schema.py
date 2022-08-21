@@ -20,17 +20,8 @@ import hashlib
 import inspect
 import re
 from pathlib import Path
-from typing import (
-    Any,
-    Generic,
-    Iterator,
-    Mapping,
-    NamedTuple,
-    Sequence,
-    SupportsBytes,
-    TypeVar,
-    cast,
-)
+from typing import (Any, Generic, Iterator, Mapping, NamedTuple, Sequence,
+                    SupportsBytes, TypeVar, cast)
 
 import pylev
 
@@ -965,6 +956,8 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
                 )
             case P4MatchType.TERNARY:
                 data, mask = p4values.encode_ternary(value, self._bitwidth)
+                if mask == b"\x00":   # "don't care" ternary match
+                    return None
                 return p4r.FieldMatch(
                     field_id=self.id,
                     ternary=p4r.FieldMatch.Ternary(value=data, mask=mask),

@@ -23,16 +23,8 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from types import TracebackType
-from typing import (
-    Any,
-    AsyncIterator,
-    Callable,
-    Coroutine,
-    Iterable,
-    NamedTuple,
-    SupportsBytes,
-    TypeVar,
-)
+from typing import (Any, AsyncIterator, Callable, Coroutine, Iterable,
+                    NamedTuple, SupportsBytes, TypeVar)
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 import pyee
@@ -44,7 +36,8 @@ from finsy.futures import CountdownFuture
 from finsy.gnmiclient import gNMIClient, gNMIClientError
 from finsy.log import LOGGER, TRACE
 from finsy.p4client import P4Client, P4ClientError
-from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema, P4UpdateType
+from finsy.p4schema import (P4ConfigAction, P4ConfigResponseType, P4Schema,
+                            P4UpdateType)
 from finsy.ports import PortList
 from finsy.proto import p4r
 
@@ -146,6 +139,9 @@ class Switch:
 
     ee: "SwitchEmitter"
     "Event emitter."
+
+    attachment: Any
+    "Available to attach per-switch services or data."
 
     def __init__(
         self,
