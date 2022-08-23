@@ -16,19 +16,14 @@
 
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
-from typing import Any, Iterable, Iterator, NoReturn, Protocol, Sequence, TypeVar
+from typing import (Any, Iterable, Iterator, NoReturn, Protocol, Sequence,
+                    TypeVar)
 
 from typing_extensions import Self
 
 from finsy.log import LOGGER
-from finsy.p4schema import (
-    P4Action,
-    P4ActionRef,
-    P4Schema,
-    P4Table,
-    P4UpdateType,
-    P4ValueSet,
-)
+from finsy.p4schema import (P4Action, P4ActionRef, P4Schema, P4Table,
+                            P4UpdateType, P4ValueSet)
 from finsy.proto import p4r
 
 
@@ -287,7 +282,7 @@ class P4TableAction:
 
         raise ValueError(f"{action.alias!r}: missing parameters {seen}")
 
-    def encode_action(self, schema: P4Schema) -> p4r.Action:
+    def encode_action(self, schema: P4Schema | P4Table) -> p4r.Action:
         "Encode Action data as protobuf."
 
         # TODO: Make sure that action is normal `Action`.
@@ -310,18 +305,18 @@ class P4TableAction:
         return p4r.Action(action_id=action.id, params=params)
 
     @classmethod
-    def decode_table_action(cls, msg: p4r.TableAction, table: P4Table) -> Self:
+    def decode_table_action(cls, msg: p4r.TableAction, table: P4Table) -> Self | "P4IndirectAction":
         "Decode protobuf to TableAction data."
 
         match msg.WhichOneof("type"):
             case "action":
                 return cls.decode_action(msg.action, table)
             case "action_profile_member_id":
-                raise NotImplementedError()
+                return P4IndirectAction(member_id=msg.action_profile_member_id)
             case "action_profile_group_id":
-                raise NotImplementedError()
+                return P4IndirectAction(group_id=msg.action_profile_group_id)
             case "action_profile_action_set":
-                raise NotImplementedError()
+                return P4IndirectAction.decode_action_set(msg.action_profile_action_set, table)
             case other:
                 raise ValueError(f"unknown oneof: {other!r}")
 
@@ -337,6 +332,53 @@ class P4TableAction:
             args[action_param.name] = value
 
         return cls(action.alias, **args)
+
+
+@dataclass
+class P4IndirectAction:
+    "Represents a P4Runtime indirect action."
+
+    action_set: Sequence[tuple[_Weight, P4TableAction]] | None = None
+    _: KW_ONLY
+    member_id: int | None = None
+    group_id: int | None = None
+
+    def encode_table_action(self, table: P4Table) -> p4r.TableAction:
+        if self.action_set is not None:
+            assert self.member_id is None and self.group_id is None
+            return p4r.TableAction(action_profile_action_set=self.encode_action_set(table))
+
+        if self.member_id is not None:
+            assert self.group_id is None
+            return p4r.TableAction(action_profile_member_id=self.member_id)
+
+        assert self.group_id is not None
+        return p4r.TableAction(action_profile_group_id=self.group_id)
+
+    def encode_action_set(self, table: P4Table) -> p4r.ActionProfileActionSet:
+        assert self.action_set is not None
+
+        profile_actions: list[p4r.ActionProfileAction] = []
+        for weight, table_action in self.action_set:
+            action = table_action.encode_action(table)
+
+            match weight:
+                case int(weight_value):
+                    profile = p4r.ActionProfileAction(action=action, weight=weight_value)
+                case (weight_value, int(watch)):
+                    profile = p4r.ActionProfileAction(action=action, weight=weight_value, watch=watch)
+                case (weight_value, bytes(watch_port)):
+                    profile = p4r.ActionProfileAction(action=action, weight=weight_value, watch_port=watch_port)
+                case _:
+                    raise ValueError(f"unexpected action weight: {weight!r}")
+
+            profile_actions.append(profile)
+
+        return p4r.ActionProfileActionSet(action_profile_actions=profile_actions)
+
+    @classmethod
+    def decode_action_set(cls, msg: p4r.ActionProfileActionSet, table: P4Table) -> Self:
+        raise NotImplementedError()
 
 
 @dataclass(kw_only=True)
@@ -403,7 +445,7 @@ class P4TableEntry(_P4Writable):
     table_id: str = ""
     _: KW_ONLY
     match: P4TableMatch | None = None
-    action: P4TableAction | None = None
+    action: P4TableAction | P4IndirectAction | None = None
     priority: int = 0
     meter_config: P4MeterConfig | None = None
     counter_data: P4CounterData | None = None

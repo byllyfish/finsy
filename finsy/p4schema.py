@@ -950,6 +950,8 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
                 )
             case P4MatchType.LPM:
                 data, prefix = p4values.encode_lpm(value, self._bitwidth)
+                if prefix == 0:  # "don't care" LPM match
+                    return None
                 return p4r.FieldMatch(
                     field_id=self.id,
                     lpm=p4r.FieldMatch.LPM(value=data, prefix_len=prefix),
@@ -963,7 +965,7 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
                     ternary=p4r.FieldMatch.Ternary(value=data, mask=mask),
                 )
             case P4MatchType.OPTIONAL:
-                if value is None:
+                if value is None:  # "don't care" optional match
                     return None
                 data = p4values.encode_exact(value, self._bitwidth)
                 return p4r.FieldMatch(

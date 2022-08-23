@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import asyncio
+from contextvars import ContextVar
 from typing import Any, Iterable
 
 from finsy.futures import CountdownFuture, wait_for_cancel
@@ -60,6 +61,7 @@ class Controller:
         self.control_task = asyncio.current_task()
         assert self.control_task is not None
         self.control_task.set_name(f"fy:{self._name}")
+        _CONTROLLER.set(self)
 
         try:
             # Start each switch running.
@@ -78,6 +80,7 @@ class Controller:
 
         finally:
             self.control_task = None
+            _CONTROLLER.set(None)
 
     def stop(self):
         "Stop the controller if it is running."
@@ -159,3 +162,17 @@ class Controller:
     def __getitem__(self, name):
         "Retrieve switch by name."
         return self._switches[name]
+
+
+
+_CONTROLLER: ContextVar[Controller | None] = ContextVar("_CONTROLLER", default=None)
+
+
+def current_controller() -> Controller:
+    "Return the current Controller object."
+    
+    result = _CONTROLLER.get()
+    if result is None:
+        raise RuntimeError("current_controller() does not exist")
+
+    return result

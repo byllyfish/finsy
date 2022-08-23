@@ -59,7 +59,7 @@ class SwitchOptions:
     """`SwitchOptions` manages the configuration options for a `Switch`.
 
     Each `SwitchOptions` object is immutable and may be shared by multiple
-    switches. Although each object is immutable, you can use function call
+    switches. You should treat all values as read-only. You can use function call
     syntax to change one or more properties and construct a new object.
 
     ```
@@ -85,6 +85,9 @@ class SwitchOptions:
 
     ready_handler: Callable[["Switch"], Coroutine[Any, Any, None]] | None = None
     "Ready handler async function callback."
+
+    config: Any = None
+    "Store your app's configuration information here."
 
     def __call__(self, **kwds: Any):
         return dataclasses.replace(self, **kwds)
@@ -583,6 +586,9 @@ class Switch:
         "Async iterator that reads entities from the switch."
         assert self._p4client is not None
 
+        if not entities:
+            return
+
         request = p4r.ReadRequest(
             device_id=self.device_id,
             entities=p4entity.encode_entities(entities, self.p4info),
@@ -595,6 +601,9 @@ class Switch:
     async def write(self, entities: Iterable[p4entity.P4UpdateList]):
         "Write updates and stream messages to the switch."
         assert self._p4client is not None
+
+        if not entities:
+            return
 
         msgs = p4entity.encode_updates(entities, self.p4info)
 
@@ -678,6 +687,9 @@ class Switch:
     ):
         "Helper to insert/modify/delete specified entities."
         assert self._p4client is not None
+
+        if not entities:
+            return
 
         updates = [
             p4r.Update(type=update_type.vt(), entity=ent)
