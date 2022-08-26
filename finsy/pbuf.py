@@ -16,6 +16,7 @@
 
 import logging
 import re
+import textwrap
 from typing import Any, TypeVar
 
 import grpc  # pyright: ignore [reportMissingTypeStubs]
@@ -143,6 +144,11 @@ def log_msg(
     else:
         text = to_text(msg, custom_format=custom_format)
 
+    # If text contains multiple lines, insert the multiline indicator and
+    # indent the text.
+    if "\n" in text:
+        text = "⤵️\n" + textwrap.indent(text.rstrip(), "  ")
+
     size = msg.ByteSize()
 
     MSG_LOG.log(
@@ -155,7 +161,7 @@ def log_msg(
     )
 
 
-_ANNOTATE_REGEX = re.compile(r"([a-z]+_id): (\d+)\n", re.MULTILINE)
+_ANNOTATE_REGEX = re.compile(r'([a-z]+_id|value|mask): (\d+|"[^"]+")\n', re.MULTILINE)
 
 
 def _log_annotate(text: str, schema: "_fy.P4Schema") -> str:
@@ -184,6 +190,8 @@ def _log_annotate(text: str, schema: "_fy.P4Schema") -> str:
                     name = schema.tables[table_id].match_fields[int(value)].name
                 case "param_id":
                     name = schema.actions[action_id].params[int(value)].name
+                case "value" | "mask":
+                    name = _decode_escaped_value(value.encode("ascii"))
                 # TODO: Annotate more identifier types.
                 case _:
                     pass
@@ -198,3 +206,10 @@ def _log_annotate(text: str, schema: "_fy.P4Schema") -> str:
         return m[0]
 
     return _ANNOTATE_REGEX.sub(_replace, text)
+
+
+def _decode_escaped_value(value: bytes) -> str:
+    "Decode an octal-escaped string enclosed in double-quotes."
+    if not (value[0] == value[-1] == ord('"')):
+        raise ValueError("unexpected value?")
+    return value[1:-1].decode("unicode-escape").encode("latin1").hex()

@@ -715,7 +715,7 @@ def test_packet_out1():
     assert entry["egress_port"] == 1
     assert (
         repr(entry)
-        == "PacketOut(metadata={'egress_port': 1, '_pad': 0}, payload=h'616263')"
+        == "P4PacketOut(metadata={'egress_port': 1, '_pad': 0}, payload=h'616263')"
     )
 
 
@@ -762,7 +762,7 @@ def test_packet_in1():
 
     assert packet.payload == b"abc"
     assert packet.metadata == {}
-    assert repr(packet) == "PacketIn(payload=h'616263')"
+    assert repr(packet) == "P4PacketIn(payload=h'616263')"
 
 
 def test_packet_in2():
@@ -786,7 +786,7 @@ def test_packet_in2():
     assert packet["ingress_port"] == 97
     assert (
         repr(packet)
-        == "PacketIn(metadata={'ingress_port': 97, '_pad': 98}, payload=h'616263')"
+        == "P4PacketIn(metadata={'ingress_port': 97, '_pad': 98}, payload=h'616263')"
     )
 
 

@@ -1265,9 +1265,9 @@ class P4PacketIn:
 
         if self.metadata:
             return (
-                f"PacketIn(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
+                f"P4PacketIn(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
             )
-        return f"PacketIn(payload=h'{self.payload.hex()}')"
+        return f"P4PacketIn(payload=h'{self.payload.hex()}')"
 
 
 @dataclass
@@ -1302,8 +1302,8 @@ class P4PacketOut:
         "Return friendlier hexadecimal description of packet."
 
         if self.metadata:
-            return f"PacketOut(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
-        return f"PacketOut(payload=h'{self.payload.hex()}')"
+            return f"P4PacketOut(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
+        return f"P4PacketOut(payload=h'{self.payload.hex()}')"
 
 
 @decodable("digest")
