@@ -131,6 +131,7 @@ class Switch:
     _p4schema: P4Schema
     _tasks: "SwitchTasks | None"
     _queues: dict[str, asyncio.Queue[Any]]
+    _packet_queues: list[tuple[Callable[[bytes], bool], asyncio.Queue[Any]]]
     _arbitrator: "Arbitrator"
     _gnmi_client: gNMIClient | None
     _ports: PortList
@@ -143,7 +144,7 @@ class Switch:
     ee: "SwitchEmitter"
     "Event emitter."
 
-    attachment: Any
+    attachment: Any = None
     "Available to attach per-switch services or data."
 
     def __init__(
@@ -162,6 +163,7 @@ class Switch:
         self._p4schema = P4Schema(options.p4info, options.p4blob)
         self._tasks = None
         self._queues = {}
+        self._packet_queues = []
         self._arbitrator = Arbitrator(options.initial_election_id)
         self._gnmi_client = None
         self._ports = PortList()
@@ -227,13 +229,34 @@ class Switch:
         "P4Runtime protocol version."
         return self._api_version
 
-    def read_packets(
+    async def read_packets(
         self,
         *,
         queue_size: int = _DEFAULT_QUEUE_SIZE,
+        eth_types: Iterable[int] | None = None
     ) -> AsyncIterator["p4entity.P4PacketIn"]:
         "Async iterator for incoming packets (P4PacketIn)."
-        return self._queue_iter("packet", queue_size)
+
+        if eth_types is None:
+            def _pkt_filter(payload: bytes) -> bool:
+                return True
+        else:
+            _filter = { eth.to_bytes(2, "big") for eth in eth_types}
+            def _pkt_filter(payload: bytes) -> bool:
+                return payload[12:14] in _filter
+
+        LOGGER.debug("read_packets: opening packet queue: eth_types=%r", eth_types)
+        queue = asyncio.Queue[Any](queue_size)
+        self._packet_queues.append((_pkt_filter, queue))
+
+        try:
+            while True:
+                result = await queue.get()
+                yield result
+
+        finally:
+            LOGGER.debug("read_packets: closing packet queue: eth_types=%r", eth_types)
+            self._packet_queues.remove((_pkt_filter, queue))
 
     def read_digests(
         self,
@@ -365,7 +388,9 @@ class Switch:
             LOGGER.error("missing update: %r", msg)
             return
 
-        if msg_type == "arbitration":
+        if msg_type == "packet":
+            self._stream_packet_message(msg)
+        elif msg_type == "arbitration":
             await self._arbitrator.update(self, msg.arbitration)
         elif msg_type == "error":
             self._stream_error_message(msg)
@@ -483,6 +508,14 @@ class Switch:
             self.create_task(self._options.ready_handler(self))
 
         self.ee.emit(SwitchEvent.CHANNEL_READY, self)
+
+    def _stream_packet_message(self, msg: p4r.StreamMessageResponse):
+        "Called when a P4Runtime packet-in response is received."
+        packet = p4entity.decode_stream(msg, self.p4info)
+
+        for filter, queue in self._packet_queues:
+            if not queue.full() and filter(packet.payload):
+                queue.put_nowait(packet)
 
     def _stream_error_message(self, msg: p4r.StreamMessageResponse):
         "Called when a P4Runtime stream error response is received."
