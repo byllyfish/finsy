@@ -5,11 +5,21 @@ from pathlib import Path
 
 import pytest
 from finsy import pbuf
-from finsy.p4schema import (P4BitsType, P4BoolType, P4EntityMap,
-                            P4HeaderStackType, P4HeaderType,
-                            P4HeaderUnionStackType, P4HeaderUnionType,
-                            P4MatchField, P4MatchType, P4Schema, P4StructType,
-                            P4TupleType, P4TypeInfo)
+from finsy.p4schema import (
+    P4BitsType,
+    P4BoolType,
+    P4EntityMap,
+    P4HeaderStackType,
+    P4HeaderType,
+    P4HeaderUnionStackType,
+    P4HeaderUnionType,
+    P4MatchField,
+    P4MatchType,
+    P4Schema,
+    P4StructType,
+    P4TupleType,
+    P4TypeInfo,
+)
 from finsy.proto import p4i, p4t
 
 P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
@@ -461,11 +471,19 @@ def test_p4tupletype():
 
 def test_p4matchfield_ternary():
     "Test P4MatchField with ternary match type."
-    match_p4 = p4i.MatchField(id=1, name="f1", bitwidth=32, match_type=p4i.MatchField.TERNARY,)
+    match_p4 = p4i.MatchField(
+        id=1,
+        name="f1",
+        bitwidth=32,
+        match_type=p4i.MatchField.TERNARY,
+    )
     field = P4MatchField(match_p4)
 
     field_p4 = field.encode_field("10.0.0.0/255.0.0.0")
-    assert pbuf.to_dict(field_p4) == {'field_id': 1, 'ternary': {'mask': '/wAAAA==', 'value': 'CgAAAA=='},}
+    assert pbuf.to_dict(field_p4) == {
+        "field_id": 1,
+        "ternary": {"mask": "/wAAAA==", "value": "CgAAAA=="},
+    }
     assert field.decode_field(field_p4) == (167772160, 4278190080)
 
     assert field.encode_field("0.0.0.0/0.0.0.0") is None

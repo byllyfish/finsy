@@ -20,8 +20,17 @@ import hashlib
 import inspect
 import re
 from pathlib import Path
-from typing import (Any, Generic, Iterator, Mapping, NamedTuple, Sequence,
-                    SupportsBytes, TypeVar, cast)
+from typing import (
+    Any,
+    Generic,
+    Iterator,
+    Mapping,
+    NamedTuple,
+    Sequence,
+    SupportsBytes,
+    TypeVar,
+    cast,
+)
 
 import pylev
 
@@ -415,14 +424,14 @@ class _P4Defs:
         for entity in p4info.tables:
             self.tables._add(P4Table(entity, self))
 
-        for action_profile in self.action_profiles:
-            action_profile._finish_init(self)
-
-        for register in self.registers:
-            register._finish_init(self)
-
-        for digest in self.digests:
-            digest._finish_init(self)
+        for iterable in (
+            self.action_profiles,
+            self.registers,
+            self.digests,
+            self.direct_counters,
+        ):
+            for obj in iterable:
+                obj._finish_init(self)
 
 
 def _load_p4info(data: p4i.P4Info | Path | None) -> tuple[p4i.P4Info | None, _P4Defs]:
@@ -750,7 +759,7 @@ class P4Table(_P4TopLevel[p4i.Table]):
             else:
                 assert False, "Unexpected resource id"
 
-        if self._direct_counter is not None:
+        if self._direct_counter is not None:  # FIXME: move check into P4DirectCounter
             if self._direct_counter.direct_table_id != self.id:
                 LOGGER.warning(
                     "P4Schema: Direct counter ID mismatch: %r",
@@ -958,7 +967,7 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
                 )
             case P4MatchType.TERNARY:
                 data, mask = p4values.encode_ternary(value, self._bitwidth)
-                if mask == b"\x00":   # "don't care" ternary match
+                if mask == b"\x00":  # "don't care" ternary match
                     return None
                 return p4r.FieldMatch(
                     field_id=self.id,
@@ -1061,6 +1070,13 @@ class P4CPMetadata(_P4AnnoMixin, _P4NamedMixin[p4i.ControllerPacketMetadata.Meta
 class P4DirectCounter(_P4TopLevel[p4i.DirectCounter]):
     "Represents DirectCounter in schema."
 
+    _direct_table_name: str
+
+    def _finish_init(self, defs: _P4Defs):
+        direct_table = defs.tables[self.direct_table_id]
+        assert direct_table.direct_counter == self
+        self._direct_table_name = direct_table.name
+
     @property
     def unit(self):
         return P4CounterUnit(self.pbuf.spec.unit)
@@ -1068,6 +1084,10 @@ class P4DirectCounter(_P4TopLevel[p4i.DirectCounter]):
     @property
     def direct_table_id(self) -> int:
         return self.pbuf.direct_table_id
+
+    @property
+    def direct_table_name(self) -> str:
+        return self._direct_table_name
 
 
 class P4DirectMeter(_P4TopLevel[p4i.DirectMeter]):

@@ -2,17 +2,38 @@ from pathlib import Path
 
 import pytest
 from finsy import pbuf
-from finsy.p4entity import (P4ActionProfileGroup, P4ActionProfileMember,
-                            P4CloneSessionEntry, P4CounterData, P4CounterEntry,
-                            P4DigestEntry, P4DigestList, P4DigestListAck,
-                            P4DirectCounterEntry, P4DirectMeterEntry,
-                            P4IdleTimeoutNotification, P4Member, P4MeterConfig,
-                            P4MeterCounterData, P4MeterEntry,
-                            P4MulticastGroupEntry, P4PacketIn, P4PacketOut,
-                            P4RegisterEntry, P4TableAction, P4TableEntry,
-                            P4TableMatch, P4ValueSetEntry, P4ValueSetMember,
-                            decode_entity, decode_replica, decode_stream,
-                            encode_entities, encode_replica, encode_updates)
+from finsy.p4entity import (
+    P4ActionProfileGroup,
+    P4ActionProfileMember,
+    P4CloneSessionEntry,
+    P4CounterData,
+    P4CounterEntry,
+    P4DigestEntry,
+    P4DigestList,
+    P4DigestListAck,
+    P4DirectCounterEntry,
+    P4DirectMeterEntry,
+    P4IdleTimeoutNotification,
+    P4Member,
+    P4MeterConfig,
+    P4MeterCounterData,
+    P4MeterEntry,
+    P4MulticastGroupEntry,
+    P4PacketIn,
+    P4PacketOut,
+    P4RegisterEntry,
+    P4TableAction,
+    P4TableEntry,
+    P4TableMatch,
+    P4ValueSetEntry,
+    P4ValueSetMember,
+    decode_entity,
+    decode_replica,
+    decode_stream,
+    encode_entities,
+    encode_replica,
+    encode_updates,
+)
 from finsy.p4schema import P4Schema
 from finsy.proto import p4r
 
@@ -566,13 +587,16 @@ def test_direct_counter_entry1():
 def test_direct_counter_entry2():
     "Test P4CounterEntry class."
 
+    table_entry = P4TableEntry(
+        "ipv4_lpm",
+        match=P4TableMatch(dstAddr=(167772160, 24)),
+    )
+
     entry = P4DirectCounterEntry(
-        table_entry=P4TableEntry(
-            "ipv4_lpm",
-            match=P4TableMatch(dstAddr=(167772160, 24)),
-        ),
+        table_entry=table_entry,
         data=P4CounterData(byte_count=1, packet_count=2),
     )
+    assert entry.counter_id == ""
     msg = entry.encode(_SCHEMA)
 
     assert pbuf.to_dict(msg) == {
@@ -589,7 +613,37 @@ def test_direct_counter_entry2():
             },
         }
     }
-    assert entry == P4DirectCounterEntry.decode(msg, _SCHEMA)
+
+    # When decoded, the entry will have a counter_id.
+    entry_decode = P4DirectCounterEntry(
+        "ipv4_counter",
+        table_entry=table_entry,
+        data=P4CounterData(byte_count=1, packet_count=2),
+    )
+    assert entry_decode == P4DirectCounterEntry.decode(msg, _SCHEMA)
+
+
+def test_direct_counter_entry3():
+    "Test P4CounterEntry class."
+
+    entry = P4DirectCounterEntry("ipv4_counter")
+    assert entry.counter_id == "ipv4_counter"
+    assert entry.table_entry is None
+    assert entry.data is None
+
+    msg = entry.encode(_SCHEMA)
+    assert pbuf.to_dict(msg) == {
+        "direct_counter_entry": {
+            "table_entry": {"table_id": 37375156},
+        }
+    }
+
+    # When decoded, the entry will have a table_entry.
+    entry_decode = P4DirectCounterEntry(
+        "ipv4_counter",
+        table_entry=P4TableEntry("ipv4_lpm"),
+    )
+    assert entry_decode == P4DirectCounterEntry.decode(msg, _SCHEMA)
 
 
 def test_register_entry0():

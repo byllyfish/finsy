@@ -23,8 +23,16 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from types import TracebackType
-from typing import (Any, AsyncIterator, Callable, Coroutine, Iterable,
-                    NamedTuple, SupportsBytes, TypeVar)
+from typing import (
+    Any,
+    AsyncIterator,
+    Callable,
+    Coroutine,
+    Iterable,
+    NamedTuple,
+    SupportsBytes,
+    TypeVar,
+)
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 import pyee
@@ -36,8 +44,7 @@ from finsy.futures import CountdownFuture
 from finsy.gnmiclient import gNMIClient, gNMIClientError
 from finsy.log import LOGGER, TRACE
 from finsy.p4client import P4Client, P4ClientError
-from finsy.p4schema import (P4ConfigAction, P4ConfigResponseType, P4Schema,
-                            P4UpdateType)
+from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema, P4UpdateType
 from finsy.ports import PortList
 from finsy.proto import p4r
 
@@ -233,15 +240,18 @@ class Switch:
         self,
         *,
         queue_size: int = _DEFAULT_QUEUE_SIZE,
-        eth_types: Iterable[int] | None = None
+        eth_types: Iterable[int] | None = None,
     ) -> AsyncIterator["p4entity.P4PacketIn"]:
         "Async iterator for incoming packets (P4PacketIn)."
 
         if eth_types is None:
+
             def _pkt_filter(payload: bytes) -> bool:
                 return True
+
         else:
-            _filter = { eth.to_bytes(2, "big") for eth in eth_types}
+            _filter = {eth.to_bytes(2, "big") for eth in eth_types}
+
             def _pkt_filter(payload: bytes) -> bool:
                 return payload[12:14] in _filter
 
@@ -508,6 +518,12 @@ class Switch:
             self.create_task(self._options.ready_handler(self))
 
         self.ee.emit(SwitchEvent.CHANNEL_READY, self)
+
+    def _channel_unavailable(self):
+        "Called when a P4Runtime channel is UNAVAILABLE."
+        LOGGER.info("Channel unavailable (is_primary=%r)", self.is_primary)
+
+        self.ee.emit(SwitchEvent.CHANNEL_UNAVAILABLE, self)
 
     def _stream_packet_message(self, msg: p4r.StreamMessageResponse):
         "Called when a P4Runtime packet-in response is received."
@@ -785,6 +801,7 @@ class SwitchEvent(str, enum.Enum):
     CHANNEL_UP = "channel_up"  # (switch)
     CHANNEL_DOWN = "channel_down"  # (switch)
     CHANNEL_READY = "channel_ready"  # (switch)
+    CHANNEL_UNAVAILABLE = "channel_unavailable"  # (switch)
     BECOME_PRIMARY = "become_primary"  # (switch)
     BECOME_BACKUP = "become_backup"  # (switch)
     PORT_UP = "port_up"  # (switch, port)
@@ -858,6 +875,7 @@ class SwitchTasks:
         if not done.cancelled():
             ex = done.exception()
             if ex is not None:
+                # TODO: Have switch emit CHANNEL_UNAVAILABLE here, if necessary.
                 LOGGER.error("Switch task %r failed", done.get_name(), exc_info=ex)
                 self.cancel_all()
 

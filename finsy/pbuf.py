@@ -91,9 +91,9 @@ def to_dict(msg: PBMessage) -> dict[str, Any]:
     return json_format.MessageToDict(msg, preserving_proto_field_name=True)
 
 
-def _message_formatter(msg: PBMessage, _indent: int, _as_one_line: bool):
+def _message_formatter(msg: PBMessage, _indent: int, as_one_line: bool):
     if isinstance(msg, p4r.ForwardingPipelineConfig):
-        return f"📦[p4cookie=0x{msg.cookie.cookie:x}]"
+        return f"📦p4cookie=0x{msg.cookie.cookie:x}"
     if isinstance(msg, gnmi.Path):
         return f"📂{gNMIPath(msg)}"
     if isinstance(msg, gnmi.Update):
@@ -105,6 +105,13 @@ def _message_formatter(msg: PBMessage, _indent: int, _as_one_line: bool):
             f"meta[{md.metadata_id}]={md.value.hex()}" for md in msg.metadata
         )
         return f"📬{msg.payload.hex()} {metadata}"
+    if not as_one_line and isinstance(msg, gnmi.GetResponse):
+        return "\n".join(
+            f"📩{to_text(notif, custom_format=True)}" for notif in msg.notification
+        )
+    if isinstance(msg, gnmi.SubscribeResponse):
+        if msg.WhichOneof("response") == "update":
+            return f"📩{to_text(msg.update, custom_format=True)}"
     return None
 
 

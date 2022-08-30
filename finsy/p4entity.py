@@ -16,14 +16,19 @@
 
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
-from typing import (Any, Iterable, Iterator, NoReturn, Protocol, Sequence,
-                    TypeVar)
+from typing import Any, Iterable, Iterator, NoReturn, Protocol, Sequence, TypeVar
 
 from typing_extensions import Self
 
 from finsy.log import LOGGER
-from finsy.p4schema import (P4Action, P4ActionRef, P4Schema, P4Table,
-                            P4UpdateType, P4ValueSet)
+from finsy.p4schema import (
+    P4Action,
+    P4ActionRef,
+    P4Schema,
+    P4Table,
+    P4UpdateType,
+    P4ValueSet,
+)
 from finsy.proto import p4r
 
 
@@ -247,6 +252,12 @@ class P4TableMatch(dict[str, Any]):
 
         return cls(result)
 
+    def fill_wildcards(self, table: P4Table, default: str):
+        "Fill in missing fields with `default` value."
+        for fld in table.match_fields:
+            if fld.alias not in self:
+                self[fld.alias] = default
+
 
 @dataclass
 class P4TableAction:
@@ -305,7 +316,9 @@ class P4TableAction:
         return p4r.Action(action_id=action.id, params=params)
 
     @classmethod
-    def decode_table_action(cls, msg: p4r.TableAction, table: P4Table) -> Self | "P4IndirectAction":
+    def decode_table_action(
+        cls, msg: p4r.TableAction, table: P4Table
+    ) -> Self | "P4IndirectAction":
         "Decode protobuf to TableAction data."
 
         match msg.WhichOneof("type"):
@@ -316,7 +329,9 @@ class P4TableAction:
             case "action_profile_group_id":
                 return P4IndirectAction(group_id=msg.action_profile_group_id)
             case "action_profile_action_set":
-                return P4IndirectAction.decode_action_set(msg.action_profile_action_set, table)
+                return P4IndirectAction.decode_action_set(
+                    msg.action_profile_action_set, table
+                )
             case other:
                 raise ValueError(f"unknown oneof: {other!r}")
 
@@ -346,7 +361,9 @@ class P4IndirectAction:
     def encode_table_action(self, table: P4Table) -> p4r.TableAction:
         if self.action_set is not None:
             assert self.member_id is None and self.group_id is None
-            return p4r.TableAction(action_profile_action_set=self.encode_action_set(table))
+            return p4r.TableAction(
+                action_profile_action_set=self.encode_action_set(table)
+            )
 
         if self.member_id is not None:
             assert self.group_id is None
@@ -364,11 +381,17 @@ class P4IndirectAction:
 
             match weight:
                 case int(weight_value):
-                    profile = p4r.ActionProfileAction(action=action, weight=weight_value)
+                    profile = p4r.ActionProfileAction(
+                        action=action, weight=weight_value
+                    )
                 case (weight_value, int(watch)):
-                    profile = p4r.ActionProfileAction(action=action, weight=weight_value, watch=watch)
+                    profile = p4r.ActionProfileAction(
+                        action=action, weight=weight_value, watch=watch
+                    )
                 case (weight_value, bytes(watch_port)):
-                    profile = p4r.ActionProfileAction(action=action, weight=weight_value, watch_port=watch_port)
+                    profile = p4r.ActionProfileAction(
+                        action=action, weight=weight_value, watch_port=watch_port
+                    )
                 case _:
                     raise ValueError(f"unexpected action weight: {weight!r}")
 
@@ -454,6 +477,18 @@ class P4TableEntry(_P4Writable):
     idle_timeout_ns: int = 0
     time_since_last_hit: int | None = None
     metadata: bytes = b""
+
+    def full_match(self, schema: P4Schema, default: str = "*") -> P4TableMatch:
+        "Return copy of `match` but with all fields filled in as `default`."
+        table = schema.tables[self.table_id]
+
+        if self.match is None:
+            match = P4TableMatch()
+        else:
+            match = P4TableMatch(self.match)
+
+        match.fill_wildcards(table, default)
+        return match
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode TableEntry data as protobuf."
@@ -1091,20 +1126,35 @@ class P4CounterEntry(_P4ModifyOnly):
 
 
 @decodable("direct_counter_entry")
-@dataclass(kw_only=True)
+@dataclass
 class P4DirectCounterEntry(_P4ModifyOnly):
     "Represents a P4Runtime DirectCounterEntry."
 
+    counter_id: str = ""
+    _: KW_ONLY
     table_entry: P4TableEntry | None = None
     data: P4CounterData | None = None
+
+    @property
+    def table_id(self) -> str:
+        "Return table_id of related table."
+        if self.table_entry is None:
+            return ""
+        return self.table_entry.table_id
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4DirectCounterEntry as protobuf."
 
-        if self.table_entry is not None:
-            table_entry = self.table_entry.encode_entry(schema)
+        if self.table_entry is None:
+            # Use `counter_id` to construct a `P4TableEntry` with the proper
+            # table name.
+            if self.counter_id:
+                tb_name = schema.direct_counters[self.counter_id].direct_table_name
+                table_entry = P4TableEntry(tb_name).encode_entry(schema)
+            else:
+                table_entry = None
         else:
-            table_entry = None
+            table_entry = self.table_entry.encode_entry(schema)
 
         if self.data is not None:
             data = self.data.encode()
@@ -1133,7 +1183,14 @@ class P4DirectCounterEntry(_P4ModifyOnly):
         else:
             data = None
 
-        return cls(table_entry=table_entry, data=data)
+        # Determine `counter_id` from table_entry.
+        counter_id = ""
+        if table_entry is not None:
+            direct_counter = schema.tables[table_entry.table_id].direct_counter
+            if direct_counter is not None:
+                counter_id = direct_counter.alias
+
+        return cls(counter_id, table_entry=table_entry, data=data)
 
 
 class P4ValueSetMember(dict[str, Any]):
@@ -1264,9 +1321,7 @@ class P4PacketIn:
         "Return friendlier hexadecimal description of packet."
 
         if self.metadata:
-            return (
-                f"P4PacketIn(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
-            )
+            return f"P4PacketIn(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
         return f"P4PacketIn(payload=h'{self.payload.hex()}')"
 
 
