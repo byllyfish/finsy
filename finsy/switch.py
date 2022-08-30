@@ -312,25 +312,20 @@ class Switch:
 
         self._tasks = SwitchTasks()
         self._p4client = P4Client(self._address, self._options.channel_credentials)
+        self._switch_start()
 
         try:
             while True:
                 # If the switch fails and restarts too quickly, slow it down.
                 async with _throttle_failure():
-                    await self._run_lifecycle()
+                    self.create_task(self._run(), background=True)
+                    await self._tasks.wait()
+                    self._arbitrator.reset()
 
         finally:
             self._p4client = None
             self._tasks = None
-
-    @TRACE
-    async def _run_lifecycle(self):
-        "Run the switch's lifecycle once."
-        assert self._tasks is not None
-
-        self.create_task(self._run(), background=True)
-        await self._tasks.wait()
-        self._arbitrator.reset()
+            self._switch_stop()
 
     def create_task(
         self,
@@ -445,6 +440,30 @@ class Switch:
         self._arbitrator.reset()
         self._p4client = None
         self._tasks = None
+
+    def _switch_start(self):
+        "Called when switch starts its run() cycle."
+        assert not self._is_channel_up
+
+        LOGGER.info(
+            "Switch start (name=%r, address=%r, device_id=%r)",
+            self.name,
+            self._address,
+            self.device_id,
+        )
+        self.ee.emit(SwitchEvent.SWITCH_START)
+
+    def _switch_stop(self):
+        "Called when switch stops its run() cycle."
+        assert not self._is_channel_up
+
+        LOGGER.info(
+            "Switch stop (name=%r, address=%r, device_id=%r)",
+            self.name,
+            self._address,
+            self.device_id,
+        )
+        self.ee.emit(SwitchEvent.SWITCH_STOP)
 
     def _channel_up(self):
         "Called when P4Runtime channel is UP."
@@ -793,6 +812,8 @@ class Switch:
 class SwitchEvent(str, enum.Enum):
     "Events for Switch class."
 
+    SWITCH_START = "switch_start"  # (switch)
+    SWITCH_STOP = "switch_stop"  # (switch)
     CHANNEL_UP = "channel_up"  # (switch)
     CHANNEL_DOWN = "channel_down"  # (switch)
     CHANNEL_READY = "channel_ready"  # (switch)
