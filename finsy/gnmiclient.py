@@ -402,7 +402,8 @@ class gNMISubscription:
             self._sublist.subscription.append(sub)
 
     async def synchronize(self) -> AsyncIterator[gNMIUpdate]:
-        await self._subscribe()
+        if self._stream is None:
+            await self._subscribe()
 
         try:
             async for result in self._read(True):
