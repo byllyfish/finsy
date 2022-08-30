@@ -42,6 +42,7 @@ from finsy import p4entity, pbuf
 from finsy.arbitrator import Arbitrator
 from finsy.futures import CountdownFuture
 from finsy.gnmiclient import gNMIClient, gNMIClientError
+from finsy.grpcutil import GRPCStatusCode
 from finsy.log import LOGGER, TRACE
 from finsy.p4client import P4Client, P4ClientError
 from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema, P4UpdateType
@@ -519,12 +520,6 @@ class Switch:
 
         self.ee.emit(SwitchEvent.CHANNEL_READY, self)
 
-    def _channel_unavailable(self):
-        "Called when a P4Runtime channel is UNAVAILABLE."
-        LOGGER.info("Channel unavailable (is_primary=%r)", self.is_primary)
-
-        self.ee.emit(SwitchEvent.CHANNEL_UNAVAILABLE, self)
-
     def _stream_packet_message(self, msg: p4r.StreamMessageResponse):
         "Called when a P4Runtime packet-in response is received."
         packet = p4entity.decode_stream(msg, self.p4info)
@@ -801,7 +796,6 @@ class SwitchEvent(str, enum.Enum):
     CHANNEL_UP = "channel_up"  # (switch)
     CHANNEL_DOWN = "channel_down"  # (switch)
     CHANNEL_READY = "channel_ready"  # (switch)
-    CHANNEL_UNAVAILABLE = "channel_unavailable"  # (switch)
     BECOME_PRIMARY = "become_primary"  # (switch)
     BECOME_BACKUP = "become_backup"  # (switch)
     PORT_UP = "port_up"  # (switch, port)
@@ -875,9 +869,14 @@ class SwitchTasks:
         if not done.cancelled():
             ex = done.exception()
             if ex is not None:
-                # TODO: Have switch emit CHANNEL_UNAVAILABLE here, if necessary.
-                LOGGER.error("Switch task %r failed", done.get_name(), exc_info=ex)
                 self.cancel_all()
+
+                # If the exception is GRPCStatusCode.UNAVAILABLE, don't report
+                # an error.
+                if getattr(ex, "code", None) == GRPCStatusCode.UNAVAILABLE:
+                    LOGGER.debug("Switch task %r failed: UNAVAILABLE")
+                else:
+                    LOGGER.error("Switch task %r failed", done.get_name(), exc_info=ex)
 
     def cancel_all(self):
         "Cancel all tasks."
