@@ -21,13 +21,16 @@ import sys
 if sys.version_info < (3, 10):  # pragma: no cover
     raise RuntimeError("Requires Python 3.10+.")
 
-from .controller import Controller
-from .gnmiclient import gNMIClient
+from .controller import Controller, current_controller
+from .gnmiclient import gNMIClient, gNMISubscription, gNMIUpdate
 from .gnmipath import gNMIPath
 from .p4entity import (
+    P4CloneSessionEntry,
     P4CounterData,
     P4DigestEntry,
     P4DigestList,
+    P4DirectCounterEntry,
+    P4IndirectAction,
     P4MeterConfig,
     P4MeterCounterData,
     P4MulticastGroupEntry,
@@ -38,14 +41,19 @@ from .p4entity import (
     P4TableEntry,
     P4TableMatch,
 )
-from .p4schema import P4ConfigAction, P4Schema
+from .p4schema import P4ConfigAction, P4CounterUnit, P4Schema
 from .switch import Switch, SwitchEvent, SwitchOptions
 
 __all__ = [
+    "current_controller",
     "Controller",
+    "P4CloneSessionEntry",
     "P4CounterData",
+    "P4CounterUnit",
     "P4DigestEntry",
     "P4DigestList",
+    "P4DirectCounterEntry",
+    "P4IndirectAction",
     "P4MeterConfig",
     "P4MeterCounterData",
     "P4MulticastGroupEntry",
@@ -62,4 +70,6 @@ __all__ = [
     "SwitchOptions",
     "gNMIClient",
     "gNMIPath",
+    "gNMISubscription",
+    "gNMIUpdate",
 ]

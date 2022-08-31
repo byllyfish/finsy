@@ -312,11 +312,9 @@ def test_encode_entities1():
     "Test encode_entities function."
 
     entity = P4TableEntry().encode(_SCHEMA)
-    msgs1 = encode_entities(entity, _SCHEMA)
-    msgs2 = encode_entities([entity], _SCHEMA)
-    msgs3 = encode_entities(P4TableEntry(), _SCHEMA)
-    msgs4 = encode_entities([P4TableEntry()], _SCHEMA)
-    assert msgs1 == msgs2 == msgs3 == msgs4 == [entity]
+    msgs1 = encode_entities([entity], _SCHEMA)
+    msgs2 = encode_entities([P4TableEntry()], _SCHEMA)
+    assert msgs1 == msgs2 == [entity]
 
 
 def test_encode_updates1():
@@ -589,13 +587,16 @@ def test_direct_counter_entry1():
 def test_direct_counter_entry2():
     "Test P4CounterEntry class."
 
+    table_entry = P4TableEntry(
+        "ipv4_lpm",
+        match=P4TableMatch(dstAddr=(167772160, 24)),
+    )
+
     entry = P4DirectCounterEntry(
-        table_entry=P4TableEntry(
-            "ipv4_lpm",
-            match=P4TableMatch(dstAddr=(167772160, 24)),
-        ),
+        table_entry=table_entry,
         data=P4CounterData(byte_count=1, packet_count=2),
     )
+    assert entry.counter_id == ""
     msg = entry.encode(_SCHEMA)
 
     assert pbuf.to_dict(msg) == {
@@ -612,7 +613,37 @@ def test_direct_counter_entry2():
             },
         }
     }
-    assert entry == P4DirectCounterEntry.decode(msg, _SCHEMA)
+
+    # When decoded, the entry will have a counter_id.
+    entry_decode = P4DirectCounterEntry(
+        "ipv4_counter",
+        table_entry=table_entry,
+        data=P4CounterData(byte_count=1, packet_count=2),
+    )
+    assert entry_decode == P4DirectCounterEntry.decode(msg, _SCHEMA)
+
+
+def test_direct_counter_entry3():
+    "Test P4CounterEntry class."
+
+    entry = P4DirectCounterEntry("ipv4_counter")
+    assert entry.counter_id == "ipv4_counter"
+    assert entry.table_entry is None
+    assert entry.data is None
+
+    msg = entry.encode(_SCHEMA)
+    assert pbuf.to_dict(msg) == {
+        "direct_counter_entry": {
+            "table_entry": {"table_id": 37375156},
+        }
+    }
+
+    # When decoded, the entry will have a table_entry.
+    entry_decode = P4DirectCounterEntry(
+        "ipv4_counter",
+        table_entry=P4TableEntry("ipv4_lpm"),
+    )
+    assert entry_decode == P4DirectCounterEntry.decode(msg, _SCHEMA)
 
 
 def test_register_entry0():
@@ -738,7 +769,7 @@ def test_packet_out1():
     assert entry["egress_port"] == 1
     assert (
         repr(entry)
-        == "PacketOut(metadata={'egress_port': 1, '_pad': 0}, payload=h'616263')"
+        == "P4PacketOut(metadata={'egress_port': 1, '_pad': 0}, payload=h'616263')"
     )
 
 
@@ -785,7 +816,7 @@ def test_packet_in1():
 
     assert packet.payload == b"abc"
     assert packet.metadata == {}
-    assert repr(packet) == "PacketIn(payload=h'616263')"
+    assert repr(packet) == "P4PacketIn(payload=h'616263')"
 
 
 def test_packet_in2():
@@ -809,7 +840,7 @@ def test_packet_in2():
     assert packet["ingress_port"] == 97
     assert (
         repr(packet)
-        == "PacketIn(metadata={'ingress_port': 97, '_pad': 98}, payload=h'616263')"
+        == "P4PacketIn(metadata={'ingress_port': 97, '_pad': 98}, payload=h'616263')"
     )
 
 

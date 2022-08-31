@@ -28,6 +28,7 @@ from typing import (
     AsyncIterator,
     Callable,
     Coroutine,
+    Iterable,
     NamedTuple,
     SupportsBytes,
     TypeVar,
@@ -41,6 +42,7 @@ from finsy import p4entity, pbuf
 from finsy.arbitrator import Arbitrator
 from finsy.futures import CountdownFuture
 from finsy.gnmiclient import gNMIClient, gNMIClientError
+from finsy.grpcutil import GRPCStatusCode
 from finsy.log import LOGGER, TRACE
 from finsy.p4client import P4Client, P4ClientError
 from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema, P4UpdateType
@@ -65,7 +67,7 @@ class SwitchOptions:
     """`SwitchOptions` manages the configuration options for a `Switch`.
 
     Each `SwitchOptions` object is immutable and may be shared by multiple
-    switches. Although each object is immutable, you can use function call
+    switches. You should treat all values as read-only. You can use function call
     syntax to change one or more properties and construct a new object.
 
     ```
@@ -91,6 +93,9 @@ class SwitchOptions:
 
     ready_handler: Callable[["Switch"], Coroutine[Any, Any, None]] | None = None
     "Ready handler async function callback."
+
+    config: Any = None
+    "Store your app's configuration information here."
 
     def __call__(self, **kwds: Any):
         return dataclasses.replace(self, **kwds)
@@ -134,6 +139,7 @@ class Switch:
     _p4schema: P4Schema
     _tasks: "SwitchTasks | None"
     _queues: dict[str, asyncio.Queue[Any]]
+    _packet_queues: list[tuple[Callable[[bytes], bool], asyncio.Queue[Any]]]
     _arbitrator: "Arbitrator"
     _gnmi_client: gNMIClient | None
     _ports: PortList
@@ -145,6 +151,9 @@ class Switch:
 
     ee: "SwitchEmitter"
     "Event emitter."
+
+    attachment: Any = None
+    "Available to attach per-switch services or data."
 
     def __init__(
         self,
@@ -162,6 +171,7 @@ class Switch:
         self._p4schema = P4Schema(options.p4info, options.p4blob)
         self._tasks = None
         self._queues = {}
+        self._packet_queues = []
         self._arbitrator = Arbitrator(options.initial_election_id)
         self._gnmi_client = None
         self._ports = PortList()
@@ -227,13 +237,37 @@ class Switch:
         "P4Runtime protocol version."
         return self._api_version
 
-    def read_packets(
+    async def read_packets(
         self,
         *,
         queue_size: int = _DEFAULT_QUEUE_SIZE,
+        eth_types: Iterable[int] | None = None,
     ) -> AsyncIterator["p4entity.P4PacketIn"]:
         "Async iterator for incoming packets (P4PacketIn)."
-        return self._queue_iter("packet", queue_size)
+
+        if eth_types is None:
+
+            def _pkt_filter(payload: bytes) -> bool:
+                return True
+
+        else:
+            _filter = {eth.to_bytes(2, "big") for eth in eth_types}
+
+            def _pkt_filter(payload: bytes) -> bool:
+                return payload[12:14] in _filter
+
+        LOGGER.debug("read_packets: opening packet queue: eth_types=%r", eth_types)
+        queue = asyncio.Queue[Any](queue_size)
+        self._packet_queues.append((_pkt_filter, queue))
+
+        try:
+            while True:
+                result = await queue.get()
+                yield result
+
+        finally:
+            LOGGER.debug("read_packets: closing packet queue: eth_types=%r", eth_types)
+            self._packet_queues.remove((_pkt_filter, queue))
 
     def read_digests(
         self,
@@ -278,25 +312,20 @@ class Switch:
 
         self._tasks = SwitchTasks()
         self._p4client = P4Client(self._address, self._options.channel_credentials)
+        self._switch_start()
 
         try:
             while True:
                 # If the switch fails and restarts too quickly, slow it down.
                 async with _throttle_failure():
-                    await self._run_lifecycle()
+                    self.create_task(self._run(), background=True)
+                    await self._tasks.wait()
+                    self._arbitrator.reset()
 
         finally:
             self._p4client = None
             self._tasks = None
-
-    @TRACE
-    async def _run_lifecycle(self):
-        "Run the switch's lifecycle once."
-        assert self._tasks is not None
-
-        self.create_task(self._run(), background=True)
-        await self._tasks.wait()
-        self._arbitrator.reset()
+            self._switch_stop()
 
     def create_task(
         self,
@@ -365,7 +394,9 @@ class Switch:
             LOGGER.error("missing update: %r", msg)
             return
 
-        if msg_type == "arbitration":
+        if msg_type == "packet":
+            self._stream_packet_message(msg)
+        elif msg_type == "arbitration":
             await self._arbitrator.update(self, msg.arbitration)
         elif msg_type == "error":
             self._stream_error_message(msg)
@@ -409,6 +440,30 @@ class Switch:
         self._arbitrator.reset()
         self._p4client = None
         self._tasks = None
+
+    def _switch_start(self):
+        "Called when switch starts its run() cycle."
+        assert not self._is_channel_up
+
+        LOGGER.info(
+            "Switch start (name=%r, address=%r, device_id=%r)",
+            self.name,
+            self._address,
+            self.device_id,
+        )
+        self.ee.emit(SwitchEvent.SWITCH_START)
+
+    def _switch_stop(self):
+        "Called when switch stops its run() cycle."
+        assert not self._is_channel_up
+
+        LOGGER.info(
+            "Switch stop (name=%r, address=%r, device_id=%r)",
+            self.name,
+            self._address,
+            self.device_id,
+        )
+        self.ee.emit(SwitchEvent.SWITCH_STOP)
 
     def _channel_up(self):
         "Called when P4Runtime channel is UP."
@@ -483,6 +538,14 @@ class Switch:
             self.create_task(self._options.ready_handler(self))
 
         self.ee.emit(SwitchEvent.CHANNEL_READY, self)
+
+    def _stream_packet_message(self, msg: p4r.StreamMessageResponse):
+        "Called when a P4Runtime packet-in response is received."
+        packet = p4entity.decode_stream(msg, self.p4info)
+
+        for filter, queue in self._packet_queues:
+            if not queue.full() and filter(packet.payload):
+                queue.put_nowait(packet)
 
     def _stream_error_message(self, msg: p4r.StreamMessageResponse):
         "Called when a P4Runtime stream error response is received."
@@ -582,9 +645,12 @@ class Switch:
             )
         )
 
-    async def read(self, *entities: p4entity.EntityList):
+    async def read(self, entities: Iterable[p4entity.P4EntityList]):
         "Async iterator that reads entities from the switch."
         assert self._p4client is not None
+
+        if not entities:
+            return
 
         request = p4r.ReadRequest(
             device_id=self.device_id,
@@ -595,9 +661,12 @@ class Switch:
             for ent in reply.entities:
                 yield p4entity.decode_entity(ent, self.p4info)
 
-    async def write(self, *entities: p4entity.UpdateList):
+    async def write(self, entities: Iterable[p4entity.P4UpdateList]):
         "Write updates and stream messages to the switch."
         assert self._p4client is not None
+
+        if not entities:
+            return
 
         msgs = p4entity.encode_updates(entities, self.p4info)
 
@@ -616,17 +685,17 @@ class Switch:
                 )
             )
 
-    async def insert(self, *entities: p4entity.EntityList):
+    async def insert(self, entities: Iterable[p4entity.P4EntityList]):
         "Insert the specified entities."
         await self._write(entities, P4UpdateType.INSERT)
 
-    async def modify(self, *entities: p4entity.EntityList):
+    async def modify(self, entities: Iterable[p4entity.P4EntityList]):
         "Modify the specified entities."
         await self._write(entities, P4UpdateType.MODIFY)
 
     async def delete(
         self,
-        *entities: p4entity.EntityList,
+        entities: Iterable[p4entity.P4EntityList],
         ignore_not_found_error: bool = False,
     ):
         """Delete the specified entities.
@@ -674,9 +743,16 @@ class Switch:
         if digest_entries:
             await self.delete(digest_entries, ignore_not_found_error=True)
 
-    async def _write(self, entities: p4entity.EntityList, update_type: P4UpdateType):
+    async def _write(
+        self,
+        entities: Iterable[p4entity.P4EntityList],
+        update_type: P4UpdateType,
+    ):
         "Helper to insert/modify/delete specified entities."
         assert self._p4client is not None
+
+        if not entities:
+            return
 
         updates = [
             p4r.Update(type=update_type.vt(), entity=ent)
@@ -736,6 +812,10 @@ class Switch:
 class SwitchEvent(str, enum.Enum):
     "Events for Switch class."
 
+    CONTROLLER_ENTER = "controller_enter"  # (switch)
+    CONTROLLER_LEAVE = "controller_leave"  # (switch)
+    SWITCH_START = "switch_start"  # (switch)
+    SWITCH_STOP = "switch_stop"  # (switch)
     CHANNEL_UP = "channel_up"  # (switch)
     CHANNEL_DOWN = "channel_down"  # (switch)
     CHANNEL_READY = "channel_ready"  # (switch)
@@ -743,7 +823,6 @@ class SwitchEvent(str, enum.Enum):
     BECOME_BACKUP = "become_backup"  # (switch)
     PORT_UP = "port_up"  # (switch, port)
     PORT_DOWN = "port_down"  # (switch, port)
-    SWITCH_DONE = "switch_done"  # (switch)
     STREAM_ERROR = "stream_error"  # (switch, p4r.StreamMessageResponse)
 
 
@@ -812,8 +891,14 @@ class SwitchTasks:
         if not done.cancelled():
             ex = done.exception()
             if ex is not None:
-                LOGGER.error("Switch task %r failed", done.get_name(), exc_info=ex)
                 self.cancel_all()
+
+                # If the exception is GRPCStatusCode.UNAVAILABLE, don't report
+                # an error.
+                if getattr(ex, "code", None) == GRPCStatusCode.UNAVAILABLE:
+                    LOGGER.debug("Switch task %r failed: UNAVAILABLE")
+                else:
+                    LOGGER.error("Switch task %r failed", done.get_name(), exc_info=ex)
 
     def cancel_all(self):
         "Cancel all tasks."

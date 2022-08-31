@@ -110,8 +110,14 @@ $ source .venv/bin/activate
 I like to keep the Python virtual environment in a `.venv` directory local to the
 project directory. Always make sure you activate the python environment before you do anything.
 
-Add `finsy` as a dependency to your project. This will install finsy inside your virtual 
-environment.
+We need to update the version of pytest inserted by poetry in pyproject.toml. We also need
+to add `pytest-asyncio`.
+
+```console
+(.venv) $ poetry add --dev pytest@latest pytest-asyncio
+```
+
+Now, add `finsy` as a dependency to your project.
 
 <details>
 <summary><blockquote>
