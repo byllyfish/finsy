@@ -117,20 +117,22 @@ class Controller:
         if self.running:
             self._stop_switch(switch)
             self._removed.add(switch)
-            switch.ee.once(SwitchEvent.SWITCH_DONE, self._removed.discard)
+            switch.ee.once(SwitchEvent.CONTROLLER_LEAVE, self._removed.discard)
 
     def _start_switch(self, switch: Switch):
         "Start the switch's control task."
         LOGGER.debug("Controller._start_switch: %r", switch)
         assert switch.control_task is None
 
+        switch.ee.emit(SwitchEvent.CONTROLLER_ENTER, switch)
+
         task = asyncio.create_task(switch.run(), name=f"fy:{switch.name}")
         switch.control_task = task
         self._task_count.increment()
 
-        def _switch_done(done):
+        def _switch_done(done: asyncio.Task[Any]):
             switch.control_task = None
-            switch.ee.emit(SwitchEvent.SWITCH_DONE)
+            switch.ee.emit(SwitchEvent.CONTROLLER_LEAVE, switch)
             self._task_count.decrement()
 
             if not done.cancelled():
@@ -164,13 +166,12 @@ class Controller:
         return self._switches[name]
 
 
-
 _CONTROLLER: ContextVar[Controller | None] = ContextVar("_CONTROLLER", default=None)
 
 
 def current_controller() -> Controller:
     "Return the current Controller object."
-    
+
     result = _CONTROLLER.get()
     if result is None:
         raise RuntimeError("current_controller() does not exist")

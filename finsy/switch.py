@@ -812,6 +812,8 @@ class Switch:
 class SwitchEvent(str, enum.Enum):
     "Events for Switch class."
 
+    CONTROLLER_ENTER = "controller_enter"  # (switch)
+    CONTROLLER_LEAVE = "controller_leave"  # (switch)
     SWITCH_START = "switch_start"  # (switch)
     SWITCH_STOP = "switch_stop"  # (switch)
     CHANNEL_UP = "channel_up"  # (switch)
@@ -821,7 +823,6 @@ class SwitchEvent(str, enum.Enum):
     BECOME_BACKUP = "become_backup"  # (switch)
     PORT_UP = "port_up"  # (switch, port)
     PORT_DOWN = "port_down"  # (switch, port)
-    SWITCH_DONE = "switch_done"  # (switch)
     STREAM_ERROR = "stream_error"  # (switch, p4r.StreamMessageResponse)
 
 
