@@ -387,27 +387,22 @@ def test_action_profile_member1():
 def test_action_profile_member2():
     "Test P4ActionProfileMember class."
 
+    schema = P4Schema(_P4INFO_TEST_DIR / "fabric.p4.p4info.txt")
     entry = P4ActionProfileMember(
-        action_profile_id=1,
+        action_profile_id="hashed_selector",
         member_id=2,
-        action=P4TableAction("ipv4_forward", port=1, dstAddr=2),
+        action=P4TableAction("pop_vlan"),
     )
-    msg = entry.encode(_SCHEMA)
+    msg = entry.encode(schema)
 
     assert pbuf.to_dict(msg) == {
         "action_profile_member": {
-            "action": {
-                "action_id": 28792405,
-                "params": [
-                    {"param_id": 2, "value": "AQ=="},
-                    {"param_id": 1, "value": "Ag=="},
-                ],
-            },
-            "action_profile_id": 1,
+            "action": {"action_id": 17183246},
+            "action_profile_id": 291115404,
             "member_id": 2,
         }
     }
-    assert entry == P4ActionProfileMember.decode(msg, _SCHEMA)
+    assert entry == P4ActionProfileMember.decode(msg, schema)
 
 
 def test_action_profile_group1():
@@ -423,8 +418,9 @@ def test_action_profile_group1():
 def test_action_profile_group2():
     "Test P4ActionProfileGroup class."
 
+    schema = P4Schema(_P4INFO_TEST_DIR / "fabric.p4.p4info.txt")
     entry = P4ActionProfileGroup(
-        action_profile_id=1,
+        action_profile_id="hashed_selector",
         group_id=2,
         max_size=3,
         members=[
@@ -432,11 +428,11 @@ def test_action_profile_group2():
             P4Member(member_id=2, weight=(3, 9)),
         ],
     )
-    msg = entry.encode(_SCHEMA)
+    msg = entry.encode(schema)
 
     assert pbuf.to_dict(msg) == {
         "action_profile_group": {
-            "action_profile_id": 1,
+            "action_profile_id": 291115404,
             "group_id": 2,
             "max_size": 3,
             "members": [
@@ -445,7 +441,7 @@ def test_action_profile_group2():
             ],
         }
     }
-    assert entry == P4ActionProfileGroup.decode(msg, _SCHEMA)
+    assert entry == P4ActionProfileGroup.decode(msg, schema)
 
 
 def test_meter_entry1():
@@ -580,8 +576,10 @@ def test_direct_counter_entry1():
     entry = P4DirectCounterEntry()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"direct_counter_entry": {}}
-    assert entry == P4DirectCounterEntry.decode(msg, _SCHEMA)
+    assert pbuf.to_dict(msg) == {"direct_counter_entry": {"table_entry": {}}}
+
+    entry_decode = P4DirectCounterEntry(table_entry=P4TableEntry())
+    assert entry_decode == P4DirectCounterEntry.decode(msg, _SCHEMA)
 
 
 def test_direct_counter_entry2():

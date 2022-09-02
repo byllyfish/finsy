@@ -425,8 +425,8 @@ class P4MeterConfig:
 class P4CounterData:
     "Represents a P4Runtime CounterData."
 
-    byte_count: int
-    packet_count: int
+    byte_count: int = 0
+    packet_count: int = 0
 
     def encode(self) -> p4r.CounterData:
         return p4r.CounterData(**self.__dict__)
@@ -499,7 +499,7 @@ class P4TableEntry(_P4Writable):
         "Encode TableEntry data as protobuf."
 
         if not self.table_id:
-            return p4r.TableEntry()
+            return self._encode_empty()
 
         table = schema.tables[self.table_id]
 
@@ -547,6 +547,27 @@ class P4TableEntry(_P4Writable):
             idle_timeout_ns=self.idle_timeout_ns,
             time_since_last_hit=time_since_last_hit,
             metadata=self.metadata,
+        )
+
+    def _encode_empty(self) -> p4r.TableEntry:
+        "Encode an empty wildcard request."
+
+        if self.counter_data is not None:
+            counter_data = self.counter_data.encode()
+        else:
+            counter_data = None
+
+        # FIXME: time_since_last_hit not supported for wildcard reads?
+        if self.time_since_last_hit is not None:
+            time_since_last_hit = p4r.TableEntry.IdleTimeout(
+                elapsed_ns=self.time_since_last_hit
+            )
+        else:
+            time_since_last_hit = None
+
+        return p4r.TableEntry(
+            counter_data=counter_data,
+            time_since_last_hit=time_since_last_hit,
         )
 
     @classmethod
@@ -650,7 +671,7 @@ class P4RegisterEntry(_P4ModifyOnly):
 
         entry = msg.register_entry
         if entry.register_id == 0:
-            return cls("")
+            return cls()
 
         register = schema.registers[entry.register_id]
 
@@ -798,7 +819,7 @@ class P4DigestEntry(_P4Writable):
 class P4ActionProfileMember(_P4Writable):
     "Represents a P4Runtime ActionProfileMember."
 
-    action_profile_id: int = 0
+    action_profile_id: str = ""
     _: KW_ONLY
     member_id: int = 0
     action: P4TableAction | None = None
@@ -806,13 +827,18 @@ class P4ActionProfileMember(_P4Writable):
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4ActionProfileMember as protobuf."
 
+        if not self.action_profile_id:
+            return p4r.Entity(action_profile_member=p4r.ActionProfileMember())
+
+        profile = schema.action_profiles[self.action_profile_id]
+
         if self.action:
             action = self.action.encode_action(schema)
         else:
             action = None
 
         entry = p4r.ActionProfileMember(
-            action_profile_id=self.action_profile_id,
+            action_profile_id=profile.id,
             member_id=self.member_id,
             action=action,
         )
@@ -821,7 +847,12 @@ class P4ActionProfileMember(_P4Writable):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to ActionProfileMember data."
+
         entry = msg.action_profile_member
+        if entry.action_profile_id == 0:
+            return cls()
+
+        profile = schema.action_profiles[entry.action_profile_id]
 
         if entry.HasField("action"):
             action = P4TableAction.decode_action(entry.action, schema)
@@ -829,7 +860,7 @@ class P4ActionProfileMember(_P4Writable):
             action = None
 
         return cls(
-            action_profile_id=entry.action_profile_id,
+            action_profile_id=profile.alias,
             member_id=entry.member_id,
             action=action,
         )
@@ -840,7 +871,7 @@ class P4Member:
     "Represents an ActionProfileGroup Member."
 
     member_id: int
-    weight: _Weight
+    weight: _Weight | None
 
     def encode(self) -> p4r.ActionProfileGroup.Member:
         "Encode P4Member as protobuf."
@@ -879,6 +910,8 @@ class P4Member:
                 weight = (msg.weight, msg.watch)
             case "watch_port":
                 weight = (msg.weight, msg.watch_port)
+            case None:
+                weight = None
             case other:
                 raise ValueError(f"unknown oneof: {other!r}")
 
@@ -890,14 +923,19 @@ class P4Member:
 class P4ActionProfileGroup(_P4Writable):
     "Represents a P4Runtime ActionProfileGroup."
 
-    action_profile_id: int = 0
+    action_profile_id: str = ""
     _: KW_ONLY
     group_id: int = 0
     max_size: int = 0
     members: Sequence[P4Member] | None = None
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
+    def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4ActionProfileGroup as protobuf."
+
+        if not self.action_profile_id:
+            return p4r.Entity(action_profile_group=p4r.ActionProfileGroup())
+
+        profile = schema.action_profiles[self.action_profile_id]
 
         if self.members is not None:
             members = [member.encode() for member in self.members]
@@ -905,7 +943,7 @@ class P4ActionProfileGroup(_P4Writable):
             members = None
 
         entry = p4r.ActionProfileGroup(
-            action_profile_id=self.action_profile_id,
+            action_profile_id=profile.id,
             group_id=self.group_id,
             members=members,
             max_size=self.max_size,
@@ -913,9 +951,14 @@ class P4ActionProfileGroup(_P4Writable):
         return p4r.Entity(action_profile_group=entry)
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to ActionProfileGroup data."
+
         entry = msg.action_profile_group
+        if entry.action_profile_id == 0:
+            return cls()
+
+        profile = schema.action_profiles[entry.action_profile_id]
 
         if entry.members:
             members = [P4Member.decode(member) for member in entry.members]
@@ -923,7 +966,7 @@ class P4ActionProfileGroup(_P4Writable):
             members = None
 
         return cls(
-            action_profile_id=entry.action_profile_id,
+            action_profile_id=profile.alias,
             group_id=entry.group_id,
             max_size=entry.max_size,
             members=members,
@@ -1150,11 +1193,11 @@ class P4DirectCounterEntry(_P4ModifyOnly):
             # table name.
             if self.counter_id:
                 tb_name = schema.direct_counters[self.counter_id].direct_table_name
-                table_entry = P4TableEntry(tb_name).encode_entry(schema)
+                table_entry = P4TableEntry(tb_name)
             else:
-                table_entry = None
+                table_entry = P4TableEntry()
         else:
-            table_entry = self.table_entry.encode_entry(schema)
+            table_entry = self.table_entry
 
         if self.data is not None:
             data = self.data.encode()
@@ -1162,7 +1205,7 @@ class P4DirectCounterEntry(_P4ModifyOnly):
             data = None
 
         entry = p4r.DirectCounterEntry(
-            table_entry=table_entry,
+            table_entry=table_entry.encode_entry(schema),
             data=data,
         )
         return p4r.Entity(direct_counter_entry=entry)
@@ -1185,10 +1228,10 @@ class P4DirectCounterEntry(_P4ModifyOnly):
 
         # Determine `counter_id` from table_entry.
         counter_id = ""
-        if table_entry is not None:
+        if table_entry is not None and table_entry.table_id:
             direct_counter = schema.tables[table_entry.table_id].direct_counter
-            if direct_counter is not None:
-                counter_id = direct_counter.alias
+            assert direct_counter is not None
+            counter_id = direct_counter.alias
 
         return cls(counter_id, table_entry=table_entry, data=data)
 

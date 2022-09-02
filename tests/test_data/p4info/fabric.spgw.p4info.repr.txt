@@ -114,6 +114,7 @@ P4Schema(
             max_group_size=16,
             name="FabricIngress.next.hashed_selector",
             size=1024,
+            table_names=["hashed"],
             with_selector=True,
         )
     ],
@@ -1956,6 +1957,7 @@ P4Schema(
                 max_group_size=16,
                 name="FabricIngress.next.hashed_selector",
                 size=1024,
+                table_names=["hashed"],
                 with_selector=True,
             ),
             actions=[

@@ -257,8 +257,10 @@ class Switch:
                 return payload[12:14] in _filter
 
         LOGGER.debug("read_packets: opening packet queue: eth_types=%r", eth_types)
+
         queue = asyncio.Queue[Any](queue_size)
-        self._packet_queues.append((_pkt_filter, queue))
+        queue_filter = (_pkt_filter, queue)
+        self._packet_queues.append(queue_filter)
 
         try:
             while True:
@@ -267,7 +269,7 @@ class Switch:
 
         finally:
             LOGGER.debug("read_packets: closing packet queue: eth_types=%r", eth_types)
-            self._packet_queues.remove((_pkt_filter, queue))
+            self._packet_queues.remove(queue_filter)
 
     def read_digests(
         self,
@@ -446,10 +448,11 @@ class Switch:
         assert not self._is_channel_up
 
         LOGGER.info(
-            "Switch start (name=%r, address=%r, device_id=%r)",
+            "Switch start (name=%r, address=%r, device_id=%r, initial_election_id=%r)",
             self.name,
             self._address,
             self.device_id,
+            self.options.initial_election_id,
         )
         self.ee.emit(SwitchEvent.SWITCH_START)
 
@@ -471,7 +474,7 @@ class Switch:
 
         ports = " ".join(f"({port.id}){port.name}" for port in self.ports)
         LOGGER.info(
-            "Channel up (is_primary=%r, election_id=%r, primary_id=%r, api_version=%s): %s",
+            "Channel up (is_primary=%r, election_id=%r, primary_id=%r, p4r_version=%s): %s",
             self.is_primary,
             self.election_id,
             self.primary_id,
@@ -488,12 +491,7 @@ class Switch:
         if not self._is_channel_up:
             return  # do nothing!
 
-        LOGGER.info(
-            "Channel down (is_primary=%r, election_id=%r, primary_id=%r)",
-            self.is_primary,
-            self.election_id,
-            self.primary_id,
-        )
+        LOGGER.info("Channel down (is_primary=%r)", self.is_primary)
         self._is_channel_up = False
 
         self.ee.emit(SwitchEvent.CHANNEL_DOWN, self)
@@ -543,9 +541,14 @@ class Switch:
         "Called when a P4Runtime packet-in response is received."
         packet = p4entity.decode_stream(msg, self.p4info)
 
+        was_queued = False
         for filter, queue in self._packet_queues:
             if not queue.full() and filter(packet.payload):
                 queue.put_nowait(packet)
+                was_queued = True
+
+        if not was_queued:
+            LOGGER.warning("packet ignored: %r", packet)
 
     def _stream_error_message(self, msg: p4r.StreamMessageResponse):
         "Called when a P4Runtime stream error response is received."
@@ -871,7 +874,7 @@ class SwitchTasks:
     ) -> asyncio.Task[_T]:
         "Create a new task managed by switch."
         if name is None:
-            name = coro.__name__
+            name = coro.__qualname__
 
         bg_char = "&" if background else ""
         task_name = f"fy:{switch.name}|{name}{bg_char}"
@@ -896,7 +899,7 @@ class SwitchTasks:
                 # If the exception is GRPCStatusCode.UNAVAILABLE, don't report
                 # an error.
                 if getattr(ex, "code", None) == GRPCStatusCode.UNAVAILABLE:
-                    LOGGER.debug("Switch task %r failed: UNAVAILABLE")
+                    LOGGER.debug("Switch task %r failed: UNAVAILABLE", done.get_name())
                 else:
                     LOGGER.error("Switch task %r failed", done.get_name(), exc_info=ex)
 

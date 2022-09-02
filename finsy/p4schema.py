@@ -888,15 +888,23 @@ class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
     "Represents ActionProfile in schema."
 
     _actions: P4EntityMap[P4Action]
+    _table_names: list[str]
 
     def __init__(self, pbuf: p4i.ActionProfile):
         super().__init__(pbuf)
         self._actions = P4EntityMap("action")
 
     def _finish_init(self, defs: _P4Defs):
+        # Copy actions from first table.  FIXME: Is `actions` used anywhere?
+        # Or, should this be the intersection of each table's actions?
         table = defs.tables[self.pbuf.table_ids[0]]
         for action in table.actions:
             self._actions._add(defs.actions[action.id])
+
+        self._table_names = [
+            defs.tables[table_id].alias for table_id in self.pbuf.table_ids
+        ]
+        self._table_names.sort()
 
     @property
     def with_selector(self) -> bool:
@@ -913,6 +921,10 @@ class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
     @property
     def actions(self) -> P4EntityMap[P4Action]:
         return self._actions
+
+    @property
+    def table_names(self) -> list[str]:
+        return self._table_names
 
 
 class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
@@ -1547,11 +1559,12 @@ class P4SchemaDescription:
     LABEL = "\U0001F3F7"
     INBOX = "\U0001F4E5"
     OUTBOX = "\U0001F4E4"
+    LETTER = "📩"
 
     MATCH_TYPES = {
-        P4MatchType.EXACT: "=",
-        P4MatchType.LPM: "*",
-        P4MatchType.TERNARY: "/",
+        P4MatchType.EXACT: ":",
+        P4MatchType.LPM: "/",
+        P4MatchType.TERNARY: "//",
         P4MatchType.RANGE: "…",
         P4MatchType.OPTIONAL: "?",
     }
@@ -1563,6 +1576,8 @@ class P4SchemaDescription:
         result = self._describe_preamble()
         for table in self._schema.tables:
             result += self._describe_table(table)
+        for profile in self._schema.action_profiles:
+            result += self._describe_profile(profile)
         for metadata in self._schema.controller_packet_metadata:
             result += self._describe_packet_metadata(metadata)
         return result
@@ -1586,7 +1601,7 @@ class P4SchemaDescription:
         # Table header
         line = f"{self.CLIPBOARD}{table.alias}[{table.size}]"
         if table.action_profile:
-            line += f" -> {self._describe_profile(table.action_profile)}"
+            line += f" -> {self._describe_profile_brief(table.action_profile)}"
         line += "\n"
 
         # Table fields
@@ -1604,15 +1619,28 @@ class P4SchemaDescription:
 
         return line
 
+    def _describe_profile_brief(self, profile: P4ActionProfile) -> str:
+        "Describe P4ActionProfile briefly when linked to table."
+
+        return f"{self.PACKAGE}{profile.alias}[{profile.size}]"
+
     def _describe_profile(self, profile: P4ActionProfile) -> str:
         "Describe P4ActionProfile."
-        opts: list[str] = []
 
+        opts = list[str]()
         if profile.with_selector:
-            opts.append("selector")
+            opts.append("type=selector")
             opts.append(f"max_group_size={profile.max_group_size}")
+        else:
+            opts.append("type=profile")
 
-        return f"{self.PACKAGE}{profile.alias}[{profile.size}] { ', '.join(opts) }"
+        table_names = ",".join(profile.table_names)
+        opts.append(f"tables={table_names}")
+
+        line = self._describe_profile_brief(profile)
+        line += f"\n  {' '.join(opts)}\n"
+
+        return line
 
     def _describe_action(self, action: P4ActionRef):
         "Describe P4ActionRef."
@@ -1621,14 +1649,9 @@ class P4SchemaDescription:
 
     def _describe_packet_metadata(self, metadata: P4ControllerPacketMetadata):
         "Describe P4ControllerPacketMetadata."
-        symbol = self.INBOX
-        if metadata.alias == "packet_out":
-            symbol = self.OUTBOX
+        symbol = self.LETTER
 
-        total_bits = 0
-        for mdata in metadata.metadata:
-            total_bits += mdata.bitwidth
-        line = f"{symbol}{metadata.alias} ({total_bits//8} bytes)\n  "
+        line = f"{symbol}{metadata.alias}\n  "
         for mdata in metadata.metadata:
             line += f"{mdata.name}:{mdata.bitwidth} "
         line += "\n"
