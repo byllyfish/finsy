@@ -1,0 +1,502 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 34391805
+    name: "IngressPipeImpl.l2_exact_table"
+    alias: "l2_exact_table"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ethernet.dst_addr"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 24677122
+  }
+  action_refs {
+    id: 28396054
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  const_default_action_id: 28396054
+  direct_resource_ids: 334804396
+  size: 1024
+}
+tables {
+  preamble {
+    id: 48908925
+    name: "IngressPipeImpl.l2_ternary_table"
+    alias: "l2_ternary_table"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ethernet.dst_addr"
+    bitwidth: 48
+    match_type: TERNARY
+  }
+  action_refs {
+    id: 26016411
+  }
+  action_refs {
+    id: 28396054
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  const_default_action_id: 28396054
+  direct_resource_ids: 319227349
+  size: 1024
+}
+tables {
+  preamble {
+    id: 42964298
+    name: "IngressPipeImpl.ndp_reply_table"
+    alias: "ndp_reply_table"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ndp.target_ipv6_addr"
+    bitwidth: 128
+    match_type: EXACT
+  }
+  action_refs {
+    id: 26505845
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  direct_resource_ids: 321323137
+  size: 1024
+}
+tables {
+  preamble {
+    id: 37849810
+    name: "IngressPipeImpl.my_station_table"
+    alias: "my_station_table"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ethernet.dst_addr"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 21257015
+  }
+  direct_resource_ids: 326932607
+  size: 1024
+}
+tables {
+  preamble {
+    id: 39493057
+    name: "IngressPipeImpl.routing_v6_table"
+    alias: "routing_v6_table"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ipv6.dst_addr"
+    bitwidth: 128
+    match_type: LPM
+  }
+  action_refs {
+    id: 23394961
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  implementation_id: 299582234
+  direct_resource_ids: 323284016
+  size: 1024
+}
+tables {
+  preamble {
+    id: 44019481
+    name: "IngressPipeImpl.srv6_my_sid"
+    alias: "srv6_my_sid"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ipv6.dst_addr"
+    bitwidth: 128
+    match_type: LPM
+  }
+  action_refs {
+    id: 22238276
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  direct_resource_ids: 321813123
+  size: 1024
+}
+tables {
+  preamble {
+    id: 36508978
+    name: "IngressPipeImpl.srv6_transit"
+    alias: "srv6_transit"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ipv6.dst_addr"
+    bitwidth: 128
+    match_type: LPM
+  }
+  action_refs {
+    id: 27077579
+  }
+  action_refs {
+    id: 24874888
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  direct_resource_ids: 322286653
+  size: 1024
+}
+tables {
+  preamble {
+    id: 33951081
+    name: "IngressPipeImpl.acl_table"
+    alias: "acl_table"
+  }
+  match_fields {
+    id: 1
+    name: "standard_metadata.ingress_port"
+    bitwidth: 9
+    match_type: TERNARY
+  }
+  match_fields {
+    id: 2
+    name: "hdr.ethernet.dst_addr"
+    bitwidth: 48
+    match_type: TERNARY
+  }
+  match_fields {
+    id: 3
+    name: "hdr.ethernet.src_addr"
+    bitwidth: 48
+    match_type: TERNARY
+  }
+  match_fields {
+    id: 4
+    name: "hdr.ethernet.ether_type"
+    bitwidth: 16
+    match_type: TERNARY
+  }
+  match_fields {
+    id: 5
+    name: "local_metadata.ip_proto"
+    bitwidth: 8
+    match_type: TERNARY
+  }
+  match_fields {
+    id: 6
+    name: "local_metadata.icmp_type"
+    bitwidth: 8
+    match_type: TERNARY
+  }
+  match_fields {
+    id: 7
+    name: "local_metadata.l4_src_port"
+    bitwidth: 16
+    match_type: TERNARY
+  }
+  match_fields {
+    id: 8
+    name: "local_metadata.l4_dst_port"
+    bitwidth: 16
+    match_type: TERNARY
+  }
+  action_refs {
+    id: 30661427
+  }
+  action_refs {
+    id: 28447560
+  }
+  action_refs {
+    id: 28396054
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  direct_resource_ids: 332339774
+  size: 1024
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 28396054
+    name: "IngressPipeImpl.drop"
+    alias: "drop"
+  }
+}
+actions {
+  preamble {
+    id: 24677122
+    name: "IngressPipeImpl.set_egress_port"
+    alias: "set_egress_port"
+  }
+  params {
+    id: 1
+    name: "port_num"
+    bitwidth: 9
+  }
+}
+actions {
+  preamble {
+    id: 26016411
+    name: "IngressPipeImpl.set_multicast_group"
+    alias: "set_multicast_group"
+  }
+  params {
+    id: 1
+    name: "gid"
+    bitwidth: 16
+  }
+}
+actions {
+  preamble {
+    id: 26505845
+    name: "IngressPipeImpl.ndp_ns_to_na"
+    alias: "ndp_ns_to_na"
+  }
+  params {
+    id: 1
+    name: "target_mac"
+    bitwidth: 48
+  }
+}
+actions {
+  preamble {
+    id: 23394961
+    name: "IngressPipeImpl.set_next_hop"
+    alias: "set_next_hop"
+  }
+  params {
+    id: 1
+    name: "dmac"
+    bitwidth: 48
+  }
+}
+actions {
+  preamble {
+    id: 22238276
+    name: "IngressPipeImpl.srv6_end"
+    alias: "srv6_end"
+  }
+}
+actions {
+  preamble {
+    id: 27077579
+    name: "IngressPipeImpl.srv6_t_insert_2"
+    alias: "srv6_t_insert_2"
+  }
+  params {
+    id: 1
+    name: "s1"
+    bitwidth: 128
+  }
+  params {
+    id: 2
+    name: "s2"
+    bitwidth: 128
+  }
+}
+actions {
+  preamble {
+    id: 24874888
+    name: "IngressPipeImpl.srv6_t_insert_3"
+    alias: "srv6_t_insert_3"
+  }
+  params {
+    id: 1
+    name: "s1"
+    bitwidth: 128
+  }
+  params {
+    id: 2
+    name: "s2"
+    bitwidth: 128
+  }
+  params {
+    id: 3
+    name: "s3"
+    bitwidth: 128
+  }
+}
+actions {
+  preamble {
+    id: 22830137
+    name: "IngressPipeImpl.srv6_pop"
+    alias: "srv6_pop"
+  }
+}
+actions {
+  preamble {
+    id: 30661427
+    name: "IngressPipeImpl.send_to_cpu"
+    alias: "send_to_cpu"
+  }
+}
+actions {
+  preamble {
+    id: 28447560
+    name: "IngressPipeImpl.clone_to_cpu"
+    alias: "clone_to_cpu"
+  }
+}
+action_profiles {
+  preamble {
+    id: 299582234
+    name: "IngressPipeImpl.ecmp_selector"
+    alias: "ecmp_selector"
+  }
+  table_ids: 39493057
+  with_selector: true
+  size: 1024
+}
+direct_counters {
+  preamble {
+    id: 334804396
+    name: "l2_exact_table_counter"
+    alias: "l2_exact_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 34391805
+}
+direct_counters {
+  preamble {
+    id: 319227349
+    name: "l2_ternary_table_counter"
+    alias: "l2_ternary_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 48908925
+}
+direct_counters {
+  preamble {
+    id: 321323137
+    name: "ndp_reply_table_counter"
+    alias: "ndp_reply_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 42964298
+}
+direct_counters {
+  preamble {
+    id: 326932607
+    name: "my_station_table_counter"
+    alias: "my_station_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 37849810
+}
+direct_counters {
+  preamble {
+    id: 323284016
+    name: "routing_v6_table_counter"
+    alias: "routing_v6_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 39493057
+}
+direct_counters {
+  preamble {
+    id: 321813123
+    name: "IngressPipeImpl.srv6_my_sid_table_counter"
+    alias: "srv6_my_sid_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 44019481
+}
+direct_counters {
+  preamble {
+    id: 322286653
+    name: "IngressPipeImpl.srv6_transit_table_counter"
+    alias: "srv6_transit_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 36508978
+}
+direct_counters {
+  preamble {
+    id: 332339774
+    name: "acl_table_counter"
+    alias: "acl_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 33951081
+}
+controller_packet_metadata {
+  preamble {
+    id: 69098127
+    name: "packet_in"
+    alias: "packet_in"
+    annotations: "@controller_header(\"packet_in\")"
+  }
+  metadata {
+    id: 1
+    name: "ingress_port"
+    bitwidth: 9
+  }
+  metadata {
+    id: 2
+    name: "_pad"
+    bitwidth: 7
+  }
+}
+controller_packet_metadata {
+  preamble {
+    id: 78842819
+    name: "packet_out"
+    alias: "packet_out"
+    annotations: "@controller_header(\"packet_out\")"
+  }
+  metadata {
+    id: 1
+    name: "egress_port"
+    bitwidth: 9
+  }
+  metadata {
+    id: 2
+    name: "_pad"
+    bitwidth: 7
+  }
+}
+type_info {
+}
