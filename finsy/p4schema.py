@@ -1559,13 +1559,13 @@ class P4SchemaDescription:
     LABEL = "\U0001F3F7"
     INBOX = "\U0001F4E5"
     OUTBOX = "\U0001F4E4"
-    LETTER = "📩"
+    MAILBOX = "📬"
 
     MATCH_TYPES = {
         P4MatchType.EXACT: ":",
         P4MatchType.LPM: "/",
-        P4MatchType.TERNARY: "//",
-        P4MatchType.RANGE: "…",
+        P4MatchType.TERNARY: "/&",
+        P4MatchType.RANGE: "..",
         P4MatchType.OPTIONAL: "?",
     }
 
@@ -1649,9 +1649,7 @@ class P4SchemaDescription:
 
     def _describe_packet_metadata(self, metadata: P4ControllerPacketMetadata):
         "Describe P4ControllerPacketMetadata."
-        symbol = self.LETTER
-
-        line = f"{symbol}{metadata.alias}\n  "
+        line = f"{self.MAILBOX}{metadata.alias}\n  "
         for mdata in metadata.metadata:
             line += f"{mdata.name}:{mdata.bitwidth} "
         line += "\n"

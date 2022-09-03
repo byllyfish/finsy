@@ -34,8 +34,10 @@ _ExactReturn = int | IPv4Address | IPv6Address | MACAddress
 _LPMValue = str | IPv4Network | IPv6Network | tuple[_ExactValue, int]
 _LPMReturn = tuple[_ExactReturn, int]
 
-_TernaryValue = str | IPv4Network | IPv6Network | tuple[_ExactValue, _ExactValue]
-_TernaryReturn = tuple[_ExactReturn, _ExactReturn]
+_TernaryValue = (
+    SupportsInt | str | IPv4Network | IPv6Network | tuple[_ExactValue, _ExactValue]
+)
+_TernaryReturn = tuple[_ExactReturn, _ExactReturn] | _ExactReturn
 
 _RangeValue = str | tuple[_ExactValue, _ExactValue]
 _RangeReturn = tuple[_ExactReturn, _ExactReturn]
@@ -183,6 +185,8 @@ def encode_ternary(value: _TernaryValue, bitwidth: int) -> tuple[bytes, bytes]:
         val, mask = int(value.network_address), int(value.netmask)
     else:
         match value:
+            case int(val):
+                mask = _all_ones(bitwidth)
             case str(val):
                 val, mask = val.split("/", 1)
             case (val, mask):
@@ -201,7 +205,10 @@ def decode_ternary(
 ) -> _TernaryReturn:
     "Decode a P4R Ternary value."
 
-    return (decode_exact(data, bitwidth, hint), decode_exact(mask, bitwidth, hint))
+    result = (decode_exact(data, bitwidth, hint), decode_exact(mask, bitwidth, hint))
+    if result[1] == _all_ones(bitwidth):
+        return result[0]
+    return result
 
 
 def encode_range(value: _RangeValue, bitwidth: int) -> tuple[bytes, bytes]:
@@ -228,3 +235,8 @@ def decode_range(
     "Decode a P4R Range value."
 
     return (decode_exact(low, bitwidth, hint), decode_exact(high, bitwidth, hint))
+
+
+def _all_ones(bitwidth: int) -> int:
+    "Return integer value with `bitwidth` 1's."
+    return (1 << bitwidth) - 1
