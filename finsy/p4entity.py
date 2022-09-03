@@ -20,6 +20,7 @@ from typing import Any, Iterable, Iterator, NoReturn, Protocol, Sequence, TypeVa
 
 from typing_extensions import Self
 
+from finsy import p4values
 from finsy.log import LOGGER
 from finsy.p4schema import (
     P4Action,
@@ -201,7 +202,7 @@ _MetadataDictType = dict[str, Any]
 _PortType = int
 _ReplicaCanonType = tuple[_PortType, int]
 _ReplicaType = _ReplicaCanonType | _PortType
-_Weight = int | tuple[int, int | bytes]
+_Weight = int | tuple[int, int]
 
 
 def encode_replica(value: _ReplicaType) -> p4r.Replica:
@@ -220,6 +221,18 @@ def decode_replica(replica: p4r.Replica) -> _ReplicaCanonType:
     "Convert Replica to python representation."
 
     return (replica.egress_port, replica.instance)
+
+
+def encode_watch_port(watch_port: int) -> bytes:
+    "Encode watch_port into protobuf message."
+
+    return p4values.encode_exact(watch_port, 32)
+
+
+def decode_watch_port(watch_port: bytes) -> int:
+    "Decode watch_port from protobuf message."
+
+    return int(p4values.decode_exact(watch_port, 32))
 
 
 class P4TableMatch(dict[str, Any]):
@@ -381,27 +394,39 @@ class P4IndirectAction:
 
             match weight:
                 case int(weight_value):
-                    profile = p4r.ActionProfileAction(
-                        action=action, weight=weight_value
-                    )
+                    watch_port = None
                 case (weight_value, int(watch)):
-                    profile = p4r.ActionProfileAction(
-                        action=action, weight=weight_value, watch=watch
-                    )
-                case (weight_value, bytes(watch_port)):
-                    profile = p4r.ActionProfileAction(
-                        action=action, weight=weight_value, watch_port=watch_port
-                    )
+                    watch_port = encode_watch_port(watch)
                 case _:
                     raise ValueError(f"unexpected action weight: {weight!r}")
 
+            profile = p4r.ActionProfileAction(action=action, weight=weight_value)
+            if watch_port is not None:
+                profile.watch_port = watch_port
             profile_actions.append(profile)
 
         return p4r.ActionProfileActionSet(action_profile_actions=profile_actions)
 
     @classmethod
     def decode_action_set(cls, msg: p4r.ActionProfileActionSet, table: P4Table) -> Self:
-        raise NotImplementedError()
+        action_set = list[tuple[_Weight, P4TableAction]]()
+
+        for action in msg.action_profile_actions:
+
+            match action.WhichOneof("watch_kind"):
+                case "watch_port":
+                    weight = (action.weight, decode_watch_port(action.watch_port))
+                case "watch":
+                    weight = (action.weight, action.watch)
+                case None:
+                    weight = action.weight
+                case other:
+                    raise ValueError(f"unexpected oneof: {other!r}")
+
+            table_action = P4TableAction.decode_action(action.action, table)
+            action_set.append((weight, table_action))
+
+        return cls(action_set)
 
 
 @dataclass(kw_only=True)
@@ -876,16 +901,11 @@ class P4Member:
     def encode(self) -> p4r.ActionProfileGroup.Member:
         "Encode P4Member as protobuf."
 
-        watch = None
-        watch_port = None
-
         match self.weight:
             case int(weight):
-                pass
+                watch_port = None
             case (int(weight), int(watch)):
-                pass
-            case (int(weight), bytes(watch_port)):
-                pass
+                watch_port = encode_watch_port(watch)
             case other:
                 raise ValueError(f"unexpected weight: {other!r}")
 
@@ -894,11 +914,8 @@ class P4Member:
             weight=weight,
         )
 
-        if watch is not None:
-            member.watch = watch
-        elif watch_port is not None:
+        if watch_port is not None:
             member.watch_port = watch_port
-
         return member
 
     @classmethod
@@ -909,9 +926,9 @@ class P4Member:
             case "watch":
                 weight = (msg.weight, msg.watch)
             case "watch_port":
-                weight = (msg.weight, msg.watch_port)
+                weight = (msg.weight, decode_watch_port(msg.watch_port))
             case None:
-                weight = None
+                weight = msg.weight
             case other:
                 raise ValueError(f"unknown oneof: {other!r}")
 
