@@ -428,6 +428,16 @@ class P4IndirectAction:
 
         return cls(action_set)
 
+    def __repr__(self):
+        "Customize representation to make it more concise."
+
+        if self.action_set is not None:
+            return f"P4IndirectAction(action_set={self.action_set!r})"
+        elif self.member_id is not None:
+            return f"P4IndirectAction(member_id={self.member_id!r})"
+        else:
+            return f"P4IndirectAction(group_id={self.group_id!r})"
+
 
 @dataclass(kw_only=True)
 class P4MeterConfig:
