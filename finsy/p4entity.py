@@ -105,11 +105,11 @@ P4UpdateList = (
 )
 
 
-def _flatten(values: Any) -> Iterator[Any]:
+def flatten(values: Any) -> Iterator[Any]:
     "Flatten lists and tuples."
     for val in values:
         if isinstance(val, collections.abc.Iterable):
-            yield from _flatten(val)
+            yield from flatten(val)
         else:
             yield val
 
@@ -131,7 +131,7 @@ def encode_entities(
 ) -> list[p4r.Entity]:
     """Convert list of python objects to list of P4Runtime Entities."""
 
-    return [_encode_entity(val, schema) for val in _flatten(values)]
+    return [_encode_entity(val, schema) for val in flatten(values)]
 
 
 def _encode_update(
@@ -155,7 +155,7 @@ def encode_updates(
     if not isinstance(values, collections.abc.Iterable):
         return [_encode_update(values, schema)]
 
-    return [_encode_update(val, schema) for val in _flatten(values)]
+    return [_encode_update(val, schema) for val in flatten(values)]
 
 
 class _P4Writable:
@@ -416,11 +416,10 @@ class P4IndirectAction:
             match action.WhichOneof("watch_kind"):
                 case "watch_port":
                     weight = (action.weight, decode_watch_port(action.watch_port))
-                case "watch":
-                    weight = (action.weight, action.watch)
                 case None:
                     weight = action.weight
                 case other:
+                    # "watch" (deprecated) is not supported
                     raise ValueError(f"unexpected oneof: {other!r}")
 
             table_action = P4TableAction.decode_action(action.action, table)
@@ -933,13 +932,12 @@ class P4Member:
         "Decode protobuf to P4Member."
 
         match msg.WhichOneof("watch_kind"):
-            case "watch":
-                weight = (msg.weight, msg.watch)
             case "watch_port":
                 weight = (msg.weight, decode_watch_port(msg.watch_port))
             case None:
                 weight = msg.weight
             case other:
+                # "watch" (deprecated) is not supported
                 raise ValueError(f"unknown oneof: {other!r}")
 
         return cls(member_id=msg.member_id, weight=weight)
