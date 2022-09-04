@@ -480,6 +480,8 @@ def test_p4matchfield_ternary():
     field = P4MatchField(match_p4)
 
     field_p4 = field.encode_field("10.0.0.0/255.0.0.0")
+    assert field_p4 is not None
+
     assert pbuf.to_dict(field_p4) == {
         "field_id": 1,
         "ternary": {"mask": "/wAAAA==", "value": "CgAAAA=="},
