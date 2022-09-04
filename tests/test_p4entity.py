@@ -14,6 +14,7 @@ from finsy.p4entity import (
     P4DirectCounterEntry,
     P4DirectMeterEntry,
     P4IdleTimeoutNotification,
+    P4IndirectAction,
     P4Member,
     P4MeterConfig,
     P4MeterCounterData,
@@ -33,12 +34,24 @@ from finsy.p4entity import (
     encode_entities,
     encode_replica,
     encode_updates,
+    flatten,
 )
 from finsy.p4schema import P4Schema
 from finsy.proto import p4r
 
 _P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
 _SCHEMA = P4Schema(_P4INFO_TEST_DIR / "basic.p4.p4info.txt")
+
+
+def test_flatten():
+    "Test the flatten method."
+
+    assert list(flatten([])) == []
+    assert list(flatten([None])) == [None]
+    assert list(flatten([1, [2, [3]]])) == [1, 2, 3]
+
+    with pytest.raises(TypeError, match="is not iterable"):
+        list(flatten(None))
 
 
 def test_replica1():
@@ -158,6 +171,83 @@ def test_table_action4():
         action.encode_table_action(table)
 
 
+def test_indirect_action1():
+    "Test P4IndirectAction class."
+
+    action = P4IndirectAction(
+        action_set=[
+            (1, P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=1)),
+            (1, P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=2)),
+        ]
+    )
+    table = _SCHEMA.tables["ipv4_lpm"]
+
+    msg = action.encode_table_action(table)
+    assert pbuf.to_dict(msg) == {
+        "action_profile_action_set": {
+            "action_profile_actions": [
+                {
+                    "action": {
+                        "action_id": 28792405,
+                        "params": [
+                            {"param_id": 1, "value": "CgAAAQ=="},
+                            {"param_id": 2, "value": "AQ=="},
+                        ],
+                    },
+                    "weight": 1,
+                },
+                {
+                    "action": {
+                        "action_id": 28792405,
+                        "params": [
+                            {"param_id": 1, "value": "CgAAAQ=="},
+                            {"param_id": 2, "value": "Ag=="},
+                        ],
+                    },
+                    "weight": 1,
+                },
+            ]
+        }
+    }
+
+    assert action == P4TableAction.decode_table_action(msg, table)
+
+    assert repr(action) == (
+        "P4IndirectAction(action_set=[(1, P4TableAction(name='ipv4_forward', "
+        "args={'dstAddr': 167772161, 'port': 1})), (1, "
+        "P4TableAction(name='ipv4_forward', args={'dstAddr': 167772161, 'port': "
+        "2}))])"
+    )
+
+
+def test_indirect_action2():
+    "Test P4IndirectAction class."
+
+    action = P4IndirectAction(group_id=123)
+    table = _SCHEMA.tables["ipv4_lpm"]
+
+    msg = action.encode_table_action(table)
+    assert pbuf.to_dict(msg) == {"action_profile_group_id": 123}
+
+    assert action == P4TableAction.decode_table_action(msg, table)
+
+    assert repr(action) == "P4IndirectAction(group_id=123)"
+
+
+def test_indirect_action3():
+    "Test P4IndirectAction class."
+
+    action = P4IndirectAction(member_id=345)
+    table = _SCHEMA.tables["ipv4_lpm"]
+
+    msg = action.encode_table_action(table)
+    assert pbuf.to_dict(msg) == {"action_profile_member_id": 345}
+
+    assert action == P4TableAction.decode_table_action(msg, table)
+
+    assert repr(action) == "P4IndirectAction(member_id=345)"
+
+
 def test_table_entry1():
     "Test TableEntry class."
 
@@ -251,6 +341,13 @@ def test_table_entry4():
     assert entry == P4TableEntry.decode(msg, _SCHEMA)
 
 
+def test_table_entry_full_match():
+    "Test TableEntry full_match method."
+
+    entry = P4TableEntry("ipv4_lpm")
+    assert entry.full_match(_SCHEMA) == {"dstAddr": "*"}
+
+
 def test_decode_entity1():
     "Test decode_entity function."
 
@@ -324,6 +421,9 @@ def test_encode_updates1():
     entry2 = P4TableEntry("ipv4_lpm")
     entry3 = P4TableEntry("ipv4_lpm")
 
+    with pytest.raises(ValueError, match="unspecified update type"):
+        encode_updates([entry1], _SCHEMA)
+
     result = encode_updates([+entry1, -entry2, ~entry3], _SCHEMA)
     assert [pbuf.to_dict(msg) for msg in result] == [
         {"entity": {"table_entry": {"table_id": 37375156}}, "type": "INSERT"},
@@ -372,6 +472,13 @@ def test_encode_updates2():
             "type": "MODIFY",
         },
     ]
+
+
+def test_encode_updates3():
+    "Test encode_updates with already encoded p4r updates."
+
+    result = encode_updates([p4r.Update(), p4r.StreamMessageRequest()], _SCHEMA)
+    assert result == [p4r.Update(), p4r.StreamMessageRequest()]
 
 
 def test_action_profile_member1():
