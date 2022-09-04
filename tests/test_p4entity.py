@@ -580,7 +580,7 @@ def test_action_profile_group2():
         max_size=3,
         members=[
             P4Member(member_id=1, weight=(3, 0xABC)),
-            P4Member(member_id=2, weight=(4, 9)),
+            P4Member(member_id=2, weight=4),
         ],
     )
     msg = entry.encode(schema)
@@ -592,7 +592,7 @@ def test_action_profile_group2():
             "max_size": 3,
             "members": [
                 {"member_id": 1, "watch_port": "Crw=", "weight": 3},
-                {"member_id": 2, "watch_port": "CQ==", "weight": 4},
+                {"member_id": 2, "weight": 4},
             ],
         }
     }

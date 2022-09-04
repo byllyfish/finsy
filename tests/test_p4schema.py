@@ -469,6 +469,28 @@ def test_p4tupletype():
         tple.encode_data(({"h": 2}, 1))
 
 
+def test_p4matchfield_lpm():
+    "Test P4MatchField with lpm match type."
+    match_p4 = p4i.MatchField(
+        id=1,
+        name="f1",
+        bitwidth=32,
+        match_type=p4i.MatchField.LPM,
+    )
+    field = P4MatchField(match_p4)
+
+    field_p4 = field.encode_field("10.0.0.0/8")
+    assert field_p4 is not None
+
+    assert pbuf.to_dict(field_p4) == {
+        "field_id": 1,
+        "lpm": {"prefix_len": 8, "value": "CgAAAA=="},
+    }
+    assert field.decode_field(field_p4) == (167772160, 8)
+
+    assert field.encode_field("0.0.0.0/0") is None
+
+
 def test_p4matchfield_ternary():
     "Test P4MatchField with ternary match type."
     match_p4 = p4i.MatchField(
