@@ -98,7 +98,7 @@ async def test_gnmi_set(gnmi_client: gNMIClient):
         }
     )
 
-    result = await gnmi_client.get(
+    await gnmi_client.get(
         gNMIPath("interfaces/interface[name=s1-eth1]/state/admin-status")
     )
 
