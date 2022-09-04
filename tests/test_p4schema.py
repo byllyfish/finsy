@@ -173,7 +173,7 @@ def _format_source_code(source):
     return subprocess.check_output(
         ["black", "-"],
         input=source,
-        stderr=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,  # comment out this line to see error msgs!
         encoding="utf-8",
     )
 
@@ -480,6 +480,8 @@ def test_p4matchfield_ternary():
     field = P4MatchField(match_p4)
 
     field_p4 = field.encode_field("10.0.0.0/255.0.0.0")
+    assert field_p4 is not None
+
     assert pbuf.to_dict(field_p4) == {
         "field_id": 1,
         "ternary": {"mask": "/wAAAA==", "value": "CgAAAA=="},

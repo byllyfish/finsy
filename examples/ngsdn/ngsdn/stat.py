@@ -81,7 +81,7 @@ class StatManager:
         labels["switch"] = self.switch.name
 
         counter = self._get_direct_counter(entry, units)
-        counter.labels(**labels)._value.set(value)
+        counter.labels(**labels)._value.set(value)  # type: ignore
 
     def _get_direct_counter(
         self,
@@ -128,7 +128,7 @@ class StatManager:
             "port": update.path["name"],
         }
         counter = self._get_port_counter(update.path.last.replace("-", "_"))
-        counter.labels(**labels)._value.set(update.value)
+        counter.labels(**labels)._value.set(update.value)  # type: ignore
 
     def _get_port_counter(self, name: str):
         counter = _PORT_COUNTERS.get(name)

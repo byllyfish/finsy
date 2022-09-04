@@ -119,7 +119,7 @@ class HostManager:
                     await self.switch.write(
                         [self._l2learn(host, addr), self._l3learn(host, addr)]
                     )
-                case HostMove(host, _old_port):
+                case HostMove(host, _):
                     pass
                 case HostAddIP(host, addr):
                     await self.switch.write(self._l3learn(host, addr))
