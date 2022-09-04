@@ -248,6 +248,38 @@ def test_indirect_action3():
     assert repr(action) == "P4IndirectAction(member_id=345)"
 
 
+def test_indirect_action4():
+    "Test P4IndirectAction class."
+
+    action = P4IndirectAction(
+        action_set=[
+            ((1, 1), P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=1)),
+        ]
+    )
+    table = _SCHEMA.tables["ipv4_lpm"]
+
+    msg = action.encode_table_action(table)
+    assert pbuf.to_dict(msg) == {
+        "action_profile_action_set": {
+            "action_profile_actions": [
+                {
+                    "action": {
+                        "action_id": 28792405,
+                        "params": [
+                            {"param_id": 1, "value": "CgAAAQ=="},
+                            {"param_id": 2, "value": "AQ=="},
+                        ],
+                    },
+                    "watch_port": "AQ==",
+                    "weight": 1,
+                },
+            ]
+        }
+    }
+
+    assert action == P4TableAction.decode_table_action(msg, table)
+
+
 def test_table_entry1():
     "Test TableEntry class."
 
@@ -344,8 +376,11 @@ def test_table_entry4():
 def test_table_entry_full_match():
     "Test TableEntry full_match method."
 
-    entry = P4TableEntry("ipv4_lpm")
-    assert entry.full_match(_SCHEMA) == {"dstAddr": "*"}
+    entry1 = P4TableEntry("ipv4_lpm")
+    assert entry1.full_match(_SCHEMA) == {"dstAddr": "*"}
+
+    entry2 = P4TableEntry("ipv4_lpm", match=P4TableMatch(dstAddr=1))
+    assert entry2.full_match(_SCHEMA) == {"dstAddr": 1}
 
 
 def test_decode_entity1():
@@ -479,6 +514,19 @@ def test_encode_updates3():
 
     result = encode_updates([p4r.Update(), p4r.StreamMessageRequest()], _SCHEMA)
     assert result == [p4r.Update(), p4r.StreamMessageRequest()]
+
+
+def test_encode_updates4():
+    "Test encode_updates with a single non-iterable argument."
+
+    entry = P4TableEntry("ipv4_lpm")
+    result = encode_updates(+entry, _SCHEMA)
+    assert [pbuf.to_dict(msg) for msg in result] == [
+        {
+            "entity": {"table_entry": {"table_id": 37375156}},
+            "type": "INSERT",
+        },
+    ]
 
 
 def test_action_profile_member1():
@@ -681,8 +729,9 @@ def test_direct_counter_entry1():
     "Test P4CounterEntry class."
 
     entry = P4DirectCounterEntry()
-    msg = entry.encode(_SCHEMA)
+    assert entry.table_id == ""
 
+    msg = entry.encode(_SCHEMA)
     assert pbuf.to_dict(msg) == {"direct_counter_entry": {"table_entry": {}}}
 
     entry_decode = P4DirectCounterEntry(table_entry=P4TableEntry())
@@ -702,8 +751,9 @@ def test_direct_counter_entry2():
         data=P4CounterData(byte_count=1, packet_count=2),
     )
     assert entry.counter_id == ""
-    msg = entry.encode(_SCHEMA)
+    assert entry.table_id == "ipv4_lpm"
 
+    msg = entry.encode(_SCHEMA)
     assert pbuf.to_dict(msg) == {
         "direct_counter_entry": {
             "data": {"byte_count": "1", "packet_count": "2"},

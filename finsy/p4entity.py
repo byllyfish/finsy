@@ -416,11 +416,10 @@ class P4IndirectAction:
             match action.WhichOneof("watch_kind"):
                 case "watch_port":
                     weight = (action.weight, decode_watch_port(action.watch_port))
-                case "watch":
-                    weight = (action.weight, action.watch)
                 case None:
                     weight = action.weight
                 case other:
+                    # "watch" (deprecated) is not supported
                     raise ValueError(f"unexpected oneof: {other!r}")
 
             table_action = P4TableAction.decode_action(action.action, table)
@@ -933,13 +932,12 @@ class P4Member:
         "Decode protobuf to P4Member."
 
         match msg.WhichOneof("watch_kind"):
-            case "watch":
-                weight = (msg.weight, msg.watch)
             case "watch_port":
                 weight = (msg.weight, decode_watch_port(msg.watch_port))
             case None:
                 weight = msg.weight
             case other:
+                # "watch" (deprecated) is not supported
                 raise ValueError(f"unknown oneof: {other!r}")
 
         return cls(member_id=msg.member_id, weight=weight)
