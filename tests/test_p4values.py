@@ -283,6 +283,13 @@ def test_encode_ternary():
     )
 
 
+def test_encode_ternary_exact():
+    "Test encode_ternary with exact values."
+
+    assert p4values.encode_ternary(0, 8) == (b"\x00", b"\xff")
+    assert p4values.encode_ternary(3, 4) == (b"\x03", b"\x0f")
+
+
 def test_encode_ternary_fail():
     "Test the encode_ternary function."
 
@@ -317,6 +324,13 @@ def test_decode_ternary_ip():
         128,
         DecodeHint.ADDRESS,
     ) == (IP("2000::"), IP("ffff:ffff:ffff:ffff::"))
+
+
+def test_decode_ternary_exact():
+    "Test the decode_ternary function with exact values."
+
+    assert p4values.decode_ternary(b"\x00", b"\xff", 8) == 0
+    assert p4values.decode_ternary(b"\x03", b"\x0f", 4) == 3
 
 
 def test_encode_range():

@@ -25,6 +25,8 @@ from .controller import Controller, current_controller
 from .gnmiclient import gNMIClient, gNMISubscription, gNMIUpdate
 from .gnmipath import gNMIPath
 from .p4entity import (
+    P4ActionProfileGroup,
+    P4ActionProfileMember,
     P4CloneSessionEntry,
     P4CounterData,
     P4DigestEntry,
@@ -47,6 +49,8 @@ from .switch import Switch, SwitchEvent, SwitchOptions
 __all__ = [
     "current_controller",
     "Controller",
+    "P4ActionProfileGroup",
+    "P4ActionProfileMember",
     "P4CloneSessionEntry",
     "P4CounterData",
     "P4CounterUnit",
