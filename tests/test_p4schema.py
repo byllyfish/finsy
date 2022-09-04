@@ -173,7 +173,7 @@ def _format_source_code(source):
     return subprocess.check_output(
         ["black", "-"],
         input=source,
-        stderr=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,  # comment out this line to see error msgs!
         encoding="utf-8",
     )
 
