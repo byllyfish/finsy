@@ -1,5 +1,23 @@
 # Finsy Change Log
 
+## 0.4.0
+
+- Switch API functions: `insert`, `modify`, `delete`, `write` now take a single sequence argument (no more varargs).
+- Add support for `P4CloneSessionEntry`, `P4DirectCounterEntry`, and `P4IndirectAction`.
+- Add a `ContextVar` to store the controller instance. Use the `current_controller` function to retrieve the current controller object.
+- Rename the `SWITCH_DONE` event to `CONTROLLER_LEAVE`. Add a corresponding `CONTROLLER_ENTER` event.
+- gNMIClient.synchronize() can be called more than once, if we need to read updates up to the next sync response.
+- Add the `full_match` method to `P4TableEntry`.
+- Improve support for "don't care" LPM and Ternary match fields.
+- Improve formatting of multiline gNMI log messages. Improved log translation of P4Runtime binary values.
+- Add the `SWITCH_START` and `SWITCH_STOP` events.
+- The `read_packets` method can be called from different tasks with different `eth_type` filters.
+- The `UNAVAILABLE` gRPC status is no longer reported as an error, to reduce log noise.
+- Improve formatting of `P4SchemaDescription` output.
+- Add `ngsdn` example program and podman scripts for testing.
+- Small performance improvements after minor benchmarking.
+- Update project dependency versions.
+
 ## 0.3.0
 
 - Rename Switch `packet_iterator`, `digest_iterator` methods to `read_packets` and `read_digests`.
