@@ -51,84 +51,85 @@ def test_encode_exact_int():
 def test_encode_exact_fail():
     "Test the encode_exact function."
 
-    with pytest.raises(ValueError, match="invalid value"):
-        p4values.encode_exact("", 48)
+    data = [
+        ("", 48),
+        ("256", 8),
+        ("128", 7),
+        ("-1", 32),
+        ("10.0", 32),
+        ("10.0", 16),
+        (10.0, 32),
+        (1 + 2j, 32),
+        ("0.0.0.1", 8),
+        (IP("0.0.0.1"), 8),
+        (IP("::1"), 32),
+    ]
 
-    with pytest.raises(OverflowError):
-        p4values.encode_exact("256", 8)
-
-    with pytest.raises(OverflowError):
-        p4values.encode_exact("128", 7)
-
-    with pytest.raises(OverflowError):
-        p4values.encode_exact("4096", 12)
-
-    with pytest.raises(OverflowError):
-        p4values.encode_exact("-1", 32)
-
-    with pytest.raises(ValueError, match="Expected 4 octets"):
-        p4values.encode_exact("10.0", 32)
-
-    with pytest.raises(ValueError, match="invalid value"):
-        p4values.encode_exact("10.0", 16)
-
-    with pytest.raises(ValueError, match="invalid value for bitwidth"):
-        p4values.encode_exact(10.0, 32)
-
-    with pytest.raises(ValueError, match="invalid value for bitwidth"):
-        p4values.encode_exact(1 + 2j, 32)  # type: ignore
-
-    with pytest.raises(ValueError, match="invalid value for bitwidth"):
-        p4values.encode_exact("0.0.0.1", 8)
-
-    with pytest.raises(ValueError, match="invalid value for bitwidth"):
-        p4values.encode_exact(IP("0.0.0.1"), 8)
+    for value, bitwidth in data:
+        with pytest.raises(ValueError):
+            p4values.encode_exact(value, bitwidth)  # type: ignore
 
 
-def test_encode_exact_ip():
-    "Test the encode_exact function with ip addresses."
+def test_encode_exact_ipv4():
+    "Test the encode_exact function with IPv4 addresses."
 
-    assert p4values.encode_exact("10.0.0.1", 32) == b"\x0A\x00\x00\x01"
-    assert p4values.encode_exact(IP("10.0.0.1"), 32) == b"\x0A\x00\x00\x01"
-    assert p4values.encode_exact("0.0.0.1", 32) == b"\x01"
-    assert p4values.encode_exact(IP("0.0.0.1"), 32) == b"\x01"
+    data = [
+        ("10.0.0.1", b"\x0A\x00\x00\x01"),
+        ("0.0.0.1", b"\x01"),
+        (" 10.0.0.2 ", b"\x0A\x00\x00\x02"),  # ignore spaces
+        (IP("10.0.0.1"), b"\x0A\x00\x00\x01"),
+        (IP("0.0.0.1"), b"\x01"),
+    ]
+
+    for value, result in data:
+        assert p4values.encode_exact(value, 32) == result
+
+
+def test_encode_exact_ipv6():
+    "Test the encode_exact function with IPv6 addresses."
 
     _IPV6 = b"\x20" + b"\x00" * 14 + b"\x01"
-    assert p4values.encode_exact("2000::1", 128) == _IPV6
-    assert p4values.encode_exact(IP("2000::1"), 128) == _IPV6
-    assert p4values.encode_exact("::1", 128) == b"\x01"
-    assert p4values.encode_exact(IP("::1"), 128) == b"\x01"
+    data = [
+        ("2000::1", _IPV6),
+        ("::1", b"\x01"),
+        (" 2000::1 ", _IPV6),  # ignore spaces
+        (IP("2000::1"), _IPV6),
+        (IP("::1"), b"\x01"),
+    ]
 
-    # Ignore spaces.
-    assert p4values.encode_exact(" 10.0.0.2 ", 32) == b"\x0A\x00\x00\x02"
-    assert p4values.encode_exact(" 2000::1 ", 128) == _IPV6
+    for value, result in data:
+        assert p4values.encode_exact(value, 128) == result
 
 
 def test_encode_exact_mac():
     "Test the encode_exact function with MAC addresses."
 
     _MAC = b"\x01\x00\x00\x00\x00\x01"
-    assert p4values.encode_exact("01-00-00-00-00-01", 48) == _MAC
-    assert p4values.encode_exact("01:00:00:00:00:01", 48) == _MAC
-    assert p4values.encode_exact(MAC("01-00-00-00-00-01"), 48) == _MAC
-    assert p4values.encode_exact("00-00-00-00-00-01", 48) == b"\x01"
 
-    # Ignore spaces.
-    assert p4values.encode_exact(" 01-00-00-00-00-01 ", 48) == _MAC
+    data = [
+        ("01-00-00-00-00-01", _MAC),
+        ("01:00:00:00:00:01", _MAC),
+        ("00-00-00-00-00-01", b"\x01"),
+        (" 01-00-00-00-00-01 ", _MAC),  # ignore spaces
+        (MAC("01-00-00-00-00-01"), _MAC),
+    ]
+
+    for value, result in data:
+        assert p4values.encode_exact(value, 48) == result
 
 
 def test_encode_exact_to_spec():
     "Test the encode_exact function against values used in the P4R spec."
 
     # Examples from table 4.
-    EXAMPLES = [
+    data = [
         (0x63, 8, b"\x63"),
         (0x63, 16, b"\x63"),
         (0x3064, 16, b"\x30\x64"),
         (0x63, 12, b"\x63"),
     ]
 
-    for value, width, result in EXAMPLES:
+    for value, width, result in data:
         assert p4values.encode_exact(value, width) == result
 
 
@@ -205,7 +206,7 @@ def test_decode_exact_fail():
     with pytest.raises(ValueError, match="empty data"):
         p4values.decode_exact(b"", 8)
 
-    with pytest.raises(OverflowError):
+    with pytest.raises(ValueError):
         p4values.decode_exact(b"\x01\x00", 8)
 
 

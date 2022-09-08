@@ -153,8 +153,8 @@ def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
         case _:
             raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
 
-    if ival >= (1 << bitwidth):
-        raise OverflowError(f"invalid value for bitwidth {bitwidth}: {value!r}")
+    if ival >= (1 << bitwidth) or ival < 0:
+        raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
 
     size = p4r_minimum_string_size(bitwidth)
     return p4r_truncate(ival.to_bytes(size, "big"))
@@ -171,7 +171,7 @@ def decode_exact(
 
     ival = int.from_bytes(data, "big")
     if ival >= (1 << bitwidth):
-        raise OverflowError(f"invalid value for bitwidth {bitwidth}: {data!r}")
+        raise ValueError(f"invalid value for bitwidth {bitwidth}: {data!r}")
 
     if format & DecodeFormat.ADDRESS:
         return _decode_addr(ival, bitwidth, format)

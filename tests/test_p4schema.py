@@ -218,7 +218,7 @@ def test_p4bitstype():
     assert bits.decode_data(data) == 255
 
     # Test invalid data value.
-    with pytest.raises(OverflowError, match="invalid value for bitwidth 8"):
+    with pytest.raises(ValueError, match="invalid value for bitwidth 8"):
         bits.encode_data(65535)
 
 
