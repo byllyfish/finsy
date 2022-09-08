@@ -32,7 +32,7 @@ class DecodeFormat(enum.Flag):
 _ExactValue = SupportsInt | str
 _ExactReturn = int | str | IPv4Address | IPv6Address | MACAddress
 
-_LPMValue = str | IPv4Network | IPv6Network | tuple[_ExactValue, int]
+_LPMValue = int | str | IPv4Network | IPv6Network | tuple[_ExactValue, int]
 _LPMReturn = str | IPv4Network | IPv6Network | tuple[int | MACAddress, int]
 
 _TernaryValue = (

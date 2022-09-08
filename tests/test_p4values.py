@@ -203,57 +203,87 @@ def test_decode_exact_ipv6():
 def test_decode_exact_fail():
     "Test that the decode_exact function fails with improper input."
 
-    with pytest.raises(ValueError, match="empty data"):
-        p4values.decode_exact(b"", 8)
+    data = [
+        (b"", 8),
+        (b"\x01\x00", 8),
+    ]
 
-    with pytest.raises(ValueError):
-        p4values.decode_exact(b"\x01\x00", 8)
+    for value, bitwidth in data:
+        with pytest.raises(ValueError):
+            p4values.decode_exact(value, bitwidth)
 
 
-def test_encode_lpm():
+def test_encode_lpm_exact():
+    "Test the encode_lpm function."
+
+    data = [
+        (1, 32, (b"\x01", 32)),
+        ((0x80, 7), 8, (b"\x80", 7)),
+        (("0x80", 7), 8, (b"\x80", 7)),
+        ("1", 32, (b"\x01", 32)),
+        ("0x1", 32, (b"\x01", 32)),
+        ("0x80/7", 8, (b"\x80", 7)),
+        ("128/7", 8, (b"\x80", 7)),
+    ]
+
+    for value, bitwidth, result in data:
+        assert p4values.encode_lpm(value, bitwidth) == result
+
+
+def test_encode_lpm_ipv4():
+    "Test the encode_lpm function."
+
+    data = [
+        ("192.168.1.1", (b"\xc0\xa8\x01\x01", 32)),
+        # (IP("192.168.1.1"), (b"\xc0\xa8\x01\x01", 32)),  # FIXME
+        ("192.168.1.0/24", (b"\xc0\xa8\x01\x00", 24)),
+        (" 192.168.1.0/24 ", (b"\xc0\xa8\x01\x00", 24)),  # ignore spaces
+        ("192.168.1.1/24", (b"\xc0\xa8\x01\x01", 24)),  # auto-mask
+        (("192.168.1.0", 24), (b"\xc0\xa8\x01\x00", 24)),
+        ((IP("192.168.1.0"), 24), (b"\xc0\xa8\x01\x00", 24)),
+        ((IP("192.168.1.1"), 24), (b"\xc0\xa8\x01\x01", 24)),  # auto-mask
+        (IPv4Network("192.168.1.0/24"), (b"\xc0\xa8\x01\x00", 24)),
+    ]
+
+    for value, result in data:
+        assert p4values.encode_lpm(value, 32) == result
+
+
+def test_encode_lpm_ipv6():
     "Test the encode_lpm function."
 
     # FIXME: Need 0 bits in low part...
 
     _IPV6 = b"\x20" + b"\x00" * 14 + b"\x01"
-    assert p4values.encode_lpm("192.168.1.0/24", 32) == (b"\xc0\xa8\x01\x00", 24)
-    assert p4values.encode_lpm("192.168.1.1/24", 32) == (b"\xc0\xa8\x01\x01", 24)
-    assert p4values.encode_lpm("2000::1 / 64", 128) == (_IPV6, 64)
-    assert p4values.encode_lpm("192.168.1.1", 32) == (b"\xc0\xa8\x01\x01", 32)
+    _IPP6 = b"\x20" + b"\x00" * 15
+    data = [
+        ("2000::1", (_IPV6, 128)),
+        # (IP("2000::1"), (_IPV6, 128)),  # FIXME
+        ("2000::1/64", (_IPV6, 64)),
+        (" 2000::/64 ", (_IPP6, 64)),  # ignore spaces
+        (("2000::", 64), (_IPP6, 64)),
+        ((IP("2000::"), 64), (_IPP6, 64)),
+        ((IP("2000::1"), 64), (_IPV6, 64)),
+        (IPv6Network("2000::/64"), (_IPP6, 64)),
+    ]
 
-    assert p4values.encode_lpm(IPv4Network("192.168.1.0/24"), 32) == (
-        b"\xc0\xa8\x01\x00",
-        24,
-    )
-    assert p4values.encode_lpm(IPv6Network("2000::/64"), 128) == (
-        b"\x20" + b"\x00" * 15,
-        64,
-    )
-
-    assert p4values.encode_lpm(("192.168.1.0", 24), 32) == (
-        b"\xc0\xa8\x01\x00",
-        24,
-    )
-    assert p4values.encode_lpm(("2000::", 64), 128) == (
-        b"\x20" + b"\x00" * 15,
-        64,
-    )
+    for value, result in data:
+        assert p4values.encode_lpm(value, 128) == result
 
 
 def test_encode_lpm_fail():
     "Test the encode_lpm function."
 
-    with pytest.raises(ValueError, match="invalid value for bitwidth 16"):
-        p4values.encode_lpm(IPv4Network("10.0.0.0/8"), 16)
+    data = [
+        (IPv4Network("10.0.0.0/8"), 16),
+        ((1, 2, 3), 32),
+        (1 + 2j, 32),
+        ((1, 32), 8),
+    ]
 
-    with pytest.raises(ValueError, match="invalid tuple value"):
-        p4values.encode_lpm((1, 2, 3), 32)  # type: ignore
-
-    with pytest.raises(ValueError, match="unexpected type"):
-        p4values.encode_lpm(1 + 2j, 32)  # type: ignore
-
-    with pytest.raises(ValueError, match="invalid prefix for bitwidth"):
-        p4values.encode_lpm((1, 32), 8)
+    for value, bitwidth in data:
+        with pytest.raises(ValueError):
+            p4values.encode_lpm(value, bitwidth)  # type: ignore
 
 
 def test_decode_lpm_int():
@@ -284,15 +314,28 @@ def test_decode_lpm_ipv4():
     "Test the decode_lpm function."
 
     data = [
-        (b"\xc0\xa8\x01\x00", 24, 32, IPv4Network("192.168.1.0/24")),
-        (b"\xc0\xa8\x01\x01", 32, 32, IPv4Network("192.168.1.1/32")),
+        (b"\xc0\xa8\x01\x00", 24, IPv4Network("192.168.1.0/24")),
+        (b"\xc0\xa8\x01\x01", 32, IPv4Network("192.168.1.1/32")),  # FIXME
     ]
 
-    for value, prefix, bitwidth, result in data:
-        assert (
-            p4values.decode_lpm(value, prefix, bitwidth, DecodeFormat.ADDRESS) == result
-        )
-        # assert p4values.decode_lpm(value, prefix, bitwidth, ADDR_STR) == str(result)
+    for value, prefix, result in data:
+        assert p4values.decode_lpm(value, prefix, 32, DecodeFormat.ADDRESS) == result
+        # assert p4values.decode_lpm(value, prefix, 32, ADDR_STR) == str(result)
+
+
+def test_decode_lpm_ipv6():
+    "Test the decode_lpm function."
+
+    _IPV6 = b"\x20" + b"\x00" * 14 + b"\x01"
+    _IPP6 = b"\x20" + b"\x00" * 15
+    data = [
+        (_IPP6, 64, IPv6Network("2000::/64")),
+        (_IPV6, 128, IPv6Network("2000::1/128")),  # FIXME
+    ]
+
+    for value, prefix, result in data:
+        assert p4values.decode_lpm(value, prefix, 128, DecodeFormat.ADDRESS) == result
+        # assert p4values.decode_lpm(value, prefix, 128, ADDR_STR) == str(result)
 
 
 def test_encode_ternary():
