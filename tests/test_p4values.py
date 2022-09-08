@@ -3,8 +3,10 @@ from ipaddress import ip_address as IP
 
 import pytest
 from finsy import p4values
-from finsy.p4values import DecodeHint
+from finsy.p4values import DecodeFormat
 from macaddress import MAC
+
+ADDR_STR = DecodeFormat.ADDRESS | DecodeFormat.STRING
 
 
 def test_minimum_string_size():
@@ -18,34 +20,32 @@ def test_minimum_string_size():
             p4values.p4r_minimum_string_size(val)
 
 
-def test_encode_exact():
+def test_encode_exact_int():
     "Test the encode_exact function."
 
-    # Decimal strings
-    assert p4values.encode_exact("0", 32) == b"\x00"
-    assert p4values.encode_exact("1", 32) == b"\x01"
-    assert p4values.encode_exact("255", 32) == b"\xFF"
-    assert p4values.encode_exact("256", 32) == b"\x01\x00"
+    data = [
+        # Ints
+        (0, 32, b"\x00"),
+        (1, 32, b"\x01"),
+        (255, 32, b"\xFF"),
+        (256, 32, b"\x01\x00"),
+        # Decimal strings
+        ("0", 32, b"\x00"),
+        ("1", 32, b"\x01"),
+        ("255", 32, b"\xFF"),
+        ("256", 32, b"\x01\x00"),
+        # Hex strings
+        ("0x0", 32, b"\x00"),
+        ("0x1", 32, b"\x01"),
+        ("0x000ff", 32, b"\xFF"),
+        ("0x100", 32, b"\x01\x00"),
+        # Misc.
+        (127, 7, b"\x7F"),
+        (4095, 12, b"\x0f\xff"),
+    ]
 
-    # Hexadecimal strings
-    assert p4values.encode_exact("0x0", 32) == b"\x00"
-    assert p4values.encode_exact("0x1", 32) == b"\x01"
-    assert p4values.encode_exact("0x000ff", 32) == b"\xFF"
-    assert p4values.encode_exact("0x100", 32) == b"\x01\x00"
-
-    # Ints
-    assert p4values.encode_exact(0, 32) == b"\x00"
-    assert p4values.encode_exact(1, 32) == b"\x01"
-    assert p4values.encode_exact(255, 32) == b"\xFF"
-    assert p4values.encode_exact(256, 32) == b"\x01\x00"
-
-    # Misc
-    assert p4values.encode_exact(127, 7) == b"\x7F"
-    assert p4values.encode_exact(4095, 12) == b"\x0f\xff"
-    assert p4values.encode_exact(b"\x00\x00\x01", 4) == b"\x01"
-
-    # Allow non-fractional float values.
-    assert p4values.encode_exact(1.11e3, 12) == b"\x04\x56"
+    for value, bitwidth, result in data:
+        assert p4values.encode_exact(value, bitwidth) == result
 
 
 def test_encode_exact_fail():
@@ -72,11 +72,17 @@ def test_encode_exact_fail():
     with pytest.raises(ValueError, match="invalid value"):
         p4values.encode_exact("10.0", 16)
 
-    with pytest.raises(ValueError, match="fractional float value"):
-        p4values.encode_exact(11.1, 32)
+    with pytest.raises(ValueError, match="invalid value for bitwidth"):
+        p4values.encode_exact(10.0, 32)
 
-    with pytest.raises(ValueError, match="invalid value type"):
+    with pytest.raises(ValueError, match="invalid value for bitwidth"):
         p4values.encode_exact(1 + 2j, 32)  # type: ignore
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth"):
+        p4values.encode_exact("0.0.0.1", 8)
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth"):
+        p4values.encode_exact(IP("0.0.0.1"), 8)
 
 
 def test_encode_exact_ip():
@@ -127,56 +133,70 @@ def test_encode_exact_to_spec():
 
 
 def test_decode_exact_int():
-    "Test the decode_exact function with the default hint."
+    "Test the decode_exact function with 31-bit integer values."
 
-    assert p4values.decode_exact(b"\x00", 32) == 0
-    assert p4values.decode_exact(b"\x00\x00\x00\x00", 32) == 0
-    assert p4values.decode_exact(b"\x01", 32) == 1
-    assert p4values.decode_exact(b"\xFF", 32) == 255
-    assert p4values.decode_exact(b"\x00\xFF", 32) == 255
-    assert p4values.decode_exact(b"\x01\x00", 32) == 256
+    data = [
+        (b"\x00", 0),
+        (b"\x00\x00\x00\x00", 0),
+        (b"\x01", 1),
+        (b"\xFF", 255),
+        (b"\x00\xFF", 255),
+        (b"\x01\x00", 256),
+    ]
 
-    assert p4values.decode_exact(b"\x01", 8, DecodeHint.ADDRESS) == 1
+    for value, result in data:
+        assert p4values.decode_exact(value, 31) == result
+        assert p4values.decode_exact(value, 31, DecodeFormat.STRING) == hex(result)
+        assert p4values.decode_exact(value, 31, DecodeFormat.ADDRESS) == result
+        assert p4values.decode_exact(value, 31, ADDR_STR) == hex(result)
 
 
 def test_decode_exact_mac():
-    "Test the decode_exact function with a 'mac' hint."
+    "Test the decode_exact function with MAC address values."
 
-    assert p4values.decode_exact(b"\x00", 48, DecodeHint.ADDRESS) == MAC(
-        "00-00-00-00-00-00"
-    )
-    assert p4values.decode_exact(b"\x00\x00\x00", 48, DecodeHint.ADDRESS) == MAC(
-        "00-00-00-00-00-00"
-    )
-    assert p4values.decode_exact(b"\x01", 48, DecodeHint.ADDRESS) == MAC(
-        "00-00-00-00-00-01"
-    )
-    assert p4values.decode_exact(b"\xFF", 48, DecodeHint.ADDRESS) == MAC(
-        "00-00-00-00-00-FF"
-    )
-    assert p4values.decode_exact(b"\x00\xFF", 48, DecodeHint.ADDRESS) == MAC(
-        "00-00-00-00-00-FF"
-    )
-    assert p4values.decode_exact(b"\x01\x00", 48, DecodeHint.ADDRESS) == MAC(
-        "00-00-00-00-01-00"
-    )
+    data = [
+        (b"\x00", "00-00-00-00-00-00"),
+        (b"\x00\x00\x00", "00-00-00-00-00-00"),
+        (b"\x01", "00-00-00-00-00-01"),
+        (b"\xFF", "00-00-00-00-00-FF"),
+        (b"\x00\xFF", "00-00-00-00-00-FF"),
+        (b"\x01\x00", "00-00-00-00-01-00"),
+    ]
+
+    for value, result in data:
+        assert p4values.decode_exact(value, 48, DecodeFormat.ADDRESS) == MAC(result)
+        assert p4values.decode_exact(value, 48, ADDR_STR) == result
 
 
-def test_decode_exact_ip():
-    "Test the decode_exact function with an 'ip' hint."
+def test_decode_exact_ipv4():
+    "Test the decode_exact function with 32-bit IPv4 address values."
 
-    assert p4values.decode_exact(b"\x00", 32, DecodeHint.ADDRESS) == IP("0.0.0.0")
-    assert p4values.decode_exact(b"\x00\x00\x00", 32, DecodeHint.ADDRESS) == IP(
-        "0.0.0.0"
-    )
-    assert p4values.decode_exact(b"\x01", 32, DecodeHint.ADDRESS) == IP("0.0.0.1")
-    assert p4values.decode_exact(b"\xFF", 32, DecodeHint.ADDRESS) == IP("0.0.0.255")
-    assert p4values.decode_exact(b"\x00\xFF", 32, DecodeHint.ADDRESS) == IP("0.0.0.255")
-    assert p4values.decode_exact(b"\x01\x00", 32, DecodeHint.ADDRESS) == IP("0.0.1.0")
+    data = [
+        (b"\x00", "0.0.0.0"),
+        (b"\x00\x00\x00", "0.0.0.0"),
+        (b"\x01", "0.0.0.1"),
+        (b"\xFF", "0.0.0.255"),
+        (b"\x00\xFF", "0.0.0.255"),
+        (b"\x01\x00", "0.0.1.0"),
+    ]
 
-    _IPV6 = b"\x20" + b"\x00" * 14 + b"\x01"
-    assert p4values.decode_exact(_IPV6, 128, DecodeHint.ADDRESS) == IP("2000::1")
-    assert p4values.decode_exact(b"\x01", 128, DecodeHint.ADDRESS) == IP("::1")
+    for value, result in data:
+        assert p4values.decode_exact(value, 32, DecodeFormat.ADDRESS) == IP(result)
+        assert p4values.decode_exact(value, 32, ADDR_STR) == result
+
+
+def test_decode_exact_ipv6():
+    "Test the decode_exact function with 128-bit IPv6 address values."
+
+    data = [
+        (b"\x20" + b"\x00" * 14 + b"\x01", "2000::1"),
+        (b"\x01", "::1"),
+        (b"\x00", "::"),
+    ]
+
+    for value, result in data:
+        assert p4values.decode_exact(value, 128, DecodeFormat.ADDRESS) == IP(result)
+        assert p4values.decode_exact(value, 128, ADDR_STR) == result
 
 
 def test_decode_exact_fail():
@@ -187,9 +207,6 @@ def test_decode_exact_fail():
 
     with pytest.raises(OverflowError):
         p4values.decode_exact(b"\x01\x00", 8)
-
-    with pytest.raises(ValueError, match="invalid hint"):
-        p4values.decode_exact(b"\x01", 8, "x")  # type: ignore
 
 
 def test_encode_lpm():
@@ -238,17 +255,43 @@ def test_encode_lpm_fail():
         p4values.encode_lpm((1, 32), 8)
 
 
-def test_decode_lpm():
+def test_decode_lpm_int():
     "Test the decode_lpm function."
 
-    assert p4values.decode_lpm(b"\xc0\xa8\x01\x00", 24, 32, DecodeHint.ADDRESS) == (
-        IP("192.168.1.0"),
-        24,
-    )
-    assert p4values.decode_lpm(b"\xc0\xa8\x01\x01", 32, 32, DecodeHint.ADDRESS) == (
-        IP("192.168.1.1"),
-        32,
-    )
+    data = [
+        # All bitwidth's are 33.
+        (b"\x00", 32, 33, (0, 32)),
+        (b"\x00\x00\x00\x00", 32, 33, (0, 32)),
+        (b"\x01", 32, 33, (1, 32)),
+        (b"\xFF", 32, 33, (255, 32)),
+        (b"\x00\xFF", 32, 33, (255, 32)),
+        (b"\x01\x00", 32, 33, (256, 32)),
+    ]
+
+    def _to_str(val: tuple[int, int]):
+        return f"{hex(val[0])}/{val[1]}"
+
+    for value, prefix, bitwidth, result in data:
+        assert p4values.decode_lpm(value, prefix, bitwidth) == result
+        assert p4values.decode_lpm(
+            value, prefix, bitwidth, DecodeFormat.STRING
+        ) == _to_str(result)
+        assert p4values.decode_lpm(value, prefix, bitwidth, ADDR_STR) == _to_str(result)
+
+
+def test_decode_lpm_ipv4():
+    "Test the decode_lpm function."
+
+    data = [
+        (b"\xc0\xa8\x01\x00", 24, 32, IPv4Network("192.168.1.0/24")),
+        (b"\xc0\xa8\x01\x01", 32, 32, IPv4Network("192.168.1.1/32")),
+    ]
+
+    for value, prefix, bitwidth, result in data:
+        assert (
+            p4values.decode_lpm(value, prefix, bitwidth, DecodeFormat.ADDRESS) == result
+        )
+        # assert p4values.decode_lpm(value, prefix, bitwidth, ADDR_STR) == str(result)
 
 
 def test_encode_ternary():
@@ -310,19 +353,19 @@ def test_decode_ternary():
 def test_decode_ternary_ip():
     "Test the decode_ternary function."
 
-    assert p4values.decode_ternary(b"\x01", b"\x01", 32, DecodeHint.ADDRESS) == (
+    assert p4values.decode_ternary(b"\x01", b"\x01", 32, DecodeFormat.ADDRESS) == (
         IP("0.0.0.1"),
         IP("0.0.0.1"),
     )
     assert p4values.decode_ternary(
-        b"\xc0\xa8\x01\x01", b"\xff\xff\xff\x00", 32, DecodeHint.ADDRESS
+        b"\xc0\xa8\x01\x01", b"\xff\xff\xff\x00", 32, DecodeFormat.ADDRESS
     ) == (IP("192.168.1.1"), IP("255.255.255.0"))
 
     assert p4values.decode_ternary(
         b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
         b"\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00",
         128,
-        DecodeHint.ADDRESS,
+        DecodeFormat.ADDRESS,
     ) == (IP("2000::"), IP("ffff:ffff:ffff:ffff::"))
 
 
@@ -356,5 +399,5 @@ def test_decode_range():
 
     assert p4values.decode_range(b"\x01", b"\x02", 32) == (1, 2)
     assert p4values.decode_range(
-        b"\x01\x02\x03\x04", b"\x01\x02\x03\x05", 32, DecodeHint.ADDRESS
+        b"\x01\x02\x03\x04", b"\x01\x02\x03\x05", 32, DecodeFormat.ADDRESS
     ) == (IP("1.2.3.4"), IP("1.2.3.5"))

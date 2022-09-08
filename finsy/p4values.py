@@ -21,18 +21,19 @@ from typing import SupportsInt
 from macaddress import MAC as MACAddress
 
 
-class DecodeHint(enum.Enum):
+class DecodeFormat(enum.Flag):
     "Indicate how to decode values."
 
-    DEFAULT = enum.auto()
+    STRING = enum.auto()
     ADDRESS = enum.auto()
+    DEFAULT = 0
 
 
-_ExactValue = SupportsInt | str | bytes
-_ExactReturn = int | IPv4Address | IPv6Address | MACAddress
+_ExactValue = SupportsInt | str
+_ExactReturn = int | str | IPv4Address | IPv6Address | MACAddress
 
 _LPMValue = str | IPv4Network | IPv6Network | tuple[_ExactValue, int]
-_LPMReturn = tuple[_ExactReturn, int]
+_LPMReturn = str | IPv4Network | IPv6Network | tuple[int | MACAddress, int]
 
 _TernaryValue = (
     SupportsInt | str | IPv4Network | IPv6Network | tuple[_ExactValue, _ExactValue]
@@ -60,7 +61,7 @@ def p4r_truncate(value: bytes, signed: bool = False) -> bytes:
     return value.lstrip(b"\x00") or b"\x00"
 
 
-def _parse_str(value: str, bitwidth: int) -> int:
+def _parse_exact_str(value: str, bitwidth: int) -> int:
     "Convert string value to an integer."
     value = value.strip()
 
@@ -79,24 +80,78 @@ def _parse_str(value: str, bitwidth: int) -> int:
         raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}") from None
 
 
+def _decode_addr(value: int, bitwidth: int, format: DecodeFormat):
+    "Decode an integer according to the bitwidth and desired output format."
+    assert format & DecodeFormat.ADDRESS
+
+    match bitwidth:
+        case 128:
+            addr = IPv6Address(value)
+        case 48:
+            addr = MACAddress(value)
+        case 32:
+            addr = IPv4Address(value)
+        case _:
+            # Return original integer.
+            if format & DecodeFormat.STRING:
+                return hex(value)
+            return value
+
+    if format & DecodeFormat.STRING:
+        return str(addr)
+
+    return addr
+
+
+# Exact Values
+# ~~~~~~~~~~~~
+#
+# Supported input values for `encode_exact`:
+#
+# - int
+# - str
+#   o decimal integer
+#   o hexadecimal integer (prefixed with `0x`)
+#   o IPv4 string (bitwidth=32 only)
+#   o IPv6 string (bitwidth=128 only)
+#   o MAC string  (bitwidth=48 only)
+# - IPv4Address (bitwidth=32 only)
+# - IPv6Address (bitwidth=128 only)
+# - MACAddress (bitwidth=48 only)
+#
+# Canonical output values from `decode_exact`:
+#
+# - DEFAULT: int
+# - STRING: hexadecimal integer prefixed with `0x`
+# - ADDRESS:
+#   o IPv4Address (bitwidth=32)
+#   o IPv6Address (bitwidth=128)
+#   o MACAddress (bitwidth=48)
+#   o int (all other bitwidths)
+# - ADDRESS, STRING:
+#   o IPv4 string (bitwidth=32)
+#   o IPv6 string (bitwidth=128)
+#   o MAC string (bitwidth=48)
+#   o hexadecimal integer (all other bitwidths)
+
+
 def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
     "Encode an exact field value into a byte encoding."
     assert value is not None
 
     match value:
-        case bytes():
-            return p4r_truncate(value)
+        case int():
+            ival = value
         case str():
-            ival = _parse_str(value, bitwidth)
-        case float():
-            if not value.is_integer():
-                raise ValueError(f"fractional float value: {value!r}")
+            ival = _parse_exact_str(value, bitwidth)
+        case IPv4Address() if bitwidth == 32:
+            ival = int(value)
+        case IPv6Address() if bitwidth == 128:
+            ival = int(value)
+        case MACAddress() if bitwidth == 48:
             ival = int(value)
         case _:
-            try:
-                ival = int(value)
-            except TypeError:
-                raise ValueError(f"invalid value type: {value!r}") from None
+            raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
 
     if ival >= (1 << bitwidth):
         raise OverflowError(f"invalid value for bitwidth {bitwidth}: {value!r}")
@@ -108,7 +163,7 @@ def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
 def decode_exact(
     data: bytes,
     bitwidth: int,
-    hint: DecodeHint = DecodeHint.DEFAULT,
+    format: DecodeFormat = DecodeFormat.DEFAULT,
 ) -> _ExactReturn:
     """Decode a P4R value into an integer or address."""
     if not data:
@@ -118,19 +173,13 @@ def decode_exact(
     if ival >= (1 << bitwidth):
         raise OverflowError(f"invalid value for bitwidth {bitwidth}: {data!r}")
 
-    match hint:
-        case DecodeHint.DEFAULT:
-            return ival
-        case DecodeHint.ADDRESS if bitwidth == 128:
-            return IPv6Address(ival)
-        case DecodeHint.ADDRESS if bitwidth == 48:
-            return MACAddress(ival)
-        case DecodeHint.ADDRESS if bitwidth == 32:
-            return IPv4Address(ival)
-        case DecodeHint.ADDRESS:
-            return ival
+    if format & DecodeFormat.ADDRESS:
+        return _decode_addr(ival, bitwidth, format)
 
-    raise ValueError(f"invalid hint: {hint!r}")
+    if format & DecodeFormat.STRING:
+        return hex(ival)
+
+    return ival
 
 
 def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
@@ -170,11 +219,21 @@ def decode_lpm(
     data: bytes,
     prefix_len: int,
     bitwidth: int,
-    hint: DecodeHint = DecodeHint.DEFAULT,
+    format: DecodeFormat = DecodeFormat.DEFAULT,
 ) -> _LPMReturn:
     "Decode a P4R Value into an integer or address."
 
-    return (decode_exact(data, bitwidth, hint), prefix_len)
+    value = decode_exact(data, bitwidth, format)
+
+    match value:
+        case IPv4Address():
+            return IPv4Network((value, prefix_len))
+        case IPv6Address():
+            return IPv6Network((value, prefix_len))
+        case str():
+            return f"{value}/{prefix_len}"
+        case _:
+            return (value, prefix_len)
 
 
 def encode_ternary(value: _TernaryValue, bitwidth: int) -> tuple[bytes, bytes]:
@@ -201,7 +260,7 @@ def decode_ternary(
     data: bytes,
     mask: bytes,
     bitwidth: int,
-    hint: DecodeHint = DecodeHint.DEFAULT,
+    hint: DecodeFormat = DecodeFormat.DEFAULT,
 ) -> _TernaryReturn:
     "Decode a P4R Ternary value."
 
@@ -230,7 +289,7 @@ def decode_range(
     low: bytes,
     high: bytes,
     bitwidth: int,
-    hint: DecodeHint = DecodeHint.DEFAULT,
+    hint: DecodeFormat = DecodeFormat.DEFAULT,
 ) -> _RangeReturn:
     "Decode a P4R Range value."
 

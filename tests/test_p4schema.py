@@ -465,7 +465,7 @@ def test_p4tupletype():
     with pytest.raises(ValueError, match="P4Tuple: expected 2 items"):
         tple.encode_data((1, {"h": 2}, 3))
 
-    with pytest.raises(ValueError, match="invalid value type"):
+    with pytest.raises(ValueError, match="invalid value"):
         tple.encode_data(({"h": 2}, 1))
 
 
