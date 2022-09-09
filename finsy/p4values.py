@@ -29,23 +29,6 @@ class DecodeFormat(enum.Flag):
     DEFAULT = 0
 
 
-_ExactValue = SupportsInt | str
-_ExactReturn = int | str | IPv4Address | IPv6Address | MACAddress
-
-_LPMValue = int | str | IPv4Network | IPv6Network | tuple[_ExactValue, int]
-_LPMReturn = str | IPv4Network | IPv6Network | tuple[int | MACAddress, int]
-
-_TernaryValue = (
-    SupportsInt | str | IPv4Network | IPv6Network | tuple[_ExactValue, _ExactValue]
-)
-_TernaryReturn = tuple[_ExactReturn, _ExactReturn] | _ExactReturn
-
-_RangeValue = str | tuple[_ExactValue, _ExactValue]
-_RangeReturn = tuple[_ExactReturn, _ExactReturn]
-
-P4ParamValue = _ExactValue
-
-
 def p4r_minimum_string_size(bitwidth: int) -> int:
     "P4Runtime `minimum_string_size` function (P4R-Spec section 8.4)"
 
@@ -103,6 +86,12 @@ def _decode_addr(value: int, bitwidth: int, format: DecodeFormat):
     return addr
 
 
+def _all_ones(bitwidth: int) -> int:
+    "Return integer value with `bitwidth` 1's."
+
+    return (1 << bitwidth) - 1
+
+
 # Exact Values
 # ~~~~~~~~~~~~
 #
@@ -121,21 +110,28 @@ def _decode_addr(value: int, bitwidth: int, format: DecodeFormat):
 #
 # Canonical output values from `decode_exact`:
 #
-# - DEFAULT: int
-# - STRING: hexadecimal integer prefixed with `0x`
+# - DEFAULT:
+#   o int
+# - STRING:
+#   o hexadecimal integer prefixed with `0x`
 # - ADDRESS:
 #   o IPv4Address (bitwidth=32)
 #   o IPv6Address (bitwidth=128)
 #   o MACAddress (bitwidth=48)
-#   o int (all other bitwidths)
+#   o see DEFAULT
 # - ADDRESS, STRING:
 #   o IPv4 string (bitwidth=32)
 #   o IPv6 string (bitwidth=128)
 #   o MAC string (bitwidth=48)
 #   o hexadecimal integer (all other bitwidths)
 
+_ExactValue = int | str | IPv4Address | IPv6Address | MACAddress
+_ExactReturn = int | str | IPv4Address | IPv6Address | MACAddress
 
-def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
+P4ParamValue = _ExactValue
+
+
+def encode_exact(value: _ExactValue, bitwidth: int, mask: int = ~0) -> bytes:
     "Encode an exact field value into a byte encoding."
     assert value is not None
 
@@ -157,6 +153,8 @@ def encode_exact(value: _ExactValue, bitwidth: int) -> bytes:
         raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
 
     size = p4r_minimum_string_size(bitwidth)
+    if mask != ~0:
+        ival &= mask
     return p4r_truncate(ival.to_bytes(size, "big"))
 
 
@@ -182,37 +180,103 @@ def decode_exact(
     return ival
 
 
-def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
-    "Encode a string value into a P4R LPM value."
-    assert value is not None
+# LPM Values
+# ~~~~~~~~~~
+#
+# Supported input values for `encode_lpm`:
+#
+# - int
+# - str
+#   o decimal integer
+#   o hexadecimal integer (prefixed with `0x`)
+#   o IPv4 string (bitwidth=32 only)
+#   o IPv6 string (bitwidth=128 only)
+#   o MAC string  (bitwidth=48 only)
+#   o "value/prefix" where value is any of the above
+# - IPv4Address (bitwidth=32 only)
+# - IPv6Address (bitwidth=128 only)
+# - MACAddress (bitwidth=48 only)
+# - IPv4Network (bitwidth=32 only)
+# - IPv6Network (bitwidth=128 only)
+# - tuple[value, prefix]
+#   o tuple[int, int]
+#   o tuple[str, int]
+#   o tuple[IPv4Address, int] (bitwidth=32 only)
+#   o tuple[IPv6Address, int] (bitwidth=128 only)
+#   o tuple[MACAddress, int]  (bitwidth=48 only)
+#
+# Supported output values for `decode_lpm`:
+#
+# - DEFAULT:
+#   o tuple[int, int]
+# - STRING:
+#   o "value/prefix" with value in hexadecimal
+# - ADDRESS:
+#   o IPv4Network (bitwidth=32)
+#   o IPv6Network (bitwidth=128)
+#   o tuple[MACAddress, int] (bitwidth=48)
+#   o See DEFAULT output.
+# - ADDRESS, STRING
+#   o "IPV4/prefix" (bitwidth=32)
+#   o "IPV6/prefix" (bitwidth=128)
+#   o "MAC/prefix"  (bitwidth=48)
+#   o See STRING output.
 
-    if isinstance(value, (IPv4Network, IPv6Network)):
-        if bitwidth != value.max_prefixlen:
-            raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
-        data = encode_exact(value.network_address, bitwidth)
-        return data, value.prefixlen
+_LPMValue = (
+    int
+    | str
+    | IPv4Network
+    | IPv6Network
+    | IPv4Address
+    | IPv6Address
+    | tuple[_ExactValue, int]
+)
+_LPMReturn = str | IPv4Network | IPv6Network | tuple[int | MACAddress, int]
 
-    if isinstance(value, int):
-        vals = [value]
-    elif isinstance(value, str):
-        vals = value.split("/", 1)
-    elif isinstance(value, tuple):  # pyright: ignore [reportUnnecessaryIsInstance]
-        if len(value) != 2:
-            raise ValueError(f"invalid tuple value: {value!r}")
-        vals = value
-    else:
-        raise ValueError(f"unexpected type: {value!r}")
 
-    data = encode_exact(vals[0], bitwidth)
-    if len(vals) == 2:
-        prefix = int(vals[1])
-    else:
-        prefix = bitwidth
+def _parse_lpm_str(value: str, bitwidth: int) -> tuple[bytes, int]:
+    "Parse value in slash notation."
 
+    if "/" not in value:
+        return (encode_exact(value, bitwidth), bitwidth)
+
+    vals = value.split("/", 1)
+
+    prefix = int(vals[1])
     if prefix > bitwidth or prefix < 0:
         raise ValueError(f"invalid prefix for bitwidth {bitwidth}: {value!r}")
 
-    return data, prefix
+    mask = ~_all_ones(bitwidth - prefix)
+    return (encode_exact(vals[0], bitwidth, mask), prefix)
+
+
+def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
+    """Encode a value into a P4R LPM value.
+
+    This implementation does not zero out bits covered by the prefix.
+    """
+    assert value is not None
+
+    match value:
+        case int():
+            return (encode_exact(value, bitwidth), bitwidth)
+        case str():
+            return _parse_lpm_str(value, bitwidth)
+        case (val, int(prefix)):
+            if prefix > bitwidth or prefix < 0:
+                raise ValueError(f"invalid prefix for bitwidth {bitwidth}: {value!r}")
+            mask = ~_all_ones(bitwidth - prefix)
+            return (encode_exact(val, bitwidth, mask), prefix)
+        case IPv4Network() | IPv6Network():
+            if bitwidth != value.max_prefixlen:
+                raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
+            return (encode_exact(value.network_address, bitwidth), value.prefixlen)
+        case IPv4Address() | IPv6Address():
+            if bitwidth != value.max_prefixlen:
+                raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
+            return (encode_exact(value, bitwidth), bitwidth)
+        case _:
+            raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
 
 
 def decode_lpm(
@@ -234,6 +298,41 @@ def decode_lpm(
             return f"{value}/{prefix_len}"
         case _:
             return (value, prefix_len)
+
+
+# Ternary Values
+# ~~~~~~~~~~~~~~
+#
+# Supported input values for `encode_ternary`:
+#
+# - int
+# - str
+#   o decimal integer
+#   o hexadecimal integer (prefixed with `0x`)
+#   o IPv4 string (bitwidth=32 only)
+#   o IPv6 string (bitwidth=128 only)
+#   o MAC string  (bitwidth=48 only)
+#   o "value/prefix" where value is any of the above singular values
+#   o "value/&mask" where value/mask is any of the above singular values
+# - IPv4Address (bitwidth=32 only)
+# - IPv6Address (bitwidth=128 only)
+# - MACAddress (bitwidth=48 only)
+# - IPv4Network (bitwidth=32 only)
+# - IPv6Network (bitwidth=128 only)
+# - tuple[value, mask]
+#   o tuple[int, int]
+#   o tuple[str, str]
+#   o tuple[IPv4Address, IPv4Address] (bitwidth=32 only)
+#   o tuple[IPv6Address, IPv6Address] (bitwidth=128 only)
+#   o tuple[MACAddress, MACAddress]  (bitwidth=48 only)
+#
+# Supported output values for `decode_ternary`:
+#
+
+_TernaryValue = (
+    SupportsInt | str | IPv4Network | IPv6Network | tuple[_ExactValue, _ExactValue]
+)
+_TernaryReturn = tuple[_ExactReturn, _ExactReturn] | _ExactReturn
 
 
 def encode_ternary(value: _TernaryValue, bitwidth: int) -> tuple[bytes, bytes]:
@@ -270,6 +369,18 @@ def decode_ternary(
     return result
 
 
+# Range Values
+# ~~~~~~~~~~~~
+#
+# Supported input values for `encode_range`:
+#
+# Supported output values for `decode_range`:
+#
+
+_RangeValue = str | tuple[_ExactValue, _ExactValue]
+_RangeReturn = tuple[_ExactReturn, _ExactReturn]
+
+
 def encode_range(value: _RangeValue, bitwidth: int) -> tuple[bytes, bytes]:
     "Encode a P4R Range value."
     assert value is not None
@@ -294,8 +405,3 @@ def decode_range(
     "Decode a P4R Range value."
 
     return (decode_exact(low, bitwidth, hint), decode_exact(high, bitwidth, hint))
-
-
-def _all_ones(bitwidth: int) -> int:
-    "Return integer value with `bitwidth` 1's."
-    return (1 << bitwidth) - 1

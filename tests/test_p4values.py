@@ -235,13 +235,13 @@ def test_encode_lpm_ipv4():
 
     data = [
         ("192.168.1.1", (b"\xc0\xa8\x01\x01", 32)),
-        # (IP("192.168.1.1"), (b"\xc0\xa8\x01\x01", 32)),  # FIXME
+        (IP("192.168.1.1"), (b"\xc0\xa8\x01\x01", 32)),
         ("192.168.1.0/24", (b"\xc0\xa8\x01\x00", 24)),
         (" 192.168.1.0/24 ", (b"\xc0\xa8\x01\x00", 24)),  # ignore spaces
-        ("192.168.1.1/24", (b"\xc0\xa8\x01\x01", 24)),  # auto-mask
+        ("192.168.1.1/24", (b"\xc0\xa8\x01\x00", 24)),
         (("192.168.1.0", 24), (b"\xc0\xa8\x01\x00", 24)),
         ((IP("192.168.1.0"), 24), (b"\xc0\xa8\x01\x00", 24)),
-        ((IP("192.168.1.1"), 24), (b"\xc0\xa8\x01\x01", 24)),  # auto-mask
+        ((IP("192.168.1.1"), 24), (b"\xc0\xa8\x01\x00", 24)),
         (IPv4Network("192.168.1.0/24"), (b"\xc0\xa8\x01\x00", 24)),
     ]
 
@@ -252,18 +252,16 @@ def test_encode_lpm_ipv4():
 def test_encode_lpm_ipv6():
     "Test the encode_lpm function."
 
-    # FIXME: Need 0 bits in low part...
-
     _IPV6 = b"\x20" + b"\x00" * 14 + b"\x01"
     _IPP6 = b"\x20" + b"\x00" * 15
     data = [
         ("2000::1", (_IPV6, 128)),
-        # (IP("2000::1"), (_IPV6, 128)),  # FIXME
-        ("2000::1/64", (_IPV6, 64)),
+        (IP("2000::1"), (_IPV6, 128)),
+        ("2000::1/64", (_IPP6, 64)),
         (" 2000::/64 ", (_IPP6, 64)),  # ignore spaces
         (("2000::", 64), (_IPP6, 64)),
         ((IP("2000::"), 64), (_IPP6, 64)),
-        ((IP("2000::1"), 64), (_IPV6, 64)),
+        ((IP("2000::1"), 64), (_IPP6, 64)),
         (IPv6Network("2000::/64"), (_IPP6, 64)),
     ]
 
@@ -279,6 +277,7 @@ def test_encode_lpm_fail():
         ((1, 2, 3), 32),
         (1 + 2j, 32),
         ((1, 32), 8),
+        ("127.0.0.1/33", 32),
     ]
 
     for value, bitwidth in data:
@@ -315,12 +314,12 @@ def test_decode_lpm_ipv4():
 
     data = [
         (b"\xc0\xa8\x01\x00", 24, IPv4Network("192.168.1.0/24")),
-        (b"\xc0\xa8\x01\x01", 32, IPv4Network("192.168.1.1/32")),  # FIXME
+        (b"\xc0\xa8\x01\x01", 32, IPv4Network("192.168.1.1/32")),
     ]
 
     for value, prefix, result in data:
         assert p4values.decode_lpm(value, prefix, 32, DecodeFormat.ADDRESS) == result
-        # assert p4values.decode_lpm(value, prefix, 32, ADDR_STR) == str(result)
+        assert p4values.decode_lpm(value, prefix, 32, ADDR_STR) == str(result)
 
 
 def test_decode_lpm_ipv6():
@@ -330,12 +329,12 @@ def test_decode_lpm_ipv6():
     _IPP6 = b"\x20" + b"\x00" * 15
     data = [
         (_IPP6, 64, IPv6Network("2000::/64")),
-        (_IPV6, 128, IPv6Network("2000::1/128")),  # FIXME
+        (_IPV6, 128, IPv6Network("2000::1/128")),
     ]
 
     for value, prefix, result in data:
         assert p4values.decode_lpm(value, prefix, 128, DecodeFormat.ADDRESS) == result
-        # assert p4values.decode_lpm(value, prefix, 128, ADDR_STR) == str(result)
+        assert p4values.decode_lpm(value, prefix, 128, ADDR_STR) == str(result)
 
 
 def test_encode_ternary():
