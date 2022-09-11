@@ -234,6 +234,27 @@ _LPMValue = (
 _LPMReturn = str | IPv4Network | IPv6Network | tuple[int | MACAddress, int]
 
 
+def _to_prefix(value: int, bitwidth: int) -> int:
+    "Convert mask bits to prefix count. Return -1 if mask is discontiguous."
+
+    mask = ~value & _all_ones(bitwidth)  # complement the bits
+    if (mask & (mask + 1)) != 0:
+        return -1  # discontiguous
+    return bitwidth - mask.bit_length()
+
+
+def _parse_lpm_prefix(value: str, bitwidth: int) -> int:
+    "Parse LPM prefix."
+
+    if bitwidth == 32 and "." in value:
+        return _to_prefix(int(IPv4Address(value)), 32)
+    if bitwidth == 128 and ":" in value:
+        return _to_prefix(int(IPv6Address(value)), 128)
+    if bitwidth == 48 and ("-" in value[1:] or ":" in value):
+        return _to_prefix(int(MACAddress(value)), 48)
+    return int(value)
+
+
 def _parse_lpm_str(value: str, bitwidth: int) -> tuple[bytes, int]:
     "Parse value in slash notation."
 
@@ -241,8 +262,8 @@ def _parse_lpm_str(value: str, bitwidth: int) -> tuple[bytes, int]:
         return (encode_exact(value, bitwidth), bitwidth)
 
     vals = value.split("/", 1)
+    prefix = _parse_lpm_prefix(vals[1], bitwidth)
 
-    prefix = int(vals[1])
     if prefix > bitwidth or prefix < 0:
         raise ValueError(f"invalid prefix for bitwidth {bitwidth}: {value!r}")
 
@@ -251,10 +272,7 @@ def _parse_lpm_str(value: str, bitwidth: int) -> tuple[bytes, int]:
 
 
 def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
-    """Encode a value into a P4R LPM value.
-
-    This implementation does not zero out bits covered by the prefix.
-    """
+    "Encode a value into a P4R LPM value."
     assert value is not None
 
     match value:
@@ -307,16 +325,16 @@ def decode_lpm(
 #
 # - int
 # - str
-#   o decimal integer
-#   o hexadecimal integer (prefixed with `0x`)
-#   o IPv4 string (bitwidth=32 only)
-#   o IPv6 string (bitwidth=128 only)
-#   o MAC string  (bitwidth=48 only)
+#   o decimal integer [exact]
+#   o hexadecimal integer (prefixed with `0x`) [exact]
+#   o IPv4 string (bitwidth=32 only) [exact]
+#   o IPv6 string (bitwidth=128 only) [exact]
+#   o MAC string  (bitwidth=48 only) [exact]
 #   o "value/prefix" where value is any of the above singular values
 #   o "value/&mask" where value/mask is any of the above singular values
-# - IPv4Address (bitwidth=32 only)
-# - IPv6Address (bitwidth=128 only)
-# - MACAddress (bitwidth=48 only)
+# - IPv4Address (bitwidth=32 only) [exact]
+# - IPv6Address (bitwidth=128 only) [exact]
+# - MACAddress (bitwidth=48 only) [exact]
 # - IPv4Network (bitwidth=32 only)
 # - IPv6Network (bitwidth=128 only)
 # - tuple[value, mask]
@@ -328,6 +346,20 @@ def decode_lpm(
 #
 # Supported output values for `decode_ternary`:
 #
+# - DEFAULT:
+#   o tuple[int, int]
+# - STRING:
+#   o "value/&mask" with value, mask in hexadecimal
+# - ADDRESS:
+#   o tuple[IPv4Address, IPv4Address] (bitwidth=32)
+#   o tuple[IPv6Address, IPv6Address] (bitwidth=128)
+#   o tuple[MACAddress, MACAddress] (bitwidth=48)
+#   o See DEFAULT output.
+# - ADDRESS, STRING
+#   o "IPV4/&mask"  (bitwidth=32)
+#   o "IPV6/&mask"  (bitwidth=128)
+#   o "MAC/&mask"   (bitwidth=48)
+#   o See STRING output.
 
 _TernaryValue = (
     SupportsInt | str | IPv4Network | IPv6Network | tuple[_ExactValue, _ExactValue]
@@ -335,23 +367,40 @@ _TernaryValue = (
 _TernaryReturn = tuple[_ExactReturn, _ExactReturn] | _ExactReturn
 
 
+def _parse_ternary_str(value: str, bitwidth: int) -> tuple[bytes, bytes]:
+    "Parse value in slash or slash-amp notation."
+
+    if "/&" not in value:
+        data, prefix = _parse_lpm_str(value, bitwidth)
+        mask = _all_ones(prefix) << (bitwidth - prefix)
+        return (data, encode_exact(mask, bitwidth))
+
+    vals = value.split("/&", 1)
+
+    # TODO: Masked bits in value must be zero.
+    return (encode_exact(vals[0], bitwidth), encode_exact(vals[1], bitwidth))
+
+
 def encode_ternary(value: _TernaryValue, bitwidth: int) -> tuple[bytes, bytes]:
     "Encode a value into a P4R ternary value."
     assert value is not None
 
-    if isinstance(value, (IPv4Network, IPv6Network)):
-        val, mask = int(value.network_address), int(value.netmask)
-    else:
-        match value:
-            case int(val):
-                mask = _all_ones(bitwidth)
-            case str(val):
-                val, mask = val.split("/", 1)
-            case (val, mask):
-                pass
-            case other:
-                raise ValueError(f"unexpected value: {other!r}")
+    match value:
+        case int(val):
+            mask = _all_ones(bitwidth)
+        case str():
+            return _parse_ternary_str(value, bitwidth)
+        case (val, mask):
+            pass
+        case IPv4Network() | IPv6Network():
+            val, mask = int(value.network_address), int(value.netmask)
+        case IPv4Address() | IPv6Address():
+            val = int(value)
+            mask = _all_ones(bitwidth)
+        case _:
+            raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
 
+    # TODO: Masked bits in value must be zero.
     return (encode_exact(val, bitwidth), encode_exact(mask, bitwidth))
 
 
@@ -364,9 +413,12 @@ def decode_ternary(
     "Decode a P4R Ternary value."
 
     result = (decode_exact(data, bitwidth, hint), decode_exact(mask, bitwidth, hint))
-    if result[1] == _all_ones(bitwidth):
-        return result[0]
-    return result
+
+    match result[0]:
+        case str():
+            return f"{result[0]}/&{result[1]}"
+        case _:
+            return result
 
 
 # Range Values
@@ -374,11 +426,28 @@ def decode_ternary(
 #
 # Supported input values for `encode_range`:
 #
+# - str
+#   o "lo...hi"
+# - tuple[lo, hi]
+#   o tuple[int, int]
+#   o tuple[str, str]
+#   o tuple[IPv4Address, IPv4Address] (bitwidth=32 only)
+#   o tuple[IPv6Address, IPv6Address] (bitwidth=128 only)
+#   o tuple[MACAddress, MACAddress]  (bitwidth=48 only)
+#
 # Supported output values for `decode_range`:
 #
+# - DEFAULT:
+#   o tuple[int, int]
+# - STRING:
+#   o "lo...hi"
+# - ADDRESS:
+#   o See DEFAULT output.
+# - ADDRESS, STRING
+#   o See STRING output.
 
 _RangeValue = str | tuple[_ExactValue, _ExactValue]
-_RangeReturn = tuple[_ExactReturn, _ExactReturn]
+_RangeReturn = str | tuple[_ExactReturn, _ExactReturn]
 
 
 def encode_range(value: _RangeValue, bitwidth: int) -> tuple[bytes, bytes]:
@@ -390,8 +459,8 @@ def encode_range(value: _RangeValue, bitwidth: int) -> tuple[bytes, bytes]:
             low, high = val.split("...", 1)
         case (low, high):
             pass
-        case other:
-            raise ValueError(f"unexpected value: {other!r}")
+        case _:
+            raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
 
     return (encode_exact(low, bitwidth), encode_exact(high, bitwidth))
 
@@ -404,4 +473,10 @@ def decode_range(
 ) -> _RangeReturn:
     "Decode a P4R Range value."
 
-    return (decode_exact(low, bitwidth, hint), decode_exact(high, bitwidth, hint))
+    result = (decode_exact(low, bitwidth, hint), decode_exact(high, bitwidth, hint))
+
+    match result[0]:
+        case str():
+            return f"{result[0]}...{result[1]}"
+        case _:
+            return result

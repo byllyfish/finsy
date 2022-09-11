@@ -1,5 +1,6 @@
 from ipaddress import IPv4Network, IPv6Network
 from ipaddress import ip_address as IP
+from typing import Any
 
 import pytest
 from finsy import p4values
@@ -337,110 +338,265 @@ def test_decode_lpm_ipv6():
         assert p4values.decode_lpm(value, prefix, 128, ADDR_STR) == str(result)
 
 
-def test_encode_ternary():
+def test_encode_ternary_int():
     "Test the encode_ternary function."
 
-    assert p4values.encode_ternary((1, 1), 32) == (b"\x01", b"\x01")
-    assert p4values.encode_ternary("192.168.1.1/255.255.255.0", 32) == (
-        b"\xc0\xa8\x01\x01",
-        b"\xff\xff\xff\x00",
-    )
+    data = [
+        (0, 8, (b"\x00", b"\xff")),
+        (3, 4, (b"\x03", b"\x0f")),
+        ((1, 1), 32, (b"\x01", b"\x01")),
+        ((2, 1), 32, (b"\x02", b"\x01")),  # FIXME?
+        ("3", 4, (b"\x03", b"\x0f")),
+        ("0x3", 4, (b"\x03", b"\x0f")),
+        ("0x30/4", 8, (b"\x30", b"\xf0")),
+        ("0x30/&0x30", 8, (b"\x30", b"\x30")),
+    ]
 
-    # FIXME: This does not do what you think it should?
-    assert p4values.encode_ternary("192.168.1.1/24", 32) == (
-        b"\xc0\xa8\x01\x01",
-        b"\x18",
-    )
-
-    # FIXME: This does not do what you think it should?
-    assert p4values.encode_ternary("2000::1/64", 128) == (
-        b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01",
-        b"\x40",
-    )
-
-    assert p4values.encode_ternary(IPv4Network("10.0.0.0/24"), 32) == (
-        b"\x0A\x00\x00\x00",
-        b"\xff\xff\xff\x00",
-    )
-
-    assert p4values.encode_ternary(IPv6Network("2000::/64"), 128) == (
-        b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00",
-    )
+    for value, bitwidth, result in data:
+        assert p4values.encode_ternary(value, bitwidth) == result
 
 
-def test_encode_ternary_exact():
-    "Test encode_ternary with exact values."
+def test_encode_ternary_ipv4():
+    "Test the encode_ternary function."
 
-    assert p4values.encode_ternary(0, 8) == (b"\x00", b"\xff")
-    assert p4values.encode_ternary(3, 4) == (b"\x03", b"\x0f")
+    data = [
+        ("192.168.1.1", (b"\xc0\xa8\x01\x01", b"\xff\xff\xff\xff")),
+        (IP("192.168.1.1"), (b"\xc0\xa8\x01\x01", b"\xff\xff\xff\xff")),
+        (
+            "192.168.1.1/255.255.255.0",
+            (b"\xc0\xa8\x01\x00", b"\xff\xff\xff\x00"),
+        ),
+        ("192.168.1.1/24", (b"\xc0\xa8\x01\x00", b"\xff\xff\xff\x00")),
+        (IPv4Network("10.0.0.0/24"), (b"\x0A\x00\x00\x00", b"\xff\xff\xff\x00")),
+    ]
+
+    for value, result in data:
+        assert p4values.encode_ternary(value, 32) == result
+
+
+def test_encode_ternary_ipv6():
+    "Test the encode_ternary function."
+
+    data = [
+        (
+            "2000::1",
+            (
+                b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01",
+                b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff",
+            ),
+        ),
+        (
+            IP("2000::1"),
+            (
+                b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01",
+                b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff",
+            ),
+        ),
+        (
+            "2000::1/64",
+            (
+                b" \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                b"\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00",
+            ),
+        ),
+        (
+            IPv6Network("2000::/64"),
+            (
+                b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                b"\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00",
+            ),
+        ),
+        (
+            "2000::1/ffff::",
+            (
+                b" \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                b"\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+            ),
+        ),
+    ]
+
+    for value, result in data:
+        assert p4values.encode_ternary(value, 128) == result
 
 
 def test_encode_ternary_fail():
     "Test the encode_ternary function."
 
-    with pytest.raises(ValueError, match="unexpected value"):
+    with pytest.raises(ValueError):
         p4values.encode_ternary(1 + 2j, 32)  # type: ignore
 
 
-def test_decode_ternary():
+def test_decode_ternary_int():
     "Test the decode_ternary function."
 
-    assert p4values.decode_ternary(b"\x01", b"\x01", 32) == (1, 1)
-    assert p4values.decode_ternary(b"\xc0\xa8\x01\x01", b"\xff\xff\xff\x00", 32) == (
-        3232235777,
-        4294967040,
-    )
+    data = [
+        (b"\x00", b"\xff", 8, (0, 0xFF)),
+        (b"\x03", b"\x0f", 4, (3, 0x0F)),
+        (b"\x01", b"\x01", 32, (1, 1)),
+        (b"\xc0\xa8\x01\x01", b"\xff\xff\xff\x00", 32, (3232235777, 4294967040)),
+    ]
+
+    def _to_str(value: tuple[int, int]):
+        return f"{value[0]:#x}/&{value[1]:#x}"
+
+    for value, mask, bitwidth, result in data:
+        assert p4values.decode_ternary(value, mask, bitwidth) == result
+        assert p4values.decode_ternary(
+            value, mask, bitwidth, DecodeFormat.STRING
+        ) == _to_str(result)
 
 
-def test_decode_ternary_ip():
+def test_decode_ternary_ipv4():
     "Test the decode_ternary function."
 
-    assert p4values.decode_ternary(b"\x01", b"\x01", 32, DecodeFormat.ADDRESS) == (
-        IP("0.0.0.1"),
-        IP("0.0.0.1"),
-    )
-    assert p4values.decode_ternary(
-        b"\xc0\xa8\x01\x01", b"\xff\xff\xff\x00", 32, DecodeFormat.ADDRESS
-    ) == (IP("192.168.1.1"), IP("255.255.255.0"))
+    data = [
+        (b"\x01", b"\x01", (IP("0.0.0.1"), IP("0.0.0.1"))),
+        (
+            b"\xc0\xa8\x01\x01",
+            b"\xff\xff\xff\x00",
+            (IP("192.168.1.1"), IP("255.255.255.0")),
+        ),
+        (
+            b"\xc0\xa8\x01\x01",
+            b"\xff\xff\xff\xff",
+            (IP("192.168.1.1"), IP("255.255.255.255")),
+        ),
+    ]
 
-    assert p4values.decode_ternary(
-        b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00",
-        128,
-        DecodeFormat.ADDRESS,
-    ) == (IP("2000::"), IP("ffff:ffff:ffff:ffff::"))
+    def _to_str(value: tuple[Any, Any]):
+        return f"{value[0]}/&{value[1]}"
+
+    for value, mask, result in data:
+        assert p4values.decode_ternary(value, mask, 32, DecodeFormat.ADDRESS) == result
+        assert p4values.decode_ternary(value, mask, 32, ADDR_STR) == _to_str(result)
 
 
-def test_decode_ternary_exact():
-    "Test the decode_ternary function with exact values."
+def test_decode_ternary_ipv6():
+    "Test the decode_ternary function."
 
-    assert p4values.decode_ternary(b"\x00", b"\xff", 8) == 0
-    assert p4values.decode_ternary(b"\x03", b"\x0f", 4) == 3
+    data = [
+        (
+            b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00",
+            (IP("2000::"), IP("ffff:ffff:ffff:ffff::")),
+        )
+    ]
+
+    def _to_str(value: tuple[Any, Any]):
+        return f"{value[0]}/&{value[1]}"
+
+    for value, mask, result in data:
+        assert p4values.decode_ternary(value, mask, 128, DecodeFormat.ADDRESS) == result
+        assert p4values.decode_ternary(value, mask, 128, ADDR_STR) == _to_str(result)
 
 
-def test_encode_range():
+def test_encode_range_int():
     "Test the encode_range function."
 
-    assert p4values.encode_range((1, 2), 32) == (b"\x01", b"\x02")
-    assert p4values.encode_range("1 ... 2", 32) == (b"\x01", b"\x02")
-    assert p4values.encode_range((IP("1.2.3.4"), IP("1.2.3.5")), 32) == (
-        b"\x01\x02\x03\x04",
-        b"\x01\x02\x03\x05",
-    )
+    data = [
+        ((1, 2), 32, (b"\x01", b"\x02")),
+        ("1...2", 32, (b"\x01", b"\x02")),
+    ]
+
+    for value, bitwidth, result in data:
+        assert p4values.encode_range(value, bitwidth) == result
+
+
+def test_encode_range_ipv4():
+    "Test the encode_range function."
+
+    data = [
+        ((IP("1.2.3.4"), IP("1.2.3.5")), (b"\x01\x02\x03\x04", b"\x01\x02\x03\x05")),
+        (("1.2.3.4", "1.2.3.5"), (b"\x01\x02\x03\x04", b"\x01\x02\x03\x05")),
+        ("1.2.3.4...1.2.3.5", (b"\x01\x02\x03\x04", b"\x01\x02\x03\x05")),
+    ]
+
+    for value, result in data:
+        assert p4values.encode_range(value, 32) == result
+
+
+def test_encode_range_ipv6():
+    "Test the encode_range function."
+
+    data = [
+        (
+            (IP("2000::1"), IP("2000::2")),
+            (
+                b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01",
+                b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02",
+            ),
+        ),
+        (
+            ("2000::1", "2000::2"),
+            (
+                b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01",
+                b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02",
+            ),
+        ),
+        (
+            "2000::1...2000::2",
+            (
+                b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01",
+                b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02",
+            ),
+        ),
+    ]
+
+    for value, result in data:
+        assert p4values.encode_range(value, 128) == result
 
 
 def test_encode_range_fail():
     "Test the encode_range function."
 
-    with pytest.raises(ValueError, match="unexpected value"):
+    with pytest.raises(ValueError):
         p4values.encode_range(1 + 2j, 32)  # type: ignore
 
 
-def test_decode_range():
+def test_decode_range_int():
     "Test the decode_range function."
 
-    assert p4values.decode_range(b"\x01", b"\x02", 32) == (1, 2)
-    assert p4values.decode_range(
-        b"\x01\x02\x03\x04", b"\x01\x02\x03\x05", 32, DecodeFormat.ADDRESS
-    ) == (IP("1.2.3.4"), IP("1.2.3.5"))
+    data = [(b"\x01", b"\x02", 32, (1, 2))]
+
+    def _to_str(value: tuple[Any, Any]):
+        return f"{value[0]:#x}...{value[1]:#x}"
+
+    for lo, hi, bitwidth, result in data:
+        assert p4values.decode_range(lo, hi, bitwidth) == result
+        assert p4values.decode_range(lo, hi, bitwidth, DecodeFormat.STRING) == _to_str(
+            result
+        )
+
+
+def test_decode_range_ipv4():
+    "Test the decode_range function."
+
+    data = [
+        (b"\x01\x02\x03\x04", b"\x01\x02\x03\x05", (IP("1.2.3.4"), IP("1.2.3.5"))),
+    ]
+
+    def _to_str(value: tuple[Any, Any]):
+        return f"{value[0]}...{value[1]}"
+
+    for lo, hi, result in data:
+        assert p4values.decode_range(lo, hi, 32, DecodeFormat.ADDRESS) == result
+        assert p4values.decode_range(lo, hi, 32, ADDR_STR) == _to_str(result)
+
+
+def test_decode_range_ipv6():
+    "Test the decode_range function."
+
+    data = [
+        (
+            b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01",
+            b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02",
+            (IP("2000::1"), IP("2000::2")),
+        ),
+    ]
+
+    def _to_str(value: tuple[Any, Any]):
+        return f"{value[0]}...{value[1]}"
+
+    for lo, hi, result in data:
+        assert p4values.decode_range(lo, hi, 128, DecodeFormat.ADDRESS) == result
+        assert p4values.decode_range(lo, hi, 128, ADDR_STR) == _to_str(result)
