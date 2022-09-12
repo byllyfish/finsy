@@ -33,7 +33,7 @@ mypy = "^0.971"
 pdoc = "^12.1.0"
 pyright = "^1.1.269"
 pytest-cov = "^3.0.0"
-pylint = "^2.15.0"
+pylint = "^2.15.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
