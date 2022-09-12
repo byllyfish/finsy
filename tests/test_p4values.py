@@ -28,7 +28,7 @@ def test_all_ones():
         assert p4values.all_ones(val) == result
 
 
-def tesst_mask_to_prefix():
+def test_mask_to_prefix():
     "Test the mask_to_prefix function."
 
     data = [
@@ -342,6 +342,8 @@ def test_encode_lpm_fail():
         ("127.0.0.1/33", 32),
         ("127.0.0.1", 8),
         (IP("127.0.0.1"), 8),
+        (IP("::1"), 32),
+        (MAC("0e:00:00:00:00:01"), 32),
     ]
 
     for value, bitwidth in data:
