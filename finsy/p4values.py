@@ -44,6 +44,21 @@ def p4r_truncate(value: bytes, signed: bool = False) -> bytes:
     return value.lstrip(b"\x00") or b"\x00"
 
 
+def all_ones(bitwidth: int) -> int:
+    "Return integer value with `bitwidth` 1's."
+
+    return (1 << bitwidth) - 1
+
+
+def mask_to_prefix(value: int, bitwidth: int) -> int:
+    "Convert mask bits to prefix count. Return -1 if mask is discontiguous."
+
+    mask = ~value & all_ones(bitwidth)  # complement the bits
+    if (mask & (mask + 1)) != 0:
+        return -1  # discontiguous
+    return bitwidth - mask.bit_length()
+
+
 def _parse_exact_str(value: str, bitwidth: int) -> int:
     "Convert string value to an integer."
     value = value.strip()
@@ -84,12 +99,6 @@ def _decode_addr(value: int, bitwidth: int, format: DecodeFormat):
         return str(addr)
 
     return addr
-
-
-def _all_ones(bitwidth: int) -> int:
-    "Return integer value with `bitwidth` 1's."
-
-    return (1 << bitwidth) - 1
 
 
 # Exact Values
@@ -229,29 +238,21 @@ _LPMValue = (
     | IPv6Network
     | IPv4Address
     | IPv6Address
+    | MACAddress
     | tuple[_ExactValue, int]
 )
 _LPMReturn = str | IPv4Network | IPv6Network | tuple[int | MACAddress, int]
-
-
-def _to_prefix(value: int, bitwidth: int) -> int:
-    "Convert mask bits to prefix count. Return -1 if mask is discontiguous."
-
-    mask = ~value & _all_ones(bitwidth)  # complement the bits
-    if (mask & (mask + 1)) != 0:
-        return -1  # discontiguous
-    return bitwidth - mask.bit_length()
 
 
 def _parse_lpm_prefix(value: str, bitwidth: int) -> int:
     "Parse LPM prefix."
 
     if bitwidth == 32 and "." in value:
-        return _to_prefix(int(IPv4Address(value)), 32)
+        return mask_to_prefix(int(IPv4Address(value)), 32)
     if bitwidth == 128 and ":" in value:
-        return _to_prefix(int(IPv6Address(value)), 128)
+        return mask_to_prefix(int(IPv6Address(value)), 128)
     if bitwidth == 48 and ("-" in value[1:] or ":" in value):
-        return _to_prefix(int(MACAddress(value)), 48)
+        return mask_to_prefix(int(MACAddress(value)), 48)
     return int(value)
 
 
@@ -267,7 +268,7 @@ def _parse_lpm_str(value: str, bitwidth: int) -> tuple[bytes, int]:
     if prefix > bitwidth or prefix < 0:
         raise ValueError(f"invalid prefix for bitwidth {bitwidth}: {value!r}")
 
-    mask = ~_all_ones(bitwidth - prefix)
+    mask = ~all_ones(bitwidth - prefix)
     return (encode_exact(vals[0], bitwidth, mask), prefix)
 
 
@@ -283,7 +284,7 @@ def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
         case (val, int(prefix)):
             if prefix > bitwidth or prefix < 0:
                 raise ValueError(f"invalid prefix for bitwidth {bitwidth}: {value!r}")
-            mask = ~_all_ones(bitwidth - prefix)
+            mask = ~all_ones(bitwidth - prefix)
             return (encode_exact(val, bitwidth, mask), prefix)
         case IPv4Network() | IPv6Network():
             if bitwidth != value.max_prefixlen:
@@ -291,6 +292,10 @@ def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
             return (encode_exact(value.network_address, bitwidth), value.prefixlen)
         case IPv4Address() | IPv6Address():
             if bitwidth != value.max_prefixlen:
+                raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
+            return (encode_exact(value, bitwidth), bitwidth)
+        case MACAddress():
+            if bitwidth != 48:  # MACAddress is missing max_prefixlen.
                 raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
             return (encode_exact(value, bitwidth), bitwidth)
         case _:
@@ -372,7 +377,7 @@ def _parse_ternary_str(value: str, bitwidth: int) -> tuple[bytes, bytes]:
 
     if "/&" not in value:
         data, prefix = _parse_lpm_str(value, bitwidth)
-        mask = _all_ones(prefix) << (bitwidth - prefix)
+        mask = all_ones(prefix) << (bitwidth - prefix)
         return (data, encode_exact(mask, bitwidth))
 
     vals = value.split("/&", 1)
@@ -387,7 +392,7 @@ def encode_ternary(value: _TernaryValue, bitwidth: int) -> tuple[bytes, bytes]:
 
     match value:
         case int(val):
-            mask = _all_ones(bitwidth)
+            mask = all_ones(bitwidth)
         case str():
             return _parse_ternary_str(value, bitwidth)
         case (val, mask):
@@ -396,7 +401,7 @@ def encode_ternary(value: _TernaryValue, bitwidth: int) -> tuple[bytes, bytes]:
             val, mask = int(value.network_address), int(value.netmask)
         case IPv4Address() | IPv6Address():
             val = int(value)
-            mask = _all_ones(bitwidth)
+            mask = all_ones(bitwidth)
         case _:
             raise ValueError(f"invalid value for bitwidth {bitwidth}: {value!r}")
 
