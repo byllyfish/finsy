@@ -28,7 +28,7 @@ def test_all_ones():
         assert p4values.all_ones(val) == result
 
 
-def mask_to_prefix():
+def tesst_mask_to_prefix():
     "Test the mask_to_prefix function."
 
     data = [
@@ -90,6 +90,7 @@ def test_encode_exact_fail():
         ("0.0.0.1", 8),
         (IP("0.0.0.1"), 8),
         (IP("::1"), 32),
+        (MAC("0e-00-00-00-00-01"), 32),
     ]
 
     for value, bitwidth in data:
@@ -287,6 +288,7 @@ def test_encode_lpm_ipv4():
         ((IP("192.168.1.0"), 24), (b"\xc0\xa8\x01\x00", 24)),
         ((IP("192.168.1.1"), 24), (b"\xc0\xa8\x01\x00", 24)),
         (IPv4Network("192.168.1.0/24"), (b"\xc0\xa8\x01\x00", 24)),
+        ("192.168.0.1/255.255.0.0", (b"\xc0\xa8\x00\x00", 16)),
     ]
 
     for value, result in data:
@@ -307,6 +309,7 @@ def test_encode_lpm_ipv6():
         ((IP("2000::"), 64), (_IPP6, 64)),
         ((IP("2000::1"), 64), (_IPP6, 64)),
         (IPv6Network("2000::/64"), (_IPP6, 64)),
+        ("2000::1/ffff::", (_IPP6, 16)),
     ]
 
     for value, result in data:
@@ -321,6 +324,7 @@ def test_encode_lpm_mac():
         (MAC("0e:00:00:00:00:01"), (b"\x0e\x00\x00\x00\x00\x01", 48)),
         ("0e:00:00:00:00:01/24", (b"\x0e\x00\x00\x00\x00\x00", 24)),
         (" 0e:00:00:00:00:01/24 ", (b"\x0e\x00\x00\x00\x00\x00", 24)),  # ignore spaces
+        ("0e:00:00:00:00:01/ff:ff:ff:00:00:00", (b"\x0e\x00\x00\x00\x00\x00", 24)),
     ]
 
     for value, result in data:
