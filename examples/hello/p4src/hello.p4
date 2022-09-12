@@ -2,11 +2,11 @@
 /*
     "Hello, world" example.
 
-    1. ARP requests and replies are flooded to all ports and optionally copied
-    to the controller. (To copy to the controller, include port 255 in the
-    multicast group.)
+    1. ARP requests and replies are flooded to all ports. To copy to the 
+    controller, include port 255 in the multicast group (ID=1).
 
-    2. IPv4 Packets are forwarded based on their destination IPv4 address.
+    2. IPv4 Packets are forwarded, flooded, or dropped based on their
+    destination IPv4 address. The default action is to drop.
 
     3. All other packets are dropped.
 
@@ -34,12 +34,12 @@ header PacketOut_t {
     bit<7> _pad;
 }
 
-header Hello_t {
+header PartEth_t {
     bit<96> _unused;
     bit<16> eth_type;
 }
 
-header World_t {
+header PartIPv4_t {
     bit<128> _unused;
     bit<32> ipv4_dst;
 }
@@ -49,8 +49,8 @@ struct Metadata_t {
 }
 
 struct Headers_t {
-    Hello_t hello;
-    World_t world;
+    PartEth_t eth;
+    PartIPv4_t ipv4;
     PacketIn_t packet_in;
     PacketOut_t packet_out;
 }
@@ -69,24 +69,24 @@ parser MyParser(
     state start {
         transition select(std_meta.ingress_port) {
             CONTROLLER_PORT: parse_packet_out;
-            default: parse_hello;
+            default: parse_eth;
         }
     }
 
     state parse_packet_out {
         packet.extract(hdr.packet_out);
-        transition parse_hello;
+        transition parse_eth;
     }
 
-    state parse_hello {
-        packet.extract(hdr.hello);
-        transition select(hdr.hello.eth_type) {
-            ETH_IPV4: parse_world;
+    state parse_eth {
+        packet.extract(hdr.eth);
+        transition select(hdr.eth.eth_type) {
+            ETH_IPV4: parse_ipv4;
         }
     }
 
-    state parse_world {
-        packet.extract(hdr.world);
+    state parse_ipv4 {
+        packet.extract(hdr.ipv4);
         transition accept;
     }
 }
@@ -115,10 +115,11 @@ control MyIngress(
 
     table ipv4 {
         key = {
-            hdr.world.ipv4_dst: exact @finsy_addr;
+            hdr.ipv4.ipv4_dst: exact @finsy_addr;
         }
         actions = {
             forward;
+            flood;
             drop;
         }
         size = 1024;
@@ -129,9 +130,9 @@ control MyIngress(
         if (std_meta.ingress_port == CONTROLLER_PORT) {
             forward(hdr.packet_out.egress_port);
             hdr.packet_out.setInvalid();
-        } else if (hdr.hello.eth_type == ETH_ARP) {
+        } else if (hdr.eth.eth_type == ETH_ARP) {
             flood();
-        } else if (hdr.world.isValid()) {
+        } else if (hdr.ipv4.isValid()) {
             ipv4.apply();
         } else {
             drop();
@@ -178,8 +179,8 @@ control MyDeparser(
 
     apply {
         packet.emit(hdr.packet_in);
-        packet.emit(hdr.hello);
-        packet.emit(hdr.world);
+        packet.emit(hdr.eth);
+        packet.emit(hdr.ipv4);
     }
 }
 
