@@ -30,7 +30,7 @@ async def ready_handler(sw: fy.Switch):
         [
             # Insert multicast group with ports 1, 2, 3 and CONTROLLER.
             +fy.P4MulticastGroupEntry(1, replicas=[1, 2, 3, 255]),
-            # Modify default table entry to flood all unmatched IP packets.
+            # Modify default table entry to flood all unmatched packets.
             ~fy.P4TableEntry(
                 "ipv4",
                 action=fy.P4TableAction("flood"),
@@ -40,7 +40,7 @@ async def ready_handler(sw: fy.Switch):
     )
 
     async for packet in sw.read_packets():
-        print(packet)
+        print(f"{sw.name}: {packet}")
 ```
 
 Use the `SwitchOptions` class to specify each switch's settings, including the p4info/p4blob and ready_handler. Use the `Controller` class to drive multiple switch connections. Each switch will call back

@@ -23,7 +23,7 @@ async def ready_handler(sw: fy.Switch):
     )
 
     async for packet in sw.read_packets():
-        print(packet)
+        print(f"{sw.name}: {packet}")
 
 
 def main():
