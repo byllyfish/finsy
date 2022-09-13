@@ -1,8 +1,8 @@
-# 🐟 Finsy P4Runtime Framework
+# 🐟 Finsy P4Runtime Library
 
 [![pypi](https://img.shields.io/pypi/v/finsy)](https://pypi.org/project/finsy/) [![ci](https://github.com/byllyfish/finsy/actions/workflows/ci.yml/badge.svg)](https://github.com/byllyfish/finsy/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/byllyfish/finsy/branch/main/graph/badge.svg?token=8RPYWRXNGS)](https://codecov.io/gh/byllyfish/finsy)
 
-Finsy is a P4Runtime controller framework written in Python using asyncio.
+Finsy is a [P4Runtime](https://p4.org/p4-spec/p4runtime/main/P4Runtime-Spec.html) controller library written in Python using asyncio. Finsy includes support for [gNMI](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md).
 
 ```python
 import asyncio
@@ -26,7 +26,18 @@ packets or digests.
 ```python
 async def ready_handler(sw: fy.Switch):
     await sw.delete_all()
-    await sw.insert(fy.P4MulticastGroupEntry(1, replicas=[1, 2, 3, 255]))
+    await sw.write(
+        [
+            # Insert multicast group with ports 1, 2, 3 and CONTROLLER.
+            +fy.P4MulticastGroupEntry(1, replicas=[1, 2, 3, 255]),
+            # Modify default table entry to flood all unmatched IP packets.
+            ~fy.P4TableEntry(
+                "ipv4",
+                action=fy.P4TableAction("flood"),
+                is_default_action=True,
+            ),
+        ]
+    )
 
     async for packet in sw.read_packets():
         print(packet)
@@ -39,10 +50,11 @@ into your ready_handler function after the P4Runtime connection is established.
 from pathlib import Path
 
 options = fy.SwitchOptions(
-    p4info=Path("example.p4info.txt"),
-    p4blob=Path("example.json"),
+    p4info=Path("hello.p4info.txt"),
+    p4blob=Path("hello.json"),
     ready_handler=ready_handler,
 )
+
 controller = fy.Controller([
     fy.Switch("sw1", "127.0.0.1:50001", options),
     fy.Switch("sw2", "127.0.0.1:50002", options),
