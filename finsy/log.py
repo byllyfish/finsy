@@ -41,7 +41,7 @@ else:
     _LoggerAdapter: TypeAlias = logging.LoggerAdapter
 
 
-def _get_current_task_name() -> str:
+def _get_current_task_name(shorten: bool = False) -> str:
     "Return the name of the current task (or '' if there is none.)"
 
     try:
@@ -60,6 +60,12 @@ def _get_current_task_name() -> str:
     if name.startswith("fy:"):
         name = name[3:]
 
+    # Shorten task name to omit details after "|".
+    if shorten:
+        pos = name.find("|")
+        if pos > 0:
+            name = name[:pos]
+
     return name
 
 
@@ -76,6 +82,12 @@ class _CustomAdapter(_LoggerAdapter):
         """
         task_name = _get_current_task_name()
         return f"[{task_name}] {msg}", kwargs
+
+    def info(self, msg: Any, *args: Any, **kwargs: Any):
+        """INFO level uses a concise task name represention for readability."""
+        if self.logger.isEnabledFor(logging.INFO):
+            task_name = _get_current_task_name(True)
+            self.logger.info(f"[{task_name}] {msg}", *args, **kwargs)
 
 
 LOGGER = _CustomAdapter(logging.getLogger(__package__))
