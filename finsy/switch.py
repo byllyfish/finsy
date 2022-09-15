@@ -416,10 +416,11 @@ class Switch:
 
         self._tasks = SwitchTasks()
         self._p4client = P4Client(self._address, self._options.channel_credentials)
-        self.create_task(self._run(), background=True)
+        self._switch_start()
 
         try:
             # Wait for CHANNEL_READY event from the switch.
+            self.create_task(self._run(), background=True)
             await self.ee.wait_for_event(SwitchEvent.CHANNEL_READY)
         except BaseException:
             await self.__aexit__(None, None, None)
@@ -442,6 +443,7 @@ class Switch:
         self._arbitrator.reset()
         self._p4client = None
         self._tasks = None
+        self._switch_stop()
 
     def _switch_start(self):
         "Called when switch starts its run() cycle."
