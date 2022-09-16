@@ -532,7 +532,11 @@ class Switch:
 
     def _channel_ready(self):
         "Called when a P4Runtime channel is READY."
-        LOGGER.info("Channel ready (is_primary=%r)", self.is_primary)
+        LOGGER.info(
+            "Channel ready (is_primary=%r): %s",
+            self.is_primary,
+            self.p4info.get_pipeline_info(),
+        )
 
         if self._options.ready_handler:
             self.create_task(self._options.ready_handler(self))
@@ -617,6 +621,7 @@ class Switch:
             await self._set_pipeline_config_request(
                 config=self.p4info.get_pipeline_config()
             )
+            LOGGER.info("Pipeline installed: %s", self.p4info.get_pipeline_info())
 
     async def _get_pipeline_config_request(
         self,

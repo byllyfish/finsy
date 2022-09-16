@@ -484,7 +484,8 @@ class P4Schema(_ReprMixin):
     @property
     def p4info(self) -> p4i.P4Info:
         "P4Info value."
-        assert self._p4info is not None
+        if self._p4info is None:
+            raise ValueError("No P4Info configured.")
         return self._p4info
 
     def set_p4info(self, p4info: p4i.P4Info):
@@ -515,25 +516,35 @@ class P4Schema(_ReprMixin):
             cookie=p4r.ForwardingPipelineConfig.Cookie(cookie=self.p4cookie),
         )
 
+    def get_pipeline_info(self) -> str:
+        "Concise string description of the pipeline (suitable for logging)."
+        if self.is_configured:
+            pipeline = self.name
+            version = self.version
+            arch = self.arch
+            return f"{pipeline=} {version=} {arch=}"
+        else:
+            return "<No pipeline configured>"
+
     @property
     def name(self) -> str:
         "Name from pkg_info."
-        assert self._p4info
-
+        if self._p4info is None:
+            return ""
         return self._p4info.pkg_info.name
 
     @property
     def version(self) -> str:
         "Version from pkg_info."
-        assert self._p4info
-
+        if self._p4info is None:
+            return ""
         return self._p4info.pkg_info.version
 
     @property
     def arch(self) -> str:
         "Arch from pkg_info."
-        assert self._p4info
-
+        if self._p4info is None:
+            return ""
         return self._p4info.pkg_info.arch
 
     @property
@@ -598,7 +609,7 @@ class P4Schema(_ReprMixin):
 
     def __str__(self):
         if self._p4info is None:
-            return "<No P4Info>"
+            return "<P4Info: No pipeline configured>"
         return str(P4SchemaDescription(self))
 
     def _update_cookie(self):
