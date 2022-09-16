@@ -101,8 +101,7 @@ class SwitchOptions:
         return dataclasses.replace(self, **kwds)
 
 
-# This regex deliberately ignores any information that follows the version.
-_SEMVER_REGEX = re.compile(r"^(\d+)\.(\d+)\.(\d+)")
+_SEMVER_REGEX = re.compile(r"^(\d+)\.(\d+)\.(\d+)(.*)$")
 
 
 class ApiVersion(NamedTuple):
@@ -111,6 +110,7 @@ class ApiVersion(NamedTuple):
     major: int
     minor: int
     patch: int
+    extra: str  # optional pre-release/build info
 
     @classmethod
     def parse(cls, version_str: str) -> Self:
@@ -118,11 +118,11 @@ class ApiVersion(NamedTuple):
         m = _SEMVER_REGEX.match(version_str)
         if not m:
             raise ValueError(f"unexpected version string: {version_str}")
-        return cls(int(m[1]), int(m[2]), int(m[3]))
+        return cls(int(m[1]), int(m[2]), int(m[3]), m[4])
 
     def __str__(self) -> str:
         "Return the version string."
-        return ".".join(map(str, self))
+        return ".".join(map(str, self[:3])) + self.extra
 
 
 class Switch:
@@ -144,7 +144,7 @@ class Switch:
     _gnmi_client: gNMIClient | None
     _ports: PortList
     _is_channel_up: bool = False
-    _api_version: ApiVersion = ApiVersion(1, 0, 0)
+    _api_version: ApiVersion = ApiVersion(1, 0, 0, "")
 
     control_task: asyncio.Task[Any] | None = None
     "Used by Controller to track switch's main task."
@@ -416,10 +416,11 @@ class Switch:
 
         self._tasks = SwitchTasks()
         self._p4client = P4Client(self._address, self._options.channel_credentials)
-        self.create_task(self._run(), background=True)
+        self._switch_start()
 
         try:
             # Wait for CHANNEL_READY event from the switch.
+            self.create_task(self._run(), background=True)
             await self.ee.wait_for_event(SwitchEvent.CHANNEL_READY)
         except BaseException:
             await self.__aexit__(None, None, None)
@@ -442,6 +443,7 @@ class Switch:
         self._arbitrator.reset()
         self._p4client = None
         self._tasks = None
+        self._switch_stop()
 
     def _switch_start(self):
         "Called when switch starts its run() cycle."
@@ -474,7 +476,7 @@ class Switch:
 
         ports = " ".join(f"({port.id}){port.name}" for port in self.ports)
         LOGGER.info(
-            "Channel up (is_primary=%r, election_id=%r, primary_id=%r, p4r_version=%s): %s",
+            "Channel up (is_primary=%r, election_id=%r, primary_id=%r, p4r=%s): %s",
             self.is_primary,
             self.election_id,
             self.primary_id,
@@ -530,7 +532,11 @@ class Switch:
 
     def _channel_ready(self):
         "Called when a P4Runtime channel is READY."
-        LOGGER.info("Channel ready (is_primary=%r)", self.is_primary)
+        LOGGER.info(
+            "Channel ready (is_primary=%r): %s",
+            self.is_primary,
+            self.p4info.get_pipeline_info(),
+        )
 
         if self._options.ready_handler:
             self.create_task(self._options.ready_handler(self))
@@ -615,6 +621,7 @@ class Switch:
             await self._set_pipeline_config_request(
                 config=self.p4info.get_pipeline_config()
             )
+            LOGGER.info("Pipeline installed: %s", self.p4info.get_pipeline_info())
 
     async def _get_pipeline_config_request(
         self,
