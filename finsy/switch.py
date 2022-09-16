@@ -744,6 +744,7 @@ class Switch:
         """
         assert self._p4client is not None
 
+        # Read everything we can and immediately delete it.
         everything = [
             p4entity.P4TableEntry(),
             p4entity.P4MulticastGroupEntry(),
@@ -758,6 +759,14 @@ class Switch:
         async for reply in self._p4client.request_iter(request):
             if reply.entities:
                 await self.delete(reply.entities)
+
+        # Reset all default table entries.
+        default_entries = [
+            p4entity.P4TableEntry(table.alias, is_default_action=True)
+            for table in self.p4info.tables
+        ]
+        if default_entries:
+            await self.modify(default_entries)
 
         # We need to delete DigestEntry separately. Wildcard reads are not
         # supported.
