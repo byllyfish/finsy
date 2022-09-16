@@ -1,5 +1,14 @@
 # Finsy Change Log
 
+## 0.5.0
+
+- The `delete_all` method will reset any default table entries.
+- The Switch context manager API no longer retries connections (wait_for_ready=False).
+- Improve logging of P4Runtime version and pipeline information.
+- Implement `DecodeFormat` as a bit flag in `p4values.py`.
+- Update `hello.p4` demos and fix example code in README.
+- Update dependency versions.
+
 ## 0.4.0
 
 - Switch API functions: `insert`, `modify`, `delete`, `write` now take a single sequence argument (no more varargs).
