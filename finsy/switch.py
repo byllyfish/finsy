@@ -415,13 +415,27 @@ class Switch:
         assert self._tasks is None
 
         self._tasks = SwitchTasks()
-        self._p4client = P4Client(self._address, self._options.channel_credentials)
+        self._p4client = P4Client(
+            self._address,
+            self._options.channel_credentials,
+            wait_for_ready=False,
+        )
         self._switch_start()
 
         try:
-            # Wait for CHANNEL_READY event from the switch.
-            self.create_task(self._run(), background=True)
-            await self.ee.wait_for_event(SwitchEvent.CHANNEL_READY)
+            # Start the switch's `_run` task in the background. Then, wait for
+            # `_run` task to fire the CHANNEL_READY event. If the `_run` task
+            # cannot connect or fails in some other way, it will finish before
+            # the `ready` future. We need to handle the error in this case.
+
+            run = self.create_task(self._run(), background=True)
+            ready = self.ee.event_future(SwitchEvent.CHANNEL_READY)
+            done, _ = await asyncio.wait(
+                [run, ready], return_when=asyncio.FIRST_COMPLETED
+            )
+            if run in done:
+                await run
+
         except BaseException:
             await self.__aexit__(None, None, None)
             raise
@@ -853,12 +867,12 @@ class SwitchEmitter(pyee.EventEmitter):
             if asyncio.iscoroutine(coro):
                 self._switch.create_task(coro)
 
-    async def wait_for_event(self, event: SwitchEvent):
-        "Wait for a specific event."
+    def event_future(self, event: SwitchEvent):
+        "Future to wait for a specific event."
 
-        ready = asyncio.Event()
-        self.once(event, lambda _: ready.set())  # type: ignore
-        await ready.wait()
+        ready = asyncio.get_running_loop().create_future()
+        self.once(event, lambda _: ready.set_result(None))  # type: ignore
+        return ready
 
 
 class SwitchTasks:

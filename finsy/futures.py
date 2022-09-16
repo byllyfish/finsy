@@ -68,7 +68,7 @@ class CountdownFuture:
     ) -> None:
         "Wait for the countdown to finish."
         if self._counter <= 0:
-            raise ValueError("CountdownFuture is already <= zero.")
+            return
 
         assert self._future is not None
 

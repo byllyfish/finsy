@@ -233,6 +233,7 @@ class P4Client:
 
     _address: str
     _credentials: grpc.ChannelCredentials | None
+    _wait_for_ready: bool
     _channel: grpc.aio.Channel | None = None
     _stub: p4r_grpc.P4RuntimeStub | None = None
     _stream: _P4StreamTypeAlias | None = None
@@ -245,9 +246,12 @@ class P4Client:
         self,
         address: str,
         credentials: grpc.ChannelCredentials | None = None,
+        *,
+        wait_for_ready: bool = True,
     ) -> None:
         self._address = address
         self._credentials = credentials
+        self._wait_for_ready = wait_for_ready
 
     @property
     def channel(self) -> grpc.aio.Channel | None:
@@ -315,7 +319,7 @@ class P4Client:
         assert self._stub is not None
 
         if not self._stream or self._stream.done():
-            s: _P4StreamTypeAlias = self._stub.StreamChannel(wait_for_ready=True)  # type: ignore
+            s: _P4StreamTypeAlias = self._stub.StreamChannel(wait_for_ready=self._wait_for_ready)  # type: ignore
             self._stream = s
 
         self._log_msg(msg)
