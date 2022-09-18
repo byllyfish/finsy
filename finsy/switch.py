@@ -713,27 +713,29 @@ class Switch:
         "Insert the specified entities."
         await self._write(entities, P4UpdateType.INSERT)
 
-    async def modify(self, entities: Iterable[p4entity.P4EntityList]):
-        "Modify the specified entities."
-        await self._write(entities, P4UpdateType.MODIFY)
+    async def modify(
+        self,
+        entities: Iterable[p4entity.P4EntityList],
+        *,
+        strict: bool = True,
+    ):
+        """Modify the specified entities.
+
+        If `strict` is False, NOT_FOUND errors will be ignored.
+        """
+        await self._write(entities, P4UpdateType.MODIFY, strict)
 
     async def delete(
         self,
         entities: Iterable[p4entity.P4EntityList],
-        ignore_not_found_error: bool = False,
+        *,
+        strict: bool = True,
     ):
         """Delete the specified entities.
 
-        It is an error to delete entities that do not exist. If
-        `ignore_not_found_error` is True, this 'NOT FOUND' error will be
-        suppressed.
+        If `strict` is False, NOT_FOUND errors will be ignored.
         """
-        try:
-            await self._write(entities, P4UpdateType.DELETE)
-        except P4ClientError as ex:
-            if ignore_not_found_error and ex.status.is_not_found_only:
-                return
-            raise
+        await self._write(entities, P4UpdateType.DELETE, strict)
 
     async def delete_all(self):
         """Delete all entities.
@@ -774,12 +776,13 @@ class Switch:
             p4entity.P4DigestEntry(digest.alias) for digest in self.p4info.digests
         ]
         if digest_entries:
-            await self.delete(digest_entries, ignore_not_found_error=True)
+            await self.delete(digest_entries, strict=False)
 
     async def _write(
         self,
         entities: Iterable[p4entity.P4EntityList],
         update_type: P4UpdateType,
+        strict: bool = True,
     ):
         "Helper to insert/modify/delete specified entities."
         assert self._p4client is not None
@@ -791,12 +794,18 @@ class Switch:
             p4r.Update(type=update_type.vt(), entity=ent)
             for ent in p4entity.encode_entities(entities, self.p4info)
         ]
-        await self._p4client.request(
-            p4r.WriteRequest(
-                device_id=self.device_id,
-                updates=updates,
+
+        try:
+            await self._p4client.request(
+                p4r.WriteRequest(
+                    device_id=self.device_id,
+                    updates=updates,
+                )
             )
-        )
+        except P4ClientError as ex:
+            if not strict and ex.status.is_not_found_only:
+                return
+            raise
 
     async def _fetch_capabilities(self):
         "Check the P4Runtime protocol version supported by the other end."
