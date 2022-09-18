@@ -45,7 +45,7 @@ from finsy.gnmiclient import gNMIClient, gNMIClientError
 from finsy.grpcutil import GRPCStatusCode
 from finsy.log import LOGGER, TRACE
 from finsy.p4client import P4Client, P4ClientError
-from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema, P4UpdateType
+from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema
 from finsy.ports import PortList
 from finsy.proto import p4r
 
@@ -685,8 +685,17 @@ class Switch:
             for ent in reply.entities:
                 yield p4entity.decode_entity(ent, self.p4info)
 
-    async def write(self, entities: Iterable[p4entity.P4UpdateList]):
-        "Write updates and stream messages to the switch."
+    async def write(
+        self,
+        entities: Iterable[p4entity.P4UpdateList],
+        *,
+        strict: bool = True,
+    ):
+        """Write updates and stream messages to the switch.
+
+        If `strict` is False, MODIFY and DELETE operations will NOT raise an
+        error if the entity does not exist (NOT_FOUND).
+        """
         assert self._p4client is not None
 
         if not entities:
@@ -697,43 +706,63 @@ class Switch:
         updates: list[p4r.Update] = []
         for msg in msgs:
             if isinstance(msg, p4r.StreamMessageRequest):
+                # StreamMessageRequests are transmitted immediately.
+                # TODO: Understand what happens with backpressure?
                 await self._p4client.send(msg)
             else:
                 updates.append(msg)
 
         if updates:
-            await self._p4client.request(
-                p4r.WriteRequest(
-                    device_id=self.device_id,
-                    updates=updates,
-                )
-            )
+            await self._write_request(updates, strict)
 
     async def insert(self, entities: Iterable[p4entity.P4EntityList]):
         "Insert the specified entities."
-        await self._write(entities, P4UpdateType.INSERT)
+        if entities:
+            await self._write_request(
+                [
+                    p4r.Update(type=p4r.Update.INSERT, entity=ent)
+                    for ent in p4entity.encode_entities(entities, self.p4info)
+                ],
+                True,
+            )
 
-    async def modify(self, entities: Iterable[p4entity.P4EntityList]):
-        "Modify the specified entities."
-        await self._write(entities, P4UpdateType.MODIFY)
+    async def modify(
+        self,
+        entities: Iterable[p4entity.P4EntityList],
+        *,
+        strict: bool = True,
+    ):
+        """Modify the specified entities.
+
+        If `strict` is False, NOT_FOUND errors will be ignored.
+        """
+        if entities:
+            await self._write_request(
+                [
+                    p4r.Update(type=p4r.Update.MODIFY, entity=ent)
+                    for ent in p4entity.encode_entities(entities, self.p4info)
+                ],
+                strict,
+            )
 
     async def delete(
         self,
         entities: Iterable[p4entity.P4EntityList],
-        ignore_not_found_error: bool = False,
+        *,
+        strict: bool = True,
     ):
         """Delete the specified entities.
 
-        It is an error to delete entities that do not exist. If
-        `ignore_not_found_error` is True, this 'NOT FOUND' error will be
-        suppressed.
+        If `strict` is False, NOT_FOUND errors will be ignored.
         """
-        try:
-            await self._write(entities, P4UpdateType.DELETE)
-        except P4ClientError as ex:
-            if ignore_not_found_error and ex.status.is_not_found_only:
-                return
-            raise
+        if entities:
+            await self._write_request(
+                [
+                    p4r.Update(type=p4r.Update.DELETE, entity=ent)
+                    for ent in p4entity.encode_entities(entities, self.p4info)
+                ],
+                strict,
+            )
 
     async def delete_all(self):
         """Delete all entities.
@@ -774,29 +803,22 @@ class Switch:
             p4entity.P4DigestEntry(digest.alias) for digest in self.p4info.digests
         ]
         if digest_entries:
-            await self.delete(digest_entries, ignore_not_found_error=True)
+            await self.delete(digest_entries, strict=False)
 
-    async def _write(
-        self,
-        entities: Iterable[p4entity.P4EntityList],
-        update_type: P4UpdateType,
-    ):
-        "Helper to insert/modify/delete specified entities."
+    async def _write_request(self, updates: list[p4r.Update], strict: bool):
+        "Send a P4Runtime WriteRequest."
         assert self._p4client is not None
 
-        if not entities:
-            return
-
-        updates = [
-            p4r.Update(type=update_type.vt(), entity=ent)
-            for ent in p4entity.encode_entities(entities, self.p4info)
-        ]
-        await self._p4client.request(
-            p4r.WriteRequest(
-                device_id=self.device_id,
-                updates=updates,
+        try:
+            await self._p4client.request(
+                p4r.WriteRequest(
+                    device_id=self.device_id,
+                    updates=updates,
+                )
             )
-        )
+        except P4ClientError as ex:
+            if strict or ex.status.is_not_found_only:
+                raise
 
     async def _fetch_capabilities(self):
         "Check the P4Runtime protocol version supported by the other end."
