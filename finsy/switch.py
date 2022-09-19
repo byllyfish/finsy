@@ -476,12 +476,7 @@ class Switch:
         "Called when switch stops its run() cycle."
         assert not self._is_channel_up
 
-        LOGGER.info(
-            "Switch stop (name=%r, address=%r, device_id=%r)",
-            self.name,
-            self._address,
-            self.device_id,
-        )
+        LOGGER.info("Switch stop (name=%r)", self.name)
         self.ee.emit(SwitchEvent.SWITCH_STOP)
 
     def _channel_up(self):
