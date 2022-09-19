@@ -1087,6 +1087,9 @@ def test_digest_list_ack1():
         }
     }
 
+    digest = P4DigestList("Digest_t", list_id=1, timestamp=0, data=[])
+    assert digest.ack() == ack
+
 
 def test_value_set_entry1():
     "Test P4ValueSetEntry."
