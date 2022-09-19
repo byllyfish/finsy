@@ -304,7 +304,7 @@ class P4TableAction:
             param = action.params[name]
             seen.remove(param.name)
 
-        raise ValueError(f"{action.alias!r}: missing parameters {seen}")
+        raise ValueError(f"Action {action.alias!r}: missing parameters {seen}")
 
     def encode_action(self, schema: P4Schema | P4Table) -> p4r.Action:
         "Encode Action data as protobuf."
@@ -1466,6 +1466,10 @@ class P4DigestList:
     def __iter__(self):
         "Iterate over values in digest list."
         return iter(self.data)
+
+    def ack(self) -> "P4DigestListAck":
+        "Return the corresponding DigestListAck message."
+        return P4DigestListAck(self.digest_id, self.list_id)
 
 
 @dataclass

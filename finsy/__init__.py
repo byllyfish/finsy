@@ -24,6 +24,7 @@ if sys.version_info < (3, 10):  # pragma: no cover
 from .controller import Controller, current_controller
 from .gnmiclient import gNMIClient, gNMISubscription, gNMIUpdate
 from .gnmipath import gNMIPath
+from .log import LoggerAdapter
 from .p4entity import (
     P4ActionProfileGroup,
     P4ActionProfileMember,
@@ -31,6 +32,7 @@ from .p4entity import (
     P4CounterData,
     P4DigestEntry,
     P4DigestList,
+    P4DigestListAck,
     P4DirectCounterEntry,
     P4IndirectAction,
     P4MeterConfig,
@@ -49,6 +51,7 @@ from .switch import Switch, SwitchEvent, SwitchOptions
 __all__ = [
     "current_controller",
     "Controller",
+    "LoggerAdapter",
     "P4ActionProfileGroup",
     "P4ActionProfileMember",
     "P4CloneSessionEntry",
@@ -56,6 +59,7 @@ __all__ = [
     "P4CounterUnit",
     "P4DigestEntry",
     "P4DigestList",
+    "P4DigestListAck",
     "P4DirectCounterEntry",
     "P4IndirectAction",
     "P4MeterConfig",

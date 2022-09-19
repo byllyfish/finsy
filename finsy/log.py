@@ -35,10 +35,10 @@ FINSY_TRANSLATE_LOGS = get_setting("FINSY_TRANSLATE_LOGS", "true")
 
 
 if TYPE_CHECKING:
-    _LoggerAdapter: TypeAlias = logging.LoggerAdapter[logging.Logger]
+    _BaseLoggerAdapter: TypeAlias = logging.LoggerAdapter[logging.Logger]
 else:
-    # LoggerAdapter will be generic at runtime in Python 3.11.
-    _LoggerAdapter: TypeAlias = logging.LoggerAdapter
+    # logging.LoggerAdapter will be generic at runtime in Python 3.11.
+    _BaseLoggerAdapter: TypeAlias = logging.LoggerAdapter
 
 
 def _get_current_task_name(shorten: bool = False) -> str:
@@ -69,7 +69,7 @@ def _get_current_task_name(shorten: bool = False) -> str:
     return name
 
 
-class _CustomAdapter(_LoggerAdapter):
+class LoggerAdapter(_BaseLoggerAdapter):
     """Custom log adapter to include the name of the current task."""
 
     def process(
@@ -90,9 +90,9 @@ class _CustomAdapter(_LoggerAdapter):
             self.logger.info(f"[{task_name}] {msg}", *args, **kwargs)
 
 
-LOGGER = _CustomAdapter(logging.getLogger(__package__))
-MSG_LOG = _CustomAdapter(logging.getLogger(f"{__package__}.msg"))
-TRACE_LOG = _CustomAdapter(logging.getLogger(f"{__package__}.trace"))
+LOGGER = LoggerAdapter(logging.getLogger(__package__))
+MSG_LOG = LoggerAdapter(logging.getLogger(f"{__package__}.msg"))
+TRACE_LOG = LoggerAdapter(logging.getLogger(f"{__package__}.trace"))
 
 
 def _exc() -> BaseException | None:
