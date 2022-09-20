@@ -304,7 +304,7 @@ class P4TableAction:
             param = action.params[name]
             seen.remove(param.name)
 
-        raise ValueError(f"{action.alias!r}: missing parameters {seen}")
+        raise ValueError(f"Action {action.alias!r}: missing parameters {seen}")
 
     def encode_action(self, schema: P4Schema | P4Table) -> p4r.Action:
         "Encode Action data as protobuf."
@@ -511,6 +511,12 @@ class P4TableEntry(_P4Writable):
     idle_timeout_ns: int = 0
     time_since_last_hit: int | None = None
     metadata: bytes = b""
+
+    def __getitem__(self, key: str) -> Any:
+        "Convenience accessor to retrieve a value from the `match` property."
+        if self.match is not None:
+            return self.match[key]
+        raise KeyError(key)
 
     def full_match(self, schema: P4Schema, default: str = "*") -> P4TableMatch:
         "Return copy of `match` but with all fields filled in as `default`."
@@ -1466,6 +1472,10 @@ class P4DigestList:
     def __iter__(self):
         "Iterate over values in digest list."
         return iter(self.data)
+
+    def ack(self) -> "P4DigestListAck":
+        "Return the corresponding DigestListAck message."
+        return P4DigestListAck(self.digest_id, self.list_id)
 
 
 @dataclass

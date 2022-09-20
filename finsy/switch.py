@@ -476,12 +476,7 @@ class Switch:
         "Called when switch stops its run() cycle."
         assert not self._is_channel_up
 
-        LOGGER.info(
-            "Switch stop (name=%r, address=%r, device_id=%r)",
-            self.name,
-            self._address,
-            self.device_id,
-        )
+        LOGGER.info("Switch stop (name=%r)", self.name)
         self.ee.emit(SwitchEvent.SWITCH_STOP)
 
     def _channel_up(self):
@@ -690,11 +685,16 @@ class Switch:
         entities: Iterable[p4entity.P4UpdateList],
         *,
         strict: bool = True,
+        warn_only: bool = False,
     ):
         """Write updates and stream messages to the switch.
 
         If `strict` is False, MODIFY and DELETE operations will NOT raise an
         error if the entity does not exist (NOT_FOUND).
+
+        If `warn_only` is True, no operations will raise an error. Instead,
+        the exception will be logged as a WARNING and the method will return
+        normally.
         """
         assert self._p4client is not None
 
@@ -713,10 +713,19 @@ class Switch:
                 updates.append(msg)
 
         if updates:
-            await self._write_request(updates, strict)
+            await self._write_request(updates, strict, warn_only)
 
-    async def insert(self, entities: Iterable[p4entity.P4EntityList]):
-        "Insert the specified entities."
+    async def insert(
+        self,
+        entities: Iterable[p4entity.P4EntityList],
+        *,
+        warn_only: bool = False,
+    ):
+        """Insert the specified entities.
+
+        If `warn_only` is True, errors will be logged as warnings instead of
+        raising an exception.
+        """
         if entities:
             await self._write_request(
                 [
@@ -724,6 +733,7 @@ class Switch:
                     for ent in p4entity.encode_entities(entities, self.p4info)
                 ],
                 True,
+                warn_only,
             )
 
     async def modify(
@@ -731,10 +741,14 @@ class Switch:
         entities: Iterable[p4entity.P4EntityList],
         *,
         strict: bool = True,
+        warn_only: bool = False,
     ):
         """Modify the specified entities.
 
         If `strict` is False, NOT_FOUND errors will be ignored.
+
+        If `warn_only` is True, errors will be logged as warnings instead of
+        raising an exception.
         """
         if entities:
             await self._write_request(
@@ -743,6 +757,7 @@ class Switch:
                     for ent in p4entity.encode_entities(entities, self.p4info)
                 ],
                 strict,
+                warn_only,
             )
 
     async def delete(
@@ -750,10 +765,14 @@ class Switch:
         entities: Iterable[p4entity.P4EntityList],
         *,
         strict: bool = True,
+        warn_only: bool = False,
     ):
         """Delete the specified entities.
 
         If `strict` is False, NOT_FOUND errors will be ignored.
+
+        If `warn_only` is True, errors will be logged as warnings instead of
+        raising an exception.
         """
         if entities:
             await self._write_request(
@@ -762,6 +781,7 @@ class Switch:
                     for ent in p4entity.encode_entities(entities, self.p4info)
                 ],
                 strict,
+                warn_only,
             )
 
     async def delete_all(self):
@@ -793,6 +813,7 @@ class Switch:
         default_entries = [
             p4entity.P4TableEntry(table.alias, is_default_action=True)
             for table in self.p4info.tables
+            if table.const_default_action is None
         ]
         if default_entries:
             await self.modify(default_entries)
@@ -805,7 +826,9 @@ class Switch:
         if digest_entries:
             await self.delete(digest_entries, strict=False)
 
-    async def _write_request(self, updates: list[p4r.Update], strict: bool):
+    async def _write_request(
+        self, updates: list[p4r.Update], strict: bool, warn_only: bool
+    ):
         "Send a P4Runtime WriteRequest."
         assert self._p4client is not None
 
@@ -817,8 +840,16 @@ class Switch:
                 )
             )
         except P4ClientError as ex:
-            if strict or ex.status.is_not_found_only:
-                raise
+            if strict or not ex.status.is_not_found_only:
+                if warn_only:
+                    LOGGER.warning(
+                        "WriteRequest with `warn_only=True` failed",
+                        exc_info=True,
+                    )
+                else:
+                    raise
+
+            assert (not strict and ex.status.is_not_found_only) or warn_only
 
     async def _fetch_capabilities(self):
         "Check the P4Runtime protocol version supported by the other end."

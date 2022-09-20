@@ -383,6 +383,20 @@ def test_table_entry_full_match():
     assert entry2.full_match(_SCHEMA) == {"dstAddr": 1}
 
 
+def test_table_entry_accessor():
+    "Test P4TableEntry accessor for match fields."
+
+    entry1 = P4TableEntry("ipv4_lpm", match=P4TableMatch(dstAddr=1))
+    assert entry1["dstAddr"] == 1
+
+    with pytest.raises(KeyError):
+        entry1["nope"]
+
+    entry2 = P4TableEntry("ipv4_lpm")
+    with pytest.raises(KeyError):
+        entry2["dstAddr"]
+
+
 def test_decode_entity1():
     "Test decode_entity function."
 
@@ -1086,6 +1100,9 @@ def test_digest_list_ack1():
             "list_id": "1",
         }
     }
+
+    digest = P4DigestList("Digest_t", list_id=1, timestamp=0, data=[])
+    assert digest.ack() == ack
 
 
 def test_value_set_entry1():

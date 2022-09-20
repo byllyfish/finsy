@@ -1,0 +1,155 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 36205427
+    name: "IngressImpl.smac"
+    alias: "smac"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ethernet.srcAddr"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 19144669
+  }
+  action_refs {
+    id: 21257015
+  }
+  const_default_action_id: 19144669
+  size: 4096
+  idle_timeout_behavior: NOTIFY_CONTROL
+}
+tables {
+  preamble {
+    id: 45595255
+    name: "IngressImpl.dmac"
+    alias: "dmac"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ethernet.dstAddr"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 19387472
+  }
+  action_refs {
+    id: 22047199
+  }
+  action_refs {
+    id: 17676690
+  }
+  size: 4096
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 17676690
+    name: "IngressImpl.drop"
+    alias: "drop"
+  }
+}
+actions {
+  preamble {
+    id: 19144669
+    name: "IngressImpl.learn_mac"
+    alias: "learn_mac"
+  }
+}
+actions {
+  preamble {
+    id: 19387472
+    name: "IngressImpl.fwd"
+    alias: "fwd"
+  }
+  params {
+    id: 1
+    name: "eg_port"
+    bitwidth: 9
+  }
+}
+actions {
+  preamble {
+    id: 22047199
+    name: "IngressImpl.broadcast"
+    alias: "broadcast"
+  }
+  params {
+    id: 1
+    name: "mgrp"
+    bitwidth: 16
+  }
+}
+counters {
+  preamble {
+    id: 316239238
+    name: "igPortsCounts"
+    alias: "igPortsCounts"
+  }
+  spec {
+    unit: PACKETS
+  }
+  size: 512
+}
+counters {
+  preamble {
+    id: 306420565
+    name: "egPortsCounts"
+    alias: "egPortsCounts"
+  }
+  spec {
+    unit: PACKETS
+  }
+  size: 512
+}
+digests {
+  preamble {
+    id: 389049336
+    name: "digest_t"
+    alias: "digest_t"
+  }
+  type_spec {
+    struct {
+      name: "digest_t"
+    }
+  }
+}
+type_info {
+  structs {
+    key: "digest_t"
+    value {
+      members {
+        name: "srcAddr"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 48
+            }
+          }
+        }
+      }
+      members {
+        name: "ingressPort"
+        type_spec {
+          bitstring {
+            bit {
+              bitwidth: 9
+            }
+          }
+        }
+      }
+    }
+  }
+}
