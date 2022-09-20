@@ -512,6 +512,12 @@ class P4TableEntry(_P4Writable):
     time_since_last_hit: int | None = None
     metadata: bytes = b""
 
+    def __getitem__(self, key: str) -> Any:
+        "Convenience accessor to retrieve a value from the `match` property."
+        if self.match is not None:
+            return self.match[key]
+        raise KeyError(key)
+
     def full_match(self, schema: P4Schema, default: str = "*") -> P4TableMatch:
         "Return copy of `match` but with all fields filled in as `default`."
         table = schema.tables[self.table_id]

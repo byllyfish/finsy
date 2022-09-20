@@ -1,12 +1,13 @@
 import asyncio
 import logging
+import random
 from pathlib import Path
 
 import finsy as fy
 
 P4SRC = Path(__file__).parent / "p4src"
 MGRP = 0xAB
-PORTS = [0, 1, 2, 3, 4]
+PORTS = [1, 2, 3]
 
 LOG = fy.LoggerAdapter(logging.getLogger("demo"))
 
@@ -29,6 +30,14 @@ async def _ready_handler(switch: fy.Switch):
         ]
     )
 
+    # Start polling ingress and egress counters after an initial delay.
+    await asyncio.sleep(random.uniform(1.0, 5.0))
+
+    while True:
+        await _log_counters(switch, "igPortsCounts")
+        await _log_counters(switch, "egPortsCounts")
+        await asyncio.sleep(10.0)
+
 
 async def _handle_digests(switch: fy.Switch):
     async for digest in switch.read_digests():
@@ -41,13 +50,7 @@ async def _handle_digests(switch: fy.Switch):
 
 async def _handle_timeouts(switch: fy.Switch):
     async for timeout in switch.read_idle_timeouts():
-        await switch.write(
-            [
-                _unlearn(entry.match["srcAddr"])
-                for entry in timeout.table_entry
-                if entry.match
-            ]
-        )
+        await switch.write([_unlearn(entry["srcAddr"]) for entry in timeout])
 
 
 def _learn(src_addr: int, ingress_port: int):
@@ -79,6 +82,16 @@ def _unlearn(src_addr: int):
             match=fy.P4TableMatch(dstAddr=src_addr),
         ),
     ]
+
+
+async def _log_counters(switch: fy.Switch, name: str):
+    ports = set(PORTS)
+    counts = {
+        counter.index: counter.data.packet_count
+        async for counter in switch.read([fy.P4CounterEntry(name)])
+        if counter.index in ports
+    }
+    LOG.info("%s: %r", name, counts)
 
 
 async def main():
