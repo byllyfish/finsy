@@ -5,6 +5,7 @@ from pathlib import Path
 import finsy as fy
 
 P4SRC = Path(__file__).parent / "p4src"
+LOG = fy.LoggerAdapter(logging.getLogger("demo1"))
 
 
 async def ready_handler(sw: fy.Switch):
@@ -23,7 +24,7 @@ async def ready_handler(sw: fy.Switch):
     )
 
     async for packet in sw.read_packets():
-        print(f"{sw.name}: {packet}")
+        LOG.info("%r", packet)
 
 
 def main():
