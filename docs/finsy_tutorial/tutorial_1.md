@@ -1,6 +1,6 @@
 # 🐟 Tutorial 1: Using the Stratum Mininet Docker Image
 
-🚧 This tutorial is [under development](## "Technical content okay; grammar not read good ;)").
+🚧 This tutorial is under development.
 
 This tutorial shows how to connect Finsy to a software switch running in a Docker container. If you
 already have a P4Runtime switch or you are familiar with docker/mininet/stratum, you can skip this 
