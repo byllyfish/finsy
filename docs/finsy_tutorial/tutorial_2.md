@@ -1,6 +1,6 @@
 # 🐟 Tutorial 2: Using gNMI
 
-🚧 This tutorial is [under development](## "Working on Technical content...").
+🚧 This tutorial is under development.
 
 In this tutorial, we will demonstrate how to use the `Finsy` gNMI client.
 gNMI is a protocol for reading and writing a key/value store that describes a 

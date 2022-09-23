@@ -1,6 +1,6 @@
 # 🐟 Tutorial 0: Installation and Setup
 
-🚧 This tutorial is [under development](## "Technical content okay; grammar not read good ;)").
+🚧 This tutorial is under development.
 
 This tutorial shows how to create a **Finsy** project from scratch.
 

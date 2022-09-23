@@ -5,14 +5,14 @@ from pathlib import Path
 
 import finsy as fy
 
-_ETH_ARP = 0x0806
+P4SRC = Path(__file__).parent / "p4src"
+LOG = fy.LoggerAdapter(logging.getLogger("demo2"))
 
 
 class DemoApp:
     "Hello World, demo app."
 
     CONTROLLER_PORT = 255
-    P4SRC = Path(__file__).parent / "p4src"
     P4INFO = P4SRC / "hello.p4info.txt"
     P4BLOB = P4SRC / "hello.json"
 
@@ -25,24 +25,27 @@ class DemoApp:
 
     async def on_ready(self, switch: fy.Switch):
         "Switch's ready handler."
+        if not switch.is_primary:
+            return  # Bail out if we're backup controller
+
         ports = [port.id for port in switch.ports] + [self.CONTROLLER_PORT]
         learned = set[IPv4Address]()
 
         await switch.delete_all()
         await switch.insert([fy.P4MulticastGroupEntry(1, replicas=ports)])
 
-        async for packet in switch.read_packets(eth_types={_ETH_ARP}):
+        async for packet in switch.read_packets(eth_types={0x0806}):
             # Extract source IPv4 address from ARP.
             addr = IPv4Address(packet.payload[28:32])
             if addr and addr not in learned:
                 learned.add(addr)
                 port = packet["ingress_port"]
-                await switch.insert(self._learn(switch, addr, port))
+                await switch.insert(self._learn(addr, port))
 
     @staticmethod
-    def _learn(switch: fy.Switch, addr: IPv4Address, port: int):
+    def _learn(addr: IPv4Address, port: int):
         "Return a P4TableEntry which tells where to forward this IPv4 address."
-        print(f"{switch.name} learned {addr} on port {port}")
+        LOG.info(f"Learn {addr} on port {port}")
         return [
             fy.P4TableEntry(
                 "ipv4",

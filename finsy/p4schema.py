@@ -1565,12 +1565,16 @@ def _check_id(ident: int, entity_type: str) -> bool:
 class P4SchemaDescription:
     "Helper class to produce text description of a P4Schema."
 
-    CLIPBOARD = "\U0001F4CB"  # Clipboard
-    PACKAGE = "\U0001F4E6"  # Package
-    LABEL = "\U0001F3F7"
-    INBOX = "\U0001F4E5"
-    OUTBOX = "\U0001F4E4"
-    MAILBOX = "📬"
+    HORIZ_LINE = "\U000023AF"  # Horizontal line
+    TABLE = "\U0001F4CB"  # Clipboard
+    PROFILE = "\U0001F4E6"  # Package
+    PACKET_METADATA = "\U0001f4ec"  # Mailbox
+    DIGEST = "\U0001f4c7"  # Card index
+    TIMEOUT = "\U000023f1"  # Stopwatch
+    CONST = "\U0001f512"  # Closed Lock
+    COUNTER = "\U0001f4c8"  # Chart
+    METER = "\U0001f6a6"  # Stoplight
+    REGISTER = "\U0001f5c3"  # Card file box
 
     MATCH_TYPES = {
         P4MatchType.EXACT: ":",
@@ -1589,15 +1593,25 @@ class P4SchemaDescription:
             result += self._describe_table(table)
         for profile in self._schema.action_profiles:
             result += self._describe_profile(profile)
+        for counter in self._schema.counters:
+            result += self._describe_counter(counter)
         for metadata in self._schema.controller_packet_metadata:
             result += self._describe_packet_metadata(metadata)
+        for digest in self._schema.digests:
+            result += self._describe_digest(digest)
         return result
 
     def _describe_preamble(self) -> str:
         "Describe preamble."
 
         sch = self._schema
-        return f"{sch.name} (version={sch.version}, arch={sch.arch})\n"
+        name = sch.name
+        if not name:
+            name = "<Unnamed>"
+
+        preamble = f"\n{name} (version={sch.version}, arch={sch.arch})\n"
+        preamble += self.HORIZ_LINE * (len(preamble) - 3) + "\n"
+        return preamble
 
     def _describe_match_type(self, match_type: P4MatchType | str):
         "Return a string describing the match type."
@@ -1610,30 +1624,55 @@ class P4SchemaDescription:
         "Describe P4Table."
 
         # Table header
-        line = f"{self.CLIPBOARD}{table.alias}[{table.size}]"
+        const = self.CONST if table.is_const else ""
+        line = f"{self.TABLE} {table.alias}[{table.size}]{const}"
         if table.action_profile:
             line += f" -> {self._describe_profile_brief(table.action_profile)}"
         line += "\n"
 
         # Table fields
-        line += "  "
+        line += "   "
         for field in table.match_fields:
             match_type = self._describe_match_type(field.match_type)
             line += f"{field.alias}{match_type}{field.bitwidth} "
         line += "\n"
 
         # Table actions
-        line += "  "
+        line += "   "
         for action in table.actions:
             line += self._describe_action(action)
         line += "\n"
 
+        flags = self._describe_table_flags(table)
+        if flags:
+            line += "   " + flags + "\n"
+
         return line
+
+    def _describe_table_flags(self, table: P4Table) -> str:
+        "Describe additional table flags."
+        flags = list[str]()
+
+        if table.idle_timeout_behavior != P4IdleTimeoutBehavior.NO_TIMEOUT:
+            flags.append(f"{self.TIMEOUT} {table.idle_timeout_behavior.name.lower()}")
+
+        if table.direct_counter:
+            flags.append(
+                f"{self.COUNTER}counter-{table.direct_counter.unit.name.lower()}"
+            )
+
+        if table.direct_meter:
+            flags.append(f"{self.METER}meter")  # FIXME: more info?
+
+        if table.const_default_action:
+            flags.append(f"{self.CONST}{table.const_default_action.alias}()")
+
+        return ", ".join(flags)
 
     def _describe_profile_brief(self, profile: P4ActionProfile) -> str:
         "Describe P4ActionProfile briefly when linked to table."
 
-        return f"{self.PACKAGE}{profile.alias}[{profile.size}]"
+        return f"{self.PROFILE} {profile.alias}[{profile.size}]"
 
     def _describe_profile(self, profile: P4ActionProfile) -> str:
         "Describe P4ActionProfile."
@@ -1649,7 +1688,7 @@ class P4SchemaDescription:
         opts.append(f"tables={table_names}")
 
         line = self._describe_profile_brief(profile)
-        line += f"\n  {' '.join(opts)}\n"
+        line += f"\n   {' '.join(opts)}\n"
 
         return line
 
@@ -1660,11 +1699,50 @@ class P4SchemaDescription:
 
     def _describe_packet_metadata(self, metadata: P4ControllerPacketMetadata):
         "Describe P4ControllerPacketMetadata."
-        line = f"{self.MAILBOX}{metadata.alias}\n  "
+        line = f"{self.PACKET_METADATA} {metadata.alias}\n   "
         for mdata in metadata.metadata:
             line += f"{mdata.name}:{mdata.bitwidth} "
         line += "\n"
 
+        return line
+
+    def _describe_digest(self, digest: P4Digest):
+        "Describe P4Digest."
+        line = f"{self.DIGEST} {digest.alias}\n   "
+        line += self._describe_typespec(digest.type_spec)
+        line += "\n"
+
+        return line
+
+    def _describe_typespec(self, type_spec: _P4Type):
+        "Describe P4TypeInfo."
+        match type_spec:
+            case P4StructType():
+                return " ".join(
+                    [
+                        f"{key}:{self._describe_p4type(value)}"
+                        for key, value in type_spec.members.items()
+                    ]
+                )
+            case _:
+                return "unsupported: {type_spec!r}"
+
+    def _describe_p4type(self, atype: _P4Type):
+        "Describe _P4Type value."
+        match atype:
+            case P4BitsType():
+                return f"{atype.bitwidth}"
+            case _:
+                return "<unsupported>"
+
+    def _describe_counter(self, counter: P4Counter):
+        "Describe P4Counter."
+        line = f"{self.COUNTER} {counter.alias}[{counter.size}]: {counter.unit.name.lower()}\n"
+        return line
+
+    def _describe_register(self, register: P4Register):
+        "Describe P4Register."
+        line = f"{self.REGISTER} {register.alias}[{register.size}]: {self._describe_typespec(register.type_spec)}"
         return line
 
 

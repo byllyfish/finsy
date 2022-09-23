@@ -1,10 +1,8 @@
 # Switch Read/Write API
 
-The `Switch` class provides the API for interacting with P4Runtime switches.
-
-The Switch API lets you read and write entities that control the switch's behavior.
-You can also write packets and other messages to the switch, or listen for incoming events
-from the switch.
+The `Switch` class provides the API for interacting with P4Runtime switches. You will control 
+a Switch object with a `ready handler` function. The `ready handler` is an
+async function that is called when the switch is ready to accept commands.
 
 Your `ready handler` will typically write some control entities to the switch, then
 listen for incoming events and react to them with more writes. You may occasionally read entities
@@ -13,7 +11,7 @@ from the switch.
 When your `ready handler` is invoked, there is already a P4Runtime channel established, with client
 arbitration completed, and pipeline configured as specified in `SwitchOptions`.
 
-Here is an example skeleton program:
+Here is an example skeleton program. The `ready handler` is named `ready()`.
 
 ```python
 async def ready(switch: Switch):
@@ -39,7 +37,7 @@ async def ready(switch: Switch):
         await handle_packet(switch, packet)
 ```
 
-The Switch class provides a `create_task` method to initiate managed tasks. Tasks allow you to perform
+The Switch class provides a `create_task` method to start a managed task. Tasks allow you to perform
 concurrent opertions on the same switch. See the `Switch Tasks` design doc for more information.
 
 We will start by covering the `Switch.write` API.
