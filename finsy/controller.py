@@ -16,6 +16,7 @@
 
 import asyncio
 from contextvars import ContextVar
+from types import TracebackType
 from typing import Any, Iterable
 
 from finsy.futures import CountdownFuture, wait_for_cancel
@@ -87,6 +88,46 @@ class Controller:
 
         if self.control_task is not None:
             self.control_task.cancel()
+
+    async def __aenter__(self):
+        "Run the controller as a context manager (see also run())."
+        assert not self.running, "Controller.__aenter__ is not re-entrant"
+
+        self.control_task = asyncio.current_task()
+        # We do not rename the control task.. like in run().
+        _CONTROLLER.set(self)
+
+        try:
+            # Start each switch running.
+            for switch in self:
+                self._start_switch(switch)
+        except Exception:
+            self.control_task = None
+            _CONTROLLER.set(None)
+            raise
+
+        return self
+
+    async def __aexit__(
+        self,
+        _exc_type: type[BaseException] | None,
+        _exc_val: BaseException | None,
+        _exc_tb: TracebackType | None,
+    ):
+        "Run the controller as a context manager (see also run())."
+        assert self.running
+
+        try:
+            # Stop all the switches.
+            for switch in self:
+                self._stop_switch(switch)
+
+            # Wait for switch tasks to finish.
+            await self._task_count.wait()
+
+        finally:
+            self.control_task = None
+            _CONTROLLER.set(None)
 
     def add(self, switch: Switch) -> None:
         """Add a switch to the controller.
@@ -161,9 +202,13 @@ class Controller:
         "Iterate over switches."
         return iter(self._switches.values())
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str):
         "Retrieve switch by name."
         return self._switches[name]
+
+    def get(self, name: str) -> Switch | None:
+        "Retrieve switch by name, or return None if not found."
+        return self._switches.get(name)
 
 
 _CONTROLLER: ContextVar[Controller | None] = ContextVar("_CONTROLLER", default=None)
