@@ -6,10 +6,11 @@ import struct
 from dataclasses import dataclass
 
 import finsy as fy
+from macaddress import MAC
 
 from . import netcfg
 
-LOGGER = logging.getLogger(__package__)
+LOG = fy.LoggerAdapter(logging.getLogger(__package__))
 
 
 class LinkEvent(str, enum.Enum):
@@ -35,9 +36,12 @@ class LinkManager:
         self.links = {}
 
     async def run(self):
+        self.links.clear()
+
         self.switch.create_task(self._read_packets())
         await self.switch.write(self._listen_lldp())
 
+        # FIXME: Links can come up at different times.
         await asyncio.sleep(random.uniform(0, 0.25))
 
         for _ in range(3):
@@ -52,7 +56,7 @@ class LinkManager:
             existing_event = self.links.get(local_port)
             if existing_event != event:
                 self.links[local_port] = event
-                LOGGER.info("LINK_READY: %s %r", self.switch.name, event)
+                LOG.info("%r", event)
                 self.switch.ee.emit(LinkEvent.LINK_READY, self.switch, event)
 
     def _listen_lldp(self):
@@ -77,10 +81,10 @@ class LinkManager:
 _LLDP_DST = b"\x01\x80\xc2\x00\x00\x00"
 
 
-def _encode_lldp(station_mac: bytes, chassis_id: bytes, port_id: bytes):
+def _encode_lldp(station_mac: MAC, chassis_id: bytes, port_id: bytes):
     result = b"".join(
         [
-            struct.pack("!6s6sH", _LLDP_DST, station_mac, 0x88CC),
+            struct.pack("!6s6sH", _LLDP_DST, bytes(station_mac), 0x88CC),
             _encode_tlv(1, chassis_id),
             _encode_tlv(2, port_id),
             _encode_tlv(3, b"\x00\x01"),

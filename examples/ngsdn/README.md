@@ -1,6 +1,6 @@
 # ngsdn Demo
 
-This demo provides another implementation of the [ngsdn-tutorial](https://github.com/opennetworkinglab/ngsdn-tutorial), up through exercise 5. Basically, this implementation imitates ONOS using Finsy.
+This demo provides an alternate P4Runtime implementation for the [ngsdn-tutorial](https://github.com/opennetworkinglab/ngsdn-tutorial).
 
 The P4Info file looks like this:
 
@@ -46,3 +46,4 @@ The P4Info file looks like this:
 📬 packet_out
    egress_port:9 _pad:7 
 ```
+

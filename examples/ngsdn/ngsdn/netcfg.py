@@ -30,9 +30,9 @@ def is_spine(switch: fy.Switch) -> bool:
     return _fabric_config(switch)["isSpine"]
 
 
-def get_station_mac(switch: fy.Switch) -> bytes:
+def get_station_mac(switch: fy.Switch) -> MAC:
     "Return the switch's station mac."
-    return bytes(MAC(_fabric_config(switch)["myStationMac"]))
+    return MAC(_fabric_config(switch)["myStationMac"])
 
 
 def get_networks(switch: fy.Switch) -> set[IPv6Network]:
