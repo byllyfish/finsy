@@ -1596,6 +1596,8 @@ class P4SchemaDescription:
     COUNTER = "\U0001f4c8"  # Chart
     METER = "\U0001f6a6"  # Stoplight
     REGISTER = "\U0001f5c3"  # Card file box
+    TABLE_ONLY = "\U00002191"  # Up arrow
+    DEFAULT_ONLY = "\U00002193"  # Down arrow
 
     MATCH_TYPES = {
         P4MatchType.EXACT: ":",
@@ -1660,8 +1662,7 @@ class P4SchemaDescription:
 
         # Table actions
         line += "   "
-        for action in table.actions:
-            line += self._describe_action(action)
+        line += " ".join(self._describe_action(action) for action in table.actions)
         line += "\n"
 
         flags = self._describe_table_flags(table)
@@ -1716,7 +1717,14 @@ class P4SchemaDescription:
     def _describe_action(self, action: P4ActionRef):
         "Describe P4ActionRef."
         params = ", ".join(f"{p.name}:{p.bitwidth}" for p in action.params)
-        return f"{action.alias}({params}) "
+        match action.scope:
+            case P4ActionScope.TABLE_ONLY:
+                scope = self.TABLE_ONLY
+            case P4ActionScope.DEFAULT_ONLY:
+                scope = self.DEFAULT_ONLY
+            case _:
+                scope = ""
+        return f"{scope}{action.alias}({params})"
 
     def _describe_packet_metadata(self, metadata: P4ControllerPacketMetadata):
         "Describe P4ControllerPacketMetadata."
