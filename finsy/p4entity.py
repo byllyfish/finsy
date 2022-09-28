@@ -271,6 +271,17 @@ class P4TableMatch(dict[str, Any]):
             if fld.alias not in self:
                 self[fld.alias] = default
 
+    def format(self, table: P4Table) -> str:
+        """Format the table match fields as a human-readable string."""
+        result = list[str]()
+
+        for fld in table.match_fields:
+            value = self.get(fld.alias, None)
+            if value is not None:
+                result.append(f"{fld.alias}={fld.format_field(value)}")
+
+        return ", ".join(result)
+
 
 @dataclass
 class P4TableAction:
@@ -361,6 +372,16 @@ class P4TableAction:
 
         return cls(action.alias, **args)
 
+    def format(self, table: P4Table) -> str:
+        """Format the table action as a human-readable string."""
+
+        ap = table.actions[self.name].params
+        args = [
+            f"{key}={ap[key].format_param(value)}" for key, value in self.args.items()
+        ]
+
+        return f"{self.name}({', '.join(args)})"
+
 
 @dataclass
 class P4IndirectAction:
@@ -426,6 +447,20 @@ class P4IndirectAction:
             action_set.append((weight, table_action))
 
         return cls(action_set)
+
+    def format(self, table: P4Table) -> str:
+        """Format the indirect table action as a human-readable string."""
+
+        if self.action_set is not None:
+            weighted_actions = [
+                f"{weight}*{action.format(table)}" for weight, action in self.action_set
+            ]
+            return ", ".join(weighted_actions)
+
+        if self.member_id is not None:
+            return f"__indirect(member_id={self.member_id!r})"
+
+        return f"__indirect(group_id={self.group_id!r})"
 
     def __repr__(self):
         "Customize representation to make it more concise."

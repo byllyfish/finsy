@@ -7,6 +7,8 @@ from typing import AsyncIterator
 
 import finsy as fy
 
+from .log import LOG
+
 
 async def run_console(controller: fy.Controller):
     "Run the REPL for the console."
@@ -40,12 +42,60 @@ async def _help(_controller: fy.Controller, args: list[str]):
 
 
 async def _devices(controller: fy.Controller, args: list[str]):
-    "Display list of devices."
+    "Display list of switches."
 
     for switch in controller:
         status = "UP" if switch.is_up else "DOWN"
         primary = "PRIMARY" if switch.is_primary else "BACKUP"
         print(f"{switch.name:<16} {status:>4} {primary:<7}  {switch.address}")
+
+
+async def _p4info(controller: fy.Controller, args: list[str]):
+    "Display the P4Info for a switch."
+
+    match args:
+        case [device_name]:
+            pass
+        case _:
+            raise ValueError("p4info <device>")
+
+    switch = controller.get(device_name)
+    if switch is None:
+        raise ValueError(f"no such device: {device_name}")
+
+    print(switch.p4info)
+
+
+async def _table(controller: fy.Controller, args: list[str]):
+    "Display the contents of a P4 table."
+
+    match args:
+        case [device_name, table_name]:
+            entities = [
+                fy.P4TableEntry(table_name),
+                fy.P4TableEntry(table_name, is_default_action=True),
+            ]
+        case _:
+            raise ValueError("tables <device> <table>")
+
+    switch = controller.get(device_name)
+    if switch is None:
+        raise ValueError(f"no such device: {device_name}")
+
+    p4table = switch.p4info.tables[table_name]
+
+    async for table in switch.read(entities):
+        if table.match:
+            match = table.match.format(p4table)
+        else:
+            match = None
+        if table.action:
+            action = table.action.format(p4table)
+        elif table.is_default_action and p4table.action_profile is not None:
+            action = "NoAction()"  # default action is always NoAction()
+        else:
+            action = None
+        print(table.priority, match, "->", action)
 
 
 async def _srv6_insert(controller: fy.Controller, args: list[str]):
@@ -94,6 +144,8 @@ async def _srv6_clear(controller: fy.Controller, args: list[str]):
 _COMMANDS = {
     "help": _help,
     "devices": _devices,
+    "p4info": _p4info,
+    "table": _table,
     "srv6-insert": _srv6_insert,
     "srv6-clear": _srv6_clear,
 }
@@ -119,6 +171,7 @@ async def _read_prompt(prompt: str) -> AsyncIterator[list[str]]:
             if result:
                 yield result
         except ValueError as ex:
+            LOG.exception("failed")
             print(f"error: {ex}")
 
         print(prompt, end=" ", flush=True)

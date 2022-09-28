@@ -1,6 +1,5 @@
 import asyncio
 import enum
-import logging
 import random
 import struct
 from dataclasses import dataclass
@@ -9,8 +8,7 @@ import finsy as fy
 from macaddress import MAC
 
 from . import netcfg
-
-LOG = fy.LoggerAdapter(logging.getLogger(__package__))
+from .log import LOG
 
 
 class LinkEvent(str, enum.Enum):

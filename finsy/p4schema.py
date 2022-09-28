@@ -848,6 +848,11 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
         "Decode protobuf `param`."
         return p4values.decode_exact(param.value, self._bitwidth)
 
+    def format_param(self, value: p4values.P4ParamValue) -> str:
+        "Format `param` as a string."
+        format = p4values.DecodeFormat.STRING | p4values.DecodeFormat.ADDRESS
+        return p4values.format_exact(value, self._bitwidth, format)
+
 
 class P4Action(_P4TopLevel[p4i.Action]):
     "Represents Action in schema."
@@ -1028,6 +1033,22 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
             case "optional":
                 # Decode "optional" as exact value, if field is present.
                 return p4values.decode_exact(field.exact.value, self._bitwidth)
+            case other:
+                raise ValueError(f"Unsupported match_type: {other!r}")
+
+    def format_field(self, value: Any) -> str:
+        "Format field value as string."
+
+        format = p4values.DecodeFormat.STRING | p4values.DecodeFormat.ADDRESS
+        match self.match_type:
+            case P4MatchType.EXACT:
+                return p4values.format_exact(value, self._bitwidth, format)
+            case P4MatchType.LPM:
+                return p4values.format_lpm(value, self._bitwidth, format)
+            case P4MatchType.TERNARY:
+                return p4values.format_ternary(value, self._bitwidth, format)
+            case P4MatchType.OPTIONAL:
+                return p4values.format_exact(value, self._bitwidth, format)
             case other:
                 raise ValueError(f"Unsupported match_type: {other!r}")
 

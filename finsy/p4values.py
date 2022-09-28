@@ -202,6 +202,15 @@ def decode_exact(
     return ival
 
 
+def format_exact(value: _ExactValue, bitwidth: int, format: DecodeFormat) -> str:
+    "Format a value as a string."
+
+    data = encode_exact(value, bitwidth)
+    result = decode_exact(data, bitwidth, format | DecodeFormat.STRING)
+    assert isinstance(result, str)
+    return result
+
+
 # LPM Values
 # ~~~~~~~~~~
 #
@@ -336,6 +345,15 @@ def decode_lpm(
             return (value, prefix_len)
 
 
+def format_lpm(value: _LPMValue, bitwidth: int, format: DecodeFormat) -> str:
+    "Format a value as a string."
+
+    data = encode_lpm(value, bitwidth)
+    result = decode_lpm(data[0], data[1], bitwidth, format | DecodeFormat.STRING)
+    assert isinstance(result, str)
+    return result
+
+
 # Ternary Values
 # ~~~~~~~~~~~~~~
 #
@@ -437,6 +455,15 @@ def decode_ternary(
             return f"{result[0]}/&{result[1]}"
         case _:
             return result
+
+
+def format_ternary(value: _TernaryValue, bitwidth: int, format: DecodeFormat) -> str:
+    "Format a value as a string."
+
+    data = encode_ternary(value, bitwidth)
+    result = decode_ternary(data[0], data[1], bitwidth, format | DecodeFormat.STRING)
+    assert isinstance(result, str)
+    return result
 
 
 # Range Values

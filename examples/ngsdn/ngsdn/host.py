@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import struct
 from dataclasses import dataclass, field
 
@@ -7,8 +6,7 @@ import finsy as fy
 from finsy import Switch
 
 from . import netcfg
-
-LOGGER = logging.getLogger(__package__)
+from .log import LOG
 
 
 class PROTO:
@@ -113,7 +111,7 @@ class HostManager:
     async def _handle_events(self):
         while True:
             event = await self.events.get()
-            LOGGER.info("HOST_EVENT: %s %r", self.switch.name, event)
+            LOG.info("%r", event)
             match event:
                 case HostAdd(host, addr):
                     await self.switch.write(
