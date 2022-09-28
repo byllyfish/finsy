@@ -183,6 +183,11 @@ class Switch:
         return self._name
 
     @property
+    def address(self) -> str:
+        "Address of the switch."
+        return self._address
+
+    @property
     def options(self) -> SwitchOptions:
         "Switch options."
         return self._options
@@ -201,6 +206,11 @@ class Switch:
     def device_id(self) -> int:
         "Switch's device ID."
         return self._options.device_id
+
+    @property
+    def is_up(self) -> bool:
+        "True if switch is UP."
+        return self._is_channel_up
 
     @property
     def is_primary(self) -> bool:
@@ -784,50 +794,64 @@ class Switch:
                 warn_only,
             )
 
-    async def delete_all(self):
-        """Delete all entities.
+    async def delete_all(
+        self,
+        entities: Iterable[p4entity.P4EntityList] = (),
+    ):
+        """Delete all entities if no parameter is passed. Otherwise, delete
+        items that match `entities`.
 
-        This method does not affect indirect counters or meters.
+        TODO: This method does not affect indirect counters or meters.
 
         TODO: ActionProfileGroup/Member, ValueSet.
         """
-        assert self._p4client is not None
+        if entities:
+            # Delete just the matching entities and return.
+            return await self._wildcard_delete(entities)
 
-        # Read everything we can and immediately delete it.
-        everything = [
-            p4entity.P4TableEntry(),
-            p4entity.P4MulticastGroupEntry(),
-            p4entity.P4CloneSessionEntry(),
-        ]
-
-        request = p4r.ReadRequest(
-            device_id=self.device_id,
-            entities=p4entity.encode_entities(everything, self.p4info),
+        # Start by deleting everything that matches these wildcards.
+        await self._wildcard_delete(
+            [
+                p4entity.P4TableEntry(),
+                p4entity.P4MulticastGroupEntry(),
+                p4entity.P4CloneSessionEntry(),
+            ]
         )
-
-        async for reply in self._p4client.request_iter(request):
-            if reply.entities:
-                await self.delete(reply.entities)
 
         # Reset all default table entries.
         default_entries = [
             p4entity.P4TableEntry(table.alias, is_default_action=True)
             for table in self.p4info.tables
-            if table.const_default_action is None
+            if table.const_default_action is None and table.action_profile is None
         ]
         if default_entries:
             await self.modify(default_entries)
 
-        # We need to delete DigestEntry separately. Wildcard reads are not
-        # supported.
+        # Delete DigestEntry separately. Wildcard reads are not supported.
         digest_entries = [
             p4entity.P4DigestEntry(digest.alias) for digest in self.p4info.digests
         ]
         if digest_entries:
             await self.delete(digest_entries, strict=False)
 
+    async def _wildcard_delete(self, entities: Iterable[p4entity.P4EntityList]):
+        "Delete entities that match a wildcard read."
+        assert self._p4client is not None
+
+        request = p4r.ReadRequest(
+            device_id=self.device_id,
+            entities=p4entity.encode_entities(entities, self.p4info),
+        )
+
+        async for reply in self._p4client.request_iter(request):
+            if reply.entities:
+                await self.delete(reply.entities)
+
     async def _write_request(
-        self, updates: list[p4r.Update], strict: bool, warn_only: bool
+        self,
+        updates: list[p4r.Update],
+        strict: bool,
+        warn_only: bool,
     ):
         "Send a P4Runtime WriteRequest."
         assert self._p4client is not None

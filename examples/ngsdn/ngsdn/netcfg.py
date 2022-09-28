@@ -30,14 +30,22 @@ def is_spine(switch: fy.Switch) -> bool:
     return _fabric_config(switch)["isSpine"]
 
 
-def get_station_mac(switch: fy.Switch) -> bytes:
+def get_station_mac(switch: fy.Switch) -> MAC:
     "Return the switch's station mac."
-    return bytes(MAC(_fabric_config(switch)["myStationMac"]))
+    return MAC(_fabric_config(switch)["myStationMac"])
 
 
-def get_networks(switch: fy.Switch) -> set[IPv6Network]:
+def get_sid(switch: fy.Switch) -> IPv6Address:
+    "Return the switch's `mySid` value."
+    return IPv6Address(_fabric_config(switch)["mySid"])
+
+
+def get_networks(switch: fy.Switch, include_sid: bool = False) -> set[IPv6Network]:
     "Return the leaf networks associated with the switch."
-    return {intf.network for _, intf in _get_interfaces(switch)}
+    result = {intf.network for _, intf in _get_interfaces(switch)}
+    if include_sid:
+        result.add(IPv6Network(get_sid(switch)))
+    return result
 
 
 def get_addresses(switch: fy.Switch) -> set[IPv6Address]:

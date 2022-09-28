@@ -1,14 +1,14 @@
 import asyncio
-import logging
 import struct
 from dataclasses import dataclass, field
+from ipaddress import IPv4Address, IPv6Address
 
 import finsy as fy
 from finsy import Switch
+from macaddress import MAC
 
 from . import netcfg
-
-LOGGER = logging.getLogger(__package__)
+from .log import LOG
 
 
 class PROTO:
@@ -19,9 +19,9 @@ class PROTO:
 
 @dataclass(slots=True)
 class L2Host:
-    mac: bytes
+    mac: MAC
     port: int
-    addrs: set[bytes] = field(default_factory=set)
+    addrs: set[IPv4Address | IPv6Address] = field(default_factory=set)
 
 
 class HostEvent:
@@ -31,7 +31,7 @@ class HostEvent:
 @dataclass
 class HostAdd(HostEvent):
     host: L2Host
-    addr: bytes
+    addr: IPv4Address | IPv6Address
 
 
 @dataclass
@@ -43,7 +43,7 @@ class HostMove(HostEvent):
 @dataclass
 class HostAddIP(HostEvent):
     host: L2Host
-    addr: bytes
+    addr: IPv4Address | IPv6Address
 
 
 class HostManager:
@@ -54,7 +54,7 @@ class HostManager:
     CONTROLLER_PORT = 255
 
     switch: Switch
-    hosts: dict[bytes, L2Host]
+    hosts: dict[MAC, L2Host]
     events: asyncio.Queue[HostEvent]
 
     def __init__(self, switch: Switch):
@@ -113,11 +113,11 @@ class HostManager:
     async def _handle_events(self):
         while True:
             event = await self.events.get()
-            LOGGER.info("HOST_EVENT: %s %r", self.switch.name, event)
+            LOG.info("%r", event)
             match event:
                 case HostAdd(host, addr):
                     await self.switch.write(
-                        [self._l2learn(host, addr), self._l3learn(host, addr)]
+                        [self._l2learn(host), self._l3learn(host, addr)]
                     )
                 case HostMove(host, _):
                     pass
@@ -126,7 +126,7 @@ class HostManager:
                 case _:
                     pass
 
-    def _l2learn(self, host: L2Host, addr: bytes):
+    def _l2learn(self, host: L2Host):
         return [
             +fy.P4TableEntry(
                 "l2_exact_table",
@@ -135,8 +135,12 @@ class HostManager:
             ),
         ]
 
-    def _l3learn(self, host: L2Host, addr: bytes) -> list[fy.P4TableEntry]:
-        if len(addr) != 16:
+    def _l3learn(
+        self,
+        host: L2Host,
+        addr: IPv4Address | IPv6Address,
+    ) -> list[fy.P4TableEntry]:
+        if not isinstance(addr, IPv6Address):
             return []
 
         return [
@@ -203,13 +207,14 @@ class HostManager:
         ]
 
 
-def _parse_host_packet(data: bytes) -> tuple[bytes, bytes]:
+def _parse_host_packet(data: bytes) -> tuple[MAC, IPv4Address | IPv6Address]:
     eth_src, eth_type = struct.unpack_from("!6x6sH", data)
     match eth_type:
         case PROTO.ETH_ARP:
-            (ip_src,) = struct.unpack_from("!8x6x4s", data[14:])
+            (ipv4,) = struct.unpack_from("!8x6x4s", data[14:])
+            return (MAC(eth_src), IPv4Address(ipv4))
         case PROTO.ETH_IPV6:
-            (ip_src,) = struct.unpack_from("!8x16s", data[14:])
+            (ipv6,) = struct.unpack_from("!8x16s", data[14:])
+            return (MAC(eth_src), IPv6Address(ipv6))
         case _:
             raise ValueError(f"unknown eth_type: {eth_type!r}")
-    return (eth_src, ip_src)
