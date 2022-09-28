@@ -17,6 +17,7 @@ class RouteManager:
         await self.switch.write(
             [
                 self._station_entry(),
+                self._srv6_sid_entry(),
                 self._routes(),
                 self._link_stations(),
             ]
@@ -27,6 +28,14 @@ class RouteManager:
             "my_station_table",
             match=fy.P4TableMatch(dst_addr=netcfg.get_station_mac(self.switch)),
             action=fy.P4TableAction("NoAction"),
+        )
+
+    def _srv6_sid_entry(self):
+        sid = netcfg.get_sid(self.switch)
+        return +fy.P4TableEntry(
+            "srv6_my_sid",
+            match=fy.P4TableMatch(dst_addr=sid),
+            action=fy.P4TableAction("srv6_end"),
         )
 
     def _ndp_replies(self):
@@ -63,7 +72,7 @@ class RouteManager:
                 ),
             )
             for leaf in netcfg.leaf_switches()
-            for net in netcfg.get_networks(leaf)
+            for net in netcfg.get_networks(leaf, include_sid=True)
         ]
 
     def _leaf_routes(self):
@@ -74,7 +83,7 @@ class RouteManager:
             for net in netcfg.get_networks(leaf)
         }
 
-        return [
+        result = [
             +fy.P4TableEntry(
                 "routing_v6_table",
                 match=fy.P4TableMatch(dst_addr=net),
@@ -91,6 +100,25 @@ class RouteManager:
                 ),
             )
             for net in other_networks
+        ]
+
+        # Add SRv6 internal routes.
+        return result + [
+            +fy.P4TableEntry(
+                "routing_v6_table",
+                match=fy.P4TableMatch(dst_addr=netcfg.get_sid(spine)),
+                action=fy.P4IndirectAction(
+                    [
+                        (
+                            1,
+                            fy.P4TableAction(
+                                "set_next_hop", dmac=netcfg.get_station_mac(spine)
+                            ),
+                        ),
+                    ]
+                ),
+            )
+            for spine in netcfg.spine_switches()
         ]
 
     def _link_stations(self):
