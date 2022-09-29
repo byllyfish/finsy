@@ -715,7 +715,7 @@ def _parse_annotations(pbuf: Any) -> list[P4Annotation]:
     return result
 
 
-_UNSTRUCTURED_ANNOTATION_REGEX = re.compile(r"@(\w+)(?:\((.*)\))?")
+_UNSTRUCTURED_ANNOTATION_REGEX = re.compile(r"@(\w+)(?:\((.*)\))?", re.DOTALL)
 
 
 def _parse_unstructured_annotation(annotation: str) -> tuple[str, str]:
