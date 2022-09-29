@@ -47,3 +47,14 @@ The P4Info file looks like this:
    egress_port:9 _pad:7
 ```
 
+The little arrows next to action names indicate that an action's scope is TABLE_ONLY (↑) or DEFAULT_ONLY (↓). Unmarked actions
+are supported in both.
+
+## Running the Demo
+
+You will need to install additional packages into your Python virtual environment from `requirements.txt`. 
+Inside your `venv`, type `pip install -r requirements.txt`.
+
+To run the demo network, type `./demonet/run.sh`.
+
+To run the Finsy example program, type `python -m ngsdn`.

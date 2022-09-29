@@ -1,5 +1,21 @@
 # Finsy Change Log
 
+## 0.6.0
+
+- Rename `ignore_not_found=True` option to `strict=False` in Switch.write(), Switch.modify() and Switch.delete().
+- Add the `warn_only=True` option to Switch write() methods.
+- Implement support for P4CounterEntry.
+- Add the ack() convenience method to `P4DigestList` class.
+- Add a convenience accessor to `P4TableEntry` to retrieve match parameters.
+- The `Switch.delete_all()` method now takes an optional parameter to support wildcard deletes.
+- The `Controller` class can now be run as an asynchronous context manager.
+- Add the `is_up` and `address` property getters to the Switch class.
+- Add support for exercise 6 (SRv6) to the ngsdn demo.
+- Add a simple console module to the ngsdn demo.
+- Improve support for formatting P4TableEntry's in a concise manner, used in ngsdn demo.
+- Many improvements to the output of `P4SchemaDescription`.
+- Export `finsy.LoggerAdapter()` for use by clients.
+
 ## 0.5.0
 
 - The `delete_all` method will reset any default table entries.

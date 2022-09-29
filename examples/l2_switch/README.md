@@ -28,3 +28,9 @@ Table `smac` supports an idle timeout (⏱) and its default action is constant (
 
 This program has two indirect packet counters, `igPortsCounts` and `egPortsCounts`. This program
 also receives updates from the switch in a form of a digest `digest_t`with two fields: srcAddr and ingressPort.
+
+## Running the Demo
+
+To run the demo network, type `./demonet/run.sh`.
+
+To run the Finsy example program, type `python demo.py`.
