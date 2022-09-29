@@ -23,6 +23,9 @@ Each switch is managed by an async `ready_handler` function. Your `ready_handler
 update various P4Runtime entities in the switch. It can also create tasks to listen for 
 packets or digests.
 
+When you write P4Runtime updates to the switch, you use a unary operator (+, -, ~) to specify the operation:
+INSERT (+), DELETE (-) or MODIFY (~).
+
 ```python
 async def ready_handler(sw: fy.Switch):
     await sw.delete_all()
@@ -43,8 +46,9 @@ async def ready_handler(sw: fy.Switch):
         print(f"{sw.name}: {packet}")
 ```
 
-Use the `SwitchOptions` class to specify each switch's settings, including the p4info/p4blob and ready_handler. Use the `Controller` class to drive multiple switch connections. Each switch will call back
-into your ready_handler function after the P4Runtime connection is established.
+Use the `SwitchOptions` class to specify each switch's settings, including the p4info/p4blob and 
+`ready_handler`. Use the `Controller` class to drive multiple switch connections. Each switch will call back
+into your `ready_handler` function after the P4Runtime connection is established.
 
 ```python
 from pathlib import Path
@@ -63,5 +67,8 @@ controller = fy.Controller([
 
 asyncio.run(controller.run())
 ```
+
+If the switch disconnects or changes its role change to backup, the task running your `ready_handler` 
+(and any tasks it spawned) will be cancelled and the `ready_handler` will begin again.
 
 For more examples, see the examples directory.
