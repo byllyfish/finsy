@@ -68,7 +68,7 @@ controller = fy.Controller([
 asyncio.run(controller.run())
 ```
 
-If the switch disconnects or changes its role change to backup, the task running your `ready_handler` 
+If the switch disconnects or its role changes to backup, the task running your `ready_handler` 
 (and any tasks it spawned) will be cancelled and the `ready_handler` will begin again.
 
 For more examples, see the [examples](examples/README.md) directory.
