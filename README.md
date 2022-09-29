@@ -23,8 +23,8 @@ Each switch is managed by an async `ready_handler` function. Your `ready_handler
 update various P4Runtime entities in the switch. It can also create tasks to listen for 
 packets or digests.
 
-When you write P4Runtime updates to the switch, you use a unary operator (+, -, ~) to specify the operation:
-INSERT (+), DELETE (-) or MODIFY (~).
+When you write P4Runtime updates to the switch, you use a unary operator (+, -, \~) to specify the operation:
+INSERT (+), DELETE (-) or MODIFY (\~).
 
 ```python
 async def ready_handler(sw: fy.Switch):
