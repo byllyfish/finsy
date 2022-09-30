@@ -166,6 +166,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="hdr.ethernet.eth_src",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ingress_port",
@@ -176,6 +177,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.EXACT,
                     name="std_meta.ingress_port",
+                    type_spec=None,
                 ),
             ],
             name="MyIngress.l2src",
@@ -238,6 +240,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="hdr.ethernet.eth_dst",
+                    type_spec=None,
                 )
             ],
             name="MyIngress.l2dst",
@@ -247,6 +250,7 @@ P4Schema(
     type_info=P4TypeInfo(
         header_unions={},
         headers={},
+        new_types={},
         structs={
             "Digest_t": P4StructType(
                 annotations=[],

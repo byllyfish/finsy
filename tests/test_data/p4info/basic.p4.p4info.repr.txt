@@ -260,13 +260,14 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.LPM,
                     name="hdr.ipv4.dstAddr",
+                    type_spec=None,
                 )
             ],
             name="MyIngress.ipv4_lpm",
             size=1024,
         )
     ],
-    type_info=P4TypeInfo(header_unions={}, headers={}, structs={}),
+    type_info=P4TypeInfo(header_unions={}, headers={}, new_types={}, structs={}),
     value_sets=[
         P4ValueSet(
             alias="pvs",
@@ -284,6 +285,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="",
+                    type_spec=None,
                 )
             ],
             name="MyParser.pvs",

@@ -79,6 +79,7 @@ P4Schema(
                 },
             ),
         },
+        new_types={},
         structs={
             "S1": P4StructType(
                 annotations=[],

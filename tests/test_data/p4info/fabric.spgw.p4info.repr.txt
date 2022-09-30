@@ -892,6 +892,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="ipv4_dst",
+                    type_spec=None,
                 )
             ],
             name="FabricIngress.spgw_ingress.dl_sess_lookup",
@@ -936,6 +937,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="gtp_ipv4_dst",
+                    type_spec=None,
                 )
             ],
             name="FabricIngress.spgw_ingress.s1u_filter_table",
@@ -1002,6 +1004,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="ig_port",
+                    type_spec=None,
                 )
             ],
             name="FabricIngress.process_set_source_sink.tb_set_source",
@@ -1081,6 +1084,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="ig_port",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="vlan_is_valid",
@@ -1091,6 +1095,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.EXACT,
                     name="vlan_is_valid",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="vlan_id",
@@ -1101,6 +1106,7 @@ P4Schema(
                     id=3,
                     match_type=P4MatchType.TERNARY,
                     name="vlan_id",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="inner_vlan_id",
@@ -1111,6 +1117,7 @@ P4Schema(
                     id=4,
                     match_type=P4MatchType.TERNARY,
                     name="inner_vlan_id",
+                    type_spec=None,
                 ),
             ],
             name="FabricIngress.filtering.ingress_port_vlan",
@@ -1183,6 +1190,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="ig_port",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="eth_dst",
@@ -1193,6 +1201,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.TERNARY,
                     name="eth_dst",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="eth_type",
@@ -1203,6 +1212,7 @@ P4Schema(
                     id=3,
                     match_type=P4MatchType.TERNARY,
                     name="eth_type",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ip_eth_type",
@@ -1213,6 +1223,7 @@ P4Schema(
                     id=4,
                     match_type=P4MatchType.EXACT,
                     name="ip_eth_type",
+                    type_spec=None,
                 ),
             ],
             name="FabricIngress.filtering.fwd_classifier",
@@ -1288,6 +1299,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="vlan_id",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="eth_dst",
@@ -1298,6 +1310,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.TERNARY,
                     name="eth_dst",
+                    type_spec=None,
                 ),
             ],
             name="FabricIngress.forwarding.bridging",
@@ -1373,6 +1386,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="mpls_label",
+                    type_spec=None,
                 )
             ],
             name="FabricIngress.forwarding.mpls",
@@ -1446,6 +1460,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.LPM,
                     name="ipv4_dst",
+                    type_spec=None,
                 )
             ],
             name="FabricIngress.forwarding.routing_v4",
@@ -1550,6 +1565,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.TERNARY,
                     name="ig_port",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ip_proto",
@@ -1560,6 +1576,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.TERNARY,
                     name="ip_proto",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="l4_sport",
@@ -1570,6 +1587,7 @@ P4Schema(
                     id=3,
                     match_type=P4MatchType.TERNARY,
                     name="l4_sport",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="l4_dport",
@@ -1580,6 +1598,7 @@ P4Schema(
                     id=4,
                     match_type=P4MatchType.TERNARY,
                     name="l4_dport",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="eth_src",
@@ -1590,6 +1609,7 @@ P4Schema(
                     id=5,
                     match_type=P4MatchType.TERNARY,
                     name="eth_src",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="eth_dst",
@@ -1600,6 +1620,7 @@ P4Schema(
                     id=6,
                     match_type=P4MatchType.TERNARY,
                     name="eth_dst",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="vlan_id",
@@ -1610,6 +1631,7 @@ P4Schema(
                     id=7,
                     match_type=P4MatchType.TERNARY,
                     name="vlan_id",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="eth_type",
@@ -1620,6 +1642,7 @@ P4Schema(
                     id=8,
                     match_type=P4MatchType.TERNARY,
                     name="eth_type",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ipv4_src",
@@ -1630,6 +1653,7 @@ P4Schema(
                     id=9,
                     match_type=P4MatchType.TERNARY,
                     name="ipv4_src",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ipv4_dst",
@@ -1640,6 +1664,7 @@ P4Schema(
                     id=10,
                     match_type=P4MatchType.TERNARY,
                     name="ipv4_dst",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="icmp_type",
@@ -1650,6 +1675,7 @@ P4Schema(
                     id=11,
                     match_type=P4MatchType.TERNARY,
                     name="icmp_type",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="icmp_code",
@@ -1660,6 +1686,7 @@ P4Schema(
                     id=12,
                     match_type=P4MatchType.TERNARY,
                     name="icmp_code",
+                    type_spec=None,
                 ),
             ],
             name="FabricIngress.acl.acl",
@@ -1735,6 +1762,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="next_id",
+                    type_spec=None,
                 )
             ],
             name="FabricIngress.next.next_vlan",
@@ -1827,6 +1855,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="ig_port",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="next_id",
@@ -1837,6 +1866,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.EXACT,
                     name="next_id",
+                    type_spec=None,
                 ),
             ],
             name="FabricIngress.next.xconnect",
@@ -2102,6 +2132,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="next_id",
+                    type_spec=None,
                 )
             ],
             name="FabricIngress.next.hashed",
@@ -2177,6 +2208,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="next_id",
+                    type_spec=None,
                 )
             ],
             name="FabricIngress.next.multicast",
@@ -2276,6 +2308,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.TERNARY,
                     name="ipv4_src",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ipv4_dst",
@@ -2286,6 +2319,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.TERNARY,
                     name="ipv4_dst",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="l4_sport",
@@ -2296,6 +2330,7 @@ P4Schema(
                     id=3,
                     match_type=P4MatchType.TERNARY,
                     name="l4_sport",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="l4_dport",
@@ -2306,6 +2341,7 @@ P4Schema(
                     id=4,
                     match_type=P4MatchType.TERNARY,
                     name="l4_dport",
+                    type_spec=None,
                 ),
             ],
             name="FabricEgress.process_int_main.process_int_source.tb_int_source",
@@ -2371,6 +2407,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="int_is_valid",
+                    type_spec=None,
                 )
             ],
             name="FabricEgress.process_int_main.process_int_transit.tb_int_insert",
@@ -2437,6 +2474,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="vlan_id",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="eg_port",
@@ -2447,13 +2485,14 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.EXACT,
                     name="eg_port",
+                    type_spec=None,
                 ),
             ],
             name="FabricEgress.egress_next.egress_vlan",
             size=1024,
         ),
     ],
-    type_info=P4TypeInfo(header_unions={}, headers={}, structs={}),
+    type_info=P4TypeInfo(header_unions={}, headers={}, new_types={}, structs={}),
     value_sets=[],
     version="",
 )

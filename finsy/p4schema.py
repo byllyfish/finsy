@@ -429,6 +429,7 @@ class _P4Defs:
             self.registers,
             self.digests,
             self.direct_counters,
+            self.value_sets,
         ):
             for obj in iterable:
                 obj._finish_init(self)
@@ -634,6 +635,7 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
     _headers: dict[str, "P4HeaderType"]
     _structs: dict[str, "P4StructType"]
     _header_unions: dict[str, "P4HeaderUnionType"]
+    _new_types: dict[str, "P4NewType"]
 
     def __init__(self, pbuf: p4t.P4TypeInfo):
         super().__init__(pbuf)
@@ -650,11 +652,17 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
             name: P4HeaderUnionType(item)
             for name, item in _sort_map(pbuf.header_unions)
         }
+        self._new_types = {
+            name: P4NewType(item) for name, item in _sort_map(pbuf.new_types)
+        }
 
         for value in self.structs.values():
             value._finish_init(self)
 
         for value in self.header_unions.values():
+            value._finish_init(self)
+
+        for value in self.new_types.values():
             value._finish_init(self)
 
     @property
@@ -668,6 +676,18 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
     @property
     def header_unions(self):
         return self._header_unions
+
+    @property
+    def new_types(self):
+        return self._new_types
+
+    def __getitem__(self, name: str) -> "_P4Type":
+        "Retrieve a named type used in a match-field or action-param."
+        for search in (self._new_types, self._structs):
+            result = search.get(name)
+            if result is not None:
+                return result
+        raise KeyError(name)
 
 
 class P4SourceLocation(NamedTuple):
@@ -754,6 +774,10 @@ class P4Table(_P4TopLevel[p4i.Table]):
             self._action_profile = defs.action_profiles[impl_id]
         else:
             self._action_profile = None
+
+        # Resolve match field type_specs.
+        for field in self._match_fields:
+            field._finish_init(defs)
 
         self._direct_counter = None
         self._direct_meter = None
@@ -949,6 +973,7 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
     _alias: str
     _bitwidth: int  # cache for performance
     _match_type: P4MatchType | str
+    _type_spec: "_P4Type | None" = None
 
     def __init__(self, pbuf: p4i.MatchField) -> None:
         super().__init__(pbuf)
@@ -963,6 +988,10 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
             case other:
                 raise ValueError(f"unknown oneof: {other!r}")
 
+    def _finish_init(self, defs: _P4Defs):
+        if self.pbuf.HasField("type_name"):
+            self._type_spec = defs.type_info[self.pbuf.type_name.name]
+
     @property
     def alias(self) -> str:
         return self._alias
@@ -974,6 +1003,10 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
     @property
     def match_type(self) -> P4MatchType | str:
         return self._match_type
+
+    @property
+    def type_spec(self) -> "_P4Type | None":
+        return self._type_spec
 
     def encode_field(self, value: Any) -> p4r.FieldMatch | None:
         "Encode value as protobuf type."
@@ -1483,6 +1516,123 @@ class P4TupleType(_P4Bridged[p4t.P4TupleTypeSpec]):
         )
 
 
+class P4NewTypeKind(_EnumBase):
+    "Kind of P4NewType."
+
+    ORIGINAL_TYPE = 1
+    SDN_BITWIDTH = 2
+    SDN_STRING = 3
+
+
+class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
+    """Represents P4NewTypeSpec.
+
+    A P4NewType is a type introduced with the `type` keyword in the P4 language.
+    The new type can be represented by an original type or it can be translated
+    at runtime from/to a uint (SDN_BITWIDTH) or string (SDN_STRING).
+
+    This class uses the `.kind` accessor to indicate the kind of new type.
+    The `original_*` and `translated_*` properties will raise an exception if
+    the new type isn't the relevant kind.
+    """
+
+    _kind: P4NewTypeKind
+    _original_type: "_P4Type | None" = None
+    _translated_uri: str = ""
+    _translated_bitwidth: int = 0
+
+    def _finish_init(self, type_info: P4TypeInfo):
+        match self.pbuf.WhichOneof("representation"):
+            case "original_type":
+                self._kind = P4NewTypeKind.ORIGINAL_TYPE
+                self._original_type = _parse_type_spec(
+                    self.pbuf.original_type, type_info
+                )
+            case "translated_type":
+                translation = self.pbuf.translated_type
+                match translation.WhichOneof("sdn_type"):
+                    case "sdn_string":
+                        self._kind = P4NewTypeKind.SDN_STRING
+                    case "sdn_bitwidth":
+                        self._kind = P4NewTypeKind.SDN_BITWIDTH
+                        self._translated_bitwidth = translation.sdn_bitwidth
+                    case other:
+                        raise ValueError(f"unexpected oneof: {other!r}")
+                self._translated_uri = translation.uri
+            case other:
+                raise ValueError(f"unexpected oneof: {other!r}")
+
+    @property
+    def kind(self) -> P4NewTypeKind:
+        return self._kind
+
+    @property
+    def original_type(self) -> "_P4Type":
+        assert self._kind == P4NewTypeKind.ORIGINAL_TYPE
+        assert self._original_type is not None
+        return self._original_type
+
+    @property
+    def translated_uri(self) -> str:
+        assert self._kind != P4NewTypeKind.ORIGINAL_TYPE
+        return self._translated_uri
+
+    @property
+    def translated_bitwidth(self) -> int:
+        assert self._kind == P4NewTypeKind.SDN_BITWIDTH
+        return self._translated_bitwidth
+
+    def encode_translation(self, value: Any) -> bytes:
+        match self.kind:
+            case P4NewTypeKind.SDN_BITWIDTH:
+                return p4values.encode_exact(value, self.translated_bitwidth)
+            case P4NewTypeKind.SDN_STRING:
+                if isinstance(value, str):
+                    value = value.encode()
+                return p4values.encode_exact(value, 8 * 32)  # FIXME: new method?
+            case other:
+                raise ValueError(f"unexpected kind: {other!r}")
+
+    def decode_translation(self, data: bytes) -> Any:
+        match self.kind:
+            case P4NewTypeKind.SDN_BITWIDTH:
+                return p4values.decode_exact(data, self.translated_bitwidth)
+            case P4NewTypeKind.SDN_STRING:
+                return p4values.decode_exact(data, 8 * 32)  # FIXME: new method?
+            case other:
+                raise ValueError(f"unexpected kind: {other!r}")
+
+    def encode_data(self, value: Any) -> p4d.P4Data:
+        match self.kind:
+            case P4NewTypeKind.ORIGINAL_TYPE:
+                return self.original_type.encode_data(value)
+            case P4NewTypeKind.SDN_BITWIDTH | P4NewTypeKind.SDN_STRING:
+                return p4d.P4Data(bitstring=self.encode_translation(value))
+            case other:
+                raise ValueError(f"unexpected kind: {other!r}")
+
+    def decode_data(self, data: p4d.P4Data) -> Any:
+        match self.kind:
+            case P4NewTypeKind.ORIGINAL_TYPE:
+                return self.original_type.decode_data(data)
+            case P4NewTypeKind.SDN_BITWIDTH | P4NewTypeKind.SDN_STRING:
+                assert data.HasField("bitstring")
+                return self.decode_translation(data.bitstring)
+            case other:
+                raise ValueError(f"unexpected kind: {other!r}")
+
+    def __repr__(self) -> str:
+        match self.kind:
+            case P4NewTypeKind.ORIGINAL_TYPE:
+                return f"P4NewType(original_type={self.original_type!r})"
+            case P4NewTypeKind.SDN_STRING:
+                return f"P4NewType(sdn_string, uri={self.translated_uri!r})"
+            case P4NewTypeKind.SDN_BITWIDTH:
+                return f"P4NewType(sdn_bitwidth={self.translated_bitwidth!r}, uri={self.translated_uri!r})"
+            case other:
+                raise ValueError(f"unexpected kind: {other!r}")
+
+
 _P4Type = (
     P4BitsType
     | P4BoolType
@@ -1492,6 +1642,7 @@ _P4Type = (
     | P4HeaderUnionType
     | P4HeaderStackType
     | P4HeaderUnionStackType
+    | P4NewType
 )
 
 
@@ -1563,6 +1714,10 @@ class P4ValueSet(_P4TopLevel[p4i.ValueSet]):
 
         for field in self.pbuf.match:
             self._match._add(P4MatchField(field))
+
+    def _finish_init(self, defs: _P4Defs):
+        for field in self._match:
+            field._finish_init(defs)
 
     @property
     def match(self):

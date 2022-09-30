@@ -618,6 +618,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.OPTIONAL,
                     name="is_ip",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="is_ipv4",
@@ -634,6 +635,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.OPTIONAL,
                     name="is_ipv4",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="is_ipv6",
@@ -650,6 +652,7 @@ P4Schema(
                     id=3,
                     match_type=P4MatchType.OPTIONAL,
                     name="is_ipv6",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="src_mac",
@@ -667,6 +670,7 @@ P4Schema(
                     id=4,
                     match_type=P4MatchType.TERNARY,
                     name="src_mac",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="dst_ip",
@@ -684,6 +688,7 @@ P4Schema(
                     id=5,
                     match_type=P4MatchType.TERNARY,
                     name="dst_ip",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="dst_ipv6",
@@ -701,6 +706,7 @@ P4Schema(
                     id=6,
                     match_type=P4MatchType.TERNARY,
                     name="dst_ipv6",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="dscp",
@@ -717,6 +723,7 @@ P4Schema(
                     id=7,
                     match_type=P4MatchType.TERNARY,
                     name="dscp",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="in_port",
@@ -733,6 +740,7 @@ P4Schema(
                     id=8,
                     match_type=P4MatchType.OPTIONAL,
                     name="in_port",
+                    type_spec=P4NewType(sdn_string, uri=""),
                 ),
             ],
             name="ingress.acl_pre_ingress.acl_pre_ingress_table",
@@ -814,6 +822,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="router_interface_id",
+                    type_spec=P4NewType(sdn_string, uri=""),
                 ),
                 P4MatchField(
                     alias="neighbor_id",
@@ -824,6 +833,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.EXACT,
                     name="neighbor_id",
+                    type_spec=P4NewType(sdn_string, uri=""),
                 ),
             ],
             name="ingress.routing.neighbor_table",
@@ -907,6 +917,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="router_interface_id",
+                    type_spec=P4NewType(sdn_string, uri=""),
                 )
             ],
             name="ingress.routing.router_interface_table",
@@ -1003,6 +1014,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="nexthop_id",
+                    type_spec=P4NewType(sdn_string, uri=""),
                 )
             ],
             name="ingress.routing.nexthop_table",
@@ -1129,6 +1141,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="wcmp_group_id",
+                    type_spec=P4NewType(sdn_string, uri=""),
                 )
             ],
             name="ingress.routing.wcmp_group_table",
@@ -1229,6 +1242,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="vrf_id",
+                    type_spec=P4NewType(sdn_string, uri=""),
                 ),
                 P4MatchField(
                     alias="ipv4_dst",
@@ -1241,6 +1255,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.LPM,
                     name="ipv4_dst",
+                    type_spec=None,
                 ),
             ],
             name="ingress.routing.ipv4_table",
@@ -1341,6 +1356,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="vrf_id",
+                    type_spec=P4NewType(sdn_string, uri=""),
                 ),
                 P4MatchField(
                     alias="ipv6_dst",
@@ -1353,6 +1369,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.LPM,
                     name="ipv6_dst",
+                    type_spec=None,
                 ),
             ],
             name="ingress.routing.ipv6_table",
@@ -1536,6 +1553,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.OPTIONAL,
                     name="is_ip",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="is_ipv4",
@@ -1552,6 +1570,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.OPTIONAL,
                     name="is_ipv4",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="is_ipv6",
@@ -1568,6 +1587,7 @@ P4Schema(
                     id=3,
                     match_type=P4MatchType.OPTIONAL,
                     name="is_ipv6",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ether_type",
@@ -1584,6 +1604,7 @@ P4Schema(
                     id=4,
                     match_type=P4MatchType.TERNARY,
                     name="ether_type",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="dst_mac",
@@ -1601,6 +1622,7 @@ P4Schema(
                     id=5,
                     match_type=P4MatchType.TERNARY,
                     name="dst_mac",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="src_ip",
@@ -1618,6 +1640,7 @@ P4Schema(
                     id=6,
                     match_type=P4MatchType.TERNARY,
                     name="src_ip",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="dst_ip",
@@ -1635,6 +1658,7 @@ P4Schema(
                     id=7,
                     match_type=P4MatchType.TERNARY,
                     name="dst_ip",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="src_ipv6",
@@ -1652,6 +1676,7 @@ P4Schema(
                     id=8,
                     match_type=P4MatchType.TERNARY,
                     name="src_ipv6",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="dst_ipv6",
@@ -1669,6 +1694,7 @@ P4Schema(
                     id=9,
                     match_type=P4MatchType.TERNARY,
                     name="dst_ipv6",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ttl",
@@ -1685,6 +1711,7 @@ P4Schema(
                     id=10,
                     match_type=P4MatchType.TERNARY,
                     name="ttl",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="dscp",
@@ -1701,6 +1728,7 @@ P4Schema(
                     id=11,
                     match_type=P4MatchType.TERNARY,
                     name="dscp",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ecn",
@@ -1717,6 +1745,7 @@ P4Schema(
                     id=12,
                     match_type=P4MatchType.TERNARY,
                     name="ecn",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ip_protocol",
@@ -1733,6 +1762,7 @@ P4Schema(
                     id=13,
                     match_type=P4MatchType.TERNARY,
                     name="ip_protocol",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="icmpv6_type",
@@ -1749,6 +1779,7 @@ P4Schema(
                     id=14,
                     match_type=P4MatchType.TERNARY,
                     name="icmpv6_type",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="l4_dst_port",
@@ -1765,6 +1796,7 @@ P4Schema(
                     id=15,
                     match_type=P4MatchType.TERNARY,
                     name="l4_dst_port",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="arp_tpa",
@@ -1782,6 +1814,7 @@ P4Schema(
                     id=16,
                     match_type=P4MatchType.TERNARY,
                     name="arp_tpa",
+                    type_spec=None,
                 ),
             ],
             name="ingress.acl_ingress.acl_ingress_table",
@@ -1917,6 +1950,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="mirror_session_id",
+                    type_spec=P4NewType(sdn_string, uri=""),
                 )
             ],
             name="ingress.mirroring_clone.mirror_session_table",
@@ -1990,13 +2024,28 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="mirror_port",
+                    type_spec=P4NewType(sdn_string, uri=""),
                 )
             ],
             name="ingress.mirroring_clone.mirror_port_to_pre_session_table",
             size=1024,
         ),
     ],
-    type_info=P4TypeInfo(header_unions={}, headers={}, structs={}),
+    type_info=P4TypeInfo(
+        header_unions={},
+        headers={},
+        new_types={
+            "mirror_session_id_t": P4NewType(sdn_string, uri=""),
+            "neighbor_id_t": P4NewType(sdn_string, uri=""),
+            "nexthop_id_t": P4NewType(sdn_string, uri=""),
+            "port_id_t": P4NewType(sdn_string, uri=""),
+            "qos_queue_t": P4NewType(sdn_string, uri=""),
+            "router_interface_id_t": P4NewType(sdn_string, uri=""),
+            "vrf_id_t": P4NewType(sdn_string, uri=""),
+            "wcmp_group_id_t": P4NewType(sdn_string, uri=""),
+        },
+        structs={},
+    ),
     value_sets=[],
     version="",
 )
