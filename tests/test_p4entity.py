@@ -122,6 +122,24 @@ def test_table_match4():
     assert P4TableMatch(dstAddr=(1, 32)) == P4TableMatch.decode(msgs, table)
 
 
+def test_table_match5():
+    "Test TableMatch class with sdn_string new type field."
+
+    schema = P4Schema(_P4INFO_TEST_DIR / "sai_unioned.p4info.txt")
+    table = schema.tables["mirror_port_to_pre_session_table"]
+
+    match = P4TableMatch(mirror_port="ethernet1/0")
+    msgs = match.encode(table)
+
+    assert [pbuf.to_dict(msg) for msg in msgs] == [
+        {
+            "field_id": 1,
+            "exact": {"value": "ZXRoZXJuZXQxLzA="},
+        }
+    ]
+    assert match == P4TableMatch.decode(msgs, table)
+
+
 def test_table_action1():
     "Test TableAction class."
 

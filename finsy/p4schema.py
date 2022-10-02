@@ -972,7 +972,7 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
 
     _alias: str
     _bitwidth: int  # cache for performance
-    _match_type: P4MatchType | str
+    _match_type: P4MatchType | str  # TODO: refactor into subclasses?
     _type_spec: "_P4Type | None" = None
 
     def __init__(self, pbuf: p4i.MatchField) -> None:
@@ -991,6 +991,24 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
     def _finish_init(self, defs: _P4Defs):
         if self.pbuf.HasField("type_name"):
             self._type_spec = defs.type_info[self.pbuf.type_name.name]
+
+        self._check_if_supported()
+
+    def _check_if_supported(self):
+        "Fail if the P4MatchField config is not supported."
+
+        if self._type_spec is None:
+            # bitwidth is 0 if and only if self.type_spec is a SdnString.
+            assert self.bitwidth != 0
+        else:
+            # Only support P4NewType here as long as it's a translated type.
+            assert isinstance(self.type_spec, P4NewType)
+            assert (
+                self.type_spec.kind == P4NewTypeKind.SDN_STRING and self.bitwidth == 0
+            ) or (
+                self.type_spec.kind == P4NewTypeKind.SDN_BITWIDTH and self.bitwidth != 0
+            )
+            assert self.match_type in (P4MatchType.EXACT, P4MatchType.OPTIONAL)
 
     @property
     def alias(self) -> str:
@@ -1582,23 +1600,29 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
         assert self._kind == P4NewTypeKind.SDN_BITWIDTH
         return self._translated_bitwidth
 
-    def encode_translation(self, value: Any) -> bytes:
+    def encode_bytes(self, value: Any) -> bytes:
         match self.kind:
             case P4NewTypeKind.SDN_BITWIDTH:
                 return p4values.encode_exact(value, self.translated_bitwidth)
             case P4NewTypeKind.SDN_STRING:
                 if isinstance(value, str):
                     value = value.encode()
-                return p4values.encode_exact(value, 8 * 32)  # FIXME: new method?
+                else:
+                    assert isinstance(value, bytes)
+                return value
+            case P4NewTypeKind.ORIGINAL_TYPE:
+                raise NotImplementedError()
             case other:
                 raise ValueError(f"unexpected kind: {other!r}")
 
-    def decode_translation(self, data: bytes) -> Any:
+    def decode_bytes(self, data: bytes) -> Any:
         match self.kind:
             case P4NewTypeKind.SDN_BITWIDTH:
                 return p4values.decode_exact(data, self.translated_bitwidth)
             case P4NewTypeKind.SDN_STRING:
-                return p4values.decode_exact(data, 8 * 32)  # FIXME: new method?
+                return data.decode()
+            case P4NewTypeKind.ORIGINAL_TYPE:
+                raise NotImplementedError()
             case other:
                 raise ValueError(f"unexpected kind: {other!r}")
 
@@ -1607,7 +1631,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
             case P4NewTypeKind.ORIGINAL_TYPE:
                 return self.original_type.encode_data(value)
             case P4NewTypeKind.SDN_BITWIDTH | P4NewTypeKind.SDN_STRING:
-                return p4d.P4Data(bitstring=self.encode_translation(value))
+                return p4d.P4Data(bitstring=self.encode_bytes(value))
             case other:
                 raise ValueError(f"unexpected kind: {other!r}")
 
@@ -1617,7 +1641,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
                 return self.original_type.decode_data(data)
             case P4NewTypeKind.SDN_BITWIDTH | P4NewTypeKind.SDN_STRING:
                 assert data.HasField("bitstring")
-                return self.decode_translation(data.bitstring)
+                return self.decode_bytes(data.bitstring)
             case other:
                 raise ValueError(f"unexpected kind: {other!r}")
 
