@@ -624,9 +624,7 @@ class P4Schema(_ReprMixin):
 def _sort_map(value: Mapping[Any, Any]):
     "Sort items in protobuf map in alphabetic order."
 
-    result = list(value.items())
-    result.sort()
-    return result
+    return sorted(value.items())
 
 
 class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
@@ -656,14 +654,9 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
             name: P4NewType(item) for name, item in _sort_map(pbuf.new_types)
         }
 
-        for value in self.structs.values():
-            value._finish_init(self)
-
-        for value in self.header_unions.values():
-            value._finish_init(self)
-
-        for value in self.new_types.values():
-            value._finish_init(self)
+        for item in (self._structs, self._header_unions, self._new_types):
+            for value in item.values():
+                value._finish_init(self)
 
     @property
     def headers(self):
@@ -991,24 +984,6 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
     def _finish_init(self, defs: _P4Defs):
         if self.pbuf.HasField("type_name"):
             self._type_spec = defs.type_info[self.pbuf.type_name.name]
-
-        self._check_if_supported()
-
-    def _check_if_supported(self):
-        "Fail if the P4MatchField config is not supported."
-
-        if self._type_spec is None:
-            # bitwidth is 0 if and only if self.type_spec is a SdnString.
-            assert self.bitwidth != 0
-        else:
-            # Only support P4NewType here as long as it's a translated type.
-            assert isinstance(self.type_spec, P4NewType)
-            assert (
-                self.type_spec.kind == P4NewTypeKind.SDN_STRING and self.bitwidth == 0
-            ) or (
-                self.type_spec.kind == P4NewTypeKind.SDN_BITWIDTH and self.bitwidth != 0
-            )
-            assert self.match_type in (P4MatchType.EXACT, P4MatchType.OPTIONAL)
 
     @property
     def alias(self) -> str:
@@ -1552,6 +1527,9 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
     This class uses the `.kind` accessor to indicate the kind of new type.
     The `original_*` and `translated_*` properties will raise an exception if
     the new type isn't the relevant kind.
+
+    TODO: Possibly refactor this class into two classes: P4NewTypeOriginal and
+    P4NewTypeTranslated.
     """
 
     _kind: P4NewTypeKind
