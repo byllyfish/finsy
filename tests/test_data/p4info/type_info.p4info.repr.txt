@@ -22,31 +22,58 @@ P4Schema(
                         annotations=[],
                         members={
                             "a": P4BitsType(
-                                annotations=[], bitwidth=32, signed=False, varbit=False
+                                annotations=[],
+                                bitwidth=32,
+                                signed=False,
+                                type_name="u32",
+                                varbit=False,
                             ),
                             "b": P4BitsType(
-                                annotations=[], bitwidth=32, signed=False, varbit=False
+                                annotations=[],
+                                bitwidth=32,
+                                signed=False,
+                                type_name="u32",
+                                varbit=False,
                             ),
                             "c": P4BitsType(
-                                annotations=[], bitwidth=32, signed=False, varbit=False
+                                annotations=[],
+                                bitwidth=32,
+                                signed=False,
+                                type_name="u32",
+                                varbit=False,
                             ),
                         },
+                        type_name="A",
                     ),
                     "B": P4HeaderType(
                         annotations=[],
                         members={
                             "d": P4BitsType(
-                                annotations=[], bitwidth=32, signed=False, varbit=False
+                                annotations=[],
+                                bitwidth=32,
+                                signed=False,
+                                type_name="u32",
+                                varbit=False,
                             ),
                             "e": P4BitsType(
-                                annotations=[], bitwidth=32, signed=False, varbit=False
+                                annotations=[],
+                                bitwidth=32,
+                                signed=False,
+                                type_name="u32",
+                                varbit=False,
                             ),
                             "f": P4BitsType(
-                                annotations=[], bitwidth=32, signed=False, varbit=False
+                                annotations=[],
+                                bitwidth=32,
+                                signed=False,
+                                type_name="u32",
+                                varbit=False,
                             ),
                         },
+                        type_name="B",
                     ),
                 },
+                type_name="U1",
             )
         },
         headers={
@@ -54,29 +81,55 @@ P4Schema(
                 annotations=[],
                 members={
                     "a": P4BitsType(
-                        annotations=[], bitwidth=32, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=32,
+                        signed=False,
+                        type_name="u32",
+                        varbit=False,
                     ),
                     "b": P4BitsType(
-                        annotations=[], bitwidth=32, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=32,
+                        signed=False,
+                        type_name="u32",
+                        varbit=False,
                     ),
                     "c": P4BitsType(
-                        annotations=[], bitwidth=32, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=32,
+                        signed=False,
+                        type_name="u32",
+                        varbit=False,
                     ),
                 },
+                type_name="A",
             ),
             "B": P4HeaderType(
                 annotations=[],
                 members={
                     "d": P4BitsType(
-                        annotations=[], bitwidth=32, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=32,
+                        signed=False,
+                        type_name="u32",
+                        varbit=False,
                     ),
                     "e": P4BitsType(
-                        annotations=[], bitwidth=32, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=32,
+                        signed=False,
+                        type_name="u32",
+                        varbit=False,
                     ),
                     "f": P4BitsType(
-                        annotations=[], bitwidth=32, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=32,
+                        signed=False,
+                        type_name="u32",
+                        varbit=False,
                     ),
                 },
+                type_name="B",
             ),
         },
         new_types={},
@@ -85,15 +138,28 @@ P4Schema(
                 annotations=[],
                 members={
                     "a": P4BitsType(
-                        annotations=[], bitwidth=32, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=32,
+                        signed=False,
+                        type_name="u32",
+                        varbit=False,
                     ),
                     "b": P4BitsType(
-                        annotations=[], bitwidth=32, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=32,
+                        signed=False,
+                        type_name="u32",
+                        varbit=False,
                     ),
                     "c": P4BitsType(
-                        annotations=[], bitwidth=32, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=32,
+                        signed=False,
+                        type_name="u32",
+                        varbit=False,
                     ),
                 },
+                type_name="S1",
             ),
             "S2": P4StructType(
                 annotations=[],
@@ -102,20 +168,38 @@ P4Schema(
                         annotations=[],
                         members={
                             "a": P4BitsType(
-                                annotations=[], bitwidth=32, signed=False, varbit=False
+                                annotations=[],
+                                bitwidth=32,
+                                signed=False,
+                                type_name="u32",
+                                varbit=False,
                             ),
                             "b": P4BitsType(
-                                annotations=[], bitwidth=32, signed=False, varbit=False
+                                annotations=[],
+                                bitwidth=32,
+                                signed=False,
+                                type_name="u32",
+                                varbit=False,
                             ),
                             "c": P4BitsType(
-                                annotations=[], bitwidth=32, signed=False, varbit=False
+                                annotations=[],
+                                bitwidth=32,
+                                signed=False,
+                                type_name="u32",
+                                varbit=False,
                             ),
                         },
+                        type_name="S1",
                     ),
                     "b": P4BitsType(
-                        annotations=[], bitwidth=32, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=32,
+                        signed=False,
+                        type_name="u32",
+                        varbit=False,
                     ),
                 },
+                type_name="S2",
             ),
         },
     ),

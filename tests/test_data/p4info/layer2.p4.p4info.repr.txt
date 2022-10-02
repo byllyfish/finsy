@@ -106,15 +106,28 @@ P4Schema(
                 annotations=[],
                 members={
                     "eth_src": P4BitsType(
-                        annotations=[], bitwidth=48, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=48,
+                        signed=False,
+                        type_name="u48",
+                        varbit=False,
                     ),
                     "in_port": P4BitsType(
-                        annotations=[], bitwidth=9, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=9,
+                        signed=False,
+                        type_name="u9",
+                        varbit=False,
                     ),
                     "modify": P4BitsType(
-                        annotations=[], bitwidth=1, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=1,
+                        signed=False,
+                        type_name="u1",
+                        varbit=False,
                     ),
                 },
+                type_name="Digest_t",
             ),
         )
     ],
@@ -256,15 +269,28 @@ P4Schema(
                 annotations=[],
                 members={
                     "eth_src": P4BitsType(
-                        annotations=[], bitwidth=48, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=48,
+                        signed=False,
+                        type_name="u48",
+                        varbit=False,
                     ),
                     "in_port": P4BitsType(
-                        annotations=[], bitwidth=9, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=9,
+                        signed=False,
+                        type_name="u9",
+                        varbit=False,
                     ),
                     "modify": P4BitsType(
-                        annotations=[], bitwidth=1, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=1,
+                        signed=False,
+                        type_name="u1",
+                        varbit=False,
                     ),
                 },
+                type_name="Digest_t",
             )
         },
     ),

@@ -641,17 +641,17 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
         # non-deterministic order. Sorts the keys in alphabetic
         # order to make comparison tests easier.
         self._headers = {
-            name: P4HeaderType(item) for name, item in _sort_map(pbuf.headers)
+            name: P4HeaderType(name, item) for name, item in _sort_map(pbuf.headers)
         }
         self._structs = {
-            name: P4StructType(item) for name, item in _sort_map(pbuf.structs)
+            name: P4StructType(name, item) for name, item in _sort_map(pbuf.structs)
         }
         self._header_unions = {
-            name: P4HeaderUnionType(item)
+            name: P4HeaderUnionType(name, item)
             for name, item in _sort_map(pbuf.header_unions)
         }
         self._new_types = {
-            name: P4NewType(item) for name, item in _sort_map(pbuf.new_types)
+            name: P4NewType(name, item) for name, item in _sort_map(pbuf.new_types)
         }
 
         for item in (self._structs, self._header_unions, self._new_types):
@@ -1218,6 +1218,13 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
                 raise ValueError(f"unknown oneof: {other!r}")
 
     @property
+    def type_name(self) -> str:
+        assert not self._varbit
+        if not self._signed:
+            return f"u{self.bitwidth}"
+        return f"s{self.bitwidth}"
+
+    @property
     def bitwidth(self) -> int:
         return self._bitwidth
 
@@ -1249,6 +1256,10 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
 class P4BoolType(_P4Bridged[p4t.P4BoolType]):
     "Represents the P4 Bool type (which is empty)."
 
+    @property
+    def type_name(self) -> str:
+        return "bool"
+
     def encode_data(self, value: bool) -> p4d.P4Data:
         return p4d.P4Data(bool=value)
 
@@ -1259,11 +1270,17 @@ class P4BoolType(_P4Bridged[p4t.P4BoolType]):
 class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
     "Represents P4HeaderTypeSpec."
 
+    _type_name: str
     _members: dict[str, P4BitsType]  # insertion order matters
 
-    def __init__(self, pbuf: p4t.P4HeaderTypeSpec):
+    def __init__(self, type_name: str, pbuf: p4t.P4HeaderTypeSpec):
         super().__init__(pbuf)
+        self._type_name = type_name
         self._members = {item.name: P4BitsType(item.type_spec) for item in pbuf.members}
+
+    @property
+    def type_name(self) -> str:
+        return self._type_name
 
     @property
     def members(self) -> dict[str, P4BitsType]:
@@ -1320,10 +1337,12 @@ _HeaderUnionValue = dict[str, dict[str, Any]]
 class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
     "Represents P4HeaderUnionTypeSpec."
 
+    _type_name: str
     _members: dict[str, P4HeaderType]
 
-    def __init__(self, pbuf: p4t.P4HeaderUnionTypeSpec):
+    def __init__(self, type_name: str, pbuf: p4t.P4HeaderUnionTypeSpec):
         super().__init__(pbuf)
+        self._type_name = type_name
         self._members = {}
 
     def _finish_init(self, type_info: P4TypeInfo):
@@ -1331,6 +1350,10 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
             member.name: type_info.headers[member.header.name]
             for member in self.pbuf.members
         }
+
+    @property
+    def type_name(self) -> str:
+        return self._type_name
 
     @property
     def members(self) -> dict[str, P4HeaderType]:
@@ -1383,6 +1406,10 @@ class P4HeaderStackType(_P4Bridged[p4t.P4HeaderStackTypeSpec]):
         self._header = type_info.headers[self.pbuf.header.name]
 
     @property
+    def type_name(self) -> str:
+        return f"{self.header.type_name}[{self.size}]"
+
+    @property
     def header(self) -> P4HeaderType:
         return self._header
 
@@ -1412,6 +1439,10 @@ class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
         self._header_union = type_info.header_unions[self.pbuf.header_union.name]
 
     @property
+    def type_name(self) -> str:
+        return f"{self.header_union.type_name}[{self.size}]"
+
+    @property
     def header_union(self) -> P4HeaderUnionType:
         return self._header_union
 
@@ -1434,10 +1465,12 @@ class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
 class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
     "Represents P4StructTypeSpec."
 
+    _type_name: str
     _members: dict[str, "_P4Type"]  # insertion order matters
 
-    def __init__(self, pbuf: p4t.P4StructTypeSpec):
+    def __init__(self, type_name: str, pbuf: p4t.P4StructTypeSpec):
         super().__init__(pbuf)
+        self._type_name = type_name
         self._members = {}
 
     def _finish_init(self, type_info: P4TypeInfo):
@@ -1445,6 +1478,10 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
             item.name: _parse_type_spec(item.type_spec, type_info)
             for item in self.pbuf.members
         }
+
+    @property
+    def type_name(self) -> str:
+        return self._type_name
 
     @property
     def members(self) -> dict[str, "_P4Type"]:
@@ -1486,6 +1523,11 @@ class P4TupleType(_P4Bridged[p4t.P4TupleTypeSpec]):
         self._members = [
             _parse_type_spec(item, type_info) for item in self.pbuf.members
         ]
+
+    @property
+    def type_name(self) -> str:
+        subtypes = ", ".join([subtype.type_name for subtype in self.members])
+        return f"tuple[{subtypes}]"
 
     @property
     def members(self) -> list["_P4Type"]:
@@ -1532,18 +1574,19 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
     P4NewTypeTranslated.
     """
 
+    _type_name: str
     _kind: P4NewTypeKind
     _original_type: "_P4Type | None" = None
     _translated_uri: str = ""
     _translated_bitwidth: int = 0
 
-    def _finish_init(self, type_info: P4TypeInfo):
+    def __init__(self, type_name: str, pbuf: p4t.P4NewTypeSpec):
+        super().__init__(pbuf)
+        self._type_name = type_name
+
         match self.pbuf.WhichOneof("representation"):
             case "original_type":
                 self._kind = P4NewTypeKind.ORIGINAL_TYPE
-                self._original_type = _parse_type_spec(
-                    self.pbuf.original_type, type_info
-                )
             case "translated_type":
                 translation = self.pbuf.translated_type
                 match translation.WhichOneof("sdn_type"):
@@ -1557,6 +1600,14 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
                 self._translated_uri = translation.uri
             case other:
                 raise ValueError(f"unexpected oneof: {other!r}")
+
+    def _finish_init(self, type_info: P4TypeInfo):
+        if self._kind == P4NewTypeKind.ORIGINAL_TYPE:
+            self._original_type = _parse_type_spec(self.pbuf.original_type, type_info)
+
+    @property
+    def type_name(self) -> str:
+        return self._type_name
 
     @property
     def kind(self) -> P4NewTypeKind:
