@@ -3,7 +3,7 @@ P4Schema(
     actions=[
         P4Action(
             alias="NoAction",
-            annotations=[P4Annotation(name="noWarn", body='"unused"', location=None)],
+            annotations=[P4Annotation(name="noWarn", body='"unused"')],
             brief="",
             description="",
             id=21257015,
@@ -80,11 +80,7 @@ P4Schema(
     controller_packet_metadata=[
         P4ControllerPacketMetadata(
             alias="packet_in",
-            annotations=[
-                P4Annotation(
-                    name="controller_header", body='"packet_in"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="controller_header", body='"packet_in"')],
             brief="",
             description="",
             id=67146229,
@@ -104,11 +100,7 @@ P4Schema(
         ),
         P4ControllerPacketMetadata(
             alias="packet_out",
-            annotations=[
-                P4Annotation(
-                    name="controller_header", body='"packet_out"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="controller_header", body='"packet_out"')],
             brief="",
             description="",
             id=67121543,

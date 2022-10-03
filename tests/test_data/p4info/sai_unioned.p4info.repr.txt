@@ -13,9 +13,7 @@ P4Schema(
                         P4ActionParam(
                             annotations=[
                                 P4Annotation(
-                                    name="refers_to",
-                                    body="nexthop_table , nexthop_id",
-                                    location=None,
+                                    name="refers_to", body="nexthop_table , nexthop_id"
                                 )
                             ],
                             bitwidth=0,
@@ -31,9 +29,7 @@ P4Schema(
                 ),
                 P4Action(
                     alias="NoAction",
-                    annotations=[
-                        P4Annotation(name="noWarn", body='"unused"', location=None)
-                    ],
+                    annotations=[P4Annotation(name="noWarn", body='"unused"')],
                     brief="",
                     description="",
                     id=21257015,
@@ -56,7 +52,7 @@ P4Schema(
     actions=[
         P4Action(
             alias="NoAction",
-            annotations=[P4Annotation(name="noWarn", body='"unused"', location=None)],
+            annotations=[P4Annotation(name="noWarn", body='"unused"')],
             brief="",
             description="",
             id=21257015,
@@ -66,9 +62,7 @@ P4Schema(
         P4Action(
             alias="acl_drop",
             annotations=[
-                P4Annotation(
-                    name="sai_action", body="SAI_PACKET_ACTION_DROP", location=None
-                )
+                P4Annotation(name="sai_action", body="SAI_PACKET_ACTION_DROP")
             ],
             brief="",
             description="",
@@ -79,9 +73,7 @@ P4Schema(
         P4Action(
             alias="set_vrf",
             annotations=[
-                P4Annotation(
-                    name="sai_action", body="SAI_PACKET_ACTION_FORWARD", location=None
-                )
+                P4Annotation(name="sai_action", body="SAI_PACKET_ACTION_FORWARD")
             ],
             brief="",
             description="",
@@ -93,7 +85,6 @@ P4Schema(
                         P4Annotation(
                             name="sai_action_param",
                             body="SAI_ACL_ENTRY_ATTR_ACTION_SET_VRF",
-                            location=None,
                         )
                     ],
                     bitwidth=0,
@@ -114,9 +105,7 @@ P4Schema(
             name="ingress.routing.set_dst_mac",
             params=[
                 P4ActionParam(
-                    annotations=[
-                        P4Annotation(name="format", body="MAC_ADDRESS", location=None)
-                    ],
+                    annotations=[P4Annotation(name="format", body="MAC_ADDRESS")],
                     bitwidth=48,
                     brief="",
                     description="",
@@ -144,9 +133,7 @@ P4Schema(
                     type_spec=P4NewType(sdn_string, uri="", type_name="port_id_t"),
                 ),
                 P4ActionParam(
-                    annotations=[
-                        P4Annotation(name="format", body="MAC_ADDRESS", location=None)
-                    ],
+                    annotations=[P4Annotation(name="format", body="MAC_ADDRESS")],
                     bitwidth=48,
                     brief="",
                     description="",
@@ -169,12 +156,10 @@ P4Schema(
                         P4Annotation(
                             name="refers_to",
                             body="router_interface_table , router_interface_id",
-                            location=None,
                         ),
                         P4Annotation(
                             name="refers_to",
                             body="neighbor_table , router_interface_id",
-                            location=None,
                         ),
                     ],
                     bitwidth=0,
@@ -189,9 +174,7 @@ P4Schema(
                 P4ActionParam(
                     annotations=[
                         P4Annotation(
-                            name="refers_to",
-                            body="neighbor_table , neighbor_id",
-                            location=None,
+                            name="refers_to", body="neighbor_table , neighbor_id"
                         )
                     ],
                     bitwidth=0,
@@ -214,9 +197,7 @@ P4Schema(
                 P4ActionParam(
                     annotations=[
                         P4Annotation(
-                            name="refers_to",
-                            body="nexthop_table , nexthop_id",
-                            location=None,
+                            name="refers_to", body="nexthop_table , nexthop_id"
                         )
                     ],
                     bitwidth=0,
@@ -248,9 +229,7 @@ P4Schema(
                 P4ActionParam(
                     annotations=[
                         P4Annotation(
-                            name="refers_to",
-                            body="wcmp_group_table , wcmp_group_id",
-                            location=None,
+                            name="refers_to", body="wcmp_group_table , wcmp_group_id"
                         )
                     ],
                     bitwidth=0,
@@ -267,9 +246,7 @@ P4Schema(
         P4Action(
             alias="copy",
             annotations=[
-                P4Annotation(
-                    name="sai_action", body="SAI_PACKET_ACTION_COPY", location=None
-                )
+                P4Annotation(name="sai_action", body="SAI_PACKET_ACTION_COPY")
             ],
             brief="",
             description="",
@@ -278,9 +255,7 @@ P4Schema(
             params=[
                 P4ActionParam(
                     annotations=[
-                        P4Annotation(
-                            name="sai_action_param", body="QOS_QUEUE", location=None
-                        )
+                        P4Annotation(name="sai_action_param", body="QOS_QUEUE")
                     ],
                     bitwidth=0,
                     brief="",
@@ -294,9 +269,7 @@ P4Schema(
         P4Action(
             alias="trap",
             annotations=[
-                P4Annotation(
-                    name="sai_action", body="SAI_PACKET_ACTION_TRAP", location=None
-                )
+                P4Annotation(name="sai_action", body="SAI_PACKET_ACTION_TRAP")
             ],
             brief="",
             description="",
@@ -305,9 +278,7 @@ P4Schema(
             params=[
                 P4ActionParam(
                     annotations=[
-                        P4Annotation(
-                            name="sai_action_param", body="QOS_QUEUE", location=None
-                        )
+                        P4Annotation(name="sai_action_param", body="QOS_QUEUE")
                     ],
                     bitwidth=0,
                     brief="",
@@ -321,9 +292,7 @@ P4Schema(
         P4Action(
             alias="forward",
             annotations=[
-                P4Annotation(
-                    name="sai_action", body="SAI_PACKET_ACTION_FORWARD", location=None
-                )
+                P4Annotation(name="sai_action", body="SAI_PACKET_ACTION_FORWARD")
             ],
             brief="",
             description="",
@@ -334,9 +303,7 @@ P4Schema(
         P4Action(
             alias="mirror",
             annotations=[
-                P4Annotation(
-                    name="sai_action", body="SAI_PACKET_ACTION_FORWARD", location=None
-                )
+                P4Annotation(name="sai_action", body="SAI_PACKET_ACTION_FORWARD")
             ],
             brief="",
             description="",
@@ -348,12 +315,10 @@ P4Schema(
                         P4Annotation(
                             name="sai_action_param",
                             body="SAI_ACL_ENTRY_ATTR_ACTION_MIRROR_INGRESS",
-                            location=None,
                         ),
                         P4Annotation(
                             name="refers_to",
                             body="mirror_session_table , mirror_session_id",
-                            location=None,
                         ),
                     ],
                     bitwidth=0,
@@ -385,9 +350,7 @@ P4Schema(
                     type_spec=P4NewType(sdn_string, uri="", type_name="port_id_t"),
                 ),
                 P4ActionParam(
-                    annotations=[
-                        P4Annotation(name="format", body="IPV4_ADDRESS", location=None)
-                    ],
+                    annotations=[P4Annotation(name="format", body="IPV4_ADDRESS")],
                     bitwidth=32,
                     brief="",
                     description="",
@@ -396,9 +359,7 @@ P4Schema(
                     type_spec=None,
                 ),
                 P4ActionParam(
-                    annotations=[
-                        P4Annotation(name="format", body="IPV4_ADDRESS", location=None)
-                    ],
+                    annotations=[P4Annotation(name="format", body="IPV4_ADDRESS")],
                     bitwidth=32,
                     brief="",
                     description="",
@@ -407,9 +368,7 @@ P4Schema(
                     type_spec=None,
                 ),
                 P4ActionParam(
-                    annotations=[
-                        P4Annotation(name="format", body="MAC_ADDRESS", location=None)
-                    ],
+                    annotations=[P4Annotation(name="format", body="MAC_ADDRESS")],
                     bitwidth=48,
                     brief="",
                     description="",
@@ -418,9 +377,7 @@ P4Schema(
                     type_spec=None,
                 ),
                 P4ActionParam(
-                    annotations=[
-                        P4Annotation(name="format", body="MAC_ADDRESS", location=None)
-                    ],
+                    annotations=[P4Annotation(name="format", body="MAC_ADDRESS")],
                     bitwidth=48,
                     brief="",
                     description="",
@@ -472,11 +429,7 @@ P4Schema(
     controller_packet_metadata=[
         P4ControllerPacketMetadata(
             alias="packet_in",
-            annotations=[
-                P4Annotation(
-                    name="controller_header", body='"packet_in"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="controller_header", body='"packet_in"')],
             brief="",
             description="",
             id=81826293,
@@ -500,11 +453,7 @@ P4Schema(
         ),
         P4ControllerPacketMetadata(
             alias="packet_out",
-            annotations=[
-                P4Annotation(
-                    name="controller_header", body='"packet_out"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="controller_header", body='"packet_out"')],
             brief="",
             description="",
             id=76689799,
@@ -579,9 +528,7 @@ P4Schema(
             actions=[
                 P4ActionRef(
                     alias="set_vrf",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="1", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="1")],
                     id=16777472,
                     name="ingress.acl_pre_ingress.set_vrf",
                     params=[
@@ -590,7 +537,6 @@ P4Schema(
                                 P4Annotation(
                                     name="sai_action_param",
                                     body="SAI_ACL_ENTRY_ATTR_ACTION_SET_VRF",
-                                    location=None,
                                 )
                             ],
                             bitwidth=0,
@@ -607,9 +553,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="NoAction",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=21257015,
                     name="NoAction",
                     params=[],
@@ -618,22 +562,17 @@ P4Schema(
             ],
             alias="acl_pre_ingress_table",
             annotations=[
-                P4Annotation(
-                    name="p4runtime_role", body='"sdn_controller"', location=None
-                ),
-                P4Annotation(name="sai_acl", body="PRE_INGRESS", location=None),
+                P4Annotation(name="p4runtime_role", body='"sdn_controller"'),
+                P4Annotation(name="sai_acl", body="PRE_INGRESS"),
                 P4Annotation(
                     name="entry_restriction",
                     body='"\n    // Only allow IP field matches for IP packets.\n    dscp::mask != 0 -> (is_ip == 1 || is_ipv4 == 1 || is_ipv6 == 1);\n    dst_ip::mask != 0 -> is_ipv4 == 1;\n    dst_ipv6::mask != 0 -> is_ipv6 == 1;\n    // Forbid illegal combinations of IP_TYPE fields.\n    is_ip::mask != 0 -> (is_ipv4::mask == 0 && is_ipv6::mask == 0);\n    is_ipv4::mask != 0 -> (is_ip::mask == 0 && is_ipv6::mask == 0);\n    is_ipv6::mask != 0 -> (is_ip::mask == 0 && is_ipv4::mask == 0);\n    // Forbid unsupported combinations of IP_TYPE fields.\n    is_ipv4::mask != 0 -> (is_ipv4 == 1);\n    is_ipv6::mask != 0 -> (is_ipv6 == 1);\n  "',
-                    location=None,
                 ),
             ],
             brief="",
             const_default_action=P4ActionRef(
                 alias="NoAction",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=21257015,
                 name="NoAction",
                 params=[],
@@ -662,7 +601,6 @@ P4Schema(
                         P4Annotation(
                             name="sai_field",
                             body="SAI_ACL_TABLE_ATTR_FIELD_ACL_IP_TYPE / IP",
-                            location=None,
                         )
                     ],
                     bitwidth=1,
@@ -679,7 +617,6 @@ P4Schema(
                         P4Annotation(
                             name="sai_field",
                             body="SAI_ACL_TABLE_ATTR_FIELD_ACL_IP_TYPE / IPV4ANY",
-                            location=None,
                         )
                     ],
                     bitwidth=1,
@@ -696,7 +633,6 @@ P4Schema(
                         P4Annotation(
                             name="sai_field",
                             body="SAI_ACL_TABLE_ATTR_FIELD_ACL_IP_TYPE / IPV6ANY",
-                            location=None,
                         )
                     ],
                     bitwidth=1,
@@ -711,11 +647,9 @@ P4Schema(
                     alias="src_mac",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_SRC_MAC",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_SRC_MAC"
                         ),
-                        P4Annotation(name="format", body="MAC_ADDRESS", location=None),
+                        P4Annotation(name="format", body="MAC_ADDRESS"),
                     ],
                     bitwidth=48,
                     brief="",
@@ -729,11 +663,9 @@ P4Schema(
                     alias="dst_ip",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_DST_IP",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_DST_IP"
                         ),
-                        P4Annotation(name="format", body="IPV4_ADDRESS", location=None),
+                        P4Annotation(name="format", body="IPV4_ADDRESS"),
                     ],
                     bitwidth=32,
                     brief="",
@@ -747,11 +679,9 @@ P4Schema(
                     alias="dst_ipv6",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_DST_IPV6",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_DST_IPV6"
                         ),
-                        P4Annotation(name="format", body="IPV6_ADDRESS", location=None),
+                        P4Annotation(name="format", body="IPV6_ADDRESS"),
                     ],
                     bitwidth=128,
                     brief="",
@@ -765,9 +695,7 @@ P4Schema(
                     alias="dscp",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_DSCP",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_DSCP"
                         )
                     ],
                     bitwidth=6,
@@ -782,9 +710,7 @@ P4Schema(
                     alias="in_port",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_IN_PORT",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_IN_PORT"
                         )
                     ],
                     bitwidth=0,
@@ -804,17 +730,13 @@ P4Schema(
             actions=[
                 P4ActionRef(
                     alias="set_dst_mac",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="1", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="1")],
                     id=16777217,
                     name="ingress.routing.set_dst_mac",
                     params=[
                         P4ActionParam(
                             annotations=[
-                                P4Annotation(
-                                    name="format", body="MAC_ADDRESS", location=None
-                                )
+                                P4Annotation(name="format", body="MAC_ADDRESS")
                             ],
                             bitwidth=48,
                             brief="",
@@ -828,9 +750,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="NoAction",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=21257015,
                     name="NoAction",
                     params=[],
@@ -838,17 +758,11 @@ P4Schema(
                 ),
             ],
             alias="neighbor_table",
-            annotations=[
-                P4Annotation(
-                    name="p4runtime_role", body='"sdn_controller"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="p4runtime_role", body='"sdn_controller"')],
             brief="",
             const_default_action=P4ActionRef(
                 alias="NoAction",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=21257015,
                 name="NoAction",
                 params=[],
@@ -867,7 +781,6 @@ P4Schema(
                         P4Annotation(
                             name="refers_to",
                             body="router_interface_table , router_interface_id",
-                            location=None,
                         )
                     ],
                     bitwidth=0,
@@ -900,9 +813,7 @@ P4Schema(
             actions=[
                 P4ActionRef(
                     alias="set_port_and_src_mac",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="1", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="1")],
                     id=16777218,
                     name="ingress.routing.set_port_and_src_mac",
                     params=[
@@ -919,9 +830,7 @@ P4Schema(
                         ),
                         P4ActionParam(
                             annotations=[
-                                P4Annotation(
-                                    name="format", body="MAC_ADDRESS", location=None
-                                )
+                                P4Annotation(name="format", body="MAC_ADDRESS")
                             ],
                             bitwidth=48,
                             brief="",
@@ -935,9 +844,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="NoAction",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=21257015,
                     name="NoAction",
                     params=[],
@@ -945,17 +852,11 @@ P4Schema(
                 ),
             ],
             alias="router_interface_table",
-            annotations=[
-                P4Annotation(
-                    name="p4runtime_role", body='"sdn_controller"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="p4runtime_role", body='"sdn_controller"')],
             brief="",
             const_default_action=P4ActionRef(
                 alias="NoAction",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=21257015,
                 name="NoAction",
                 params=[],
@@ -990,9 +891,7 @@ P4Schema(
             actions=[
                 P4ActionRef(
                     alias="set_nexthop",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="1", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="1")],
                     id=16777219,
                     name="ingress.routing.set_nexthop",
                     params=[
@@ -1001,12 +900,10 @@ P4Schema(
                                 P4Annotation(
                                     name="refers_to",
                                     body="router_interface_table , router_interface_id",
-                                    location=None,
                                 ),
                                 P4Annotation(
                                     name="refers_to",
                                     body="neighbor_table , router_interface_id",
-                                    location=None,
                                 ),
                             ],
                             bitwidth=0,
@@ -1023,7 +920,6 @@ P4Schema(
                                 P4Annotation(
                                     name="refers_to",
                                     body="neighbor_table , neighbor_id",
-                                    location=None,
                                 )
                             ],
                             bitwidth=0,
@@ -1040,9 +936,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="NoAction",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=21257015,
                     name="NoAction",
                     params=[],
@@ -1050,17 +944,11 @@ P4Schema(
                 ),
             ],
             alias="nexthop_table",
-            annotations=[
-                P4Annotation(
-                    name="p4runtime_role", body='"sdn_controller"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="p4runtime_role", body='"sdn_controller"')],
             brief="",
             const_default_action=P4ActionRef(
                 alias="NoAction",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=21257015,
                 name="NoAction",
                 params=[],
@@ -1104,7 +992,6 @@ P4Schema(
                                     P4Annotation(
                                         name="refers_to",
                                         body="nexthop_table , nexthop_id",
-                                        location=None,
                                     )
                                 ],
                                 bitwidth=0,
@@ -1120,9 +1007,7 @@ P4Schema(
                     ),
                     P4Action(
                         alias="NoAction",
-                        annotations=[
-                            P4Annotation(name="noWarn", body='"unused"', location=None)
-                        ],
+                        annotations=[P4Annotation(name="noWarn", body='"unused"')],
                         brief="",
                         description="",
                         id=21257015,
@@ -1144,18 +1029,14 @@ P4Schema(
             actions=[
                 P4ActionRef(
                     alias="set_nexthop_id",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="1", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="1")],
                     id=16777221,
                     name="ingress.routing.set_nexthop_id",
                     params=[
                         P4ActionParam(
                             annotations=[
                                 P4Annotation(
-                                    name="refers_to",
-                                    body="nexthop_table , nexthop_id",
-                                    location=None,
+                                    name="refers_to", body="nexthop_table , nexthop_id"
                                 )
                             ],
                             bitwidth=0,
@@ -1172,9 +1053,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="NoAction",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=21257015,
                     name="NoAction",
                     params=[],
@@ -1183,17 +1062,13 @@ P4Schema(
             ],
             alias="wcmp_group_table",
             annotations=[
-                P4Annotation(
-                    name="p4runtime_role", body='"sdn_controller"', location=None
-                ),
-                P4Annotation(name="oneshot", body=None, location=None),
+                P4Annotation(name="p4runtime_role", body='"sdn_controller"'),
+                P4Annotation(name="oneshot", body=None),
             ],
             brief="",
             const_default_action=P4ActionRef(
                 alias="NoAction",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=21257015,
                 name="NoAction",
                 params=[],
@@ -1228,9 +1103,7 @@ P4Schema(
             actions=[
                 P4ActionRef(
                     alias="drop",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="1", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="1")],
                     id=16777222,
                     name="ingress.routing.drop",
                     params=[],
@@ -1238,18 +1111,14 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="set_nexthop_id",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="2", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="2")],
                     id=16777221,
                     name="ingress.routing.set_nexthop_id",
                     params=[
                         P4ActionParam(
                             annotations=[
                                 P4Annotation(
-                                    name="refers_to",
-                                    body="nexthop_table , nexthop_id",
-                                    location=None,
+                                    name="refers_to", body="nexthop_table , nexthop_id"
                                 )
                             ],
                             bitwidth=0,
@@ -1266,9 +1135,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="set_wcmp_group_id",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="3", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="3")],
                     id=16777220,
                     name="ingress.routing.set_wcmp_group_id",
                     params=[
@@ -1277,7 +1144,6 @@ P4Schema(
                                 P4Annotation(
                                     name="refers_to",
                                     body="wcmp_group_table , wcmp_group_id",
-                                    location=None,
                                 )
                             ],
                             bitwidth=0,
@@ -1294,15 +1160,11 @@ P4Schema(
                 ),
             ],
             alias="ipv4_table",
-            annotations=[
-                P4Annotation(
-                    name="p4runtime_role", body='"sdn_controller"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="p4runtime_role", body='"sdn_controller"')],
             brief="",
             const_default_action=P4ActionRef(
                 alias="drop",
-                annotations=[P4Annotation(name="proto_id", body="1", location=None)],
+                annotations=[P4Annotation(name="proto_id", body="1")],
                 id=16777222,
                 name="ingress.routing.drop",
                 params=[],
@@ -1328,9 +1190,7 @@ P4Schema(
                 ),
                 P4MatchField(
                     alias="ipv4_dst",
-                    annotations=[
-                        P4Annotation(name="format", body="IPV4_ADDRESS", location=None)
-                    ],
+                    annotations=[P4Annotation(name="format", body="IPV4_ADDRESS")],
                     bitwidth=32,
                     brief="",
                     description="",
@@ -1348,9 +1208,7 @@ P4Schema(
             actions=[
                 P4ActionRef(
                     alias="drop",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="1", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="1")],
                     id=16777222,
                     name="ingress.routing.drop",
                     params=[],
@@ -1358,18 +1216,14 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="set_nexthop_id",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="2", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="2")],
                     id=16777221,
                     name="ingress.routing.set_nexthop_id",
                     params=[
                         P4ActionParam(
                             annotations=[
                                 P4Annotation(
-                                    name="refers_to",
-                                    body="nexthop_table , nexthop_id",
-                                    location=None,
+                                    name="refers_to", body="nexthop_table , nexthop_id"
                                 )
                             ],
                             bitwidth=0,
@@ -1386,9 +1240,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="set_wcmp_group_id",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="3", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="3")],
                     id=16777220,
                     name="ingress.routing.set_wcmp_group_id",
                     params=[
@@ -1397,7 +1249,6 @@ P4Schema(
                                 P4Annotation(
                                     name="refers_to",
                                     body="wcmp_group_table , wcmp_group_id",
-                                    location=None,
                                 )
                             ],
                             bitwidth=0,
@@ -1414,15 +1265,11 @@ P4Schema(
                 ),
             ],
             alias="ipv6_table",
-            annotations=[
-                P4Annotation(
-                    name="p4runtime_role", body='"sdn_controller"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="p4runtime_role", body='"sdn_controller"')],
             brief="",
             const_default_action=P4ActionRef(
                 alias="drop",
-                annotations=[P4Annotation(name="proto_id", body="1", location=None)],
+                annotations=[P4Annotation(name="proto_id", body="1")],
                 id=16777222,
                 name="ingress.routing.drop",
                 params=[],
@@ -1448,9 +1295,7 @@ P4Schema(
                 ),
                 P4MatchField(
                     alias="ipv6_dst",
-                    annotations=[
-                        P4Annotation(name="format", body="IPV6_ADDRESS", location=None)
-                    ],
+                    annotations=[P4Annotation(name="format", body="IPV6_ADDRESS")],
                     bitwidth=128,
                     brief="",
                     description="",
@@ -1468,19 +1313,13 @@ P4Schema(
             actions=[
                 P4ActionRef(
                     alias="copy",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="1", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="1")],
                     id=16777473,
                     name="ingress.acl_ingress.copy",
                     params=[
                         P4ActionParam(
                             annotations=[
-                                P4Annotation(
-                                    name="sai_action_param",
-                                    body="QOS_QUEUE",
-                                    location=None,
-                                )
+                                P4Annotation(name="sai_action_param", body="QOS_QUEUE")
                             ],
                             bitwidth=0,
                             brief="",
@@ -1496,19 +1335,13 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="trap",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="2", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="2")],
                     id=16777474,
                     name="ingress.acl_ingress.trap",
                     params=[
                         P4ActionParam(
                             annotations=[
-                                P4Annotation(
-                                    name="sai_action_param",
-                                    body="QOS_QUEUE",
-                                    location=None,
-                                )
+                                P4Annotation(name="sai_action_param", body="QOS_QUEUE")
                             ],
                             bitwidth=0,
                             brief="",
@@ -1524,9 +1357,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="forward",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="3", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="3")],
                     id=16777475,
                     name="ingress.acl_ingress.forward",
                     params=[],
@@ -1534,9 +1365,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="mirror",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="4", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="4")],
                     id=16777476,
                     name="ingress.acl_ingress.mirror",
                     params=[
@@ -1545,12 +1374,10 @@ P4Schema(
                                 P4Annotation(
                                     name="sai_action_param",
                                     body="SAI_ACL_ENTRY_ATTR_ACTION_MIRROR_INGRESS",
-                                    location=None,
                                 ),
                                 P4Annotation(
                                     name="refers_to",
                                     body="mirror_session_table , mirror_session_id",
-                                    location=None,
                                 ),
                             ],
                             bitwidth=0,
@@ -1567,9 +1394,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="acl_drop",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="5", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="5")],
                     id=16777481,
                     name="acl_drop",
                     params=[],
@@ -1577,9 +1402,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="NoAction",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=21257015,
                     name="NoAction",
                     params=[],
@@ -1588,22 +1411,17 @@ P4Schema(
             ],
             alias="acl_ingress_table",
             annotations=[
-                P4Annotation(
-                    name="p4runtime_role", body='"sdn_controller"', location=None
-                ),
-                P4Annotation(name="sai_acl", body="INGRESS", location=None),
+                P4Annotation(name="p4runtime_role", body='"sdn_controller"'),
+                P4Annotation(name="sai_acl", body="INGRESS"),
                 P4Annotation(
                     name="entry_restriction",
                     body='"\n    // Only allow IP field matches for IP packets.\n    dst_ip::mask != 0 -> is_ipv4 == 1;\n    dst_ipv6::mask != 0 -> is_ipv6 == 1;\n    ttl::mask != 0 -> (is_ip == 1 || is_ipv4 == 1 || is_ipv6 == 1);\n    dscp::mask != 0 -> (is_ip == 1 || is_ipv4 == 1 || is_ipv6 == 1);\n    ecn::mask != 0 -> (is_ip == 1 || is_ipv4 == 1 || is_ipv6 == 1);\n    ip_protocol::mask != 0 -> (is_ip == 1 || is_ipv4 == 1 || is_ipv6 == 1);\n    // Forbid using ether_type for IP packets (by convention, use is_ip* instead).\n    ether_type != 0x0800 && ether_type != 0x86dd;\n    // Only allow arp_tpa for ARP packets\n    arp_tpa::mask != 0 -> ether_type == 0x0806;\n    // Only allow icmp_type for ICMP packets\n    icmpv6_type::mask != 0 -> ((is_ip == 1 || is_ipv4 == 1 || is_ipv6 == 1) && ip_protocol == 58);\n    // Forbid illegal combinations of IP_TYPE fields.\n    is_ip::mask != 0 -> (is_ipv4::mask == 0 && is_ipv6::mask == 0);\n    is_ipv4::mask != 0 -> (is_ip::mask == 0 && is_ipv6::mask == 0);\n    is_ipv6::mask != 0 -> (is_ip::mask == 0 && is_ipv4::mask == 0);\n    // Forbid unsupported combinations of IP_TYPE fields.\n    is_ipv4::mask != 0 -> (is_ipv4 == 1);\n    is_ipv6::mask != 0 -> (is_ipv6 == 1);\n  "',
-                    location=None,
                 ),
             ],
             brief="",
             const_default_action=P4ActionRef(
                 alias="NoAction",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=21257015,
                 name="NoAction",
                 params=[],
@@ -1641,7 +1459,6 @@ P4Schema(
                         P4Annotation(
                             name="sai_field",
                             body="SAI_ACL_TABLE_ATTR_FIELD_ACL_IP_TYPE / IP",
-                            location=None,
                         )
                     ],
                     bitwidth=1,
@@ -1658,7 +1475,6 @@ P4Schema(
                         P4Annotation(
                             name="sai_field",
                             body="SAI_ACL_TABLE_ATTR_FIELD_ACL_IP_TYPE / IPV4ANY",
-                            location=None,
                         )
                     ],
                     bitwidth=1,
@@ -1675,7 +1491,6 @@ P4Schema(
                         P4Annotation(
                             name="sai_field",
                             body="SAI_ACL_TABLE_ATTR_FIELD_ACL_IP_TYPE / IPV6ANY",
-                            location=None,
                         )
                     ],
                     bitwidth=1,
@@ -1690,9 +1505,7 @@ P4Schema(
                     alias="ether_type",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_ETHER_TYPE",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_ETHER_TYPE"
                         )
                     ],
                     bitwidth=16,
@@ -1707,11 +1520,9 @@ P4Schema(
                     alias="dst_mac",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_DST_MAC",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_DST_MAC"
                         ),
-                        P4Annotation(name="format", body="MAC_ADDRESS", location=None),
+                        P4Annotation(name="format", body="MAC_ADDRESS"),
                     ],
                     bitwidth=48,
                     brief="",
@@ -1725,11 +1536,9 @@ P4Schema(
                     alias="src_ip",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_SRC_IP",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_SRC_IP"
                         ),
-                        P4Annotation(name="format", body="IPV4_ADDRESS", location=None),
+                        P4Annotation(name="format", body="IPV4_ADDRESS"),
                     ],
                     bitwidth=32,
                     brief="",
@@ -1743,11 +1552,9 @@ P4Schema(
                     alias="dst_ip",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_DST_IP",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_DST_IP"
                         ),
-                        P4Annotation(name="format", body="IPV4_ADDRESS", location=None),
+                        P4Annotation(name="format", body="IPV4_ADDRESS"),
                     ],
                     bitwidth=32,
                     brief="",
@@ -1761,11 +1568,9 @@ P4Schema(
                     alias="src_ipv6",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_SRC_IPV6",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_SRC_IPV6"
                         ),
-                        P4Annotation(name="format", body="IPV6_ADDRESS", location=None),
+                        P4Annotation(name="format", body="IPV6_ADDRESS"),
                     ],
                     bitwidth=128,
                     brief="",
@@ -1779,11 +1584,9 @@ P4Schema(
                     alias="dst_ipv6",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_DST_IPV6",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_DST_IPV6"
                         ),
-                        P4Annotation(name="format", body="IPV6_ADDRESS", location=None),
+                        P4Annotation(name="format", body="IPV6_ADDRESS"),
                     ],
                     bitwidth=128,
                     brief="",
@@ -1797,9 +1600,7 @@ P4Schema(
                     alias="ttl",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_TTL",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_TTL"
                         )
                     ],
                     bitwidth=8,
@@ -1814,9 +1615,7 @@ P4Schema(
                     alias="dscp",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_DSCP",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_DSCP"
                         )
                     ],
                     bitwidth=6,
@@ -1831,9 +1630,7 @@ P4Schema(
                     alias="ecn",
                     annotations=[
                         P4Annotation(
-                            name="sai_field",
-                            body="SAI_ACL_TABLE_ATTR_FIELD_ECN",
-                            location=None,
+                            name="sai_field", body="SAI_ACL_TABLE_ATTR_FIELD_ECN"
                         )
                     ],
                     bitwidth=2,
@@ -1850,7 +1647,6 @@ P4Schema(
                         P4Annotation(
                             name="sai_field",
                             body="SAI_ACL_TABLE_ATTR_FIELD_IP_PROTOCOL",
-                            location=None,
                         )
                     ],
                     bitwidth=8,
@@ -1867,7 +1663,6 @@ P4Schema(
                         P4Annotation(
                             name="sai_field",
                             body="SAI_ACL_TABLE_ATTR_FIELD_ICMPV6_TYPE",
-                            location=None,
                         )
                     ],
                     bitwidth=8,
@@ -1884,7 +1679,6 @@ P4Schema(
                         P4Annotation(
                             name="sai_field",
                             body="SAI_ACL_TABLE_ATTR_FIELD_L4_DST_PORT",
-                            location=None,
                         )
                     ],
                     bitwidth=16,
@@ -1901,9 +1695,8 @@ P4Schema(
                         P4Annotation(
                             name="composite_field",
                             body="@ sai_udf ( base = SAI_UDF_BASE_L3 , offset = 24 , length = 2 ) , @ sai_udf ( base = SAI_UDF_BASE_L3 , offset = 26 , length = 2 )",
-                            location=None,
                         ),
-                        P4Annotation(name="format", body="IPV4_ADDRESS", location=None),
+                        P4Annotation(name="format", body="IPV4_ADDRESS"),
                     ],
                     bitwidth=32,
                     brief="",
@@ -1922,9 +1715,7 @@ P4Schema(
             actions=[
                 P4ActionRef(
                     alias="mirror_as_ipv4_erspan",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="1", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="1")],
                     id=16777223,
                     name="ingress.mirroring_clone.mirror_as_ipv4_erspan",
                     params=[
@@ -1941,9 +1732,7 @@ P4Schema(
                         ),
                         P4ActionParam(
                             annotations=[
-                                P4Annotation(
-                                    name="format", body="IPV4_ADDRESS", location=None
-                                )
+                                P4Annotation(name="format", body="IPV4_ADDRESS")
                             ],
                             bitwidth=32,
                             brief="",
@@ -1954,9 +1743,7 @@ P4Schema(
                         ),
                         P4ActionParam(
                             annotations=[
-                                P4Annotation(
-                                    name="format", body="IPV4_ADDRESS", location=None
-                                )
+                                P4Annotation(name="format", body="IPV4_ADDRESS")
                             ],
                             bitwidth=32,
                             brief="",
@@ -1967,9 +1754,7 @@ P4Schema(
                         ),
                         P4ActionParam(
                             annotations=[
-                                P4Annotation(
-                                    name="format", body="MAC_ADDRESS", location=None
-                                )
+                                P4Annotation(name="format", body="MAC_ADDRESS")
                             ],
                             bitwidth=48,
                             brief="",
@@ -1980,9 +1765,7 @@ P4Schema(
                         ),
                         P4ActionParam(
                             annotations=[
-                                P4Annotation(
-                                    name="format", body="MAC_ADDRESS", location=None
-                                )
+                                P4Annotation(name="format", body="MAC_ADDRESS")
                             ],
                             bitwidth=48,
                             brief="",
@@ -2014,9 +1797,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="NoAction",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=21257015,
                     name="NoAction",
                     params=[],
@@ -2024,17 +1805,11 @@ P4Schema(
                 ),
             ],
             alias="mirror_session_table",
-            annotations=[
-                P4Annotation(
-                    name="p4runtime_role", body='"sdn_controller"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="p4runtime_role", body='"sdn_controller"')],
             brief="",
             const_default_action=P4ActionRef(
                 alias="NoAction",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=21257015,
                 name="NoAction",
                 params=[],
@@ -2069,9 +1844,7 @@ P4Schema(
             actions=[
                 P4ActionRef(
                     alias="set_pre_session",
-                    annotations=[
-                        P4Annotation(name="proto_id", body="1", location=None)
-                    ],
+                    annotations=[P4Annotation(name="proto_id", body="1")],
                     id=16777225,
                     name="ingress.mirroring_clone.set_pre_session",
                     params=[
@@ -2089,9 +1862,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="NoAction",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=21257015,
                     name="NoAction",
                     params=[],
@@ -2101,17 +1872,13 @@ P4Schema(
             alias="mirror_port_to_pre_session_table",
             annotations=[
                 P4Annotation(
-                    name="p4runtime_role",
-                    body='"packet_replication_engine_manager"',
-                    location=None,
+                    name="p4runtime_role", body='"packet_replication_engine_manager"'
                 )
             ],
             brief="",
             const_default_action=P4ActionRef(
                 alias="NoAction",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=21257015,
                 name="NoAction",
                 params=[],
