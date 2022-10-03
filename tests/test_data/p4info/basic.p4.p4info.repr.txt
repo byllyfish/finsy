@@ -34,6 +34,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="dstAddr",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -42,6 +43,7 @@ P4Schema(
                     description="",
                     id=2,
                     name="port",
+                    type_spec=None,
                 ),
             ],
         ),
@@ -60,6 +62,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="meter_index",
+                    type_spec=None,
                 )
             ],
         ),
@@ -86,8 +89,16 @@ P4Schema(
             description="",
             id=67146229,
             metadata=[
-                P4CPMetadata(annotations=[], bitwidth=9, id=1, name="ingress_port"),
-                P4CPMetadata(annotations=[], bitwidth=7, id=2, name="_pad"),
+                P4CPMetadata(
+                    annotations=[],
+                    bitwidth=9,
+                    id=1,
+                    name="ingress_port",
+                    type_spec=None,
+                ),
+                P4CPMetadata(
+                    annotations=[], bitwidth=7, id=2, name="_pad", type_spec=None
+                ),
             ],
             name="packet_in",
         ),
@@ -102,8 +113,12 @@ P4Schema(
             description="",
             id=67121543,
             metadata=[
-                P4CPMetadata(annotations=[], bitwidth=9, id=1, name="egress_port"),
-                P4CPMetadata(annotations=[], bitwidth=7, id=2, name="_pad"),
+                P4CPMetadata(
+                    annotations=[], bitwidth=9, id=1, name="egress_port", type_spec=None
+                ),
+                P4CPMetadata(
+                    annotations=[], bitwidth=7, id=2, name="_pad", type_spec=None
+                ),
             ],
             name="packet_out",
         ),
@@ -192,6 +207,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="dstAddr",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -200,6 +216,7 @@ P4Schema(
                             description="",
                             id=2,
                             name="port",
+                            type_spec=None,
                         ),
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,

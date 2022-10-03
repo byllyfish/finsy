@@ -17,6 +17,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="port_num",
+                            type_spec=None,
                         )
                     ],
                 ),
@@ -35,6 +36,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="port_num",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -43,6 +45,7 @@ P4Schema(
                             description="",
                             id=2,
                             name="smac",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -51,6 +54,7 @@ P4Schema(
                             description="",
                             id=3,
                             name="dmac",
+                            type_spec=None,
                         ),
                     ],
                 ),
@@ -69,6 +73,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="port_num",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -77,6 +82,7 @@ P4Schema(
                             description="",
                             id=2,
                             name="smac",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -85,6 +91,7 @@ P4Schema(
                             description="",
                             id=3,
                             name="dmac",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -93,6 +100,7 @@ P4Schema(
                             description="",
                             id=4,
                             name="label",
+                            type_spec=None,
                         ),
                     ],
                 ),
@@ -143,6 +151,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="teid",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -151,6 +160,7 @@ P4Schema(
                     description="",
                     id=2,
                     name="s1u_enb_addr",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -159,6 +169,7 @@ P4Schema(
                     description="",
                     id=3,
                     name="s1u_sgw_addr",
+                    type_spec=None,
                 ),
             ],
         ),
@@ -204,6 +215,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="vlan_id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -222,6 +234,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="fwd_type",
+                    type_spec=None,
                 )
             ],
         ),
@@ -240,6 +253,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="next_id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -258,6 +272,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="next_id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -276,6 +291,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="next_id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -303,6 +319,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="next_id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -330,6 +347,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="clone_id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -366,6 +384,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="vlan_id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -384,6 +403,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="port_num",
+                    type_spec=None,
                 )
             ],
         ),
@@ -402,6 +422,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="next_id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -420,6 +441,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="port_num",
+                    type_spec=None,
                 )
             ],
         ),
@@ -438,6 +460,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="port_num",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -446,6 +469,7 @@ P4Schema(
                     description="",
                     id=2,
                     name="smac",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -454,6 +478,7 @@ P4Schema(
                     description="",
                     id=3,
                     name="dmac",
+                    type_spec=None,
                 ),
             ],
         ),
@@ -472,6 +497,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="port_num",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -480,6 +506,7 @@ P4Schema(
                     description="",
                     id=2,
                     name="smac",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -488,6 +515,7 @@ P4Schema(
                     description="",
                     id=3,
                     name="dmac",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -496,6 +524,7 @@ P4Schema(
                     description="",
                     id=4,
                     name="label",
+                    type_spec=None,
                 ),
             ],
         ),
@@ -514,6 +543,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="group_id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -541,6 +571,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="max_hop",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -549,6 +580,7 @@ P4Schema(
                     description="",
                     id=2,
                     name="ins_cnt",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -557,6 +589,7 @@ P4Schema(
                     description="",
                     id=3,
                     name="ins_mask0003",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -565,6 +598,7 @@ P4Schema(
                     description="",
                     id=4,
                     name="ins_mask0407",
+                    type_spec=None,
                 ),
             ],
         ),
@@ -583,6 +617,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="switch_id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -609,8 +644,16 @@ P4Schema(
             description="",
             id=67146229,
             metadata=[
-                P4CPMetadata(annotations=[], bitwidth=9, id=1, name="ingress_port"),
-                P4CPMetadata(annotations=[], bitwidth=7, id=2, name="_pad"),
+                P4CPMetadata(
+                    annotations=[],
+                    bitwidth=9,
+                    id=1,
+                    name="ingress_port",
+                    type_spec=None,
+                ),
+                P4CPMetadata(
+                    annotations=[], bitwidth=7, id=2, name="_pad", type_spec=None
+                ),
             ],
             name="packet_in",
         ),
@@ -625,8 +668,12 @@ P4Schema(
             description="",
             id=67121543,
             metadata=[
-                P4CPMetadata(annotations=[], bitwidth=9, id=1, name="egress_port"),
-                P4CPMetadata(annotations=[], bitwidth=7, id=2, name="_pad"),
+                P4CPMetadata(
+                    annotations=[], bitwidth=9, id=1, name="egress_port", type_spec=None
+                ),
+                P4CPMetadata(
+                    annotations=[], bitwidth=7, id=2, name="_pad", type_spec=None
+                ),
             ],
             name="packet_out",
         ),
@@ -822,6 +869,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="teid",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -830,6 +878,7 @@ P4Schema(
                             description="",
                             id=2,
                             name="s1u_enb_addr",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -838,6 +887,7 @@ P4Schema(
                             description="",
                             id=3,
                             name="s1u_sgw_addr",
+                            type_spec=None,
                         ),
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1042,6 +1092,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="vlan_id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1139,6 +1190,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="fwd_type",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1160,6 +1212,7 @@ P4Schema(
                         description="",
                         id=1,
                         name="fwd_type",
+                        type_spec=None,
                     )
                 ],
                 scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1245,6 +1298,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="next_id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1332,6 +1386,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="next_id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1408,6 +1463,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="next_id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1482,6 +1538,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="next_id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1507,6 +1564,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="clone_id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1708,6 +1766,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="vlan_id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1784,6 +1843,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="port_num",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1801,6 +1861,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="next_id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1890,6 +1951,7 @@ P4Schema(
                                 description="",
                                 id=1,
                                 name="port_num",
+                                type_spec=None,
                             )
                         ],
                     ),
@@ -1908,6 +1970,7 @@ P4Schema(
                                 description="",
                                 id=1,
                                 name="port_num",
+                                type_spec=None,
                             ),
                             P4ActionParam(
                                 annotations=[],
@@ -1916,6 +1979,7 @@ P4Schema(
                                 description="",
                                 id=2,
                                 name="smac",
+                                type_spec=None,
                             ),
                             P4ActionParam(
                                 annotations=[],
@@ -1924,6 +1988,7 @@ P4Schema(
                                 description="",
                                 id=3,
                                 name="dmac",
+                                type_spec=None,
                             ),
                         ],
                     ),
@@ -1942,6 +2007,7 @@ P4Schema(
                                 description="",
                                 id=1,
                                 name="port_num",
+                                type_spec=None,
                             ),
                             P4ActionParam(
                                 annotations=[],
@@ -1950,6 +2016,7 @@ P4Schema(
                                 description="",
                                 id=2,
                                 name="smac",
+                                type_spec=None,
                             ),
                             P4ActionParam(
                                 annotations=[],
@@ -1958,6 +2025,7 @@ P4Schema(
                                 description="",
                                 id=3,
                                 name="dmac",
+                                type_spec=None,
                             ),
                             P4ActionParam(
                                 annotations=[],
@@ -1966,6 +2034,7 @@ P4Schema(
                                 description="",
                                 id=4,
                                 name="label",
+                                type_spec=None,
                             ),
                         ],
                     ),
@@ -2004,6 +2073,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="port_num",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -2021,6 +2091,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="port_num",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -2029,6 +2100,7 @@ P4Schema(
                             description="",
                             id=2,
                             name="smac",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -2037,6 +2109,7 @@ P4Schema(
                             description="",
                             id=3,
                             name="dmac",
+                            type_spec=None,
                         ),
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -2054,6 +2127,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="port_num",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -2062,6 +2136,7 @@ P4Schema(
                             description="",
                             id=2,
                             name="smac",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -2070,6 +2145,7 @@ P4Schema(
                             description="",
                             id=3,
                             name="dmac",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -2078,6 +2154,7 @@ P4Schema(
                             description="",
                             id=4,
                             name="label",
+                            type_spec=None,
                         ),
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -2154,6 +2231,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="group_id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -2230,6 +2308,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="max_hop",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -2238,6 +2317,7 @@ P4Schema(
                             description="",
                             id=2,
                             name="ins_cnt",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -2246,6 +2326,7 @@ P4Schema(
                             description="",
                             id=3,
                             name="ins_mask0003",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -2254,6 +2335,7 @@ P4Schema(
                             description="",
                             id=4,
                             name="ins_mask0407",
+                            type_spec=None,
                         ),
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -2363,6 +2445,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="switch_id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,

@@ -425,7 +425,9 @@ class _P4Defs:
             self.tables._add(P4Table(entity, self))
 
         for iterable in (
+            self.actions,
             self.action_profiles,
+            self.controller_packet_metadata,
             self.registers,
             self.digests,
             self.direct_counters,
@@ -843,16 +845,23 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
     "Represents 'Action.Param' in schema."
 
     _bitwidth: int  # cache for performance
+    _type_spec: "_P4Type | None" = None
 
     def __init__(self, pbuf: p4i.Action.Param):
         super().__init__(pbuf)
         self._bitwidth = pbuf.bitwidth
 
+    def _finish_init(self, defs: _P4Defs):
+        if self.pbuf.HasField("type_name"):
+            self._type_spec = defs.type_info[self.pbuf.type_name.name]
+
     @property
     def bitwidth(self) -> int:
         return self._bitwidth
 
-    # TODO: type_name property
+    @property
+    def type_spec(self) -> "_P4Type | None":
+        return self._type_spec
 
     def encode_param(self, value: p4values.P4ParamValue) -> p4r.Action.Param:
         "Encode `param` to protobuf."
@@ -874,11 +883,17 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
 class P4Action(_P4TopLevel[p4i.Action]):
     "Represents Action in schema."
 
+    _params: P4EntityMap[P4ActionParam]
+
     def __init__(self, pbuf: p4i.Action) -> None:
         super().__init__(pbuf)
         self._params = P4EntityMap[P4ActionParam]("action parameter")
         for param in self.pbuf.params:
             self._params._add(P4ActionParam(param))
+
+    def _finish_init(self, defs: _P4Defs):
+        for param in self._params:
+            param._finish_init(defs)
 
     @property
     def params(self):
@@ -1082,11 +1097,17 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
 class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
     "Represents ControllerPacketMetadata in schema."
 
+    _metadata: P4EntityMap["P4CPMetadata"]
+
     def __init__(self, pbuf: p4i.ControllerPacketMetadata):
         super().__init__(pbuf)
         self._metadata = P4EntityMap[P4CPMetadata]("controller packet metadata")
         for metadata in pbuf.metadata:
             self._metadata._add(P4CPMetadata(metadata))
+
+    def _finish_init(self, defs: _P4Defs):
+        for metadata in self._metadata:
+            metadata._finish_init(defs)
 
     @property
     def metadata(self):
@@ -1125,9 +1146,19 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
 class P4CPMetadata(_P4AnnoMixin, _P4NamedMixin[p4i.ControllerPacketMetadata.Metadata]):
     "Represents ControllerPacketMetadata.Metadata in schema."
 
+    _type_spec: "_P4Type | None" = None
+
+    def _finish_init(self, defs: _P4Defs):
+        if self.pbuf.HasField("type_name"):
+            self._type_spec = defs.type_info[self.pbuf.type_name.name]
+
     @property
-    def bitwidth(self):
+    def bitwidth(self) -> int:
         return self.pbuf.bitwidth
+
+    @property
+    def type_spec(self) -> "_P4Type | None":
+        return self._type_spec
 
     def encode(self, value: p4values.P4ParamValue) -> p4r.PacketMetadata:
         data = p4values.encode_exact(value, self.bitwidth)
@@ -1677,13 +1708,14 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
     def __repr__(self) -> str:
         match self.kind:
             case P4NewTypeKind.ORIGINAL_TYPE:
-                return f"P4NewType(original_type={self.original_type!r})"
+                result = f"P4NewType(original_type={self.original_type!r}"
             case P4NewTypeKind.SDN_STRING:
-                return f"P4NewType(sdn_string, uri={self.translated_uri!r})"
+                result = f"P4NewType(sdn_string, uri={self.translated_uri!r}"
             case P4NewTypeKind.SDN_BITWIDTH:
-                return f"P4NewType(sdn_bitwidth={self.translated_bitwidth!r}, uri={self.translated_uri!r})"
+                result = f"P4NewType(sdn_bitwidth={self.translated_bitwidth!r}, uri={self.translated_uri!r}"
             case other:
                 raise ValueError(f"unexpected kind: {other!r}")
+        return f"{result}, type_name={self.type_name!r})"
 
 
 _P4Type = (
@@ -1717,7 +1749,9 @@ def _parse_type_spec(type_spec: p4t.P4DataTypeSpec, type_info: P4TypeInfo) -> _P
             result = P4HeaderStackType(type_spec.header_stack, type_info)
         case "header_union_stack":
             result = P4HeaderUnionStackType(type_spec.header_union_stack, type_info)
-        # TODO: "enum", "error", "serializable_enum", "new_type"
+        case "new_type":
+            result = type_info.new_types[type_spec.new_type.name]
+        # TODO: "enum", "error", "serializable_enum"
         case other:
             raise ValueError(f"unknown type_spec: {other!r}")
     return result

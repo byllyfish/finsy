@@ -23,6 +23,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="nexthop_id",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="nexthop_id_t"
+                            ),
                         )
                     ],
                 ),
@@ -98,6 +101,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="vrf_id",
+                    type_spec=P4NewType(sdn_string, uri="", type_name="vrf_id_t"),
                 )
             ],
         ),
@@ -118,6 +122,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="dst_mac",
+                    type_spec=None,
                 )
             ],
         ),
@@ -136,6 +141,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="port",
+                    type_spec=P4NewType(sdn_string, uri="", type_name="port_id_t"),
                 ),
                 P4ActionParam(
                     annotations=[
@@ -146,6 +152,7 @@ P4Schema(
                     description="",
                     id=2,
                     name="src_mac",
+                    type_spec=None,
                 ),
             ],
         ),
@@ -175,6 +182,9 @@ P4Schema(
                     description="",
                     id=1,
                     name="router_interface_id",
+                    type_spec=P4NewType(
+                        sdn_string, uri="", type_name="router_interface_id_t"
+                    ),
                 ),
                 P4ActionParam(
                     annotations=[
@@ -189,6 +199,7 @@ P4Schema(
                     description="",
                     id=2,
                     name="neighbor_id",
+                    type_spec=P4NewType(sdn_string, uri="", type_name="neighbor_id_t"),
                 ),
             ],
         ),
@@ -213,6 +224,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="nexthop_id",
+                    type_spec=P4NewType(sdn_string, uri="", type_name="nexthop_id_t"),
                 )
             ],
         ),
@@ -246,6 +258,9 @@ P4Schema(
                     description="",
                     id=1,
                     name="wcmp_group_id",
+                    type_spec=P4NewType(
+                        sdn_string, uri="", type_name="wcmp_group_id_t"
+                    ),
                 )
             ],
         ),
@@ -272,6 +287,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="qos_queue",
+                    type_spec=P4NewType(sdn_string, uri="", type_name="qos_queue_t"),
                 )
             ],
         ),
@@ -298,6 +314,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="qos_queue",
+                    type_spec=P4NewType(sdn_string, uri="", type_name="qos_queue_t"),
                 )
             ],
         ),
@@ -344,6 +361,9 @@ P4Schema(
                     description="",
                     id=1,
                     name="mirror_session_id",
+                    type_spec=P4NewType(
+                        sdn_string, uri="", type_name="mirror_session_id_t"
+                    ),
                 )
             ],
         ),
@@ -362,6 +382,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="port",
+                    type_spec=P4NewType(sdn_string, uri="", type_name="port_id_t"),
                 ),
                 P4ActionParam(
                     annotations=[
@@ -372,6 +393,7 @@ P4Schema(
                     description="",
                     id=2,
                     name="src_ip",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[
@@ -382,6 +404,7 @@ P4Schema(
                     description="",
                     id=3,
                     name="dst_ip",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[
@@ -392,6 +415,7 @@ P4Schema(
                     description="",
                     id=4,
                     name="src_mac",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[
@@ -402,6 +426,7 @@ P4Schema(
                     description="",
                     id=5,
                     name="dst_mac",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -410,6 +435,7 @@ P4Schema(
                     description="",
                     id=6,
                     name="ttl",
+                    type_spec=None,
                 ),
                 P4ActionParam(
                     annotations=[],
@@ -418,6 +444,7 @@ P4Schema(
                     description="",
                     id=7,
                     name="tos",
+                    type_spec=None,
                 ),
             ],
         ),
@@ -436,6 +463,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="id",
+                    type_spec=None,
                 )
             ],
         ),
@@ -453,9 +481,19 @@ P4Schema(
             description="",
             id=81826293,
             metadata=[
-                P4CPMetadata(annotations=[], bitwidth=0, id=1, name="ingress_port"),
                 P4CPMetadata(
-                    annotations=[], bitwidth=0, id=2, name="target_egress_port"
+                    annotations=[],
+                    bitwidth=0,
+                    id=1,
+                    name="ingress_port",
+                    type_spec=P4NewType(sdn_string, uri="", type_name="port_id_t"),
+                ),
+                P4CPMetadata(
+                    annotations=[],
+                    bitwidth=0,
+                    id=2,
+                    name="target_egress_port",
+                    type_spec=P4NewType(sdn_string, uri="", type_name="port_id_t"),
                 ),
             ],
             name="packet_in",
@@ -471,11 +509,23 @@ P4Schema(
             description="",
             id=76689799,
             metadata=[
-                P4CPMetadata(annotations=[], bitwidth=0, id=1, name="egress_port"),
                 P4CPMetadata(
-                    annotations=[], bitwidth=1, id=2, name="submit_to_ingress"
+                    annotations=[],
+                    bitwidth=0,
+                    id=1,
+                    name="egress_port",
+                    type_spec=P4NewType(sdn_string, uri="", type_name="port_id_t"),
                 ),
-                P4CPMetadata(annotations=[], bitwidth=7, id=3, name="unused_pad"),
+                P4CPMetadata(
+                    annotations=[],
+                    bitwidth=1,
+                    id=2,
+                    name="submit_to_ingress",
+                    type_spec=None,
+                ),
+                P4CPMetadata(
+                    annotations=[], bitwidth=7, id=3, name="unused_pad", type_spec=None
+                ),
             ],
             name="packet_out",
         ),
@@ -548,6 +598,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="vrf_id",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="vrf_id_t"
+                            ),
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -740,7 +793,7 @@ P4Schema(
                     id=8,
                     match_type=P4MatchType.OPTIONAL,
                     name="in_port",
-                    type_spec=P4NewType(sdn_string, uri=""),
+                    type_spec=P4NewType(sdn_string, uri="", type_name="port_id_t"),
                 ),
             ],
             name="ingress.acl_pre_ingress.acl_pre_ingress_table",
@@ -768,6 +821,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="dst_mac",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -822,7 +876,9 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="router_interface_id",
-                    type_spec=P4NewType(sdn_string, uri=""),
+                    type_spec=P4NewType(
+                        sdn_string, uri="", type_name="router_interface_id_t"
+                    ),
                 ),
                 P4MatchField(
                     alias="neighbor_id",
@@ -833,7 +889,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.EXACT,
                     name="neighbor_id",
-                    type_spec=P4NewType(sdn_string, uri=""),
+                    type_spec=P4NewType(sdn_string, uri="", type_name="neighbor_id_t"),
                 ),
             ],
             name="ingress.routing.neighbor_table",
@@ -857,6 +913,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="port",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="port_id_t"
+                            ),
                         ),
                         P4ActionParam(
                             annotations=[
@@ -869,6 +928,7 @@ P4Schema(
                             description="",
                             id=2,
                             name="src_mac",
+                            type_spec=None,
                         ),
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -917,7 +977,9 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="router_interface_id",
-                    type_spec=P4NewType(sdn_string, uri=""),
+                    type_spec=P4NewType(
+                        sdn_string, uri="", type_name="router_interface_id_t"
+                    ),
                 )
             ],
             name="ingress.routing.router_interface_table",
@@ -952,6 +1014,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="router_interface_id",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="router_interface_id_t"
+                            ),
                         ),
                         P4ActionParam(
                             annotations=[
@@ -966,6 +1031,9 @@ P4Schema(
                             description="",
                             id=2,
                             name="neighbor_id",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="neighbor_id_t"
+                            ),
                         ),
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1014,7 +1082,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="nexthop_id",
-                    type_spec=P4NewType(sdn_string, uri=""),
+                    type_spec=P4NewType(sdn_string, uri="", type_name="nexthop_id_t"),
                 )
             ],
             name="ingress.routing.nexthop_table",
@@ -1044,6 +1112,9 @@ P4Schema(
                                 description="",
                                 id=1,
                                 name="nexthop_id",
+                                type_spec=P4NewType(
+                                    sdn_string, uri="", type_name="nexthop_id_t"
+                                ),
                             )
                         ],
                     ),
@@ -1092,6 +1163,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="nexthop_id",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="nexthop_id_t"
+                            ),
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1141,7 +1215,9 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="wcmp_group_id",
-                    type_spec=P4NewType(sdn_string, uri=""),
+                    type_spec=P4NewType(
+                        sdn_string, uri="", type_name="wcmp_group_id_t"
+                    ),
                 )
             ],
             name="ingress.routing.wcmp_group_table",
@@ -1181,6 +1257,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="nexthop_id",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="nexthop_id_t"
+                            ),
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1206,6 +1285,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="wcmp_group_id",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="wcmp_group_id_t"
+                            ),
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1242,7 +1324,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="vrf_id",
-                    type_spec=P4NewType(sdn_string, uri=""),
+                    type_spec=P4NewType(sdn_string, uri="", type_name="vrf_id_t"),
                 ),
                 P4MatchField(
                     alias="ipv4_dst",
@@ -1295,6 +1377,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="nexthop_id",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="nexthop_id_t"
+                            ),
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1320,6 +1405,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="wcmp_group_id",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="wcmp_group_id_t"
+                            ),
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1356,7 +1444,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="vrf_id",
-                    type_spec=P4NewType(sdn_string, uri=""),
+                    type_spec=P4NewType(sdn_string, uri="", type_name="vrf_id_t"),
                 ),
                 P4MatchField(
                     alias="ipv6_dst",
@@ -1399,6 +1487,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="qos_queue",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="qos_queue_t"
+                            ),
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1424,6 +1515,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="qos_queue",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="qos_queue_t"
+                            ),
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1464,6 +1558,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="mirror_session_id",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="mirror_session_id_t"
+                            ),
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1838,6 +1935,9 @@ P4Schema(
                             description="",
                             id=1,
                             name="port",
+                            type_spec=P4NewType(
+                                sdn_string, uri="", type_name="port_id_t"
+                            ),
                         ),
                         P4ActionParam(
                             annotations=[
@@ -1850,6 +1950,7 @@ P4Schema(
                             description="",
                             id=2,
                             name="src_ip",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[
@@ -1862,6 +1963,7 @@ P4Schema(
                             description="",
                             id=3,
                             name="dst_ip",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[
@@ -1874,6 +1976,7 @@ P4Schema(
                             description="",
                             id=4,
                             name="src_mac",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[
@@ -1886,6 +1989,7 @@ P4Schema(
                             description="",
                             id=5,
                             name="dst_mac",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -1894,6 +1998,7 @@ P4Schema(
                             description="",
                             id=6,
                             name="ttl",
+                            type_spec=None,
                         ),
                         P4ActionParam(
                             annotations=[],
@@ -1902,6 +2007,7 @@ P4Schema(
                             description="",
                             id=7,
                             name="tos",
+                            type_spec=None,
                         ),
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -1950,7 +2056,9 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="mirror_session_id",
-                    type_spec=P4NewType(sdn_string, uri=""),
+                    type_spec=P4NewType(
+                        sdn_string, uri="", type_name="mirror_session_id_t"
+                    ),
                 )
             ],
             name="ingress.mirroring_clone.mirror_session_table",
@@ -1974,6 +2082,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="id",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -2024,7 +2133,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="mirror_port",
-                    type_spec=P4NewType(sdn_string, uri=""),
+                    type_spec=P4NewType(sdn_string, uri="", type_name="port_id_t"),
                 )
             ],
             name="ingress.mirroring_clone.mirror_port_to_pre_session_table",
@@ -2035,14 +2144,20 @@ P4Schema(
         header_unions={},
         headers={},
         new_types={
-            "mirror_session_id_t": P4NewType(sdn_string, uri=""),
-            "neighbor_id_t": P4NewType(sdn_string, uri=""),
-            "nexthop_id_t": P4NewType(sdn_string, uri=""),
-            "port_id_t": P4NewType(sdn_string, uri=""),
-            "qos_queue_t": P4NewType(sdn_string, uri=""),
-            "router_interface_id_t": P4NewType(sdn_string, uri=""),
-            "vrf_id_t": P4NewType(sdn_string, uri=""),
-            "wcmp_group_id_t": P4NewType(sdn_string, uri=""),
+            "mirror_session_id_t": P4NewType(
+                sdn_string, uri="", type_name="mirror_session_id_t"
+            ),
+            "neighbor_id_t": P4NewType(sdn_string, uri="", type_name="neighbor_id_t"),
+            "nexthop_id_t": P4NewType(sdn_string, uri="", type_name="nexthop_id_t"),
+            "port_id_t": P4NewType(sdn_string, uri="", type_name="port_id_t"),
+            "qos_queue_t": P4NewType(sdn_string, uri="", type_name="qos_queue_t"),
+            "router_interface_id_t": P4NewType(
+                sdn_string, uri="", type_name="router_interface_id_t"
+            ),
+            "vrf_id_t": P4NewType(sdn_string, uri="", type_name="vrf_id_t"),
+            "wcmp_group_id_t": P4NewType(
+                sdn_string, uri="", type_name="wcmp_group_id_t"
+            ),
         },
         structs={},
     ),

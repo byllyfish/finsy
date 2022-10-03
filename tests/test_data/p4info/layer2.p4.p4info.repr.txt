@@ -52,6 +52,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="port",
+                    type_spec=None,
                 )
             ],
         ),
@@ -87,8 +88,16 @@ P4Schema(
             description="",
             id=79923730,
             metadata=[
-                P4CPMetadata(annotations=[], bitwidth=9, id=1, name="ingress_port"),
-                P4CPMetadata(annotations=[], bitwidth=7, id=2, name="_pad"),
+                P4CPMetadata(
+                    annotations=[],
+                    bitwidth=9,
+                    id=1,
+                    name="ingress_port",
+                    type_spec=None,
+                ),
+                P4CPMetadata(
+                    annotations=[], bitwidth=7, id=2, name="_pad", type_spec=None
+                ),
             ],
             name="packet_in",
         )
@@ -228,6 +237,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="port",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
