@@ -562,11 +562,7 @@ P4Schema(
     controller_packet_metadata=[
         P4ControllerPacketMetadata(
             alias="packet_in",
-            annotations=[
-                P4Annotation(
-                    name="controller_header", body='"packet_in"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="controller_header", body='"packet_in"')],
             brief="",
             description="",
             id=81826293,
@@ -586,11 +582,7 @@ P4Schema(
         ),
         P4ControllerPacketMetadata(
             alias="packet_out",
-            annotations=[
-                P4Annotation(
-                    name="controller_header", body='"packet_out"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="controller_header", body='"packet_out"')],
             brief="",
             description="",
             id=76689799,
@@ -1051,9 +1043,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=28485346,
                     name="nop",
                     params=[],
@@ -1065,9 +1055,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=28485346,
                 name="nop",
                 params=[],
@@ -1139,9 +1127,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=28485346,
                     name="nop",
                     params=[],
@@ -1153,9 +1139,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=28485346,
                 name="nop",
                 params=[],
@@ -1224,9 +1208,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=28485346,
                     name="nop",
                     params=[],
@@ -1282,9 +1264,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=28485346,
                     name="nop",
                     params=[],
@@ -1296,9 +1276,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=28485346,
                 name="nop",
                 params=[],
@@ -1359,9 +1337,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=28485346,
                     name="nop",
                     params=[],
@@ -1373,9 +1349,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=28485346,
                 name="nop",
                 params=[],
@@ -1693,9 +1667,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=28485346,
                     name="nop",
                     params=[],
@@ -1707,9 +1679,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=28485346,
                 name="nop",
                 params=[],
@@ -1895,9 +1865,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=28485346,
                     name="nop",
                     params=[],
@@ -1909,9 +1877,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=28485346,
                 name="nop",
                 params=[],
@@ -1972,9 +1938,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=28485346,
                     name="nop",
                     params=[],
@@ -1986,9 +1950,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=28485346,
                 name="nop",
                 params=[],
@@ -2308,9 +2270,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="egress_next.drop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=30812542,
                     name="FabricEgress.egress_next.drop",
                     params=[],
@@ -2322,9 +2282,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="egress_next.drop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=30812542,
                 name="FabricEgress.egress_next.drop",
                 params=[],
@@ -2394,9 +2352,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=28485346,
                     name="nop",
                     params=[],
@@ -2408,9 +2364,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=28485346,
                 name="nop",
                 params=[],

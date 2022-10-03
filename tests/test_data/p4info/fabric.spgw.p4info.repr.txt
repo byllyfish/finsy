@@ -635,11 +635,7 @@ P4Schema(
     controller_packet_metadata=[
         P4ControllerPacketMetadata(
             alias="packet_in",
-            annotations=[
-                P4Annotation(
-                    name="controller_header", body='"packet_in"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="controller_header", body='"packet_in"')],
             brief="",
             description="",
             id=67146229,
@@ -659,11 +655,7 @@ P4Schema(
         ),
         P4ControllerPacketMetadata(
             alias="packet_out",
-            annotations=[
-                P4Annotation(
-                    name="controller_header", body='"packet_out"', location=None
-                )
-            ],
+            annotations=[P4Annotation(name="controller_header", body='"packet_out"')],
             brief="",
             description="",
             id=67121543,
@@ -894,9 +886,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -908,9 +898,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -1006,9 +994,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -1020,9 +1006,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -1305,9 +1289,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -1319,9 +1301,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -1393,9 +1373,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -1407,9 +1385,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -1478,9 +1454,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -1492,9 +1466,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -1773,9 +1745,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -1787,9 +1757,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -1868,9 +1836,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -1882,9 +1848,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -2161,9 +2125,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -2175,9 +2137,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -2238,9 +2198,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -2252,9 +2210,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -2342,9 +2298,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -2356,9 +2310,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -2452,9 +2404,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -2466,9 +2416,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],
@@ -2509,9 +2457,7 @@ P4Schema(
                 ),
                 P4ActionRef(
                     alias="nop",
-                    annotations=[
-                        P4Annotation(name="defaultonly", body=None, location=None)
-                    ],
+                    annotations=[P4Annotation(name="defaultonly", body=None)],
                     id=16819938,
                     name="nop",
                     params=[],
@@ -2523,9 +2469,7 @@ P4Schema(
             brief="",
             const_default_action=P4ActionRef(
                 alias="nop",
-                annotations=[
-                    P4Annotation(name="defaultonly", body=None, location=None)
-                ],
+                annotations=[P4Annotation(name="defaultonly", body=None)],
                 id=16819938,
                 name="nop",
                 params=[],

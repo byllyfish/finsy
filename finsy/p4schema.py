@@ -685,19 +685,6 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
         raise KeyError(name)
 
 
-class P4SourceLocation(NamedTuple):
-    "Represents location of code in a given source file."
-
-    file: str
-    "Path to the source file."
-
-    line: int
-    "Text line number in the source file, 1-based."
-
-    column: int
-    "Text column number in the line, 1-based."
-
-
 class P4Annotation(NamedTuple):
     "Represents a P4 annotation (structured or unstructured)."
 
@@ -706,9 +693,6 @@ class P4Annotation(NamedTuple):
 
     body: str | tuple[Any, ...] | dict[str, Any]
     "Body of the annotation."
-
-    location: P4SourceLocation | None
-    "Location of the annotation."
 
 
 def _parse_annotations(pbuf: Any) -> list[P4Annotation]:
@@ -721,10 +705,9 @@ def _parse_annotations(pbuf: Any) -> list[P4Annotation]:
     result: list[P4Annotation] = []
 
     # Scan unstructured annotations.
-    for i, annotation in enumerate(pbuf.annotations):
-        loc = pbuf.annotation_locations[i] if pbuf.annotation_locations else None
+    for annotation in pbuf.annotations:
         name, body = _parse_unstructured_annotation(annotation)
-        result.append(P4Annotation(name, body, loc))
+        result.append(P4Annotation(name, body))
 
     # TODO: parse structured annotations...
     return result
