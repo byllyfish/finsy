@@ -124,6 +124,7 @@ def _decode_addr(value: int, bitwidth: int, format: DecodeFormat):
 #   o IPv4 string (bitwidth=32 only)
 #   o IPv6 string (bitwidth=128 only)
 #   o MAC string  (bitwidth=48 only)
+#   o SdnString (bitwidth=0)
 # - IPv4Address (bitwidth=32 only)
 # - IPv6Address (bitwidth=128 only)
 # - MACAddress (bitwidth=48 only)
@@ -136,6 +137,7 @@ def _decode_addr(value: int, bitwidth: int, format: DecodeFormat):
 #   o int
 # - STRING:
 #   o hexadecimal integer prefixed with `0x`
+#   o SdnString (bitwidth=0)
 # - ADDRESS:
 #   o IPv4Address (bitwidth=32)
 #   o IPv6Address (bitwidth=128)
@@ -154,8 +156,17 @@ P4ParamValue = _ExactValue
 
 
 def encode_exact(value: _ExactValue, bitwidth: int, mask: int = ~0) -> bytes:
-    "Encode an exact field value into a byte encoding."
+    """Encode an exact field value into a byte encoding.
+
+    If `bitwidth` is 0, value is an `SdnString`.
+    """
     assert value is not None
+
+    if bitwidth == 0:
+        # If bitwidth is 0, value is interpreted as `SdnString`.
+        if not isinstance(value, str):
+            raise ValueError(f"invalid value for SdnString: {value!r}")
+        return value.encode()
 
     match value:
         case int():
@@ -186,6 +197,11 @@ def decode_exact(
     format: DecodeFormat = DecodeFormat.DEFAULT,
 ) -> _ExactReturn:
     """Decode a P4R value into an integer or address."""
+
+    if bitwidth == 0:
+        # If bitwidth is 0, data is interpreted as `SdnString`.
+        return data.decode()
+
     if not data:
         raise _InvalidErr("exact", bitwidth, data)
 
@@ -297,6 +313,9 @@ def _parse_lpm_str(value: str, bitwidth: int) -> tuple[bytes, int]:
 def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
     "Encode a value into a P4R LPM value."
     assert value is not None
+
+    if bitwidth == 0:
+        raise _InvalidErr("lpm", bitwidth, value)
 
     match value:
         case int():

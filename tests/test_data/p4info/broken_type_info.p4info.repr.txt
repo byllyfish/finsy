@@ -16,24 +16,37 @@ P4Schema(
     type_info=P4TypeInfo(
         header_unions={},
         headers={},
+        new_types={},
         structs={
             "S1": P4StructType(
                 annotations=[],
                 members={
                     "a": P4StructType(
                         annotations=[],
-                        members={"a": P4StructType(annotations=[], members={...})},
+                        members={
+                            "a": P4StructType(
+                                annotations=[], members={...}, type_name="S1"
+                            )
+                        },
+                        type_name="S2",
                     )
                 },
+                type_name="S1",
             ),
             "S2": P4StructType(
                 annotations=[],
                 members={
                     "a": P4StructType(
                         annotations=[],
-                        members={"a": P4StructType(annotations=[], members={...})},
+                        members={
+                            "a": P4StructType(
+                                annotations=[], members={...}, type_name="S2"
+                            )
+                        },
+                        type_name="S1",
                     )
                 },
+                type_name="S2",
             ),
         },
     ),

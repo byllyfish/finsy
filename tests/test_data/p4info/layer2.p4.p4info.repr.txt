@@ -52,6 +52,7 @@ P4Schema(
                     description="",
                     id=1,
                     name="port",
+                    type_spec=None,
                 )
             ],
         ),
@@ -87,8 +88,16 @@ P4Schema(
             description="",
             id=79923730,
             metadata=[
-                P4CPMetadata(annotations=[], bitwidth=9, id=1, name="ingress_port"),
-                P4CPMetadata(annotations=[], bitwidth=7, id=2, name="_pad"),
+                P4CPMetadata(
+                    annotations=[],
+                    bitwidth=9,
+                    id=1,
+                    name="ingress_port",
+                    type_spec=None,
+                ),
+                P4CPMetadata(
+                    annotations=[], bitwidth=7, id=2, name="_pad", type_spec=None
+                ),
             ],
             name="packet_in",
         )
@@ -106,15 +115,28 @@ P4Schema(
                 annotations=[],
                 members={
                     "eth_src": P4BitsType(
-                        annotations=[], bitwidth=48, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=48,
+                        signed=False,
+                        type_name="u48",
+                        varbit=False,
                     ),
                     "in_port": P4BitsType(
-                        annotations=[], bitwidth=9, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=9,
+                        signed=False,
+                        type_name="u9",
+                        varbit=False,
                     ),
                     "modify": P4BitsType(
-                        annotations=[], bitwidth=1, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=1,
+                        signed=False,
+                        type_name="u1",
+                        varbit=False,
                     ),
                 },
+                type_name="Digest_t",
             ),
         )
     ],
@@ -166,6 +188,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="hdr.ethernet.eth_src",
+                    type_spec=None,
                 ),
                 P4MatchField(
                     alias="ingress_port",
@@ -176,6 +199,7 @@ P4Schema(
                     id=2,
                     match_type=P4MatchType.EXACT,
                     name="std_meta.ingress_port",
+                    type_spec=None,
                 ),
             ],
             name="MyIngress.l2src",
@@ -213,6 +237,7 @@ P4Schema(
                             description="",
                             id=1,
                             name="port",
+                            type_spec=None,
                         )
                     ],
                     scope=P4ActionScope.TABLE_AND_DEFAULT,
@@ -238,6 +263,7 @@ P4Schema(
                     id=1,
                     match_type=P4MatchType.EXACT,
                     name="hdr.ethernet.eth_dst",
+                    type_spec=None,
                 )
             ],
             name="MyIngress.l2dst",
@@ -247,20 +273,34 @@ P4Schema(
     type_info=P4TypeInfo(
         header_unions={},
         headers={},
+        new_types={},
         structs={
             "Digest_t": P4StructType(
                 annotations=[],
                 members={
                     "eth_src": P4BitsType(
-                        annotations=[], bitwidth=48, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=48,
+                        signed=False,
+                        type_name="u48",
+                        varbit=False,
                     ),
                     "in_port": P4BitsType(
-                        annotations=[], bitwidth=9, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=9,
+                        signed=False,
+                        type_name="u9",
+                        varbit=False,
                     ),
                     "modify": P4BitsType(
-                        annotations=[], bitwidth=1, signed=False, varbit=False
+                        annotations=[],
+                        bitwidth=1,
+                        signed=False,
+                        type_name="u1",
+                        varbit=False,
                     ),
                 },
+                type_name="Digest_t",
             )
         },
     ),

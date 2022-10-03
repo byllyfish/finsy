@@ -161,6 +161,19 @@ def test_encode_exact_to_spec():
         assert p4values.encode_exact(value, width) == result
 
 
+def test_encode_exact_sdnstring():
+    "Test the encode_exact function with a bitwidth of zero."
+
+    data = [
+        ("abc", b"abc"),
+        ("x", b"x"),
+        ("", b""),  # supported for now
+    ]
+
+    for value, result in data:
+        assert p4values.encode_exact(value, 0) == result
+
+
 def test_decode_exact_int():
     "Test the decode_exact function with 31-bit integer values."
 
@@ -258,6 +271,19 @@ def test_decode_exact_fail():
             p4values.decode_exact(value, bitwidth)
 
 
+def test_decode_exact_sdnstring():
+    "Test the decode_exact function with a bitwidth=0."
+
+    data = [
+        ("abc", b"abc"),
+        ("x", b"x"),
+        ("", b""),  # supported for now
+    ]
+
+    for result, value in data:
+        assert p4values.decode_exact(value, 0) == result
+
+
 def test_encode_lpm_exact():
     "Test the encode_lpm function."
 
@@ -344,6 +370,7 @@ def test_encode_lpm_fail():
         (IP("127.0.0.1"), 8),
         (IP("::1"), 32),
         (MAC("0e:00:00:00:00:01"), 32),
+        ("abc", 0),  # SdnString not supported
     ]
 
     for value, bitwidth in data:
@@ -501,8 +528,14 @@ def test_encode_ternary_ipv6():
 def test_encode_ternary_fail():
     "Test the encode_ternary function."
 
-    with pytest.raises(ValueError):
-        p4values.encode_ternary(1 + 2j, 32)  # type: ignore
+    data = [
+        (1 + 2j, 32),
+        ("abc", 0),  # SdnString not supported
+    ]
+
+    for value, bitwidth in data:
+        with pytest.raises(ValueError):
+            p4values.encode_ternary(value, bitwidth)  # type: ignore
 
 
 def test_decode_ternary_int():
@@ -628,8 +661,14 @@ def test_encode_range_ipv6():
 def test_encode_range_fail():
     "Test the encode_range function."
 
-    with pytest.raises(ValueError):
-        p4values.encode_range(1 + 2j, 32)  # type: ignore
+    data = [
+        (1 + 2j, 32),
+        ("abc", 0),  # SdnString not supported
+    ]
+
+    for value, bitwidth in data:
+        with pytest.raises(ValueError):
+            p4values.encode_range(value, bitwidth)  # type: ignore
 
 
 def test_decode_range_int():

@@ -202,6 +202,7 @@ def test_p4bitstype():
     bits = P4BitsType(_make_bitstring(8))
     assert bits.bitwidth == 8
     assert not bits.signed and not bits.varbit
+    assert bits.type_name == "u8"
 
     assert bits.encode_bytes(0) == b"\x00"
     assert bits.decode_bytes(b"\x00") == 0
@@ -226,6 +227,7 @@ def test_p4booltype():
     "Test P4BoolType."
 
     bool_type = P4BoolType(p4t.P4BoolType())
+    assert bool_type.type_name == "bool"
 
     data = bool_type.encode_data(True)
     assert pbuf.to_dict(data) == {"bool": True}
@@ -265,7 +267,8 @@ def test_p4headertype():
     "Test P4HeaderType."
 
     header_spec = _make_header_spec("a")
-    header = P4HeaderType(header_spec)
+    header = P4HeaderType("HH", header_spec)
+    assert header.type_name == "HH"
 
     # Test valid header.
     data = header.encode_data({"a": 0})
@@ -300,8 +303,9 @@ def test_p4headeruniontype():
     p4types = p4t.P4TypeInfo(headers={"A": headerA, "B": headerB})
     type_info = P4TypeInfo(p4types)
 
-    union_type = P4HeaderUnionType(_make_header_union_spec("A", "B"))
+    union_type = P4HeaderUnionType("HU", _make_header_union_spec("A", "B"))
     union_type._finish_init(type_info)
+    assert union_type.type_name == "HU"
 
     data = union_type.encode_union({"A": {"a": 0}})
     assert pbuf.to_dict(data) == {
@@ -335,14 +339,15 @@ def test_p4headerstacktype():
     "Test P4HeaderStackType."
 
     headerA = _make_header_spec("a")
-    stack_type = p4t.P4HeaderStackTypeSpec(
+    stack_spec = p4t.P4HeaderStackTypeSpec(
         header=p4t.P4NamedType(name="A"),
         size=2,
     )
     p4types = p4t.P4TypeInfo(headers={"A": headerA})
     type_info = P4TypeInfo(p4types)
 
-    stack_type = P4HeaderStackType(stack_type, type_info)
+    stack_type = P4HeaderStackType(stack_spec, type_info)
+    assert stack_type.type_name == "A[2]"
 
     data = stack_type.encode_data([{"a": 1}, {"a": 2}])
     assert pbuf.to_dict(data) == {
@@ -377,6 +382,7 @@ def test_p4headerunionstacktype():
         size=2,
     )
     stack = P4HeaderUnionStackType(union_stack, type_info)
+    assert stack.type_name == "U[2]"
 
     data = stack.encode_data([{"A": {"a": 0}}, {"B": {"b": 1}}])
     assert pbuf.to_dict(data) == {
@@ -415,8 +421,9 @@ def test_p4structtype():
     type_info_t = p4t.P4TypeInfo(headers={"H": _make_header_spec("h")})
     type_info = P4TypeInfo(type_info_t)
 
-    struct = P4StructType(struct_spec)
+    struct = P4StructType("S", struct_spec)
     struct._finish_init(type_info)
+    assert struct.type_name == "S"
 
     data = struct.encode_data({"a": 1, "b": {"h": 2}})
     assert pbuf.to_dict(data) == {
@@ -441,12 +448,13 @@ def test_p4tupletype():
 
     bits_t = p4t.P4DataTypeSpec(bitstring=_make_bitstring(8))
     header_t = p4t.P4DataTypeSpec(header=p4t.P4NamedType(name="H"))
-    struct_spec = p4t.P4TupleTypeSpec(members=[bits_t, header_t])
+    tuple_spec = p4t.P4TupleTypeSpec(members=[bits_t, header_t])
 
     type_info_t = p4t.P4TypeInfo(headers={"H": _make_header_spec("h")})
     type_info = P4TypeInfo(type_info_t)
 
-    tple = P4TupleType(struct_spec, type_info)
+    tple = P4TupleType(tuple_spec, type_info)
+    assert tple.type_name == "tuple[u8, H]"
 
     data = tple.encode_data((1, {"h": 2}))
     assert pbuf.to_dict(data) == {
