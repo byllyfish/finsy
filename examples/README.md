@@ -14,7 +14,7 @@ Mininet network. To run the demo network, type `./demonet/run.sh`. The demonet s
 ### Requirements
 
 - Python 3.10 virtual environment with `finsy` installed.
-- `podman` and a unix shell for `run.sh`.
+- [podman](https://podman.io/) and a unix shell for `run.sh`.
 
 ## hello
 

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "finsy"
 version = "0.6.0"
-description = "Async P4Runtime/gNMI Framework"
+description = "P4Runtime Client Library"
 license = "Apache-2.0"
 authors = ["Bill Fisher <william.w.fisher@gmail.com>"]
 readme = "README.md"

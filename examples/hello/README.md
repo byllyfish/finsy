@@ -64,7 +64,7 @@ In another terminal, start the demo network:
 $ ./demonet/run.sh
 ```
 
-After a couple of seconds, the controller should connect to the switches running in MiniNet. You
+After a couple of seconds, the controller should connect to the switches running in Mininet. You
 should see log messages like this for each switch.
 
 ```
@@ -73,7 +73,7 @@ should see log messages like this for each switch.
 1663717188.201 INFO finsy [sw1] Channel ready (is_primary=True): pipeline='hello.p4' version='1' arch='v1model'
 ```
 
-In the demo network (MiniNet) shell, run the `pingall` command.
+In the demo network (Mininet) shell, run the `pingall` command.
 
 ```
 mininet> pingall
@@ -83,7 +83,7 @@ You should see all IPv4 packets copied to the controller as `P4PacketIn` message
 
 To stop the demo program, type CONTROL-C.
 
-If you re-run `demo1.py` without stopping MiniNet, you should notice that there is no
+If you re-run `demo1.py` without stopping Mininet, you should notice that there is no
 "Pipeline installed" log message. The demo program detects that the "hello.p4" pipeline is already 
 installed.
 
@@ -92,7 +92,7 @@ because there is already a primary controller. The `demo1` program is not design
 controller, so it will repeatedly fail/retry with a `PERMISSION_DENIED` error. (There is support for 
 running as a backup in `demo2`.)
 
-To shutdown MiniNet, type `exit`.
+To shutdown Mininet, type `exit`.
 
 ## demo2.py
 
@@ -112,7 +112,7 @@ In another terminal, start the demo network (if it is not already running):
 $ ./demonet/run.sh
 ```
 
-In the demo network (MiniNet) shell, run the `ping` command.
+In the demo network (Mininet) shell, run the `ping` command.
 
 ```
 mininet> h1 ping h3
