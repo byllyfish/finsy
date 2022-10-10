@@ -6,7 +6,7 @@ This tutorial shows how to connect Finsy to a software switch running in a Docke
 already have a P4Runtime switch or you are familiar with docker/mininet/stratum, you can skip this 
 tutorial.
 
-We will set up an SSH tunnel to Stratum/MiniNet running in Docker on a separate Linux host/VM. This 
+We will set up an SSH tunnel to Stratum/Mininet running in Docker on a separate Linux host/VM. This 
 keeps your development machine and test environment separate. (It's also possible to run Docker 
 Desktop on your development machine -- that is out of scope for this tutorial.)
 
