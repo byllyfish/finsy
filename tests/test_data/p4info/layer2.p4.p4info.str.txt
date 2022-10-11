@@ -1,0 +1,13 @@
+
+<Unnamed> (version=, arch=v1model)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+📋 l2src[1024]
+   eth_src:48 ingress_port:9 
+   NoAction() learn()
+📋 l2dst[1024]
+   eth_dst:48 
+   MyIngress.drop() flood() forward(port:9)
+📬 packet_in
+   ingress_port:9 _pad:7 
+📇 Digest_t
+   eth_src:48 in_port:9 modify:1

@@ -145,7 +145,8 @@ def test_p4info_actions():
 
 
 @pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
-def test_p4info(p4info_file):
+def test_p4info_repr(p4info_file):
+    "Test output of P4Schema repr function."
     p4 = P4Schema(p4info_file)
 
     p4_orig = Path(p4info_file).with_suffix(".repr.txt")
@@ -176,6 +177,31 @@ def _format_source_code(source):
         stderr=subprocess.DEVNULL,  # comment out this line to see error msgs!
         encoding="utf-8",
     )
+
+
+@pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
+def test_p4info_str(p4info_file):
+    "Test output of P4Schema description files."
+    p4 = P4Schema(p4info_file)
+
+    p4_orig = Path(p4info_file).with_suffix(".str.txt")
+    if p4_orig.exists():
+        p4_orig_lines = p4_orig.read_text().splitlines()
+    else:
+        p4_orig_lines = []
+
+    p4_str = str(p4)
+    result = difflib.unified_diff(
+        p4_orig_lines,
+        p4_str.splitlines(),
+        p4_orig.name,
+        "new",
+    )
+
+    result_lines = list(result)
+    # if result_lines:
+    #    p4_orig.write_text(p4_str)
+    assert not result_lines
 
 
 def test_p4info_lookup():
