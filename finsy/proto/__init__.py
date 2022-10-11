@@ -43,7 +43,7 @@ import sys
 # protobuf modules, we switch `sys.path` back.
 
 if "p4.v1.p4runtime_pb2" in sys.modules:
-    raise RuntimeError("p4runtime_pb2 already imported?")
+    raise RuntimeError("p4runtime_pb2 already imported?")  # pragma: no cover
 
 sys.path.insert(0, os.path.dirname(__file__))
 

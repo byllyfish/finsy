@@ -544,3 +544,12 @@ def decode_range(
             return f"{result[0]}...{result[1]}"
         case _:
             return result
+
+
+def format_range(value: _RangeValue, bitwidth: int, format: DecodeFormat) -> str:
+    "Format a value as a string."
+
+    data = encode_range(value, bitwidth)
+    result = decode_range(data[0], data[1], bitwidth, format | DecodeFormat.STRING)
+    assert isinstance(result, str)
+    return result

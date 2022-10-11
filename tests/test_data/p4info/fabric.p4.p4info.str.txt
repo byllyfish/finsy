@@ -1,0 +1,70 @@
+
+<Unnamed> (version=, arch=v1model)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+📋 ingress_port_vlan[1024]
+   ig_port:9 vlan_is_valid:1 vlan_id/&12 
+   deny() permit(port_type:2) permit_with_internal_vlan(vlan_id:12, port_type:2)
+   📈counter-both, 🔒deny()
+📋 fwd_classifier[1024]
+   ig_port:9 eth_dst/&48 eth_type/&16 ip_eth_type:16 
+   set_forwarding_type(fwd_type:3)
+   📈counter-both, 🔒set_forwarding_type()
+📋 bridging[1024]
+   vlan_id:12 eth_dst/&48 
+   set_next_id_bridging(next_id:32) ↓nop()
+   📈counter-both, 🔒nop()
+📋 mpls[1024]
+   mpls_label:20 
+   pop_mpls_and_next(next_id:32) ↓nop()
+   📈counter-both, 🔒nop()
+📋 routing_v4[1024]
+   ipv4_dst/32 
+   set_next_id_routing_v4(next_id:32) nop_routing_v4() ↓nop()
+📋 next_mpls[1024]
+   next_id:32 
+   set_mpls_label(label:20) ↓nop()
+   📈counter-both, 🔒nop()
+📋 next_vlan[1024]
+   next_id:32 
+   set_vlan(vlan_id:12) ↓nop()
+   📈counter-both, 🔒nop()
+📋 acl[1024]
+   ig_port/&9 eth_dst/&48 eth_src/&48 vlan_id/&12 eth_type/&16 ipv4_src/&32 ipv4_dst/&32 ip_proto/&8 icmp_type/&8 icmp_code/&8 l4_sport/&16 l4_dport/&16 port_type/&2 
+   set_next_id_acl(next_id:32) punt_to_cpu() set_clone_session_id(clone_id:32) acl.drop() nop_acl()
+   📈counter-both, 🔒nop_acl()
+📋 xconnect[1024]
+   ig_port:9 next_id:32 
+   output_xconnect(port_num:9) set_next_id_xconnect(next_id:32) ↓nop()
+   📈counter-both, 🔒nop()
+📋 hashed[1024] -> 📦 hashed_selector[1024]
+   next_id:32 
+   output_hashed(port_num:9) routing_hashed(port_num:9, smac:48, dmac:48) ↓nop()
+   📈counter-both, 🔒nop()
+📋 multicast[1024]
+   next_id:32 
+   set_mcast_group_id(group_id:16) ↓nop()
+   📈counter-both, 🔒nop()
+📋 classifier[512]
+   ig_port/&9 ipv4_src/&32 ipv4_dst/&32 ip_proto/&8 l4_sport/&16 l4_dport/&16 
+   set_slice_id_tc(slice_id:4, tc:2) trust_dscp()
+   📈counter-packets, 🔒set_slice_id_tc()
+📋 queues[128]
+   slice_id:4 tc:2 color/&2 
+   set_queue(qid:5) meter_drop()
+   📈counter-packets, 🔒set_queue()
+📋 egress_vlan[1024]
+   vlan_id:12 eg_port:9 
+   push_vlan() pop_vlan() ↓egress_next.drop()
+   📈counter-both, 🔒egress_next.drop()
+📋 rewriter[512]
+   eg_port:9 
+   rewrite() clear() ↓nop()
+   🔒nop()
+📦 hashed_selector[1024]
+   type=selector max_group_size=16 tables=hashed
+📈 egress_port_counter[511]: both
+📈 ingress_port_counter[511]: both
+📬 packet_in
+   ingress_port:9 _pad:7 
+📬 packet_out
+   egress_port:9 do_forwarding:1 _pad:6 

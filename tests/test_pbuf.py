@@ -71,3 +71,21 @@ def test_from_any():
 
     with pytest.raises(ValueError, match="Not a Extern"):
         pbuf.from_any(any_obj, p4i.Extern)
+
+
+def test_log_annotate():
+    "Test the _log_annotate() function (with invalid input)."
+
+    schema = P4Schema(P4INFO_TEST_DIR / "basic.p4.p4info.txt")
+
+    # digest_id doesn't exist
+    text = "digest_id: foo\n"
+    assert pbuf._log_annotate(text, schema) == text
+
+    # invalid escape value
+    text = '  value: "\\xgg"\n'
+    assert pbuf._log_annotate(text, schema) == text
+
+    # missing quotes
+    text = "  value: 123\n"
+    assert pbuf._log_annotate(text, schema) == text

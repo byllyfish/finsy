@@ -1,0 +1,12 @@
+
+<Unnamed> (version=, arch=v1model)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+📋 ipv4_lpm[1024]
+   dstAddr/32 
+   ipv4_forward(dstAddr:48, port:9) drop() NoAction()
+   📈counter-both, 🚦meter
+📈 other_counter[10]: both
+📬 packet_in
+   ingress_port:9 _pad:7 
+📬 packet_out
+   egress_port:9 _pad:7 

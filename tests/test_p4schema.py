@@ -145,7 +145,8 @@ def test_p4info_actions():
 
 
 @pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
-def test_p4info(p4info_file):
+def test_p4info_repr(p4info_file):
+    "Test output of P4Schema repr function."
     p4 = P4Schema(p4info_file)
 
     p4_orig = Path(p4info_file).with_suffix(".repr.txt")
@@ -176,6 +177,31 @@ def _format_source_code(source):
         stderr=subprocess.DEVNULL,  # comment out this line to see error msgs!
         encoding="utf-8",
     )
+
+
+@pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
+def test_p4info_str(p4info_file):
+    "Test output of P4Schema description files."
+    p4 = P4Schema(p4info_file)
+
+    p4_orig = Path(p4info_file).with_suffix(".str.txt")
+    if p4_orig.exists():
+        p4_orig_lines = p4_orig.read_text().splitlines()
+    else:
+        p4_orig_lines = []
+
+    p4_str = str(p4)
+    result = difflib.unified_diff(
+        p4_orig_lines,
+        p4_str.splitlines(),
+        p4_orig.name,
+        "new",
+    )
+
+    result_lines = list(result)
+    # if result_lines:
+    #    p4_orig.write_text(p4_str)
+    assert not result_lines
 
 
 def test_p4info_lookup():
@@ -477,6 +503,27 @@ def test_p4tupletype():
         tple.encode_data(({"h": 2}, 1))
 
 
+def test_p4matchfield_exact():
+    "Test P4MatchField with exact match type."
+    match_p4 = p4i.MatchField(
+        id=1,
+        name="f1",
+        bitwidth=32,
+        match_type=p4i.MatchField.EXACT,
+    )
+    field = P4MatchField(match_p4)
+
+    field_p4 = field.encode_field("10.0.0.1")
+    assert field_p4 is not None
+
+    assert pbuf.to_dict(field_p4) == {
+        "field_id": 1,
+        "exact": {"value": "CgAAAQ=="},
+    }
+    assert field.decode_field(field_p4) == 167772161
+    assert field.format_field("10.0.0.1") == "10.0.0.1"
+
+
 def test_p4matchfield_lpm():
     "Test P4MatchField with lpm match type."
     match_p4 = p4i.MatchField(
@@ -497,6 +544,9 @@ def test_p4matchfield_lpm():
     assert field.decode_field(field_p4) == (167772160, 8)
 
     assert field.encode_field("0.0.0.0/0") is None
+
+    assert field.format_field("10.0.0.0/8") == "10.0.0.0/8"
+    assert field.format_field("0.0.0.0/0") == "0.0.0.0/0"
 
 
 def test_p4matchfield_ternary():
@@ -519,3 +569,58 @@ def test_p4matchfield_ternary():
     assert field.decode_field(field_p4) == (167772160, 4278190080)
 
     assert field.encode_field("0.0.0.0/0.0.0.0") is None
+
+    assert field.format_field("10.0.0.0/255.0.0.0") == "10.0.0.0/&255.0.0.0"
+
+
+def test_p4matchfield_range():
+    "Test P4MatchField with range match type."
+    match_p4 = p4i.MatchField(
+        id=1,
+        name="f1",
+        bitwidth=32,
+        match_type=p4i.MatchField.RANGE,
+    )
+    field = P4MatchField(match_p4)
+
+    field_p4 = field.encode_field((23, 25))
+    assert field_p4 is not None
+    assert pbuf.to_dict(field_p4) == {
+        "field_id": 1,
+        "range": {"high": "GQ==", "low": "Fw=="},
+    }
+
+    field_p4 = field.encode_field("10.0.0.0 ... 10.0.0.5")
+    assert field_p4 is not None
+
+    assert pbuf.to_dict(field_p4) == {
+        "field_id": 1,
+        "range": {"high": "CgAABQ==", "low": "CgAAAA=="},
+    }
+    assert field.decode_field(field_p4) == (167772160, 167772165)
+
+    assert field.format_field("10.0.0.0 ... 10.0.0.5") == "10.0.0.0...10.0.0.5"
+
+
+def test_p4matchfield_optional():
+    "Test P4MatchField with optional match type."
+    match_p4 = p4i.MatchField(
+        id=1,
+        name="f1",
+        bitwidth=32,
+        match_type=p4i.MatchField.OPTIONAL,
+    )
+    field = P4MatchField(match_p4)
+
+    assert field.encode_field(None) is None
+
+    field_p4 = field.encode_field("10.0.0.1")
+    assert field_p4 is not None
+
+    assert pbuf.to_dict(field_p4) == {
+        "field_id": 1,
+        "optional": {"value": "CgAAAQ=="},
+    }
+    assert field.decode_field(field_p4) == 167772161
+
+    assert field.format_field("10.0.0.1") == "10.0.0.1"
