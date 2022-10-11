@@ -1025,6 +1025,12 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
                     field_id=self.id,
                     ternary=p4r.FieldMatch.Ternary(value=data, mask=mask),
                 )
+            case P4MatchType.RANGE:
+                low, high = p4values.encode_range(value, self._bitwidth)
+                return p4r.FieldMatch(
+                    field_id=self.id,
+                    range=p4r.FieldMatch.Range(low=low, high=high),
+                )
             case P4MatchType.OPTIONAL:
                 if value is None:  # "don't care" optional match
                     return None
@@ -1056,7 +1062,7 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
                 )
             case "optional":
                 # Decode "optional" as exact value, if field is present.
-                return p4values.decode_exact(field.exact.value, self._bitwidth)
+                return p4values.decode_exact(field.optional.value, self._bitwidth)
             case other:
                 raise ValueError(f"Unsupported match_type: {other!r}")
 
@@ -1071,6 +1077,8 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
                 return p4values.format_lpm(value, self._bitwidth, format)
             case P4MatchType.TERNARY:
                 return p4values.format_ternary(value, self._bitwidth, format)
+            case P4MatchType.RANGE:
+                return p4values.format_range(value, self._bitwidth, format)
             case P4MatchType.OPTIONAL:
                 return p4values.format_exact(value, self._bitwidth, format)
             case other:

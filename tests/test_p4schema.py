@@ -477,6 +477,27 @@ def test_p4tupletype():
         tple.encode_data(({"h": 2}, 1))
 
 
+def test_p4matchfield_exact():
+    "Test P4MatchField with exact match type."
+    match_p4 = p4i.MatchField(
+        id=1,
+        name="f1",
+        bitwidth=32,
+        match_type=p4i.MatchField.EXACT,
+    )
+    field = P4MatchField(match_p4)
+
+    field_p4 = field.encode_field("10.0.0.1")
+    assert field_p4 is not None
+
+    assert pbuf.to_dict(field_p4) == {
+        "field_id": 1,
+        "exact": {"value": "CgAAAQ=="},
+    }
+    assert field.decode_field(field_p4) == 167772161
+    assert field.format_field("10.0.0.1") == "10.0.0.1"
+
+
 def test_p4matchfield_lpm():
     "Test P4MatchField with lpm match type."
     match_p4 = p4i.MatchField(
@@ -497,6 +518,9 @@ def test_p4matchfield_lpm():
     assert field.decode_field(field_p4) == (167772160, 8)
 
     assert field.encode_field("0.0.0.0/0") is None
+
+    assert field.format_field("10.0.0.0/8") == "10.0.0.0/8"
+    assert field.format_field("0.0.0.0/0") == "0.0.0.0/0"
 
 
 def test_p4matchfield_ternary():
@@ -519,3 +543,58 @@ def test_p4matchfield_ternary():
     assert field.decode_field(field_p4) == (167772160, 4278190080)
 
     assert field.encode_field("0.0.0.0/0.0.0.0") is None
+
+    assert field.format_field("10.0.0.0/255.0.0.0") == "10.0.0.0/&255.0.0.0"
+
+
+def test_p4matchfield_range():
+    "Test P4MatchField with range match type."
+    match_p4 = p4i.MatchField(
+        id=1,
+        name="f1",
+        bitwidth=32,
+        match_type=p4i.MatchField.RANGE,
+    )
+    field = P4MatchField(match_p4)
+
+    field_p4 = field.encode_field((23, 25))
+    assert field_p4 is not None
+    assert pbuf.to_dict(field_p4) == {
+        "field_id": 1,
+        "range": {"high": "GQ==", "low": "Fw=="},
+    }
+
+    field_p4 = field.encode_field("10.0.0.0 ... 10.0.0.5")
+    assert field_p4 is not None
+
+    assert pbuf.to_dict(field_p4) == {
+        "field_id": 1,
+        "range": {"high": "CgAABQ==", "low": "CgAAAA=="},
+    }
+    assert field.decode_field(field_p4) == (167772160, 167772165)
+
+    assert field.format_field("10.0.0.0 ... 10.0.0.5") == "10.0.0.0...10.0.0.5"
+
+
+def test_p4matchfield_optional():
+    "Test P4MatchField with optional match type."
+    match_p4 = p4i.MatchField(
+        id=1,
+        name="f1",
+        bitwidth=32,
+        match_type=p4i.MatchField.OPTIONAL,
+    )
+    field = P4MatchField(match_p4)
+
+    assert field.encode_field(None) is None
+
+    field_p4 = field.encode_field("10.0.0.1")
+    assert field_p4 is not None
+
+    assert pbuf.to_dict(field_p4) == {
+        "field_id": 1,
+        "optional": {"value": "CgAAAQ=="},
+    }
+    assert field.decode_field(field_p4) == 167772161
+
+    assert field.format_field("10.0.0.1") == "10.0.0.1"
