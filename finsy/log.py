@@ -31,7 +31,6 @@ def get_setting(name: str, default: str = "") -> bool:
 
 
 FINSY_DEBUG = get_setting("FINSY_DEBUG")
-FINSY_TRANSLATE_LOGS = get_setting("FINSY_TRANSLATE_LOGS", "true")
 
 
 if TYPE_CHECKING:
