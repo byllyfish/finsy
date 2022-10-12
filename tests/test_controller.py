@@ -8,6 +8,7 @@ async def test_controller_run_empty():
 
     controller = Controller([])
     assert len(controller) == 0
+    assert controller.get("sw1") is None
 
     # Helper to stop the Controller so it doesn't run forever.
     async def _stop_later():
@@ -49,6 +50,7 @@ async def test_controller_ctxt(p4rt_server_target):
         for i in range(N):
             sw = Switch(f"sw{i}", p4rt_server_target)
             controller.add(sw)
+            assert controller.get(f"sw{i}") is sw
             await asyncio.sleep(0.01)
 
         assert len(controller) == N
