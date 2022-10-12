@@ -61,6 +61,10 @@ class CountdownFuture:
         if self._counter <= 0 and not self._future.cancelled():
             self._future.set_result(1)
 
+    def value(self) -> int:
+        "Return current value of counter."
+        return self._counter
+
     @TRACE
     async def wait(
         self,
