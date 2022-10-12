@@ -57,7 +57,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         "Create AIO server."
 
         server = grpc.aio.server()
-        p4r_grpc.add_P4RuntimeServicer_to_server(self, server)  # type: ignore
+        p4r_grpc.add_P4RuntimeServicer_to_server(self, server)
         server.add_insecure_port(self._listen_addr)
         return server
 
@@ -105,7 +105,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
                 self._stream_context = None
                 return
 
-            match request.WhichOneof("update"):  # type: ignore
+            match request.WhichOneof("update"):
                 case "arbitration":
                     self._tasks.create_task(self._do_arbitration(request))
                 case kind:

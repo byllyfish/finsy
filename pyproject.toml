@@ -45,7 +45,13 @@ addopts = '-s --log-cli-format="%(created).03f %(levelname)s %(name)s %(message)
 norecursedirs = ["examples"]
 
 [tool.pyright]
-ignore = ["finsy/proto/**/*_pb2.py", "finsy/proto/**/*_pb2_grpc.py", "finsy/proto/**/*_pb2_grpc.pyi", "examples/ngsdn/demonet/topo-v6.py"]
+ignore = [
+  "finsy/proto/**/*_pb2.py", 
+  "finsy/proto/**/*_pb2.pyi", 
+  "finsy/proto/**/*_pb2_grpc.py", 
+  "finsy/proto/**/*_pb2_grpc.pyi", 
+  "examples/ngsdn/demonet/topo-v6.py"
+]
 strict = [
   "examples/**/*.py", 
   "finsy/p4values.py", 
@@ -65,6 +71,11 @@ strict = [
   "tests/test_p4values.py"
 ]
 useLibraryCodeForTypes = true
+
+# Enable additional warnings for things not enabled by `strict`.
+# reportUninitializedInstanceVariable = "warning"
+reportCallInDefaultInitializer = "warning"
+reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']
