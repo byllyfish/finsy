@@ -39,11 +39,11 @@ import pyee
 from typing_extensions import Self
 
 from finsy import p4entity, pbuf
-from finsy.arbitrator import Arbitrator
 from finsy.futures import CountdownFuture
 from finsy.gnmiclient import gNMIClient, gNMIClientError
 from finsy.grpcutil import GRPCStatusCode
 from finsy.log import LOGGER, TRACE
+from finsy.p4arbitrator import Arbitrator
 from finsy.p4client import P4Client, P4ClientError
 from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema
 from finsy.ports import PortList
