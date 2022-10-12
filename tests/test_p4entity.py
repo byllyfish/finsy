@@ -84,6 +84,7 @@ def test_table_match1():
         }
     ]
     assert match == P4TableMatch.decode(msgs, table)
+    assert match.format(table) == "dstAddr=10.0.0.0/24"
 
 
 def test_table_match2():
@@ -157,6 +158,7 @@ def test_table_action1():
         }
     }
     assert action == P4TableAction.decode_table_action(msg, table)
+    assert action.format(table) == "ipv4_forward(dstAddr=00-00-0A-00-00-01, port=0x1)"
 
 
 def test_table_action2():
@@ -236,6 +238,10 @@ def test_indirect_action1():
         "P4TableAction(name='ipv4_forward', args={'dstAddr': 167772161, 'port': "
         "2}))])"
     )
+    assert (
+        action.format(table)
+        == "1*ipv4_forward(dstAddr=00-00-0A-00-00-01, port=0x1), 1*ipv4_forward(dstAddr=00-00-0A-00-00-01, port=0x2)"
+    )
 
 
 def test_indirect_action2():
@@ -250,6 +256,7 @@ def test_indirect_action2():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(group_id=123)"
+    assert action.format(table) == "__indirect(group_id=123)"
 
 
 def test_indirect_action3():
@@ -264,6 +271,7 @@ def test_indirect_action3():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(member_id=345)"
+    assert action.format(table) == "__indirect(member_id=345)"
 
 
 def test_indirect_action4():
