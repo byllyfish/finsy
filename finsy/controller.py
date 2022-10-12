@@ -58,6 +58,8 @@ class Controller:
     async def run(self):
         "Run the controller."
         assert not self.running, "Controller.run() is not re-entrant"
+        assert self._task_count.value() == 0
+        assert not self._removed
 
         self.control_task = asyncio.current_task()
         assert self.control_task is not None
@@ -92,6 +94,8 @@ class Controller:
     async def __aenter__(self):
         "Run the controller as a context manager (see also run())."
         assert not self.running, "Controller.__aenter__ is not re-entrant"
+        assert self._task_count.value() == 0
+        assert not self._removed
 
         self.control_task = asyncio.current_task()
         # We do not rename the control task.. like in run().

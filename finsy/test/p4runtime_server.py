@@ -71,7 +71,11 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
         # If another stream RPC is already open, return an error.
         if self._stream_context is not None:
-            return "ERROR"
+            LOGGER.warning("P4RuntimeServer: Multiple clients not implemented")
+            await context.abort(
+                grpc.StatusCode.UNIMPLEMENTED,
+                "Multiple clients not implemented",
+            )
 
         self._stream_context = context
         self._stream_closed = asyncio.Event()

@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from finsy import pbuf
 from finsy.p4schema import (
+    P4ActionParam,
     P4BitsType,
     P4BoolType,
     P4EntityMap,
@@ -15,10 +16,12 @@ from finsy.p4schema import (
     P4HeaderUnionType,
     P4MatchField,
     P4MatchType,
+    P4NewType,
     P4Schema,
     P4StructType,
     P4TupleType,
     P4TypeInfo,
+    _parse_type_spec,
 )
 from finsy.proto import p4i, p4t
 
@@ -503,6 +506,80 @@ def test_p4tupletype():
         tple.encode_data(({"h": 2}, 1))
 
 
+def test_p4newtype_sdnstring():
+    "Test P4NewType."
+
+    newtype_spec = p4t.P4NewTypeSpec(
+        translated_type=p4t.P4NewTypeTranslation(
+            uri="abc",
+            sdn_string=p4t.P4NewTypeTranslation.SdnString(),
+        )
+    )
+
+    type_info = P4TypeInfo(p4t.P4TypeInfo())
+
+    newtype = P4NewType("some_name", newtype_spec)
+    newtype._finish_init(type_info)
+    assert newtype.type_name == "some_name"
+
+    data = newtype.encode_data("xyz")
+    assert pbuf.to_dict(data) == {"bitstring": "eHl6"}
+    assert newtype.decode_data(data) == "xyz"
+
+    data = newtype.encode_data(b"xyz")
+    assert pbuf.to_dict(data) == {"bitstring": "eHl6"}
+    assert newtype.decode_data(data) == "xyz"
+
+    assert repr(newtype) == "P4NewType(sdn_string, uri='abc', type_name='some_name')"
+
+
+def test_p4newtype_sdnbitwidth():
+    "Test P4NewType."
+
+    newtype_spec = p4t.P4NewTypeSpec(
+        translated_type=p4t.P4NewTypeTranslation(
+            uri="abc",
+            sdn_bitwidth=32,
+        )
+    )
+
+    type_info = P4TypeInfo(p4t.P4TypeInfo())
+
+    newtype = P4NewType("some_name", newtype_spec)
+    newtype._finish_init(type_info)
+    assert newtype.type_name == "some_name"
+
+    data = newtype.encode_data(128)
+    assert pbuf.to_dict(data) == {"bitstring": "gA=="}
+    assert newtype.decode_data(data) == 128
+
+    assert (
+        repr(newtype) == "P4NewType(sdn_bitwidth=32, uri='abc', type_name='some_name')"
+    )
+
+
+def test_p4newtype_original_type():
+    "Test P4NewType."
+
+    bits_t = p4t.P4DataTypeSpec(bitstring=_make_bitstring(8))
+    newtype_spec = p4t.P4NewTypeSpec(original_type=bits_t)
+
+    type_info = P4TypeInfo(p4t.P4TypeInfo())
+
+    newtype = P4NewType("some_name", newtype_spec)
+    newtype._finish_init(type_info)
+    assert newtype.type_name == "some_name"
+
+    data = newtype.encode_data(128)
+    assert pbuf.to_dict(data) == {"bitstring": "gA=="}
+    assert newtype.decode_data(data) == 128
+
+    assert (
+        repr(newtype)
+        == "P4NewType(original_type=P4BitsType(annotations=[], bitwidth=8, signed=False, type_name='u8', varbit=False), type_name='some_name')"
+    )
+
+
 def test_p4matchfield_exact():
     "Test P4MatchField with exact match type."
     match_p4 = p4i.MatchField(
@@ -624,3 +701,29 @@ def test_p4matchfield_optional():
     assert field.decode_field(field_p4) == 167772161
 
     assert field.format_field("10.0.0.1") == "10.0.0.1"
+
+
+def test_parse_type_spec_tuple():
+    "Test the `parse_type_spec` function with a tuple."
+
+    bits_t = p4t.P4DataTypeSpec(bitstring=_make_bitstring(8))
+    tuple_spec = p4t.P4TupleTypeSpec(members=[bits_t, bits_t])
+
+    type_info = P4TypeInfo(p4t.P4TypeInfo())
+    tuple_type = p4t.P4DataTypeSpec(tuple=tuple_spec)
+
+    typ = _parse_type_spec(tuple_type, type_info)
+    assert typ.type_name == "tuple[u8, u8]"
+
+
+def test_p4actionparam():
+    "Test P4ActionParam."
+
+    p4param = p4i.Action.Param(id=1, name="xyz", bitwidth=16)
+    param = P4ActionParam(p4param)
+    # Skipping param._finish_init(...)
+
+    data = param.encode_param(1024)
+    assert pbuf.to_dict(data) == {"param_id": 1, "value": "BAA="}
+    assert param.decode_param(data) == 1024
+    assert param.format_param(1024) == "0x400"
