@@ -195,9 +195,11 @@ class _P4Bridged(_ReprMixin, Generic[_T]):
     You can access the protobuf using the `.pbuf` property.
     """
 
+    pbuf: _T
+    "Corresponding protobuf message."
+
     def __init__(self, pbuf: _T):
         self.pbuf = pbuf
-        "Corresponding protobuf message."
 
 
 class _P4AnnoMixin:
@@ -726,10 +728,17 @@ def _parse_unstructured_annotation(annotation: str) -> tuple[str, str]:
 class P4Table(_P4TopLevel[p4i.Table]):
     "Represents Table in schema."
 
+    _match_fields: P4EntityMap["P4MatchField"]
+    _actions: P4EntityMap["P4ActionRef"]
+    _const_default_action: "P4ActionRef | None"
+    _action_profile: "P4ActionProfile | None"
+    _direct_counter: "P4DirectCounter | None"
+    _direct_meter: "P4DirectMeter | None"
+
     def __init__(self, pbuf: p4i.Table, defs: _P4Defs):
         super().__init__(pbuf)
-        self._match_fields = P4EntityMap[P4MatchField]("match field")
-        self._actions = P4EntityMap[P4ActionRef]("table action")
+        self._match_fields = P4EntityMap("match field")
+        self._actions = P4EntityMap("table action")
 
         for field in self.pbuf.match_fields:
             self._match_fields._add(P4MatchField(field))
