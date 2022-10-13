@@ -66,6 +66,7 @@ class Arbitrator:
 
         self.primary_id = primary_id
         self.is_primary = status.code == GRPCStatusCode.OK
+        self._check_invariant()
 
     async def update(self, switch: "_sw.Switch", msg: p4r.MasterArbitrationUpdate):
         "Called with subsequent arbitration update responses."
@@ -189,3 +190,19 @@ class Arbitrator:
         # TODO: Match arbitration response to request we sent?
 
         return response.arbitration
+
+    def _check_invariant(self):
+        "Check the Arbitrator's invariant."
+
+        if self.is_primary:
+            # When we're the primary, election_id must equal primary_id.
+            if self.election_id != self.primary_id:
+                raise RuntimeError(
+                    f"primary invariant failed: election_id={self.election_id}, primary_id={self.primary_id}"
+                )
+        else:
+            # When we're the backup, election_id must be less than primary_id.
+            if self.election_id >= self.primary_id:
+                raise RuntimeError(
+                    f"backup invariant failed: election_id={self.election_id}, primary_id={self.primary_id}"
+                )
