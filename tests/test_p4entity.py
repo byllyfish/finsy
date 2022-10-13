@@ -306,6 +306,20 @@ def test_indirect_action4():
     assert action == P4TableAction.decode_table_action(msg, table)
 
 
+def test_weighted_action():
+    "Test P4WeightedAction constructed using * operator."
+
+    action = P4TableAction("xyz", a=1)
+
+    assert 2 * action == (2, action)
+    assert 1 * action == (1, action)
+    assert action * 2 == (2, action)
+    assert action * 1 == (1, action)
+
+    assert (2, 1) * action == ((2, 1), action)
+    assert action * (2, 1) == ((2, 1), action)
+
+
 def test_table_entry1():
     "Test TableEntry class."
 
