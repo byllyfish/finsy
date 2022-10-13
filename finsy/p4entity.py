@@ -298,14 +298,30 @@ class P4TableAction:
         self.args = args
 
     def encode_table_action(self, table: P4Table) -> p4r.TableAction:
-        "Encode TableAction data as protobuf."
+        """Encode TableAction data as protobuf.
+
+        If the table is indirect, promote the action to a "one-shot" indirect
+        action.
+        """
 
         try:
             action = table.actions[self.name]
         except Exception as ex:
             raise ValueError(f"{table.name!r}: {ex}") from ex
 
-        return p4r.TableAction(action=self._encode_action(action))
+        action_p4 = self._encode_action(action)
+
+        if table.action_profile is not None:
+            # Promote action to ActionProfileActionSet entry with weight=1.
+            return p4r.TableAction(
+                action_profile_action_set=p4r.ActionProfileActionSet(
+                    action_profile_actions=[
+                        p4r.ActionProfileAction(action=action_p4, weight=1)
+                    ]
+                )
+            )
+
+        return p4r.TableAction(action=action_p4)
 
     def _fail_missing_params(self, action: P4ActionRef | P4Action) -> NoReturn:
         "Report missing parameters."
