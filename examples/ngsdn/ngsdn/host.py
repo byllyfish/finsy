@@ -147,11 +147,7 @@ class HostManager:
             +fy.P4TableEntry(
                 "routing_v6_table",
                 match=fy.P4TableMatch(dst_addr=(addr, 128)),
-                action=fy.P4IndirectAction(
-                    [
-                        (1, fy.P4TableAction("set_next_hop", dmac=host.mac)),
-                    ]
-                ),
+                action=fy.P4TableAction("set_next_hop", dmac=host.mac),
             )
         ]
 
