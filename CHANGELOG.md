@@ -1,5 +1,18 @@
 # Finsy Change Log
 
+## 0.7.0
+
+- Automatically promote a `P4TableAction` in an indirect table to a single-entry one-shot `P4IndirectAction`.
+- Add syntactic sugar for "weighted table actions" using the `*` operator.
+- Fix bug in parsing annotations which contain newline characters.
+- Add support for new_type's in match fields, action parameters and ControllerPacketMetadata.
+- Add type_name accessor for custom types in P4Schema.
+- Remove support for annotation source locations (filename, lineno); no anticipated use cases.
+- Add support for range match field type.
+- Remove the `FINSY_TRANSLATE_LOGS` environment variable check.
+- Add tests and typing support.
+- Update dependency versions.
+
 ## 0.6.0
 
 - Rename `ignore_not_found=True` option to `strict=False` in Switch.write(), Switch.modify() and Switch.delete().
