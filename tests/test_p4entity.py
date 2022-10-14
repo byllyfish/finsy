@@ -306,6 +306,20 @@ def test_indirect_action4():
     assert action == P4TableAction.decode_table_action(msg, table)
 
 
+def test_weighted_action():
+    "Test P4WeightedAction constructed using * operator."
+
+    action = P4TableAction("xyz", a=1)
+
+    assert 2 * action == (2, action)
+    assert 1 * action == (1, action)
+    assert action * 2 == (2, action)
+    assert action * 1 == (1, action)
+
+    assert (2, 1) * action == ((2, 1), action)
+    assert action * (2, 1) == ((2, 1), action)
+
+
 def test_table_entry1():
     "Test TableEntry class."
 
@@ -397,6 +411,48 @@ def test_table_entry4():
     }
 
     assert entry == P4TableEntry.decode(msg, _SCHEMA)
+
+
+def test_table_entry_indirect():
+    "Test TableEntry class with table action auto-promoted to one-shot."
+
+    schema = P4Schema(_P4INFO_TEST_DIR / "sai_unioned.p4info.txt")
+    entry = P4TableEntry(
+        "wcmp_group_table",
+        match=P4TableMatch(wcmp_group_id="xyz"),
+        action=P4TableAction("set_nexthop_id", nexthop_id="xyz"),
+    )
+    msg = entry.encode(schema)
+
+    assert pbuf.to_dict(msg) == {
+        "table_entry": {
+            "action": {
+                "action_profile_action_set": {
+                    "action_profile_actions": [
+                        {
+                            "action": {
+                                "action_id": 16777221,
+                                "params": [{"param_id": 1, "value": "eHl6"}],
+                            },
+                            "weight": 1,
+                        }
+                    ]
+                }
+            },
+            "match": [{"exact": {"value": "eHl6"}, "field_id": 1}],
+            "table_id": 33554499,
+        }
+    }
+
+    # Note that decode returns the table entry with a P4IndirectAction.
+    decoded_entry = P4TableEntry(
+        "wcmp_group_table",
+        match=P4TableMatch(wcmp_group_id="xyz"),
+        action=P4IndirectAction(
+            action_set=[(1, P4TableAction("set_nexthop_id", nexthop_id="xyz"))]
+        ),
+    )
+    assert decoded_entry == P4TableEntry.decode(msg, schema)
 
 
 def test_table_entry_full_match():

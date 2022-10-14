@@ -202,7 +202,9 @@ _MetadataDictType = dict[str, Any]
 _PortType = int
 _ReplicaCanonType = tuple[_PortType, int]
 _ReplicaType = _ReplicaCanonType | _PortType
-_Weight = int | tuple[int, int]
+
+P4Weight = int | tuple[int, int]
+P4WeightedAction = tuple[P4Weight, "P4TableAction"]
 
 
 def encode_replica(value: _ReplicaType) -> p4r.Replica:
@@ -298,14 +300,30 @@ class P4TableAction:
         self.args = args
 
     def encode_table_action(self, table: P4Table) -> p4r.TableAction:
-        "Encode TableAction data as protobuf."
+        """Encode TableAction data as protobuf.
+
+        If the table is indirect, promote the action to a "one-shot" indirect
+        action.
+        """
 
         try:
             action = table.actions[self.name]
         except Exception as ex:
             raise ValueError(f"{table.name!r}: {ex}") from ex
 
-        return p4r.TableAction(action=self._encode_action(action))
+        action_p4 = self._encode_action(action)
+
+        if table.action_profile is not None:
+            # Promote action to ActionProfileActionSet entry with weight=1.
+            return p4r.TableAction(
+                action_profile_action_set=p4r.ActionProfileActionSet(
+                    action_profile_actions=[
+                        p4r.ActionProfileAction(action=action_p4, weight=1)
+                    ]
+                )
+            )
+
+        return p4r.TableAction(action=action_p4)
 
     def _fail_missing_params(self, action: P4ActionRef | P4Action) -> NoReturn:
         "Report missing parameters."
@@ -382,12 +400,28 @@ class P4TableAction:
 
         return f"{self.name}({', '.join(args)})"
 
+    def __mul__(self, weight: P4Weight) -> P4WeightedAction:
+        "Make a weighted action."
+        if not isinstance(
+            weight, (int, tuple)
+        ):  # pyright: ignore[reportUnnecessaryIsInstance]
+            raise NotImplementedError("expected P4Weight")
+        return (weight, self)
+
+    def __rmul__(self, weight: P4Weight) -> P4WeightedAction:
+        "Make a weighted action."
+        if not isinstance(
+            weight, (int, tuple)
+        ):  # pyright: ignore[reportUnnecessaryIsInstance]
+            raise NotImplementedError("expected P4Weight")
+        return (weight, self)
+
 
 @dataclass
 class P4IndirectAction:
     "Represents a P4Runtime indirect action."
 
-    action_set: Sequence[tuple[_Weight, P4TableAction]] | None = None
+    action_set: Sequence[P4WeightedAction] | None = None
     _: KW_ONLY
     member_id: int | None = None
     group_id: int | None = None
@@ -430,7 +464,7 @@ class P4IndirectAction:
 
     @classmethod
     def decode_action_set(cls, msg: p4r.ActionProfileActionSet, table: P4Table) -> Self:
-        action_set = list[tuple[_Weight, P4TableAction]]()
+        action_set = list[P4WeightedAction]()
 
         for action in msg.action_profile_actions:
 
@@ -946,7 +980,7 @@ class P4Member:
     "Represents an ActionProfileGroup Member."
 
     member_id: int
-    weight: _Weight | None
+    weight: P4Weight | None
 
     def encode(self) -> p4r.ActionProfileGroup.Member:
         "Encode P4Member as protobuf."

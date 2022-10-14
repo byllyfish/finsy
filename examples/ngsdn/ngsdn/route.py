@@ -60,15 +60,8 @@ class RouteManager:
             +fy.P4TableEntry(
                 "routing_v6_table",
                 match=fy.P4TableMatch(dst_addr=net),
-                action=fy.P4IndirectAction(
-                    [
-                        (
-                            1,
-                            fy.P4TableAction(
-                                "set_next_hop", dmac=netcfg.get_station_mac(leaf)
-                            ),
-                        )
-                    ]
+                action=fy.P4TableAction(
+                    "set_next_hop", dmac=netcfg.get_station_mac(leaf)
                 ),
             )
             for leaf in netcfg.leaf_switches()
@@ -83,21 +76,16 @@ class RouteManager:
             for net in netcfg.get_networks(leaf)
         }
 
+        spine_actions = [
+            1 * fy.P4TableAction("set_next_hop", dmac=netcfg.get_station_mac(spine))
+            for spine in netcfg.spine_switches()
+        ]
+
         result = [
             +fy.P4TableEntry(
                 "routing_v6_table",
                 match=fy.P4TableMatch(dst_addr=net),
-                action=fy.P4IndirectAction(
-                    [
-                        (
-                            1,
-                            fy.P4TableAction(
-                                "set_next_hop", dmac=netcfg.get_station_mac(spine)
-                            ),
-                        )
-                        for spine in netcfg.spine_switches()
-                    ]
-                ),
+                action=fy.P4IndirectAction(spine_actions),
             )
             for net in other_networks
         ]
@@ -107,15 +95,8 @@ class RouteManager:
             +fy.P4TableEntry(
                 "routing_v6_table",
                 match=fy.P4TableMatch(dst_addr=netcfg.get_sid(spine)),
-                action=fy.P4IndirectAction(
-                    [
-                        (
-                            1,
-                            fy.P4TableAction(
-                                "set_next_hop", dmac=netcfg.get_station_mac(spine)
-                            ),
-                        ),
-                    ]
+                action=fy.P4TableAction(
+                    "set_next_hop", dmac=netcfg.get_station_mac(spine)
                 ),
             )
             for spine in netcfg.spine_switches()
