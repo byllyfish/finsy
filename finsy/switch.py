@@ -94,7 +94,7 @@ class SwitchOptions:
     ready_handler: Callable[["Switch"], Coroutine[Any, Any, None]] | None = None
     "Ready handler async function callback."
 
-    config: Any = None
+    configuration: Any = None
     "Store your app's configuration information here."
 
     def __call__(self, **kwds: Any):

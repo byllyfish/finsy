@@ -41,7 +41,7 @@ def load_netcfg(config: Path) -> Iterator[Switch]:
         p4info=P4INFO,
         p4blob=P4BLOB,
         ready_handler=_ready_handler,
-        config=cfg,
+        configuration=cfg,
     )
 
     for name, address, device_id in netcfg.configured_devices(cfg):
