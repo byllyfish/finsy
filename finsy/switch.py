@@ -152,8 +152,8 @@ class Switch:
     ee: "SwitchEmitter"
     "Event emitter."
 
-    attachment: Any = None
-    "Available to attach per-switch services or data."
+    manager: Any = None
+    "Available to attach per-switch manager(s)."
 
     def __init__(
         self,
