@@ -202,6 +202,7 @@ class Arbitrator:
                 )
         else:
             # When we're the backup, election_id must be less than primary_id.
+            # FIXME: Unless we're renegotiating?
             if self.election_id >= self.primary_id:
                 raise RuntimeError(
                     f"backup invariant failed: election_id={self.election_id}, primary_id={self.primary_id}"

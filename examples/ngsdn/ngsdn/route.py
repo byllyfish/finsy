@@ -106,7 +106,7 @@ class RouteManager:
         controller = fy.current_controller()
         links = [
             (event.local_port, controller[event.remote_switch])
-            for event in self.switch.attachment["link"].links.values()
+            for event in self.switch.manager["link"].links.values()
         ]
 
         return [

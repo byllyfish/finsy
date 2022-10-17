@@ -61,7 +61,7 @@ def get_host_facing_ports(switch: fy.Switch) -> set[int]:
 def _get_interfaces(switch: fy.Switch) -> Iterator[tuple[str, IPv6Interface]]:
     "Helper function to return list of configured interfaces."
     prefix = f"{switch.name}/"
-    netcfg = switch.options.config
+    netcfg = switch.options.configuration
 
     for name, port in netcfg["ports"].items():
         if not name.startswith(prefix):
@@ -75,7 +75,8 @@ def _get_interfaces(switch: fy.Switch) -> Iterator[tuple[str, IPv6Interface]]:
 
 def _fabric_config(switch: fy.Switch) -> dict[str, Any]:
     "Return the fabric config for a device."
-    return switch.options.config["devices"][switch.name]["fabricDeviceConfig"]
+    netcfg = switch.options.configuration
+    return netcfg["devices"][switch.name]["fabricDeviceConfig"]
 
 
 def _parse_url(url: str) -> tuple[str, int]:

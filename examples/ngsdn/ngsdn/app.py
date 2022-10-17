@@ -28,7 +28,7 @@ async def _ready_handler(sw: Switch):
     await sw.delete_all()
 
     # Create a task for each configured manager.
-    for manager in sw.attachment.values():
+    for manager in sw.manager.values():
         sw.create_task(manager.run())
 
 
@@ -41,12 +41,12 @@ def load_netcfg(config: Path) -> Iterator[Switch]:
         p4info=P4INFO,
         p4blob=P4BLOB,
         ready_handler=_ready_handler,
-        config=cfg,
+        configuration=cfg,
     )
 
     for name, address, device_id in netcfg.configured_devices(cfg):
         switch = Switch(name, address, options(device_id=device_id))
-        switch.attachment = {
+        switch.manager = {
             "host": HostManager(switch),
             "route": RouteManager(switch),
             "link": LinkManager(switch),
