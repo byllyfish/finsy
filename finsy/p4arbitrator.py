@@ -33,13 +33,18 @@ class Arbitrator:
 
     initial_election_id: int
     election_id: int
+    role: p4r.Role | None
     is_primary: bool = False
     primary_id: int = _NOT_ASSIGNED
-    role: p4r.Role | None = None
 
-    def __init__(self, initial_election_id: int):
+    def __init__(
+        self,
+        initial_election_id: int,
+        role: p4r.Role | None = None,
+    ):
         self.initial_election_id = initial_election_id
         self.election_id = initial_election_id
+        self.role = role
 
     async def handshake(self, switch: "_sw.Switch", *, conflict: bool = False):
         """Perform the P4Runtime client arbitration handshake."""
@@ -122,11 +127,7 @@ class Arbitrator:
             (p4r.SetForwardingPipelineConfigRequest, p4r.WriteRequest),
         ):
             if self.role is not None:
-                role_name = self.role.name
-                if role_name:
-                    msg.role = role_name
-                else:
-                    msg.role_id = self.role.id
+                msg.role = self.role.name
 
             msg.election_id.CopyFrom(U128.encode(self.election_id))
 

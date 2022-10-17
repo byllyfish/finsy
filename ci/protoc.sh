@@ -16,6 +16,7 @@ P4RUNTIME_FILES_URL="https://github.com/p4lang/p4runtime/tree/main/proto/p4"
 GOOGLE_RPC_FILES_URL="https://github.com/googleapis/api-common-protos/tree/main/google/rpc"
 GNMI_URL="https://raw.githubusercontent.com/openconfig/gnmi/master/proto/gnmi/gnmi.proto"
 GNMI_EXT_URL="https://raw.githubusercontent.com/openconfig/gnmi/master/proto/gnmi_ext/gnmi_ext.proto"
+STRATUM_P4ROLECONFIG_URL="https://raw.githubusercontent.com/stratum/stratum/main/stratum/public/proto/p4_role_config.proto"
 
 if ! [ -d "finsy/proto" ]; then
     echo "Wrong working directory."
@@ -43,6 +44,11 @@ download_proto_files() {
     mkdir "gnmi1" && pushd "gnmi1"
     curl "$GNMI_URL" | sed 's+github.com/openconfig/gnmi/proto/gnmi_ext/+gnmi1/+' > "gnmi.proto"
     curl "$GNMI_EXT_URL" > "gnmi_ext.proto"
+    popd
+
+    # Make a "stratum1" directory and download "p4_role_config.proto" inside.
+    mkdir "stratum1" && pushd "stratum1"
+    curl "$STRATUM_P4ROLECONFIG_URL" > "p4_role_config.proto"
     popd
 
     # Move .proto files to their destination.

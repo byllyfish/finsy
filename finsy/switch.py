@@ -91,6 +91,9 @@ class SwitchOptions:
     channel_credentials: grpc.ChannelCredentials | None = None
     "P4Runtime channel credentials. Used for TLS support."
 
+    role: p4r.Role | None = None
+    "P4Runtime role configuration."
+
     ready_handler: Callable[["Switch"], Coroutine[Any, Any, None]] | None = None
     "Ready handler async function callback."
 
@@ -172,7 +175,7 @@ class Switch:
         self._tasks = None
         self._queues = {}
         self._packet_queues = []
-        self._arbitrator = Arbitrator(options.initial_election_id)
+        self._arbitrator = Arbitrator(options.initial_election_id, options.role)
         self._gnmi_client = None
         self._ports = PortList()
         self.ee = SwitchEmitter(self)

@@ -62,6 +62,13 @@ def from_dict(value: dict[str, Any], msg_class: type[_MT]) -> _MT:
     return json_format.ParseDict(value, msg_class())
 
 
+def to_any(msg: PBMessage) -> PBAny:
+    "Wrap a protobuf message as an `any_pb2.Any` message."
+    result = PBAny()
+    result.Pack(msg)
+    return result
+
+
 def to_text(
     msg: PBMessage,
     *,
