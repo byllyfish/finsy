@@ -40,11 +40,19 @@ class Arbitrator:
     def __init__(
         self,
         initial_election_id: int,
-        role: p4r.Role | None = None,
+        role_name: str = "",
+        role_config: pbuf.PBMessage | None = None,
     ):
         self.initial_election_id = initial_election_id
         self.election_id = initial_election_id
-        self.role = role
+        self.role = _create_role(role_name, role_config)
+
+    @property
+    def role_name(self) -> str:
+        "Role name or '' if there is no role set."
+        if self.role is None:
+            return ""
+        return self.role.name
 
     async def handshake(self, switch: "_sw.Switch", *, conflict: bool = False):
         """Perform the P4Runtime client arbitration handshake."""
@@ -208,3 +216,23 @@ class Arbitrator:
                 raise RuntimeError(
                     f"backup invariant failed: election_id={self.election_id}, primary_id={self.primary_id}"
                 )
+
+
+def _create_role(
+    role_name: str,
+    role_config: pbuf.PBMessage | None,
+) -> p4r.Role | None:
+    "Create a new P4Runtime Role object."
+    if not role_name and role_config is None:
+        return None
+
+    if role_config is None:
+        raise ValueError("role_config cannot be None when role_name is set")
+
+    return p4r.Role(
+        name=role_name,
+        # [2021-10-18] If I remove the `pbuf.to_any()` and try
+        # to set the message field `config=role_config`, I get a segmentation
+        # fault on MacOS. [protobuf 4.21.7]
+        config=pbuf.to_any(role_config),
+    )

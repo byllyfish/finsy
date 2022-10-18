@@ -91,7 +91,10 @@ class SwitchOptions:
     channel_credentials: grpc.ChannelCredentials | None = None
     "P4Runtime channel credentials. Used for TLS support."
 
-    role: p4r.Role | None = None
+    role_name: str = ""
+    "P4Runtime role configuration."
+
+    role_config: pbuf.PBMessage | None = None
     "P4Runtime role configuration."
 
     ready_handler: Callable[["Switch"], Coroutine[Any, Any, None]] | None = None
@@ -175,7 +178,9 @@ class Switch:
         self._tasks = None
         self._queues = {}
         self._packet_queues = []
-        self._arbitrator = Arbitrator(options.initial_election_id, options.role)
+        self._arbitrator = Arbitrator(
+            options.initial_election_id, options.role_name, options.role_config
+        )
         self._gnmi_client = None
         self._ports = PortList()
         self.ee = SwitchEmitter(self)
@@ -203,7 +208,9 @@ class Switch:
 
         self._options = opts
         self._p4schema = P4Schema(opts.p4info, opts.p4blob)
-        self._arbitrator = Arbitrator(opts.initial_election_id)
+        self._arbitrator = Arbitrator(
+            opts.initial_election_id, opts.role_name, opts.role_config
+        )
 
     @property
     def device_id(self) -> int:
@@ -229,6 +236,11 @@ class Switch:
     def election_id(self) -> int:
         "Switch's current election ID."
         return self._arbitrator.election_id
+
+    @property
+    def role_name(self) -> str:
+        "Switch's current role name."
+        return self._arbitrator.role_name
 
     @property
     def p4info(self) -> P4Schema:
@@ -498,8 +510,9 @@ class Switch:
 
         ports = " ".join(f"({port.id}){port.name}" for port in self.ports)
         LOGGER.info(
-            "Channel up (is_primary=%r, election_id=%r, primary_id=%r, p4r=%s): %s",
+            "Channel up (is_primary=%r, role_name=%r, election_id=%r, primary_id=%r, p4r=%s): %s",
             self.is_primary,
+            self.role_name,
             self.election_id,
             self.primary_id,
             self.api_version,
@@ -515,7 +528,11 @@ class Switch:
         if not self._is_channel_up:
             return  # do nothing!
 
-        LOGGER.info("Channel down (is_primary=%r)", self.is_primary)
+        LOGGER.info(
+            "Channel down (is_primary=%r, role_name=%r)",
+            self.is_primary,
+            self.role_name,
+        )
         self._is_channel_up = False
 
         self.ee.emit(SwitchEvent.CHANNEL_DOWN, self)
@@ -525,8 +542,9 @@ class Switch:
         assert self._tasks is not None
 
         LOGGER.info(
-            "Become primary (is_primary=%r, election_id=%r, primary_id=%r)",
+            "Become primary (is_primary=%r, role_name=%r, election_id=%r, primary_id=%r)",
             self.is_primary,
+            self.role_name,
             self.election_id,
             self.primary_id,
         )
@@ -541,8 +559,9 @@ class Switch:
         assert self._tasks is not None
 
         LOGGER.info(
-            "Become backup (is_primary=%r, election_id=%r, primary_id=%r)",
+            "Become backup (is_primary=%r, role_name=%r, election_id=%r, primary_id=%r)",
             self.is_primary,
+            self.role_name,
             self.election_id,
             self.primary_id,
         )
@@ -555,8 +574,9 @@ class Switch:
     def _channel_ready(self):
         "Called when a P4Runtime channel is READY."
         LOGGER.info(
-            "Channel ready (is_primary=%r): %s",
+            "Channel ready (is_primary=%r, role_name=%r): %s",
             self.is_primary,
+            self.role_name,
             self.p4info.get_pipeline_info(),
         )
 

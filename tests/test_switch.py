@@ -62,21 +62,10 @@ def test_switch3():
 
 async def test_switch4(p4rt_server_target):
     "Test switch and P4RT server with custom role."
-
-    config = stratum.P4RoleConfig(receives_packet_ins=True)
-    role = p4r.Role(
-        name="role1",
-        # On 2021-10-17 I noticed that if I remove the `pbuf.to_any()` and try
-        # to set the message field `config=config`, I get a segmentation fault
-        # on MacOS. [protobuf 4.21.7]
-        config=pbuf.to_any(config),
-    )
-
-    assert role.config.TypeName() == "stratum.P4RoleConfig"
-
     options = SwitchOptions(
         p4info=Path("tests/test_data/p4info/basic.p4.p4info.txt"),
-        role=role,
+        role_name="role1",
+        role_config=stratum.P4RoleConfig(receives_packet_ins=True),
     )
 
     async with Switch("sw1", p4rt_server_target, options) as sw1:
