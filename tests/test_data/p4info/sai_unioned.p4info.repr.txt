@@ -517,7 +517,8 @@ P4Schema(
             unit=P4MeterUnit.BYTES,
         )
     ],
-    is_configured=True,
+    exists=True,
+    is_authoritative=False,
     meters=[],
     name="",
     p4cookie=10098794299362865929,

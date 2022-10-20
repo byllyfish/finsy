@@ -153,7 +153,8 @@ P4Schema(
             unit=P4MeterUnit.PACKETS,
         )
     ],
-    is_configured=True,
+    exists=True,
+    is_authoritative=False,
     meters=[
         P4Meter(
             alias="other_meter",

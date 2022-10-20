@@ -613,12 +613,12 @@ class Switch:
 
         if self.is_primary:
             # Primary: Set up pipeline or retrieve it.
-            if self.p4info.is_configured:
+            if self.p4info.exists:
                 await self._set_pipeline()
             else:
                 await self._get_pipeline()
 
-        elif not self.p4info.is_configured:
+        elif not self.p4info.exists:
             # Backup: Retrieve the pipeline only if it is not configured.
             # FIXME: There is a race condition with the primary client; we
             # may receive the wrong pipeline. We may need to poll the pipeline
