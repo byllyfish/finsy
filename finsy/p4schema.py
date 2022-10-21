@@ -503,6 +503,12 @@ class P4Schema(_ReprMixin):
         self._p4info, self._p4defs = _load_p4info(p4info)
         self._update_cookie()
 
+    def has_p4info(self, p4info: p4i.P4Info) -> bool:
+        "Return true if the current P4Info equals the given P4Info."
+        if self._p4info is None:
+            return False
+        return self._p4info.SerializeToString(True) == p4info.SerializeToString(True)
+
     @property
     def p4blob(self) -> bytes:
         "P4Blob value a.k.a p4_device_config."

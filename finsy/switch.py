@@ -611,18 +611,9 @@ class Switch:
     async def _ready(self):
         "Prepare the pipeline."
 
-        if self.is_primary:
-            # Primary: Set up pipeline or retrieve it.
-            if self.p4info.exists:
-                await self._set_pipeline()
-            else:
-                await self._get_pipeline()
-
-        elif not self.p4info.exists:
-            # Backup: Retrieve the pipeline only if it is not configured.
-            # FIXME: There is a race condition with the primary client; we
-            # may receive the wrong pipeline. We may need to poll the pipeline
-            # cookie when we're a backup to check for changes?
+        if self.p4info.is_authoritative and self.is_primary:
+            await self._set_pipeline()
+        else:
             await self._get_pipeline()
 
         self._channel_ready()
@@ -630,17 +621,29 @@ class Switch:
     @TRACE
     async def _get_pipeline(self):
         "Get the switch's P4Info."
+        has_pipeline = False
 
         try:
             reply = await self._get_pipeline_config_request(
                 response_type=P4ConfigResponseType.P4INFO_AND_COOKIE
             )
+
             if reply.config.HasField("p4info"):
-                self.p4info.set_p4info(reply.config.p4info)
+                has_pipeline = True
+                p4info = reply.config.p4info
+                if not self.p4info.exists:
+                    # If we don't have P4Info yet, set it.
+                    self.p4info.set_p4info(p4info)
+                elif not self.p4info.has_p4info(p4info):
+                    # If P4Info is not identical, log a warning message.
+                    LOGGER.warning("Retrieved P4Info is different than expected!")
 
         except P4ClientError as ex:
             if not ex.status.is_no_pipeline_configured:
                 raise
+
+        if not has_pipeline and self.p4info.exists:
+            LOGGER.warning("Forwarding pipeline is not configured")
 
     @TRACE
     async def _set_pipeline(self):
