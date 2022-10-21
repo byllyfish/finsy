@@ -25,7 +25,7 @@ class DemoRoleApp:
         )
         # `backup_options` is a copy of `options` with some minor changes.
         self.backup_options = self.options(
-            p4info=None,  # Role 'backup' is not allowed to push pipelines.
+            p4blob=None,  # Role 'backup' is not allowed to push pipelines.
             role_name="backup",
             role_config=stratum.P4RoleConfig(receives_packet_ins=True),
         )
