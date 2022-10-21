@@ -132,3 +132,14 @@ the backup controller will automatically take over.
 However, demo2 is a simple implementation that resets everything to the empty state (using delete_all)
 when it becomes a primary controller. A real controller would reconcile with the running state to
 minimize the disruption to the network.
+
+## demo3.py (Advanced)
+
+The `demo3.py` program tests support for "roles". Roles are a feature of P4Runtime that let you
+have multiple primary controllers for a switch. The default role ("") gives full pipeline
+read-write access. One can also define a role configuration that specifies how multiple primaries
+coordinate access to resources and divide their labor. 
+
+`demo3.py` adds a second primary connection to `s1` that uses the "backup" role. The "backup" 
+role has read-only access, but still receives `PacketIn` messages. The role 
+configuration `P4RoleConfig` is specific to Stratum only. 

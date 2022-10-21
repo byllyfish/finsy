@@ -9,8 +9,10 @@ from finsy import (
     Switch,
     SwitchEvent,
     SwitchOptions,
+    pbuf,
 )
 from finsy.log import TRACE
+from finsy.proto import p4r, stratum
 
 
 async def test_switch1(p4rt_server_target):
@@ -56,3 +58,15 @@ def test_switch3():
 
     with pytest.raises(asyncio.TimeoutError):
         asyncio.run(asyncio.wait_for(sw1.run(), 2.0))
+
+
+async def test_switch4(p4rt_server_target):
+    "Test switch and P4RT server with custom role."
+    options = SwitchOptions(
+        p4info=Path("tests/test_data/p4info/basic.p4.p4info.txt"),
+        role_name="role1",
+        role_config=stratum.P4RoleConfig(receives_packet_ins=True),
+    )
+
+    async with Switch("sw1", p4rt_server_target, options) as sw1:
+        await asyncio.sleep(0.01)

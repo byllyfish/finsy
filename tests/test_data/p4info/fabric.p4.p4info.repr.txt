@@ -773,7 +773,8 @@ P4Schema(
         ),
     ],
     direct_meters=[],
-    is_configured=True,
+    exists=True,
+    is_authoritative=False,
     meters=[
         P4Meter(
             alias="slice_tc_meter",

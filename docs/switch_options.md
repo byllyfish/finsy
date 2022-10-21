@@ -10,7 +10,10 @@ SwitchOptions(
     device_id: int = 1, 
     initial_election_id: int = 10, 
     channel_credentials: grpc.ChannelCredentials | None = None, 
-    ready_handler: Optional[Callable[[ForwardRef('Switch')], Coroutine[Any, Any, NoneType]]] = None
+    role_name: str = "",
+    role_config: pbuf.PBMessage | None = None,
+    ready_handler: Optional[Callable[[ForwardRef('Switch')], Coroutine[Any, Any, NoneType]]] = None,
+    configuration: Any = None,
 )
 ```
 
@@ -32,6 +35,13 @@ the Switch class will attempt to retrieve the `p4info` schema from the Switch ta
 If `p4blob` is also set, the `Switch` class will set the forwarding pipeline to the program
 specified by both `p4info` and `p4blob`. If `p4blob` is not set, the Switch class does not know
 the authoritative pipeline for the device and will never set the forwarding pipeline.
+
+| p4info | p4blob | Behavior
+--- | --- | ---
+| None | None | Use switch-supplied P4Info when interacting with the switch. (It is possible one is not configured.)
+| SET | None | Use the given P4Info when interacting with the switch. Warn if the switch-supplied P4Info is different.
+| SET | SET | Set the forwarding pipeline to the given P4Info/P4Blob if it's not already set. 
+
 
 ## p4blob 
 
@@ -57,6 +67,15 @@ plaintext connections for P4Runtime and gNMI.
 
 `channel_credentials` may be created with `grpc.ssl_channel_credentials(...)`.
 
+## role_name
+
+The name of the P4Runtime role for the client to use. Defaults to "" which is the default role for 
+"full pipeline access".
+
+## role_config
+
+The role configuration as specified in the P4Runtime Specification (5.2. Role Config).
+
 ## ready_handler
 
 `ready_handler` is an async function that takes a `switch` argument. The `ready_handler` function is 
@@ -69,3 +88,8 @@ async def ready(switch: Switch):
 
 If the switch disconnects or changes its primary/backup status, all switch tasks are cancelled. The
 `ready_handler` will be invoked again when the switch's new status is ready.
+
+## configuration
+
+A property that you can use to store any configuration information that needs to be shared between 
+switches. For example, you could store your own global settings here.

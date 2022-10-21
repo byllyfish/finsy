@@ -62,6 +62,13 @@ def from_dict(value: dict[str, Any], msg_class: type[_MT]) -> _MT:
     return json_format.ParseDict(value, msg_class())
 
 
+def to_any(msg: PBMessage) -> PBAny:
+    "Wrap a protobuf message as an `any_pb2.Any` message."
+    result = PBAny()
+    result.Pack(msg)
+    return result
+
+
 def to_text(
     msg: PBMessage,
     *,
@@ -92,26 +99,38 @@ def to_dict(msg: PBMessage) -> dict[str, Any]:
 
 
 def _message_formatter(msg: PBMessage, _indent: int, as_one_line: bool):
+    """Used in `to_text` function as the message formatter passed to
+    protobuf's `text_format.MessageToString` function."""
     if isinstance(msg, p4r.ForwardingPipelineConfig):
-        return f"📦p4cookie=0x{msg.cookie.cookie:x}"
+        if msg.HasField("cookie"):
+            cookie = f"0x{msg.cookie.cookie:x}"
+        else:
+            cookie = "<unset>"
+        return f"📦p4cookie={cookie}"
+
     if isinstance(msg, gnmi.Path):
         return f"📂{gNMIPath(msg)}"
+
     if isinstance(msg, gnmi.Update):
         value = repr(msg.val).strip()
         dups = "" if not msg.duplicates else f" ({msg.duplicates} dups)"
         return f"📂{gNMIPath(msg.path)} = {value}{dups}"
+
     if isinstance(msg, (p4r.PacketIn, p4r.PacketOut)):
         metadata = " ".join(
             f"meta[{md.metadata_id}]={md.value.hex()}" for md in msg.metadata
         )
         return f"📬{msg.payload.hex()} {metadata}"
+
     if not as_one_line and isinstance(msg, gnmi.GetResponse):
         return "\n".join(
             f"📩{to_text(notif, custom_format=True)}" for notif in msg.notification
         )
+
     if isinstance(msg, gnmi.SubscribeResponse):
         if msg.WhichOneof("response") == "update":
             return f"📩{to_text(msg.update, custom_format=True)}"
+
     return None
 
 

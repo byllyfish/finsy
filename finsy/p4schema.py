@@ -482,9 +482,14 @@ class P4Schema(_ReprMixin):
             self._update_cookie()
 
     @property
-    def is_configured(self) -> bool:
-        "True if there's a p4info configured."
+    def exists(self) -> bool:
+        "True if p4info is configured."
         return self._p4info is not None
+
+    @property
+    def is_authoritative(self) -> bool:
+        "True if both p4info and p4blob are configured."
+        return self._p4info is not None and self._p4blob is not None
 
     @property
     def p4info(self) -> p4i.P4Info:
@@ -498,9 +503,15 @@ class P4Schema(_ReprMixin):
         self._p4info, self._p4defs = _load_p4info(p4info)
         self._update_cookie()
 
+    def has_p4info(self, p4info: p4i.P4Info) -> bool:
+        "Return true if the current P4Info equals the given P4Info."
+        if self._p4info is None:
+            return False
+        return self._p4info.SerializeToString(True) == p4info.SerializeToString(True)
+
     @property
     def p4blob(self) -> bytes:
-        "a.k.a p4_device_config"
+        "P4Blob value a.k.a p4_device_config."
         if not self._p4blob:
             return b""
         if isinstance(self._p4blob, Path):
@@ -523,13 +534,13 @@ class P4Schema(_ReprMixin):
 
     def get_pipeline_info(self) -> str:
         "Concise string description of the pipeline (suitable for logging)."
-        if self.is_configured:
+        if self.exists:
             pipeline = self.name
             version = self.version
             arch = self.arch
             return f"{pipeline=} {version=} {arch=}"
         else:
-            return "<No pipeline configured>"
+            return "<No pipeline exists>"
 
     @property
     def name(self) -> str:
