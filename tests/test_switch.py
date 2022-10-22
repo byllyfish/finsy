@@ -9,9 +9,7 @@ from finsy import (
     Switch,
     SwitchEvent,
     SwitchOptions,
-    pbuf,
 )
-from finsy.log import TRACE
 from finsy.proto import p4r, stratum
 
 
@@ -25,7 +23,6 @@ async def test_switch1(p4rt_server_target):
 
 
 async def test_switch2(p4rt_server_target):
-    @TRACE
     async def _read(sw: Switch):
         entry = P4TableEntry(
             "ipv4_lpm",

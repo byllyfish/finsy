@@ -25,7 +25,7 @@ import grpc  # pyright: ignore[reportMissingTypeStubs]
 from finsy import pbuf
 from finsy.gnmipath import gNMIPath
 from finsy.grpcutil import GRPC_EOF, GRPCStatusCode, grpc_channel
-from finsy.log import LOGGER, TRACE
+from finsy.log import LOGGER
 from finsy.proto import gnmi, gnmi_grpc
 
 
@@ -147,7 +147,6 @@ class gNMIClient:
     async def __aexit__(self, *_args: Any):
         await self.close()
 
-    @TRACE
     async def open(
         self,
         *,
@@ -174,7 +173,6 @@ class gNMIClient:
 
         self._stub = gnmi_grpc.gNMIStub(self._channel)  # type: ignore
 
-    @TRACE
     async def close(self) -> None:
         "Close the client channel."
         if self._channel is not None:

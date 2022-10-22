@@ -22,7 +22,7 @@ import grpc  # pyright: ignore[reportMissingTypeStubs]
 
 from finsy import pbuf
 from finsy.grpcutil import GRPC_EOF, GRPCOptions, GRPCStatusCode, grpc_channel
-from finsy.log import LOGGER, TRACE
+from finsy.log import LOGGER
 from finsy.p4schema import P4Schema
 from finsy.proto import p4r, p4r_grpc, rpc_code, rpc_status
 
@@ -265,7 +265,6 @@ class P4Client:
     async def __aexit__(self, *args: Any):
         await self.close()
 
-    @TRACE
     async def open(
         self,
         *,
@@ -296,7 +295,6 @@ class P4Client:
         self._schema = schema
         self._complete_request = complete_request
 
-    @TRACE
     async def close(self) -> None:
         "Close the client channel."
 
@@ -313,7 +311,6 @@ class P4Client:
             self._schema = None
             self._complete_request = None
 
-    @TRACE
     async def send(self, msg: p4r.StreamMessageRequest) -> None:
         """Send a message to the stream."""
         assert self._stub is not None
@@ -329,7 +326,6 @@ class P4Client:
         except grpc.RpcError as ex:
             raise P4ClientError(ex, "send") from None
 
-    @TRACE
     async def receive(self) -> p4r.StreamMessageResponse:
         """Read a message from the stream."""
         assert self._stream is not None

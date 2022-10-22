@@ -17,7 +17,7 @@
 import asyncio
 from typing import Any, Callable
 
-from finsy.log import LOGGER, TRACE
+from finsy.log import LOGGER
 
 
 def _create_future() -> asyncio.Future[Any]:
@@ -65,7 +65,6 @@ class CountdownFuture:
         "Return current value of counter."
         return self._counter
 
-    @TRACE
     async def wait(
         self,
         on_cancel: Callable[[], None] | None = None,
@@ -84,7 +83,6 @@ class CountdownFuture:
             await self._wait_cancelled()
             raise
 
-    @TRACE
     async def _wait_cancelled(self) -> None:
         assert self._future and self._future.cancelled()
 

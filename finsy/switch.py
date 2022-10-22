@@ -42,7 +42,7 @@ from finsy import p4entity, pbuf
 from finsy.futures import CountdownFuture
 from finsy.gnmiclient import gNMIClient, gNMIClientError
 from finsy.grpcutil import GRPCStatusCode
-from finsy.log import LOGGER, TRACE
+from finsy.log import LOGGER
 from finsy.p4arbitrator import Arbitrator
 from finsy.p4client import P4Client, P4ClientError
 from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema
@@ -331,7 +331,6 @@ class Switch:
             LOGGER.debug("_queue_iter: closing queue %r", name)
             del self._queues[name]
 
-    @TRACE
     async def run(self):
         "Run the switch's lifecycle repeatedly."
         assert self._p4client is None
@@ -371,7 +370,6 @@ class Switch:
             name=name,
         )
 
-    @TRACE
     async def _run(self):
         "Main Switch task runs the stream."
         assert not self._is_channel_up
@@ -395,7 +393,6 @@ class Switch:
             await self._p4client.close()
             self._channel_down()
 
-    @TRACE
     async def _receive_until_closed(self):
         "Receive messages from stream until EOF."
         assert self._p4client is not None
@@ -607,7 +604,6 @@ class Switch:
 
         self.ee.emit(SwitchEvent.STREAM_ERROR, self, msg)
 
-    @TRACE
     async def _ready(self):
         "Prepare the pipeline."
 
@@ -618,7 +614,6 @@ class Switch:
 
         self._channel_ready()
 
-    @TRACE
     async def _get_pipeline(self):
         "Get the switch's P4Info."
         has_pipeline = False
@@ -645,7 +640,6 @@ class Switch:
         if not has_pipeline and self.p4info.exists:
             LOGGER.warning("Forwarding pipeline is not configured")
 
-    @TRACE
     async def _set_pipeline(self):
         "Set up the pipeline."
 
@@ -1048,7 +1042,6 @@ class SwitchTasks:
             if not task.done() and not task.get_name().endswith("&"):
                 task.cancel()
 
-    @TRACE
     async def wait(self):
         "Wait for all tasks to finish."
         await self._task_count.wait(self.cancel_all)
