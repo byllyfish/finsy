@@ -89,3 +89,6 @@ class LoggerAdapter(_BaseLoggerAdapter):
 
 LOGGER = LoggerAdapter(logging.getLogger(__package__))
 MSG_LOG = LoggerAdapter(logging.getLogger(f"{__package__}.msg"))
+
+if FINSY_DEBUG:
+    MSG_LOG.setLevel(logging.DEBUG)
