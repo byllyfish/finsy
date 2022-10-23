@@ -86,7 +86,7 @@ def _parse_exact_str(value: str, bitwidth: int) -> int:
     try:
         return int(value, base=0)
     except ValueError:
-        raise _InvalidErr("exact", bitwidth, value)
+        raise _InvalidErr("exact", bitwidth, value) from None
 
 
 def _decode_addr(value: int, bitwidth: int, format: DecodeFormat):

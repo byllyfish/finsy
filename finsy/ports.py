@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 import finsy.switch as _sw  # circular import
 from finsy.gnmiclient import gNMIClient, gNMIPath, gNMISubscription, gNMIUpdate
-from finsy.log import LOGGER, TRACE
+from finsy.log import LOGGER
 
 # FIXME: Use GNMI id or ifIndex?
 _ifIndex = gNMIPath("interfaces/interface[name=*]/state/ifindex")
@@ -71,14 +71,12 @@ class PortList:
     def __iter__(self):
         return iter(self._ports.values())
 
-    @TRACE
     async def subscribe(self, client: gNMIClient):
         assert self._subscription is None
 
         self._ports = await self._get_ports(client)
         self._subscription = await self._get_subscription(client)
 
-    @TRACE
     async def update(self, switch: "_sw.Switch | None" = None):
         assert self._subscription is not None
 

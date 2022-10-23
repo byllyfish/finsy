@@ -6,7 +6,7 @@ from typing import AsyncIterator
 
 import grpc
 from finsy.futures import wait_for_cancel
-from finsy.log import LOGGER, TRACE
+from finsy.log import LOGGER
 from finsy.proto import p4r, p4r_grpc
 
 
@@ -61,7 +61,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         server.add_insecure_port(self._listen_addr)
         return server
 
-    @TRACE
     async def StreamChannel(
         self,
         _request_iter,
@@ -91,7 +90,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
             write_task.cancel()
             await asyncio.wait([read_task, write_task])
 
-    @TRACE
     async def _stream_read(self):
         assert self._stream_context is not None
 
@@ -115,7 +113,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
                 case kind:
                     LOGGER.debug("_stream_read: unknown message %r", kind)
 
-    @TRACE
     async def _stream_write(self):
         assert self._stream_context is not None
         # Only one write() at a time. Otherwise GRPC raises an ExecuteBatchError.
@@ -123,7 +120,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
             response = await self._stream_queue.get()
             await self._stream_context.write(response)
 
-    @TRACE
     async def _do_arbitration(self, request: p4r.StreamMessageRequest):
         response = p4r.StreamMessageResponse(arbitration=request.arbitration)
         await asyncio.sleep(0.5)
@@ -139,7 +135,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         response = p4r.StreamMessageResponse(packet=p4r.PacketIn(payload=b"abcdef"))
         self._send(response)
 
-    @TRACE
     async def Capabilities(
         self,
         request: p4r.CapabilitiesRequest,
@@ -147,7 +142,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     ) -> p4r.CapabilitiesResponse:
         return p4r.CapabilitiesResponse(p4runtime_api_version=self._api_version)
 
-    @TRACE
     async def GetForwardingPipelineConfig(
         self,
         request: p4r.GetForwardingPipelineConfigRequest,
@@ -157,7 +151,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
             config=p4r.ForwardingPipelineConfig()
         )
 
-    @TRACE
     async def SetForwardingPipelineConfig(
         self,
         request: p4r.SetForwardingPipelineConfigRequest,
@@ -165,7 +158,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     ) -> p4r.SetForwardingPipelineConfigResponse:
         return p4r.SetForwardingPipelineConfigResponse()
 
-    @TRACE
     async def Read(
         self,
         request: p4r.ReadRequest,
@@ -174,7 +166,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         # TODO: fix response
         yield p4r.ReadResponse()
 
-    @TRACE
     async def Write(
         self,
         request: p4r.WriteRequest,

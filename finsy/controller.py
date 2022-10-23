@@ -20,7 +20,7 @@ from types import TracebackType
 from typing import Any, Iterable
 
 from finsy.futures import CountdownFuture, wait_for_cancel
-from finsy.log import LOGGER, TRACE
+from finsy.log import LOGGER
 from finsy.switch import Switch, SwitchEvent
 
 
@@ -54,7 +54,6 @@ class Controller:
         "True if Controller is running."
         return self.control_task is not None
 
-    @TRACE
     async def run(self):
         "Run the controller."
         assert not self.running, "Controller.run() is not re-entrant"

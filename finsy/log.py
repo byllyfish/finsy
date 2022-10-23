@@ -15,10 +15,8 @@
 # limitations under the License.
 
 import asyncio
-import functools
 import logging
 import os
-import sys
 from typing import TYPE_CHECKING, Any, MutableMapping, TypeAlias
 
 
@@ -91,31 +89,6 @@ class LoggerAdapter(_BaseLoggerAdapter):
 
 LOGGER = LoggerAdapter(logging.getLogger(__package__))
 MSG_LOG = LoggerAdapter(logging.getLogger(f"{__package__}.msg"))
-TRACE_LOG = LoggerAdapter(logging.getLogger(f"{__package__}.trace"))
 
-
-def _exc() -> BaseException | None:
-    # TODO: replace sys.exc_info() with sys.exception() someday...
-    return sys.exc_info()[1]
-
-
-def _trace_step(func: Any) -> Any:
-    "Decorator to log when we step in and step out of a coroutine function."
-
-    @functools.wraps(func)
-    async def _wrapper(*args: Any, **kwd: Any):
-        try:
-            TRACE_LOG.info("%s stepin", func.__qualname__)
-            return await func(*args, **kwd)
-        finally:
-            TRACE_LOG.info("%s stepout ex=%r", func.__qualname__, _exc())
-
-    return _wrapper
-
-
-def _trace_noop(func: Any) -> Any:
-    "No op decorator"
-    return func
-
-
-TRACE = _trace_step if FINSY_DEBUG else _trace_noop
+if FINSY_DEBUG:
+    MSG_LOG.setLevel(logging.DEBUG)
