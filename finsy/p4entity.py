@@ -345,14 +345,16 @@ class P4TableAction:
     def _encode_action(self, action: P4ActionRef | P4Action) -> p4r.Action:
         "Helper to encode an action."
 
-        ap = action.params
+        aps = action.params
         try:
-            params = [ap[name].encode_param(value) for name, value in self.args.items()]
+            params = [
+                aps[name].encode_param(value) for name, value in self.args.items()
+            ]
         except ValueError as ex:
             raise ValueError(f"{action.alias!r}: {ex}") from ex
 
         # Check for missing action parameters.
-        if len(params) != len(ap):
+        if len(params) != len(aps):
             self._fail_missing_params(action)
 
         return p4r.Action(action_id=action.id, params=params)
@@ -393,9 +395,9 @@ class P4TableAction:
     def format(self, table: P4Table) -> str:
         """Format the table action as a human-readable string."""
 
-        ap = table.actions[self.name].params
+        aps = table.actions[self.name].params
         args = [
-            f"{key}={ap[key].format_param(value)}" for key, value in self.args.items()
+            f"{key}={aps[key].format_param(value)}" for key, value in self.args.items()
         ]
 
         return f"{self.name}({', '.join(args)})"
@@ -501,10 +503,9 @@ class P4IndirectAction:
 
         if self.action_set is not None:
             return f"P4IndirectAction(action_set={self.action_set!r})"
-        elif self.member_id is not None:
+        if self.member_id is not None:
             return f"P4IndirectAction(member_id={self.member_id!r})"
-        else:
-            return f"P4IndirectAction(group_id={self.group_id!r})"
+        return f"P4IndirectAction(group_id={self.group_id!r})"
 
 
 @dataclass(kw_only=True)

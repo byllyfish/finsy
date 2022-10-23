@@ -539,8 +539,8 @@ class P4Schema(_ReprMixin):
             version = self.version
             arch = self.arch
             return f"{pipeline=} {version=} {arch=}"
-        else:
-            return "<No pipeline exists>"
+
+        return "<No pipeline exists>"
 
     @property
     def name(self) -> str:
