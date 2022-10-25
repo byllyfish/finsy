@@ -849,6 +849,7 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
 
     _bitwidth: int  # cache for performance
     _type_spec: "_P4Type | None" = None
+    _format: p4values.DecodeFormat = p4values.DecodeFormat.DEFAULT
 
     def __init__(self, pbuf: p4i.Action.Param):
         super().__init__(pbuf)
@@ -857,6 +858,10 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
     def _finish_init(self, defs: _P4Defs):
         if self.pbuf.HasField("type_name"):
             self._type_spec = defs.type_info[self.pbuf.type_name.name]
+
+        # Set up _format value based on the `@format` annotation.
+        if _has_address_format_annotation(self.annotations):
+            self._format = p4values.DecodeFormat.ADDRESS
 
     @property
     def bitwidth(self) -> int:
@@ -875,11 +880,11 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
 
     def decode_param(self, param: p4r.Action.Param):
         "Decode protobuf `param`."
-        return p4values.decode_exact(param.value, self._bitwidth)
+        return p4values.decode_exact(param.value, self._bitwidth, self._format)
 
     def format_param(self, value: p4values.P4ParamValue) -> str:
         "Format `param` as a string."
-        format = p4values.DecodeFormat.STRING | p4values.DecodeFormat.ADDRESS
+        format = self._format | p4values.DecodeFormat.STRING
         return p4values.format_exact(value, self._bitwidth, format)
 
 
