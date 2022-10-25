@@ -84,7 +84,7 @@ def test_table_match1():
         }
     ]
     assert match == P4TableMatch.decode(msgs, table)
-    assert match.format(table) == "dstAddr=10.0.0.0/24"
+    assert match.format(table) == "dstAddr=0xa000000/24"
 
 
 def test_table_match2():
