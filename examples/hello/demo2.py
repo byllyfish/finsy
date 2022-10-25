@@ -1,3 +1,12 @@
+"""
+Finsy demo program for a simple P4Runtime controller that learns where
+each IPv4 address is located. It does this by listening to ARP packets sent
+to the controller.
+
+This demo program also demonstrates how you can organize your controller "app"
+as a Python class.
+"""
+
 import asyncio
 import logging
 from ipaddress import IPv4Address
@@ -5,7 +14,12 @@ from pathlib import Path
 
 import finsy as fy
 
+# P4SRC is the path to the "p4src" directory in the same directory as demo2.py.
 P4SRC = Path(__file__).parent / "p4src"
+
+# LOG is a logger that will include the current asyncio task name. The task
+# name includes the name of the switch, so you don't have to include that
+# information when you log a message.
 LOG = fy.LoggerAdapter(logging.getLogger("demo2"))
 
 
@@ -26,7 +40,7 @@ class DemoApp:
     async def on_ready(self, switch: fy.Switch):
         "Switch's ready handler."
         if not switch.is_primary:
-            return  # Bail out if we're backup controller
+            return  # Bail out if we're a backup controller
 
         ports = [port.id for port in switch.ports] + [self.CONTROLLER_PORT]
         learned = set[IPv4Address]()
@@ -56,6 +70,7 @@ class DemoApp:
 
 
 async def main():
+    "Main program."
     app = DemoApp()
 
     switches = [

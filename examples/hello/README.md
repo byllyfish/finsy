@@ -143,3 +143,18 @@ coordinate access to resources and divide their labor.
 `demo3.py` adds a second primary connection to `s1` that uses the "backup" role. The "backup" 
 role has read-only access, but still receives `PacketIn` messages. The role 
 configuration `P4RoleConfig` is specific to Stratum only. 
+
+## FINSY_DEBUG
+
+The demo programs produce event logs at the INFO level. Finsy includes support for logging all
+P4Runtime and gNMI messages. To enable this feature, set the FINSY_DEBUG environment variable 
+to 1 when running a demo program.
+
+```
+$ FINSY_DEBUG=1 python demo2.py
+```
+
+Log messages are produced by the `finsy.msg` logger.
+
+You can produce more extensive debug logging by modifying a demo program to set the
+log level to DEBUG.

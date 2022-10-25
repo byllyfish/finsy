@@ -84,7 +84,7 @@ def test_table_match1():
         }
     ]
     assert match == P4TableMatch.decode(msgs, table)
-    assert match.format(table) == "dstAddr=10.0.0.0/24"
+    assert match.format(table) == "dstAddr=0xa000000/24"
 
 
 def test_table_match2():
@@ -158,7 +158,7 @@ def test_table_action1():
         }
     }
     assert action == P4TableAction.decode_table_action(msg, table)
-    assert action.format(table) == "ipv4_forward(dstAddr=00-00-0A-00-00-01, port=0x1)"
+    assert action.format(table) == "ipv4_forward(dstAddr=0xa000001, port=0x1)"
 
 
 def test_table_action2():
@@ -240,7 +240,7 @@ def test_indirect_action1():
     )
     assert (
         action.format(table)
-        == "1*ipv4_forward(dstAddr=00-00-0A-00-00-01, port=0x1), 1*ipv4_forward(dstAddr=00-00-0A-00-00-01, port=0x2)"
+        == "1*ipv4_forward(dstAddr=0xa000001, port=0x1), 1*ipv4_forward(dstAddr=0xa000001, port=0x2)"
     )
 
 

@@ -1,3 +1,13 @@
+"""
+Finsy demo program for a simple P4Runtime controller that learns where
+each IPv4 address is located. It does this by listening to ARP packets sent
+to the controller.
+
+This demo program differs from demo2.py in that it makes a second P4Runtime
+connection to `sw1` using the `backup` role. The backup role is an additional
+read-only primary.
+"""
+
 import asyncio
 import logging
 from ipaddress import IPv4Address
@@ -6,12 +16,17 @@ from pathlib import Path
 import finsy as fy
 from finsy.proto import stratum
 
+# P4SRC is the path to the "p4src" directory in the same directory as demo3.py.
 P4SRC = Path(__file__).parent / "p4src"
+
+# LOG is a logger that will include the current asyncio task name. The task
+# name includes the name of the switch, so you don't have to include that
+# information when you log a message.
 LOG = fy.LoggerAdapter(logging.getLogger("demo3"))
 
 
 class DemoRoleApp:
-    "Hello World, demo app."
+    "Hello World, demo app (with role support)."
 
     CONTROLLER_PORT = 255
     P4INFO = P4SRC / "hello.p4info.txt"
@@ -68,6 +83,7 @@ class DemoRoleApp:
 
 
 async def main():
+    "Main program."
     app = DemoRoleApp()
 
     switches = [
@@ -83,7 +99,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     try:
         asyncio.run(main())
     except KeyboardInterrupt:

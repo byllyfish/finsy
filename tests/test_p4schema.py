@@ -1,10 +1,11 @@
 import difflib
 import subprocess
 from dataclasses import dataclass
+from ipaddress import IPv4Address, IPv4Network
 from pathlib import Path
 
 import pytest
-from finsy import pbuf
+from finsy import p4values, pbuf
 from finsy.p4schema import (
     P4ActionParam,
     P4BitsType,
@@ -591,13 +592,16 @@ def test_p4matchfield_exact():
     field = P4MatchField(match_p4)
 
     field_p4 = field.encode_field("10.0.0.1")
-    assert field_p4 is not None
-
     assert pbuf.to_dict(field_p4) == {
         "field_id": 1,
         "exact": {"value": "CgAAAQ=="},
     }
+
     assert field.decode_field(field_p4) == 167772161
+    assert field.format_field("10.0.0.1") == "0xa000001"
+
+    field._format |= p4values.DecodeFormat.ADDRESS
+    assert field.decode_field(field_p4) == IPv4Address("10.0.0.1")
     assert field.format_field("10.0.0.1") == "10.0.0.1"
 
 
@@ -612,16 +616,18 @@ def test_p4matchfield_lpm():
     field = P4MatchField(match_p4)
 
     field_p4 = field.encode_field("10.0.0.0/8")
-    assert field_p4 is not None
-
     assert pbuf.to_dict(field_p4) == {
         "field_id": 1,
         "lpm": {"prefix_len": 8, "value": "CgAAAA=="},
     }
-    assert field.decode_field(field_p4) == (167772160, 8)
-
     assert field.encode_field("0.0.0.0/0") is None
 
+    assert field.decode_field(field_p4) == (167772160, 8)
+    assert field.format_field("10.0.0.0/8") == "0xa000000/8"
+    assert field.format_field("0.0.0.0/0") == "0x0/0"
+
+    field._format |= p4values.DecodeFormat.ADDRESS
+    assert field.decode_field(field_p4) == IPv4Network("10.0.0.0/8")
     assert field.format_field("10.0.0.0/8") == "10.0.0.0/8"
     assert field.format_field("0.0.0.0/0") == "0.0.0.0/0"
 
@@ -637,16 +643,20 @@ def test_p4matchfield_ternary():
     field = P4MatchField(match_p4)
 
     field_p4 = field.encode_field("10.0.0.0/255.0.0.0")
-    assert field_p4 is not None
-
     assert pbuf.to_dict(field_p4) == {
         "field_id": 1,
         "ternary": {"mask": "/wAAAA==", "value": "CgAAAA=="},
     }
-    assert field.decode_field(field_p4) == (167772160, 4278190080)
-
     assert field.encode_field("0.0.0.0/0.0.0.0") is None
 
+    assert field.decode_field(field_p4) == (167772160, 4278190080)
+    assert field.format_field("10.0.0.0/255.0.0.0") == "0xa000000/&0xff000000"
+
+    field._format |= p4values.DecodeFormat.ADDRESS
+    assert field.decode_field(field_p4) == (
+        IPv4Address("10.0.0.0"),
+        IPv4Address("255.0.0.0"),
+    )
     assert field.format_field("10.0.0.0/255.0.0.0") == "10.0.0.0/&255.0.0.0"
 
 
@@ -675,7 +685,13 @@ def test_p4matchfield_range():
         "range": {"high": "CgAABQ==", "low": "CgAAAA=="},
     }
     assert field.decode_field(field_p4) == (167772160, 167772165)
+    assert field.format_field("10.0.0.0 ... 10.0.0.5") == "0xa000000...0xa000005"
 
+    field._format |= p4values.DecodeFormat.ADDRESS
+    assert field.decode_field(field_p4) == (
+        IPv4Address("10.0.0.0"),
+        IPv4Address("10.0.0.5"),
+    )
     assert field.format_field("10.0.0.0 ... 10.0.0.5") == "10.0.0.0...10.0.0.5"
 
 
@@ -699,7 +715,10 @@ def test_p4matchfield_optional():
         "optional": {"value": "CgAAAQ=="},
     }
     assert field.decode_field(field_p4) == 167772161
+    assert field.format_field("10.0.0.1") == "0xa000001"
 
+    field._format |= p4values.DecodeFormat.ADDRESS
+    assert field.decode_field(field_p4) == IPv4Address("10.0.0.1")
     assert field.format_field("10.0.0.1") == "10.0.0.1"
 
 
