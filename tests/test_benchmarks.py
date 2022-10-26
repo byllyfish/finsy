@@ -9,10 +9,10 @@ from finsy.proto import p4r
 
 P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
 
-NO_BENCHMARK = get_setting("FINSY_NO_BENCHMARK")
+NO_BENCHMARK = get_setting("FINSY_TEST_NO_BENCHMARK")
 
 
-@pytest.mark.skipif(NO_BENCHMARK, reason="NO_BECNHMARK")
+@pytest.mark.skipif(NO_BENCHMARK, reason="FINSY_TEST_NO_BENCHMARK")
 async def test_benchmark_table_entry1(p4rt_server_target):
     "Test writing table entries using P4TableEntry."
 

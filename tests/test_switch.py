@@ -16,9 +16,7 @@ from finsy.proto import p4r, stratum
 async def test_switch1(p4rt_server_target):
     "Test switch and P4RT server."
 
-    # target = f"grpc://{p4rt_server_target}?device_id=99"
-    target = p4rt_server_target
-    async with Switch("sw1", target) as sw1:
+    async with Switch("sw1", p4rt_server_target) as sw1:
         assert sw1.device_id == 1
 
 
