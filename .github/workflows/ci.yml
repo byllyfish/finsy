@@ -46,7 +46,7 @@ jobs:
         pytest
     - name: Run Code Coverage
       run: |
-        FINSY_NO_BENCHMARK=1 pytest --cov finsy
+        FINSY_TEST_NO_BENCHMARK=1 pytest --cov finsy
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v3
   
