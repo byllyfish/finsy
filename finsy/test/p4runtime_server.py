@@ -11,6 +11,8 @@ from finsy.proto import p4r, p4r_grpc
 
 
 class _TaskSet(set[asyncio.Task]):
+    "Keep fire-and-forget Tasks alive while task is running."
+
     def create_task(self, coro):
         task = asyncio.create_task(coro)
         self.add(task)
@@ -27,6 +29,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     def __init__(self, listen_addr: str, api_version: str = "1.3.0"):
         "Initialize P4Runtime server."
 
+        LOGGER.debug("P4RuntimeServer: init server: %s", listen_addr)
         self._listen_addr = listen_addr
         self._api_version = api_version
         self._server = None
@@ -36,7 +39,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         self._stream_queue = asyncio.Queue()
 
     def __del__(self):
-        LOGGER.debug("P4RuntimeServer: destroy server")
+        LOGGER.debug("P4RuntimeServer: destroy server: %s", self._listen_addr)
 
     @contextlib.asynccontextmanager
     async def run(self):
