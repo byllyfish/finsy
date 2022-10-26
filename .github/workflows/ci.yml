@@ -19,6 +19,8 @@ jobs:
     env:
       # Disable gNMI tests for now.
       FINSY_TEST_GNMI_TARGET: ""
+      # Skip the test P4RuntimeServer on Python 3.11 (due to seg fault issues). 
+      FINSY_TEST_P4RUNTIME_TARGET: "${{ matrix.python-version == '3.11' && 'skip' || '' }}"
 
     steps:
     - uses: actions/checkout@v3
