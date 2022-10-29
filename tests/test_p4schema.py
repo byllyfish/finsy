@@ -592,6 +592,7 @@ def test_p4matchfield_exact():
     field = P4MatchField(match_p4)
 
     field_p4 = field.encode_field("10.0.0.1")
+    assert field_p4 is not None
     assert pbuf.to_dict(field_p4) == {
         "field_id": 1,
         "exact": {"value": "CgAAAQ=="},
@@ -616,6 +617,7 @@ def test_p4matchfield_lpm():
     field = P4MatchField(match_p4)
 
     field_p4 = field.encode_field("10.0.0.0/8")
+    assert field_p4 is not None
     assert pbuf.to_dict(field_p4) == {
         "field_id": 1,
         "lpm": {"prefix_len": 8, "value": "CgAAAA=="},
@@ -643,6 +645,7 @@ def test_p4matchfield_ternary():
     field = P4MatchField(match_p4)
 
     field_p4 = field.encode_field("10.0.0.0/255.0.0.0")
+    assert field_p4 is not None
     assert pbuf.to_dict(field_p4) == {
         "field_id": 1,
         "ternary": {"mask": "/wAAAA==", "value": "CgAAAA=="},
