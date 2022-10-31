@@ -91,6 +91,8 @@ class HostManager:
     def _handle_packet(self, packet: fy.P4PacketIn):
         mac, addr = _parse_host_packet(packet.payload)
         port = packet["ingress_port"]
+        if addr.is_unspecified:
+            return
 
         host = self.hosts.get(mac)
         if not host:

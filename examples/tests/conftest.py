@@ -31,7 +31,7 @@ async def demonet(request):
 
 @pytest.fixture
 def python():
-    return sh(sys.executable).stderr(sh.INHERIT).env(PYTHONPATH="..")
+    return sh(sys.executable).stdin(sh.CAPTURE).stderr(sh.INHERIT).env(PYTHONPATH="..")
 
 
 class Prompt:

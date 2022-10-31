@@ -2,6 +2,8 @@
 
 set -e
 
+SCRIPT_DIR=$(dirname "$0")
+
 podman --noout create --privileged --rm -it \
     --name mininet \
     --publish 50001-50004:50001-50004 \
@@ -24,8 +26,8 @@ podman --noout create --rm \
     --name prometheus \
     prom/prometheus
 
-podman cp demonet mininet:/root/demonet
-podman cp demonet/prometheus.yml prometheus:/etc/prometheus/prometheus.yml
+podman cp "$SCRIPT_DIR/." mininet:/root/demonet
+podman cp "$SCRIPT_DIR/prometheus.yml" prometheus:/etc/prometheus/prometheus.yml
 
 podman --noout pod start demo_pod
 podman start -ai mininet
