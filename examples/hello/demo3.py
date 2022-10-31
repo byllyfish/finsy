@@ -10,6 +10,7 @@ read-only primary.
 
 import asyncio
 import logging
+import signal
 from ipaddress import IPv4Address
 from pathlib import Path
 
@@ -84,8 +85,15 @@ class DemoRoleApp:
 
 async def main():
     "Main program."
-    app = DemoRoleApp()
 
+    # Boilerplate to shutdown cleanly upon SIGTERM signal.
+    asyncio.get_running_loop().add_signal_handler(
+        signal.SIGTERM,
+        lambda task: task.cancel(),
+        asyncio.current_task(),
+    )
+
+    app = DemoRoleApp()
     switches = [
         fy.Switch("s1", "127.0.0.1:50001", app.options),
         # `s1b` is the same switch as `s1` but with the backup role.

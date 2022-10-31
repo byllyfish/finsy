@@ -7,6 +7,7 @@ controller as P4PacketIn messages.
 
 import asyncio
 import logging
+import signal
 from pathlib import Path
 
 import finsy as fy
@@ -46,6 +47,15 @@ async def ready_handler(sw: fy.Switch):
 
 async def main():
     "Main program."
+
+    # Boilerplate to shutdown cleanly upon SIGTERM signal.
+    asyncio.get_running_loop().add_signal_handler(
+        signal.SIGTERM,
+        lambda task: task.cancel(),
+        asyncio.current_task(),
+    )
+
+    # Shared settings for all P4Runtime switches.
     options = fy.SwitchOptions(
         p4info=P4SRC / "hello.p4info.txt",
         p4blob=P4SRC / "hello.json",
