@@ -1,5 +1,16 @@
 # Finsy Change Log
 
+## 0.8.0
+
+- Update `gnmi.proto`, `p4info.proto` protobuf files. Re-compile using latest mypy-protobuf compiler.
+- Rename `SwitchOptions.config` to `configuration`.
+- Rename `Switch.attachment` to `manager`.
+- Add support for P4Runtime roles using `p4_role_config.proto` from Stratum project.
+- Add support for `@format` address annotations in P4 source code.
+- Remove `TRACE` decorator scaffolding.
+- Add support for Python 3.11 in tests.
+- Add tests for example programs.
+
 ## 0.7.0
 
 - Automatically promote a `P4TableAction` in an indirect table to a single-entry one-shot `P4IndirectAction`.
