@@ -9,6 +9,7 @@ as a Python class.
 
 import asyncio
 import logging
+import signal
 from ipaddress import IPv4Address
 from pathlib import Path
 
@@ -71,8 +72,15 @@ class DemoApp:
 
 async def main():
     "Main program."
-    app = DemoApp()
 
+    # Boilerplate to shutdown cleanly upon SIGTERM signal.
+    asyncio.get_running_loop().add_signal_handler(
+        signal.SIGTERM,
+        lambda task: task.cancel(),
+        asyncio.current_task(),
+    )
+
+    app = DemoApp()
     switches = [
         fy.Switch("s1", "127.0.0.1:50001", app.options),
         fy.Switch("s2", "127.0.0.1:50002", app.options),
