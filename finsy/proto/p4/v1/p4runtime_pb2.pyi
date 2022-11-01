@@ -26,7 +26,7 @@ class _SdnPort:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _SdnPortEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SdnPort.ValueType], builtins.type):  # noqa: F821
+class _SdnPortEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SdnPort.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     SDN_PORT_UNKNOWN: _SdnPort.ValueType  # 0
     SDN_PORT_MIN: _SdnPort.ValueType  # 1
@@ -58,6 +58,7 @@ SDN_PORT_CPU: SdnPort.ValueType  # -3
 """0xfffffffd: Send to CPU"""
 global___SdnPort = SdnPort
 
+@typing_extensions.final
 class WriteRequest(google.protobuf.message.Message):
     """------------------------------------------------------------------------------"""
 
@@ -157,6 +158,7 @@ class WriteRequest(google.protobuf.message.Message):
 
 global___WriteRequest = WriteRequest
 
+@typing_extensions.final
 class WriteResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -166,6 +168,7 @@ class WriteResponse(google.protobuf.message.Message):
 
 global___WriteResponse = WriteResponse
 
+@typing_extensions.final
 class ReadRequest(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -188,6 +191,7 @@ class ReadRequest(google.protobuf.message.Message):
 
 global___ReadRequest = ReadRequest
 
+@typing_extensions.final
 class ReadResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -203,6 +207,7 @@ class ReadResponse(google.protobuf.message.Message):
 
 global___ReadResponse = ReadResponse
 
+@typing_extensions.final
 class Update(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -239,6 +244,7 @@ class Update(google.protobuf.message.Message):
 
 global___Update = Update
 
+@typing_extensions.final
 class Entity(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -300,6 +306,7 @@ class Entity(google.protobuf.message.Message):
 
 global___Entity = Entity
 
+@typing_extensions.final
 class ExternEntry(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -326,9 +333,11 @@ class ExternEntry(google.protobuf.message.Message):
 
 global___ExternEntry = ExternEntry
 
+@typing_extensions.final
 class TableEntry(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class IdleTimeout(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -444,11 +453,13 @@ class TableEntry(google.protobuf.message.Message):
 
 global___TableEntry = TableEntry
 
+@typing_extensions.final
 class FieldMatch(google.protobuf.message.Message):
     """field_match_type ::= exact | ternary | lpm | range | optional"""
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Exact(google.protobuf.message.Message):
         """Matches can be performed on arbitrarily-large inputs; the protobuf type
         'bytes' is used to model arbitrarily-large values.
@@ -465,6 +476,7 @@ class FieldMatch(google.protobuf.message.Message):
         ) -> None: ...
         def ClearField(self, field_name: typing_extensions.Literal["value", b"value"]) -> None: ...
 
+    @typing_extensions.final
     class Ternary(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -480,6 +492,7 @@ class FieldMatch(google.protobuf.message.Message):
         ) -> None: ...
         def ClearField(self, field_name: typing_extensions.Literal["mask", b"mask", "value", b"value"]) -> None: ...
 
+    @typing_extensions.final
     class LPM(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -496,6 +509,7 @@ class FieldMatch(google.protobuf.message.Message):
         ) -> None: ...
         def ClearField(self, field_name: typing_extensions.Literal["prefix_len", b"prefix_len", "value", b"value"]) -> None: ...
 
+    @typing_extensions.final
     class Range(google.protobuf.message.Message):
         """A Range is logically a set that contains all values numerically between
         'low' and 'high' inclusively.
@@ -515,6 +529,7 @@ class FieldMatch(google.protobuf.message.Message):
         ) -> None: ...
         def ClearField(self, field_name: typing_extensions.Literal["high", b"high", "low", b"low"]) -> None: ...
 
+    @typing_extensions.final
     class Optional(google.protobuf.message.Message):
         """If the Optional match should be a wildcard, the FieldMatch must be omitted.
         Otherwise, this behaves like an exact match.
@@ -571,6 +586,7 @@ class FieldMatch(google.protobuf.message.Message):
 
 global___FieldMatch = FieldMatch
 
+@typing_extensions.final
 class TableAction(google.protobuf.message.Message):
     """table_actions ::= action_specification | action_profile_specification"""
 
@@ -600,9 +616,11 @@ class TableAction(google.protobuf.message.Message):
 
 global___TableAction = TableAction
 
+@typing_extensions.final
 class Action(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Param(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -633,6 +651,7 @@ class Action(google.protobuf.message.Message):
 
 global___Action = Action
 
+@typing_extensions.final
 class ActionProfileActionSet(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -648,6 +667,7 @@ class ActionProfileActionSet(google.protobuf.message.Message):
 
 global___ActionProfileActionSet = ActionProfileActionSet
 
+@typing_extensions.final
 class ActionProfileAction(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -675,6 +695,7 @@ class ActionProfileAction(google.protobuf.message.Message):
 
 global___ActionProfileAction = ActionProfileAction
 
+@typing_extensions.final
 class ActionProfileMember(google.protobuf.message.Message):
     """------------------------------------------------------------------------------"""
 
@@ -699,11 +720,13 @@ class ActionProfileMember(google.protobuf.message.Message):
 
 global___ActionProfileMember = ActionProfileMember
 
+@typing_extensions.final
 class ActionProfileGroup(google.protobuf.message.Message):
     """------------------------------------------------------------------------------"""
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -756,6 +779,7 @@ class ActionProfileGroup(google.protobuf.message.Message):
 
 global___ActionProfileGroup = ActionProfileGroup
 
+@typing_extensions.final
 class Index(google.protobuf.message.Message):
     """An index as a protobuf message. In proto3, fields cannot be optional and
     there is no difference between an unset integer field and an integer field
@@ -779,6 +803,7 @@ class Index(google.protobuf.message.Message):
 
 global___Index = Index
 
+@typing_extensions.final
 class MeterEntry(google.protobuf.message.Message):
     """------------------------------------------------------------------------------
     For WriteRequest, Update.Type must be MODIFY.
@@ -813,6 +838,7 @@ class MeterEntry(google.protobuf.message.Message):
 
 global___MeterEntry = MeterEntry
 
+@typing_extensions.final
 class DirectMeterEntry(google.protobuf.message.Message):
     """------------------------------------------------------------------------------
     For WriteRequest, Update.Type must be MODIFY. INSERT and DELETE on direct
@@ -850,6 +876,7 @@ class DirectMeterEntry(google.protobuf.message.Message):
 
 global___DirectMeterEntry = DirectMeterEntry
 
+@typing_extensions.final
 class MeterConfig(google.protobuf.message.Message):
     """Modeled as RFC 2698: A Two Rate Three Color Marker (trTCM)
     The trTCM meters a packet stream and marks its packets based on two rates,
@@ -885,6 +912,7 @@ class MeterConfig(google.protobuf.message.Message):
 
 global___MeterConfig = MeterConfig
 
+@typing_extensions.final
 class CounterEntry(google.protobuf.message.Message):
     """------------------------------------------------------------------------------
     For WriteRequest, Update.Type must be MODIFY.
@@ -915,6 +943,7 @@ class CounterEntry(google.protobuf.message.Message):
 
 global___CounterEntry = CounterEntry
 
+@typing_extensions.final
 class DirectCounterEntry(google.protobuf.message.Message):
     """------------------------------------------------------------------------------
     For WriteRequest, Update.Type must be MODIFY. INSERT and DELETE on direct
@@ -948,6 +977,7 @@ class DirectCounterEntry(google.protobuf.message.Message):
 
 global___DirectCounterEntry = DirectCounterEntry
 
+@typing_extensions.final
 class CounterData(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -965,6 +995,7 @@ class CounterData(google.protobuf.message.Message):
 
 global___CounterData = CounterData
 
+@typing_extensions.final
 class MeterCounterData(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -989,6 +1020,7 @@ class MeterCounterData(google.protobuf.message.Message):
 
 global___MeterCounterData = MeterCounterData
 
+@typing_extensions.final
 class PacketReplicationEngineEntry(google.protobuf.message.Message):
     """------------------------------------------------------------------------------
     Only one instance of a Packet Replication Engine (PRE) is expected in the
@@ -1015,6 +1047,7 @@ class PacketReplicationEngineEntry(google.protobuf.message.Message):
 
 global___PacketReplicationEngineEntry = PacketReplicationEngineEntry
 
+@typing_extensions.final
 class Replica(google.protobuf.message.Message):
     """Used for replicas created for cloning and multicasting actions."""
 
@@ -1034,6 +1067,7 @@ class Replica(google.protobuf.message.Message):
 
 global___Replica = Replica
 
+@typing_extensions.final
 class MulticastGroupEntry(google.protobuf.message.Message):
     """The (egress_port, instance) pair must be unique for each replica in a given
     multicast group entry. A packet may be multicast by setting the
@@ -1060,6 +1094,7 @@ class MulticastGroupEntry(google.protobuf.message.Message):
 
 global___MulticastGroupEntry = MulticastGroupEntry
 
+@typing_extensions.final
 class CloneSessionEntry(google.protobuf.message.Message):
     """A packet may be cloned by setting the clone_session_id field of PSA
     ingress/egress output metadata to session_id of a programmed clone session
@@ -1099,6 +1134,7 @@ class CloneSessionEntry(google.protobuf.message.Message):
 
 global___CloneSessionEntry = CloneSessionEntry
 
+@typing_extensions.final
 class ValueSetMember(google.protobuf.message.Message):
     """A member in a P4 value set. Each member defines a list of matches, which can
     have different match types.
@@ -1118,6 +1154,7 @@ class ValueSetMember(google.protobuf.message.Message):
 
 global___ValueSetMember = ValueSetMember
 
+@typing_extensions.final
 class ValueSetEntry(google.protobuf.message.Message):
     """------------------------------------------------------------------------------
     For writing and reading matches in a parser value set. A state transition
@@ -1153,6 +1190,7 @@ class ValueSetEntry(google.protobuf.message.Message):
 
 global___ValueSetEntry = ValueSetEntry
 
+@typing_extensions.final
 class RegisterEntry(google.protobuf.message.Message):
     """------------------------------------------------------------------------------"""
 
@@ -1178,6 +1216,7 @@ class RegisterEntry(google.protobuf.message.Message):
 
 global___RegisterEntry = RegisterEntry
 
+@typing_extensions.final
 class DigestEntry(google.protobuf.message.Message):
     """------------------------------------------------------------------------------
     Used to configure the digest extern only, not to stream digests or acks
@@ -1185,6 +1224,7 @@ class DigestEntry(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Config(google.protobuf.message.Message):
         """a DigestList message is streamed when the following conditions are met:
           - there is at least one digest ready
@@ -1229,6 +1269,7 @@ class DigestEntry(google.protobuf.message.Message):
 
 global___DigestEntry = DigestEntry
 
+@typing_extensions.final
 class StreamMessageRequest(google.protobuf.message.Message):
     """------------------------------------------------------------------------------"""
 
@@ -1260,6 +1301,7 @@ class StreamMessageRequest(google.protobuf.message.Message):
 
 global___StreamMessageRequest = StreamMessageRequest
 
+@typing_extensions.final
 class PacketOut(google.protobuf.message.Message):
     """Packet sent from the controller to the switch."""
 
@@ -1284,6 +1326,7 @@ class PacketOut(google.protobuf.message.Message):
 
 global___PacketOut = PacketOut
 
+@typing_extensions.final
 class DigestListAck(google.protobuf.message.Message):
     """Used by the controller to ack a DigestList message. To avoid flooding the
     controller, the switch must not generate digest notifications for the same
@@ -1307,6 +1350,7 @@ class DigestListAck(google.protobuf.message.Message):
 
 global___DigestListAck = DigestListAck
 
+@typing_extensions.final
 class StreamMessageResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1347,6 +1391,7 @@ class StreamMessageResponse(google.protobuf.message.Message):
 
 global___StreamMessageResponse = StreamMessageResponse
 
+@typing_extensions.final
 class PacketIn(google.protobuf.message.Message):
     """Packet sent from the switch to the controller."""
 
@@ -1371,6 +1416,7 @@ class PacketIn(google.protobuf.message.Message):
 
 global___PacketIn = PacketIn
 
+@typing_extensions.final
 class DigestList(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1403,6 +1449,7 @@ class DigestList(google.protobuf.message.Message):
 
 global___DigestList = DigestList
 
+@typing_extensions.final
 class PacketMetadata(google.protobuf.message.Message):
     """Any metadata associated with Packet-IO (controller Packet-In or Packet-Out)
     needs to be modeled as P4 headers carrying special annotations
@@ -1428,6 +1475,7 @@ class PacketMetadata(google.protobuf.message.Message):
 
 global___PacketMetadata = PacketMetadata
 
+@typing_extensions.final
 class MasterArbitrationUpdate(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1468,6 +1516,7 @@ class MasterArbitrationUpdate(google.protobuf.message.Message):
 
 global___MasterArbitrationUpdate = MasterArbitrationUpdate
 
+@typing_extensions.final
 class Role(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1497,6 +1546,7 @@ class Role(google.protobuf.message.Message):
 
 global___Role = Role
 
+@typing_extensions.final
 class IdleTimeoutNotification(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1522,6 +1572,7 @@ class IdleTimeoutNotification(google.protobuf.message.Message):
 
 global___IdleTimeoutNotification = IdleTimeoutNotification
 
+@typing_extensions.final
 class StreamError(google.protobuf.message.Message):
     """Used by the server to asynchronously report errors which occur when
     processing StreamMessageRequest messages.
@@ -1573,6 +1624,7 @@ class StreamError(google.protobuf.message.Message):
 
 global___StreamError = StreamError
 
+@typing_extensions.final
 class PacketOutError(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1590,6 +1642,7 @@ class PacketOutError(google.protobuf.message.Message):
 
 global___PacketOutError = PacketOutError
 
+@typing_extensions.final
 class DigestListAckError(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1607,6 +1660,7 @@ class DigestListAckError(google.protobuf.message.Message):
 
 global___DigestListAckError = DigestListAckError
 
+@typing_extensions.final
 class StreamOtherError(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1624,6 +1678,7 @@ class StreamOtherError(google.protobuf.message.Message):
 
 global___StreamOtherError = StreamOtherError
 
+@typing_extensions.final
 class Uint128(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1643,6 +1698,7 @@ class Uint128(google.protobuf.message.Message):
 
 global___Uint128 = Uint128
 
+@typing_extensions.final
 class SetForwardingPipelineConfigRequest(google.protobuf.message.Message):
     """------------------------------------------------------------------------------"""
 
@@ -1758,6 +1814,7 @@ class SetForwardingPipelineConfigRequest(google.protobuf.message.Message):
 
 global___SetForwardingPipelineConfigRequest = SetForwardingPipelineConfigRequest
 
+@typing_extensions.final
 class SetForwardingPipelineConfigResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1767,9 +1824,11 @@ class SetForwardingPipelineConfigResponse(google.protobuf.message.Message):
 
 global___SetForwardingPipelineConfigResponse = SetForwardingPipelineConfigResponse
 
+@typing_extensions.final
 class ForwardingPipelineConfig(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Cookie(google.protobuf.message.Message):
         """Metadata (cookie) opaque to the target. A control plane may use this field
         to uniquely identify this config. There are no restrictions on how such
@@ -1812,6 +1871,7 @@ class ForwardingPipelineConfig(google.protobuf.message.Message):
 
 global___ForwardingPipelineConfig = ForwardingPipelineConfig
 
+@typing_extensions.final
 class GetForwardingPipelineConfigRequest(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1860,6 +1920,7 @@ class GetForwardingPipelineConfigRequest(google.protobuf.message.Message):
 
 global___GetForwardingPipelineConfigRequest = GetForwardingPipelineConfigRequest
 
+@typing_extensions.final
 class GetForwardingPipelineConfigResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1876,6 +1937,7 @@ class GetForwardingPipelineConfigResponse(google.protobuf.message.Message):
 
 global___GetForwardingPipelineConfigResponse = GetForwardingPipelineConfigResponse
 
+@typing_extensions.final
 class Error(google.protobuf.message.Message):
     """Error message used to report a single P4-entity error for a Write RPC."""
 
@@ -1918,6 +1980,7 @@ class Error(google.protobuf.message.Message):
 
 global___Error = Error
 
+@typing_extensions.final
 class CapabilitiesRequest(google.protobuf.message.Message):
     """------------------------------------------------------------------------------"""
 
@@ -1929,6 +1992,7 @@ class CapabilitiesRequest(google.protobuf.message.Message):
 
 global___CapabilitiesRequest = CapabilitiesRequest
 
+@typing_extensions.final
 class CapabilitiesResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 

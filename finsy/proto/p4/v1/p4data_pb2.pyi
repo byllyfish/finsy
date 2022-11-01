@@ -29,6 +29,7 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+@typing_extensions.final
 class P4Data(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -89,6 +90,7 @@ class P4Data(google.protobuf.message.Message):
 
 global___P4Data = P4Data
 
+@typing_extensions.final
 class P4Varbit(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -107,6 +109,7 @@ class P4Varbit(google.protobuf.message.Message):
 
 global___P4Varbit = P4Varbit
 
+@typing_extensions.final
 class P4StructLike(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -122,6 +125,7 @@ class P4StructLike(google.protobuf.message.Message):
 
 global___P4StructLike = P4StructLike
 
+@typing_extensions.final
 class P4Header(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -143,6 +147,7 @@ class P4Header(google.protobuf.message.Message):
 
 global___P4Header = P4Header
 
+@typing_extensions.final
 class P4HeaderUnion(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -165,6 +170,7 @@ class P4HeaderUnion(google.protobuf.message.Message):
 
 global___P4HeaderUnion = P4HeaderUnion
 
+@typing_extensions.final
 class P4HeaderStack(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -183,6 +189,7 @@ class P4HeaderStack(google.protobuf.message.Message):
 
 global___P4HeaderStack = P4HeaderStack
 
+@typing_extensions.final
 class P4HeaderUnionStack(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 

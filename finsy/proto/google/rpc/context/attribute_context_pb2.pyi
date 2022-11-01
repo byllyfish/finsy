@@ -31,6 +31,7 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+@typing_extensions.final
 class AttributeContext(google.protobuf.message.Message):
     """This message defines the standard attribute vocabulary for Google APIs.
 
@@ -53,6 +54,7 @@ class AttributeContext(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Peer(google.protobuf.message.Message):
         """This message defines attributes for a node that handles a network request.
         The node can be either a service or an application that sends, forwards,
@@ -62,6 +64,7 @@ class AttributeContext(google.protobuf.message.Message):
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+        @typing_extensions.final
         class LabelsEntry(google.protobuf.message.Message):
             DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -110,6 +113,7 @@ class AttributeContext(google.protobuf.message.Message):
         ) -> None: ...
         def ClearField(self, field_name: typing_extensions.Literal["ip", b"ip", "labels", b"labels", "port", b"port", "principal", b"principal", "region_code", b"region_code"]) -> None: ...
 
+    @typing_extensions.final
     class Api(google.protobuf.message.Message):
         """This message defines attributes associated with API operations, such as
         a network API request. The terminology is based on the conventions used
@@ -150,6 +154,7 @@ class AttributeContext(google.protobuf.message.Message):
         ) -> None: ...
         def ClearField(self, field_name: typing_extensions.Literal["operation", b"operation", "protocol", b"protocol", "service", b"service", "version", b"version"]) -> None: ...
 
+    @typing_extensions.final
     class Auth(google.protobuf.message.Message):
         """This message defines request authentication attributes. Terminology is
         based on the JSON Web Token (JWT) standard, but the terms also
@@ -233,6 +238,7 @@ class AttributeContext(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["claims", b"claims"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["access_levels", b"access_levels", "audiences", b"audiences", "claims", b"claims", "presenter", b"presenter", "principal", b"principal"]) -> None: ...
 
+    @typing_extensions.final
     class Request(google.protobuf.message.Message):
         """This message defines attributes for an HTTP request. If the actual
         request is not an HTTP request, the runtime system should try to map
@@ -241,6 +247,7 @@ class AttributeContext(google.protobuf.message.Message):
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+        @typing_extensions.final
         class HeadersEntry(google.protobuf.message.Message):
             DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -332,6 +339,7 @@ class AttributeContext(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["auth", b"auth", "time", b"time"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["auth", b"auth", "headers", b"headers", "host", b"host", "id", b"id", "method", b"method", "path", b"path", "protocol", b"protocol", "query", b"query", "reason", b"reason", "scheme", b"scheme", "size", b"size", "time", b"time"]) -> None: ...
 
+    @typing_extensions.final
     class Response(google.protobuf.message.Message):
         """This message defines attributes for a typical network response. It
         generally models semantics of an HTTP response.
@@ -339,6 +347,7 @@ class AttributeContext(google.protobuf.message.Message):
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+        @typing_extensions.final
         class HeadersEntry(google.protobuf.message.Message):
             DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -384,6 +393,7 @@ class AttributeContext(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["time", b"time"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["code", b"code", "headers", b"headers", "size", b"size", "time", b"time"]) -> None: ...
 
+    @typing_extensions.final
     class Resource(google.protobuf.message.Message):
         """This message defines core attributes for a resource. A resource is an
         addressable (named) entity provided by the destination service. For
@@ -392,6 +402,7 @@ class AttributeContext(google.protobuf.message.Message):
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+        @typing_extensions.final
         class LabelsEntry(google.protobuf.message.Message):
             DESCRIPTOR: google.protobuf.descriptor.Descriptor
 

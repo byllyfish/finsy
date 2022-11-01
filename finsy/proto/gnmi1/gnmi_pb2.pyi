@@ -34,7 +34,7 @@ class _Encoding:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _EncodingEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_Encoding.ValueType], builtins.type):  # noqa: F821
+class _EncodingEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_Encoding.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     JSON: _Encoding.ValueType  # 0
     """JSON encoded text."""
@@ -71,7 +71,7 @@ class _SubscriptionMode:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _SubscriptionModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SubscriptionMode.ValueType], builtins.type):  # noqa: F821
+class _SubscriptionModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SubscriptionMode.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     TARGET_DEFINED: _SubscriptionMode.ValueType  # 0
     """The target selects the relevant mode for each element."""
@@ -94,6 +94,7 @@ SAMPLE: SubscriptionMode.ValueType  # 2
 """The target samples values according to the interval."""
 global___SubscriptionMode = SubscriptionMode
 
+@typing_extensions.final
 class Notification(google.protobuf.message.Message):
     """Notification is a re-usable message that is used to encode data from the
     target to the client. A Notification carries two types of changes to the data
@@ -141,6 +142,7 @@ class Notification(google.protobuf.message.Message):
 
 global___Notification = Notification
 
+@typing_extensions.final
 class Update(google.protobuf.message.Message):
     """Update is a re-usable message that is used to store a particular Path,
     Value pair.
@@ -177,6 +179,7 @@ class Update(google.protobuf.message.Message):
 
 global___Update = Update
 
+@typing_extensions.final
 class TypedValue(google.protobuf.message.Message):
     """TypedValue is used to encode a value being sent between the client and
     target (originated by either entity).
@@ -257,6 +260,7 @@ class TypedValue(google.protobuf.message.Message):
 
 global___TypedValue = TypedValue
 
+@typing_extensions.final
 class Path(google.protobuf.message.Message):
     """Path encodes a data tree path as a series of repeated strings, with
     each element of the path representing a data tree node name and the
@@ -294,6 +298,7 @@ class Path(google.protobuf.message.Message):
 
 global___Path = Path
 
+@typing_extensions.final
 class PathElem(google.protobuf.message.Message):
     """PathElem encodes an element of a gNMI path, along with any attributes (keys)
     that may be associated with it.
@@ -302,6 +307,7 @@ class PathElem(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class KeyEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -334,6 +340,7 @@ class PathElem(google.protobuf.message.Message):
 
 global___PathElem = PathElem
 
+@typing_extensions.final
 class Value(google.protobuf.message.Message):
     """Value encodes a data tree node's value - along with the way in which
     the value is encoded. This message is deprecated by gNMI 0.3.0.
@@ -358,6 +365,7 @@ class Value(google.protobuf.message.Message):
 
 global___Value = Value
 
+@typing_extensions.final
 class Error(google.protobuf.message.Message):
     """Error message previously utilised to return errors to the client. Deprecated
     in favour of using the google.golang.org/genproto/googleapis/rpc/status
@@ -389,6 +397,7 @@ class Error(google.protobuf.message.Message):
 
 global___Error = Error
 
+@typing_extensions.final
 class Decimal64(google.protobuf.message.Message):
     """Decimal64 is used to encode a fixed precision decimal number. The value
     is expressed as a set of digits with the precision specifying the
@@ -415,6 +424,7 @@ class Decimal64(google.protobuf.message.Message):
 
 global___Decimal64 = Decimal64
 
+@typing_extensions.final
 class ScalarArray(google.protobuf.message.Message):
     """ScalarArray is used to encode a mixed-type array of values."""
 
@@ -436,6 +446,7 @@ class ScalarArray(google.protobuf.message.Message):
 
 global___ScalarArray = ScalarArray
 
+@typing_extensions.final
 class SubscribeRequest(google.protobuf.message.Message):
     """SubscribeRequest is the message sent by the client to the target when
     initiating a subscription to a set of paths within the data tree. The
@@ -473,6 +484,7 @@ class SubscribeRequest(google.protobuf.message.Message):
 
 global___SubscribeRequest = SubscribeRequest
 
+@typing_extensions.final
 class Poll(google.protobuf.message.Message):
     """Poll is sent within a SubscribeRequest to trigger the device to
     send telemetry updates for the paths that are associated with the
@@ -488,6 +500,7 @@ class Poll(google.protobuf.message.Message):
 
 global___Poll = Poll
 
+@typing_extensions.final
 class SubscribeResponse(google.protobuf.message.Message):
     """SubscribeResponse is the message used by the target within a Subscribe RPC.
     The target includes a Notification message which is used to transmit values
@@ -532,6 +545,7 @@ class SubscribeResponse(google.protobuf.message.Message):
 
 global___SubscribeResponse = SubscribeResponse
 
+@typing_extensions.final
 class SubscriptionList(google.protobuf.message.Message):
     """SubscriptionList is used within a Subscribe message to specify the list of
     paths that the client wishes to subscribe to. The message consists of a
@@ -620,6 +634,7 @@ class SubscriptionList(google.protobuf.message.Message):
 
 global___SubscriptionList = SubscriptionList
 
+@typing_extensions.final
 class Subscription(google.protobuf.message.Message):
     """Subscription is a single request within a SubscriptionList. The path
     specified is interpreted (along with the prefix) as the elements of the data
@@ -665,6 +680,7 @@ class Subscription(google.protobuf.message.Message):
 
 global___Subscription = Subscription
 
+@typing_extensions.final
 class QOSMarking(google.protobuf.message.Message):
     """QOSMarking specifies the DSCP value to be set on transmitted telemetry
     updates from the target.
@@ -684,6 +700,7 @@ class QOSMarking(google.protobuf.message.Message):
 
 global___QOSMarking = QOSMarking
 
+@typing_extensions.final
 class SetRequest(google.protobuf.message.Message):
     """SetRequest is sent from a client to the target to update values in the data
     tree. Paths are either deleted by the client, or modified by means of being
@@ -732,6 +749,7 @@ class SetRequest(google.protobuf.message.Message):
 
 global___SetRequest = SetRequest
 
+@typing_extensions.final
 class SetResponse(google.protobuf.message.Message):
     """SetResponse is the response to a SetRequest, sent from the target to the
     client. It reports the result of the modifications to the data tree that were
@@ -781,6 +799,7 @@ class SetResponse(google.protobuf.message.Message):
 
 global___SetResponse = SetResponse
 
+@typing_extensions.final
 class UpdateResult(google.protobuf.message.Message):
     """UpdateResult is used within the SetResponse message to communicate the
     result of an operation specified within a SetRequest message.
@@ -845,6 +864,7 @@ class UpdateResult(google.protobuf.message.Message):
 
 global___UpdateResult = UpdateResult
 
+@typing_extensions.final
 class GetRequest(google.protobuf.message.Message):
     """GetRequest is sent when a client initiates a Get RPC. It is used to specify
     the set of data elements for which the target should return a snapshot of
@@ -928,6 +948,7 @@ class GetRequest(google.protobuf.message.Message):
 
 global___GetRequest = GetRequest
 
+@typing_extensions.final
 class GetResponse(google.protobuf.message.Message):
     """GetResponse is used by the target to respond to a GetRequest from a client.
     The set of Notifications corresponds to the data values that are requested
@@ -963,6 +984,7 @@ class GetResponse(google.protobuf.message.Message):
 
 global___GetResponse = GetResponse
 
+@typing_extensions.final
 class CapabilityRequest(google.protobuf.message.Message):
     """CapabilityRequest is sent by the client in the Capabilities RPC to request
     that the target reports its capabilities.
@@ -986,6 +1008,7 @@ class CapabilityRequest(google.protobuf.message.Message):
 
 global___CapabilityRequest = CapabilityRequest
 
+@typing_extensions.final
 class CapabilityResponse(google.protobuf.message.Message):
     """CapabilityResponse is used by the target to report its capabilities to the
     client within the Capabilities RPC.
@@ -1023,6 +1046,7 @@ class CapabilityResponse(google.protobuf.message.Message):
 
 global___CapabilityResponse = CapabilityResponse
 
+@typing_extensions.final
 class ModelData(google.protobuf.message.Message):
     """ModelData is used to describe a set of schema modules. It can be used in a
     CapabilityResponse where a target reports the set of modules that it

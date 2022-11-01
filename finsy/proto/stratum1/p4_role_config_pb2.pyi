@@ -19,6 +19,7 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+@typing_extensions.final
 class P4RoleConfig(google.protobuf.message.Message):
     """The P4RoleConfig message conists of these fields:
      exclusive_p4_ids - A list of P4 entities for which this role exclusivly may
@@ -37,6 +38,7 @@ class P4RoleConfig(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class PacketFilter(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -45,7 +47,7 @@ class P4RoleConfig(google.protobuf.message.Message):
         metadata_id: builtins.int
         """Must match an ID in the P4Info."""
         value: builtins.bytes
-        """Must be given in full bitwidth."""
+        """Should be given in canonical form."""
         def __init__(
             self,
             *,

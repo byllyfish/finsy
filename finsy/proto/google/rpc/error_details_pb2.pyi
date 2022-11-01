@@ -30,6 +30,7 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+@typing_extensions.final
 class RetryInfo(google.protobuf.message.Message):
     """Describes when the clients can retry a failed request. Clients could ignore
     the recommendation here or retry when this information is missing from error
@@ -62,6 +63,7 @@ class RetryInfo(google.protobuf.message.Message):
 
 global___RetryInfo = RetryInfo
 
+@typing_extensions.final
 class DebugInfo(google.protobuf.message.Message):
     """Describes additional debugging info."""
 
@@ -84,6 +86,7 @@ class DebugInfo(google.protobuf.message.Message):
 
 global___DebugInfo = DebugInfo
 
+@typing_extensions.final
 class QuotaFailure(google.protobuf.message.Message):
     """Describes how a quota check failed.
 
@@ -100,6 +103,7 @@ class QuotaFailure(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Violation(google.protobuf.message.Message):
         """A message type used to describe a single quota violation.  For example, a
         daily quota or a custom quota that was exceeded.
@@ -144,6 +148,7 @@ class QuotaFailure(google.protobuf.message.Message):
 
 global___QuotaFailure = QuotaFailure
 
+@typing_extensions.final
 class ErrorInfo(google.protobuf.message.Message):
     """Describes the cause of the error with structured details.
 
@@ -170,6 +175,7 @@ class ErrorInfo(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class MetadataEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -223,6 +229,7 @@ class ErrorInfo(google.protobuf.message.Message):
 
 global___ErrorInfo = ErrorInfo
 
+@typing_extensions.final
 class PreconditionFailure(google.protobuf.message.Message):
     """Describes what preconditions have failed.
 
@@ -233,6 +240,7 @@ class PreconditionFailure(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Violation(google.protobuf.message.Message):
         """A message type used to describe a single precondition failure."""
 
@@ -279,6 +287,7 @@ class PreconditionFailure(google.protobuf.message.Message):
 
 global___PreconditionFailure = PreconditionFailure
 
+@typing_extensions.final
 class BadRequest(google.protobuf.message.Message):
     """Describes violations in a client request. This error type focuses on the
     syntactic aspects of the request.
@@ -286,6 +295,7 @@ class BadRequest(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class FieldViolation(google.protobuf.message.Message):
         """A message type used to describe a single bad request field."""
 
@@ -321,6 +331,7 @@ class BadRequest(google.protobuf.message.Message):
 
 global___BadRequest = BadRequest
 
+@typing_extensions.final
 class RequestInfo(google.protobuf.message.Message):
     """Contains metadata about the request that clients can attach when filing a bug
     or providing other forms of feedback.
@@ -348,6 +359,7 @@ class RequestInfo(google.protobuf.message.Message):
 
 global___RequestInfo = RequestInfo
 
+@typing_extensions.final
 class ResourceInfo(google.protobuf.message.Message):
     """Describes the resource that is being accessed."""
 
@@ -389,6 +401,7 @@ class ResourceInfo(google.protobuf.message.Message):
 
 global___ResourceInfo = ResourceInfo
 
+@typing_extensions.final
 class Help(google.protobuf.message.Message):
     """Provides links to documentation or for performing an out of band action.
 
@@ -399,6 +412,7 @@ class Help(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Link(google.protobuf.message.Message):
         """Describes a URL link."""
 
@@ -431,6 +445,7 @@ class Help(google.protobuf.message.Message):
 
 global___Help = Help
 
+@typing_extensions.final
 class LocalizedMessage(google.protobuf.message.Message):
     """Provides a localized error message that is safe to return to the user
     which can be attached to an RPC error.
