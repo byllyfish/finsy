@@ -24,7 +24,7 @@ class _ExtensionID:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _ExtensionIDEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ExtensionID.ValueType], builtins.type):  # noqa: F821
+class _ExtensionIDEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ExtensionID.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     EID_UNSET: _ExtensionID.ValueType  # 0
     """New extensions are to be defined within this enumeration - their definition
@@ -50,6 +50,7 @@ extension.
 """
 global___ExtensionID = ExtensionID
 
+@typing_extensions.final
 class Extension(google.protobuf.message.Message):
     """The Extension message contains a single gNMI extension."""
 
@@ -82,6 +83,7 @@ class Extension(google.protobuf.message.Message):
 
 global___Extension = Extension
 
+@typing_extensions.final
 class RegisteredExtension(google.protobuf.message.Message):
     """The RegisteredExtension message defines an extension which is defined outside
     of this file.
@@ -105,6 +107,7 @@ class RegisteredExtension(google.protobuf.message.Message):
 
 global___RegisteredExtension = RegisteredExtension
 
+@typing_extensions.final
 class MasterArbitration(google.protobuf.message.Message):
     """MasterArbitration is used to select the master among multiple gNMI clients
     with the same Roles. The client with the largest election_id is honored as
@@ -132,6 +135,7 @@ class MasterArbitration(google.protobuf.message.Message):
 
 global___MasterArbitration = MasterArbitration
 
+@typing_extensions.final
 class Uint128(google.protobuf.message.Message):
     """Representation of unsigned 128-bit integer."""
 
@@ -151,6 +155,7 @@ class Uint128(google.protobuf.message.Message):
 
 global___Uint128 = Uint128
 
+@typing_extensions.final
 class Role(google.protobuf.message.Message):
     """There can be one master for each role. The role is identified by its id."""
 
@@ -170,6 +175,7 @@ class Role(google.protobuf.message.Message):
 
 global___Role = Role
 
+@typing_extensions.final
 class History(google.protobuf.message.Message):
     """The History extension allows clients to request historical data. Its
     spec can be found at
@@ -196,6 +202,7 @@ class History(google.protobuf.message.Message):
 
 global___History = History
 
+@typing_extensions.final
 class TimeRange(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 

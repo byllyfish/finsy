@@ -20,6 +20,7 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+@typing_extensions.final
 class P4Info(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -88,6 +89,7 @@ class P4Info(google.protobuf.message.Message):
 
 global___P4Info = P4Info
 
+@typing_extensions.final
 class Documentation(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -109,6 +111,7 @@ class Documentation(google.protobuf.message.Message):
 
 global___Documentation = Documentation
 
+@typing_extensions.final
 class PkgInfo(google.protobuf.message.Message):
     """Top-level package documentation describing the forwarding pipeline config
     Can be used to manage multiple P4 packages.
@@ -173,6 +176,7 @@ class PkgInfo(google.protobuf.message.Message):
 
 global___PkgInfo = PkgInfo
 
+@typing_extensions.final
 class P4Ids(google.protobuf.message.Message):
     """wrapping the enum in a message to avoid name collisions in C++, where "enum
     values are siblings of their type, not children of it"
@@ -248,6 +252,7 @@ class P4Ids(google.protobuf.message.Message):
 
 global___P4Ids = P4Ids
 
+@typing_extensions.final
 class Preamble(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -308,6 +313,7 @@ class Preamble(google.protobuf.message.Message):
 
 global___Preamble = Preamble
 
+@typing_extensions.final
 class Extern(google.protobuf.message.Message):
     """used to group all extern instances of the same type in one message"""
 
@@ -334,6 +340,7 @@ class Extern(google.protobuf.message.Message):
 
 global___Extern = Extern
 
+@typing_extensions.final
 class ExternInstance(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -357,6 +364,7 @@ class ExternInstance(google.protobuf.message.Message):
 
 global___ExternInstance = ExternInstance
 
+@typing_extensions.final
 class MatchField(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -434,6 +442,7 @@ class MatchField(google.protobuf.message.Message):
 
 global___MatchField = MatchField
 
+@typing_extensions.final
 class Table(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -519,6 +528,7 @@ class Table(google.protobuf.message.Message):
 
 global___Table = Table
 
+@typing_extensions.final
 class ActionRef(google.protobuf.message.Message):
     """used to list all possible actions in a Table"""
 
@@ -568,9 +578,11 @@ class ActionRef(google.protobuf.message.Message):
 
 global___ActionRef = ActionRef
 
+@typing_extensions.final
 class Action(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Param(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -632,44 +644,51 @@ class Action(google.protobuf.message.Message):
 
 global___Action = Action
 
+@typing_extensions.final
 class ActionProfile(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    class _SelectorSizeSemantics:
-        ValueType = typing.NewType("ValueType", builtins.int)
-        V: typing_extensions.TypeAlias = ValueType
-
-    class _SelectorSizeSemanticsEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ActionProfile._SelectorSizeSemantics.ValueType], builtins.type):  # noqa: F821
-        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-        SUM_OF_WEIGHTS: ActionProfile._SelectorSizeSemantics.ValueType  # 0
+    @typing_extensions.final
+    class SumOfWeights(google.protobuf.message.Message):
         """indicates that `size` and `max_group_size` represent the maximum sum of
         weights that can be present across all selector groups and within a
         single selector group respectively.
         """
-        SUM_OF_MEMBERS: ActionProfile._SelectorSizeSemantics.ValueType  # 1
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        def __init__(
+            self,
+        ) -> None: ...
+
+    @typing_extensions.final
+    class SumOfMembers(google.protobuf.message.Message):
         """indicates that `size` and `max_group_size` represent the maximum number
         of members that can be present across all selector groups and within a
         single selector group respectively.
         """
 
-    class SelectorSizeSemantics(_SelectorSizeSemantics, metaclass=_SelectorSizeSemanticsEnumTypeWrapper): ...
-    SUM_OF_WEIGHTS: ActionProfile.SelectorSizeSemantics.ValueType  # 0
-    """indicates that `size` and `max_group_size` represent the maximum sum of
-    weights that can be present across all selector groups and within a
-    single selector group respectively.
-    """
-    SUM_OF_MEMBERS: ActionProfile.SelectorSizeSemantics.ValueType  # 1
-    """indicates that `size` and `max_group_size` represent the maximum number
-    of members that can be present across all selector groups and within a
-    single selector group respectively.
-    """
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        MAX_MEMBER_WEIGHT_FIELD_NUMBER: builtins.int
+        max_member_weight: builtins.int
+        """the maximum weight of each individual member in a group."""
+        def __init__(
+            self,
+            *,
+            max_member_weight: builtins.int | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["_max_member_weight", b"_max_member_weight", "max_member_weight", b"max_member_weight"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["_max_member_weight", b"_max_member_weight", "max_member_weight", b"max_member_weight"]) -> None: ...
+        def WhichOneof(self, oneof_group: typing_extensions.Literal["_max_member_weight", b"_max_member_weight"]) -> typing_extensions.Literal["max_member_weight"] | None: ...
 
     PREAMBLE_FIELD_NUMBER: builtins.int
     TABLE_IDS_FIELD_NUMBER: builtins.int
     WITH_SELECTOR_FIELD_NUMBER: builtins.int
     SIZE_FIELD_NUMBER: builtins.int
     MAX_GROUP_SIZE_FIELD_NUMBER: builtins.int
-    SELECTOR_SIZE_SEMANTICS_FIELD_NUMBER: builtins.int
+    SUM_OF_WEIGHTS_FIELD_NUMBER: builtins.int
+    SUM_OF_MEMBERS_FIELD_NUMBER: builtins.int
     @property
     def preamble(self) -> global___Preamble: ...
     @property
@@ -686,8 +705,12 @@ class ActionProfile(google.protobuf.message.Message):
     """0 if the action profile does not have a selector. Otherwise, semantics as
     specified by `selector_size_semantics` below.
     """
-    selector_size_semantics: global___ActionProfile.SelectorSizeSemantics.ValueType
-    """specifies the semantics of `size` and `max_group_size` above"""
+    @property
+    def sum_of_weights(self) -> global___ActionProfile.SumOfWeights:
+        """group size is the sum of the group's weights."""
+    @property
+    def sum_of_members(self) -> global___ActionProfile.SumOfMembers:
+        """group size is the sum of the group's members."""
     def __init__(
         self,
         *,
@@ -696,13 +719,16 @@ class ActionProfile(google.protobuf.message.Message):
         with_selector: builtins.bool = ...,
         size: builtins.int = ...,
         max_group_size: builtins.int = ...,
-        selector_size_semantics: global___ActionProfile.SelectorSizeSemantics.ValueType = ...,
+        sum_of_weights: global___ActionProfile.SumOfWeights | None = ...,
+        sum_of_members: global___ActionProfile.SumOfMembers | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["preamble", b"preamble"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["max_group_size", b"max_group_size", "preamble", b"preamble", "selector_size_semantics", b"selector_size_semantics", "size", b"size", "table_ids", b"table_ids", "with_selector", b"with_selector"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["preamble", b"preamble", "selector_size_semantics", b"selector_size_semantics", "sum_of_members", b"sum_of_members", "sum_of_weights", b"sum_of_weights"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["max_group_size", b"max_group_size", "preamble", b"preamble", "selector_size_semantics", b"selector_size_semantics", "size", b"size", "sum_of_members", b"sum_of_members", "sum_of_weights", b"sum_of_weights", "table_ids", b"table_ids", "with_selector", b"with_selector"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["selector_size_semantics", b"selector_size_semantics"]) -> typing_extensions.Literal["sum_of_weights", "sum_of_members"] | None: ...
 
 global___ActionProfile = ActionProfile
 
+@typing_extensions.final
 class CounterSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -738,6 +764,7 @@ class CounterSpec(google.protobuf.message.Message):
 
 global___CounterSpec = CounterSpec
 
+@typing_extensions.final
 class Counter(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -767,6 +794,7 @@ class Counter(google.protobuf.message.Message):
 
 global___Counter = Counter
 
+@typing_extensions.final
 class DirectCounter(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -791,6 +819,7 @@ class DirectCounter(google.protobuf.message.Message):
 
 global___DirectCounter = DirectCounter
 
+@typing_extensions.final
 class MeterSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -822,6 +851,7 @@ class MeterSpec(google.protobuf.message.Message):
 
 global___MeterSpec = MeterSpec
 
+@typing_extensions.final
 class Meter(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -851,6 +881,7 @@ class Meter(google.protobuf.message.Message):
 
 global___Meter = Meter
 
+@typing_extensions.final
 class DirectMeter(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -875,6 +906,7 @@ class DirectMeter(google.protobuf.message.Message):
 
 global___DirectMeter = DirectMeter
 
+@typing_extensions.final
 class ControllerPacketMetadata(google.protobuf.message.Message):
     """Any metadata associated with controller Packet-IO (Packet-In or Packet-Out)
     is modeled as P4 headers carrying special annotations
@@ -886,6 +918,7 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Metadata(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -951,6 +984,7 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
 
 global___ControllerPacketMetadata = ControllerPacketMetadata
 
+@typing_extensions.final
 class ValueSet(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -975,6 +1009,7 @@ class ValueSet(google.protobuf.message.Message):
 
 global___ValueSet = ValueSet
 
+@typing_extensions.final
 class Register(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1003,6 +1038,7 @@ class Register(google.protobuf.message.Message):
 
 global___Register = Register
 
+@typing_extensions.final
 class Digest(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 

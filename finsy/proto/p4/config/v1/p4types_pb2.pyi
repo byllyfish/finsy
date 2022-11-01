@@ -29,6 +29,7 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+@typing_extensions.final
 class P4TypeInfo(google.protobuf.message.Message):
     """|--------------------|--------------------------------------------|
     |                    | Container type                             |
@@ -64,6 +65,7 @@ class P4TypeInfo(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class StructsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -81,6 +83,7 @@ class P4TypeInfo(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
 
+    @typing_extensions.final
     class HeadersEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -98,6 +101,7 @@ class P4TypeInfo(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
 
+    @typing_extensions.final
     class HeaderUnionsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -115,6 +119,7 @@ class P4TypeInfo(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
 
+    @typing_extensions.final
     class EnumsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -132,6 +137,7 @@ class P4TypeInfo(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
 
+    @typing_extensions.final
     class SerializableEnumsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -149,6 +155,7 @@ class P4TypeInfo(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
 
+    @typing_extensions.final
     class NewTypesEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -203,6 +210,7 @@ class P4TypeInfo(google.protobuf.message.Message):
 
 global___P4TypeInfo = P4TypeInfo
 
+@typing_extensions.final
 class P4DataTypeSpec(google.protobuf.message.Message):
     """Describes a P4_16 type."""
 
@@ -266,6 +274,7 @@ class P4DataTypeSpec(google.protobuf.message.Message):
 
 global___P4DataTypeSpec = P4DataTypeSpec
 
+@typing_extensions.final
 class P4NamedType(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -280,6 +289,7 @@ class P4NamedType(google.protobuf.message.Message):
 
 global___P4NamedType = P4NamedType
 
+@typing_extensions.final
 class P4BoolType(google.protobuf.message.Message):
     """Empty message as no type information needed, just used as a placeholder in
     the oneof to identify boolean types.
@@ -293,6 +303,7 @@ class P4BoolType(google.protobuf.message.Message):
 
 global___P4BoolType = P4BoolType
 
+@typing_extensions.final
 class P4ErrorType(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -302,6 +313,7 @@ class P4ErrorType(google.protobuf.message.Message):
 
 global___P4ErrorType = P4ErrorType
 
+@typing_extensions.final
 class P4BitstringLikeTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -348,6 +360,7 @@ class P4BitstringLikeTypeSpec(google.protobuf.message.Message):
 
 global___P4BitstringLikeTypeSpec = P4BitstringLikeTypeSpec
 
+@typing_extensions.final
 class P4BitTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -362,6 +375,7 @@ class P4BitTypeSpec(google.protobuf.message.Message):
 
 global___P4BitTypeSpec = P4BitTypeSpec
 
+@typing_extensions.final
 class P4IntTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -376,6 +390,7 @@ class P4IntTypeSpec(google.protobuf.message.Message):
 
 global___P4IntTypeSpec = P4IntTypeSpec
 
+@typing_extensions.final
 class P4VarbitTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -390,6 +405,7 @@ class P4VarbitTypeSpec(google.protobuf.message.Message):
 
 global___P4VarbitTypeSpec = P4VarbitTypeSpec
 
+@typing_extensions.final
 class P4TupleTypeSpec(google.protobuf.message.Message):
     """From the P4_16 spec: "A tuple is similar to a struct, in that it holds
     multiple values. Unlike a struct type, tuples have no named fields."
@@ -409,9 +425,11 @@ class P4TupleTypeSpec(google.protobuf.message.Message):
 
 global___P4TupleTypeSpec = P4TupleTypeSpec
 
+@typing_extensions.final
 class P4StructTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -456,9 +474,11 @@ class P4StructTypeSpec(google.protobuf.message.Message):
 
 global___P4StructTypeSpec = P4StructTypeSpec
 
+@typing_extensions.final
 class P4HeaderTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -503,9 +523,11 @@ class P4HeaderTypeSpec(google.protobuf.message.Message):
 
 global___P4HeaderTypeSpec = P4HeaderTypeSpec
 
+@typing_extensions.final
 class P4HeaderUnionTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -550,6 +572,7 @@ class P4HeaderUnionTypeSpec(google.protobuf.message.Message):
 
 global___P4HeaderUnionTypeSpec = P4HeaderUnionTypeSpec
 
+@typing_extensions.final
 class P4HeaderStackTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -569,6 +592,7 @@ class P4HeaderStackTypeSpec(google.protobuf.message.Message):
 
 global___P4HeaderStackTypeSpec = P4HeaderStackTypeSpec
 
+@typing_extensions.final
 class P4HeaderUnionStackTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -588,6 +612,7 @@ class P4HeaderUnionStackTypeSpec(google.protobuf.message.Message):
 
 global___P4HeaderUnionStackTypeSpec = P4HeaderUnionStackTypeSpec
 
+@typing_extensions.final
 class KeyValuePair(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -607,6 +632,7 @@ class KeyValuePair(google.protobuf.message.Message):
 
 global___KeyValuePair = KeyValuePair
 
+@typing_extensions.final
 class KeyValuePairList(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -622,6 +648,7 @@ class KeyValuePairList(google.protobuf.message.Message):
 
 global___KeyValuePairList = KeyValuePairList
 
+@typing_extensions.final
 class Expression(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -644,6 +671,7 @@ class Expression(google.protobuf.message.Message):
 
 global___Expression = Expression
 
+@typing_extensions.final
 class ExpressionList(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -659,6 +687,7 @@ class ExpressionList(google.protobuf.message.Message):
 
 global___ExpressionList = ExpressionList
 
+@typing_extensions.final
 class StructuredAnnotation(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -688,6 +717,7 @@ class StructuredAnnotation(google.protobuf.message.Message):
 
 global___StructuredAnnotation = StructuredAnnotation
 
+@typing_extensions.final
 class SourceLocation(google.protobuf.message.Message):
     """Location of code relative to a given source file."""
 
@@ -712,6 +742,7 @@ class SourceLocation(google.protobuf.message.Message):
 
 global___SourceLocation = SourceLocation
 
+@typing_extensions.final
 class P4EnumTypeSpec(google.protobuf.message.Message):
     """For "safe" enums with no underlying representation and no member integer
     values.
@@ -719,6 +750,7 @@ class P4EnumTypeSpec(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -773,6 +805,7 @@ class P4EnumTypeSpec(google.protobuf.message.Message):
 
 global___P4EnumTypeSpec = P4EnumTypeSpec
 
+@typing_extensions.final
 class P4SerializableEnumTypeSpec(google.protobuf.message.Message):
     """For serializable (or "unsafe") enums, which have an underlying type. Note
     that as per the P4_16 specification, the underlying representation can only
@@ -781,6 +814,7 @@ class P4SerializableEnumTypeSpec(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -843,6 +877,7 @@ class P4SerializableEnumTypeSpec(google.protobuf.message.Message):
 
 global___P4SerializableEnumTypeSpec = P4SerializableEnumTypeSpec
 
+@typing_extensions.final
 class P4ErrorTypeSpec(google.protobuf.message.Message):
     """Similar to an enum, but there is always one and only one instance per P4
     program.
@@ -862,9 +897,11 @@ class P4ErrorTypeSpec(google.protobuf.message.Message):
 
 global___P4ErrorTypeSpec = P4ErrorTypeSpec
 
+@typing_extensions.final
 class P4NewTypeTranslation(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class SdnString(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -897,6 +934,7 @@ class P4NewTypeTranslation(google.protobuf.message.Message):
 
 global___P4NewTypeTranslation = P4NewTypeTranslation
 
+@typing_extensions.final
 class P4NewTypeSpec(google.protobuf.message.Message):
     """New types introduced with the "type" keyword"""
 
