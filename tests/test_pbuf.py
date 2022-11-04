@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+
 from finsy import pbuf
 from finsy.p4schema import P4Schema
 from finsy.proto import p4i
@@ -80,6 +81,10 @@ def test_log_annotate():
 
     # digest_id doesn't exist
     text = "digest_id: foo\n"
+    assert pbuf._log_annotate(text, schema) == text
+
+    # digest_id doesn't exist
+    text = "digest_id: 123\n"
     assert pbuf._log_annotate(text, schema) == text
 
     # invalid escape value

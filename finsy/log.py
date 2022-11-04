@@ -31,7 +31,7 @@ def get_setting(name: str, default: str = "") -> bool:
 FINSY_DEBUG = get_setting("FINSY_DEBUG")
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     _BaseLoggerAdapter: TypeAlias = logging.LoggerAdapter[logging.Logger]
 else:
     # logging.LoggerAdapter will be generic at runtime in Python 3.11.
@@ -90,5 +90,6 @@ class LoggerAdapter(_BaseLoggerAdapter):
 LOGGER = LoggerAdapter(logging.getLogger(__package__))
 MSG_LOG = LoggerAdapter(logging.getLogger(f"{__package__}.msg"))
 
-if FINSY_DEBUG:
+if FINSY_DEBUG:  # pragma: no cover
+    # If FINSY_DEBUG is true, log all protobuf messages.
     MSG_LOG.setLevel(logging.DEBUG)

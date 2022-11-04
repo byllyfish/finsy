@@ -122,11 +122,11 @@ class gNMIPath:
 
     @overload
     def __getitem__(self, key: int | str | tuple[int | str, str]) -> str:
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __getitem__(self, key: slice) -> Self:
-        ...
+        ...  # pragma: no cover
 
     def __getitem__(
         self,
