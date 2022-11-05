@@ -24,6 +24,7 @@ if sys.version_info < (3, 10):  # pragma: no cover
 from .controller import Controller, current_controller
 from .gnmiclient import gNMIClient, gNMISubscription, gNMIUpdate
 from .gnmipath import gNMIPath
+from .grpcutil import GRPCStatusCode
 from .log import LoggerAdapter
 from .p4client import P4Client, P4ClientError
 from .p4entity import (
@@ -85,4 +86,5 @@ __all__ = [
     "gNMIPath",
     "gNMISubscription",
     "gNMIUpdate",
+    "GRPCStatusCode",
 ]
