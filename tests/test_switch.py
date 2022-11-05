@@ -2,6 +2,7 @@ import asyncio
 from pathlib import Path
 
 import pytest
+
 from finsy import (
     P4TableAction,
     P4TableEntry,
@@ -10,7 +11,7 @@ from finsy import (
     SwitchEvent,
     SwitchOptions,
 )
-from finsy.proto import p4r, stratum
+from finsy.proto import stratum
 
 
 async def test_switch1(p4rt_server_target):
