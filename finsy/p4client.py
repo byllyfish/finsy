@@ -49,6 +49,8 @@ _NO_PIPELINE_CONFIG = re.compile(
 
 @dataclass
 class P4SubError:
+    "P4Runtime Error message used to report a single P4-entity error."
+
     canonical_code: GRPCStatusCode
     message: str
     space: str
@@ -140,7 +142,7 @@ class P4Status:
 
 
 class P4ClientError(Exception):
-    "Wrap grpc.RpcError."
+    "Wrap `grpc.RpcError`."
 
     _operation: str
     _status: P4Status
@@ -187,10 +189,6 @@ class P4ClientError(Exception):
     def details(self) -> dict[int, P4SubError]:
         return self._status.details
 
-    @property
-    def is_unimplemented(self) -> bool:
-        return self.code == GRPCStatusCode.UNIMPLEMENTED
-
     def _attach_details(self, msg: pbuf.PBMessage):
         "Attach the subvalue(s) from the message that caused the error."
         if isinstance(msg, p4r.WriteRequest):
@@ -198,6 +196,7 @@ class P4ClientError(Exception):
                 value.subvalue = msg.updates[key]
 
     def __str__(self) -> str:
+        "Return string representation of P4ClientError object."
         if self.details:
 
             def _indent(value: P4SubError):

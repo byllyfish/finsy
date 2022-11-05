@@ -52,10 +52,6 @@ class gNMIClientError(Exception):
     def message(self):
         return self._message
 
-    @property
-    def is_unimplemented(self):
-        return self.code == GRPCStatusCode.UNIMPLEMENTED
-
     def __str__(self) -> str:
         return f"gNMIClientError(code={self.code!r}, message={self.message!r})"
 

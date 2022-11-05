@@ -904,7 +904,7 @@ class Switch:
             self._api_version = ApiVersion.parse(reply.p4runtime_api_version)
 
         except P4ClientError as ex:
-            if not ex.is_unimplemented:
+            if ex.code != GRPCStatusCode.UNIMPLEMENTED:
                 raise
             LOGGER.warning("CapabilitiesRequest is not implemented")
 
@@ -921,7 +921,7 @@ class Switch:
             self.create_task(self._ports.update(), background=True, name="_ports")
 
         except gNMIClientError as ex:
-            if not ex.is_unimplemented:
+            if ex.code != GRPCStatusCode.UNIMPLEMENTED:
                 raise
             LOGGER.warning("gNMI is not implemented")
             await self._gnmi_client.close()

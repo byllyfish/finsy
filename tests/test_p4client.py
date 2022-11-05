@@ -59,7 +59,6 @@ def test_client_error():
 
     err = P4ClientError(ex, "test_client_error")
     assert err.code == GRPCStatusCode.UNKNOWN
-    assert not err.is_unimplemented
     assert err.message == "inner message"
     assert err.details == {
         0: P4SubError(
