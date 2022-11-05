@@ -1,4 +1,5 @@
 import pytest
+
 from finsy import pbuf
 from finsy.gnmipath import gNMIPath
 
@@ -61,6 +62,11 @@ def test_path_keys():
     assert path2["interface", "name"] == "eth1"
     assert path2 != path1
     assert path2["name"] == "eth1"
+
+    path3 = path1.set(1, name="eth2")
+    assert path3["interface", "name"] == "eth2"
+    assert path3["name"] == "eth2"
+    assert str(path3) == "interfaces/interface[name=eth2]/state/oper-status"
 
 
 def test_path_keys2():
@@ -125,6 +131,9 @@ def test_path_getitem():
 
     with pytest.raises(KeyError, match="x"):
         path1["x"]
+
+    with pytest.raises(KeyError, match="c"):
+        path1["interface", "c"]
 
     with pytest.raises(IndexError):
         path1[3]

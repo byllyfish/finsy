@@ -5,6 +5,7 @@ import logging
 from typing import AsyncIterator
 
 import grpc
+
 from finsy.futures import wait_for_cancel
 from finsy.log import LOGGER
 from finsy.proto import p4r, p4r_grpc

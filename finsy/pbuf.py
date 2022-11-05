@@ -149,8 +149,8 @@ def log_msg(
     <state> is empty if the client state is READY. Otherwise, it's the
     channel connectivity state.
     """
-    if not MSG_LOG.isEnabledFor(level):
-        return  # pragma: no cover
+    if not MSG_LOG.isEnabledFor(level):  # pragma: no cover
+        return
 
     # Include the channel's state if it's not READY.
     assert channel is not None

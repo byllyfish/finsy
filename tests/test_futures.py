@@ -1,6 +1,7 @@
 import asyncio
 
 import pytest
+
 from finsy.futures import CountdownFuture, wait_for_cancel
 
 
@@ -61,3 +62,31 @@ async def test_countdown_future_wait():
     with pytest.raises(asyncio.CancelledError):
         await task
     assert called  # wait was cancelled
+
+
+async def test_countdown_future_multiple_cancel():
+    "Test a CountdownFuture with multiple cancels."
+
+    future = CountdownFuture()
+    future.increment()
+    future.increment()
+
+    task = asyncio.create_task(future.wait())
+
+    # Send a few cancels.
+    for _ in range(3):
+        await asyncio.sleep(0.01)
+        task.cancel()
+
+    await asyncio.sleep(0.01)
+    assert not task.done()
+    assert not task.cancelled()
+
+    future.decrement()
+    future.decrement()
+    await asyncio.sleep(0)
+    assert task.done()
+    assert task.cancelled()
+
+    with pytest.raises(asyncio.CancelledError):
+        await task
