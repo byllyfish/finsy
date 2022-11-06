@@ -26,7 +26,7 @@ from .gnmiclient import gNMIClient, gNMISubscription, gNMIUpdate
 from .gnmipath import gNMIPath
 from .grpcutil import GRPCStatusCode
 from .log import LoggerAdapter
-from .p4client import P4Client, P4ClientError
+from .p4client import P4Client, P4ClientError, P4Error
 from .p4entity import (
     P4ActionProfileGroup,
     P4ActionProfileMember,
@@ -67,6 +67,7 @@ __all__ = [
     "P4DigestList",
     "P4DigestListAck",
     "P4DirectCounterEntry",
+    "P4Error",
     "P4IndirectAction",
     "P4MeterConfig",
     "P4MeterCounterData",

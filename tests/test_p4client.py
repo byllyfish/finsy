@@ -1,7 +1,7 @@
 import grpc
 
 from finsy import GRPCStatusCode, P4Client, P4ClientError, pbuf
-from finsy.p4client import P4SubError
+from finsy.p4client import P4Error
 from finsy.proto import U128, p4r, rpc_status
 
 
@@ -61,7 +61,7 @@ def test_client_error():
     assert err.code == GRPCStatusCode.UNKNOWN
     assert err.message == "inner message"
     assert err.details == {
-        0: P4SubError(
+        0: P4Error(
             canonical_code=GRPCStatusCode.NOT_FOUND,
             message="sub message",
             space="",

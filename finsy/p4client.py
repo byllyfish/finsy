@@ -48,7 +48,7 @@ _NO_PIPELINE_CONFIG = re.compile(
 
 
 @dataclass
-class P4SubError:
+class P4Error:
     "P4Runtime Error message used to report a single P4-entity error."
 
     canonical_code: GRPCStatusCode
@@ -64,7 +64,7 @@ class P4RpcStatus:
 
     code: GRPCStatusCode
     message: str
-    details: dict[int, P4SubError]
+    details: dict[int, P4Error]
 
     @staticmethod
     def from_rpc_error(error: grpc.RpcError) -> "P4RpcStatus":
@@ -99,13 +99,13 @@ class P4RpcStatus:
         )
 
     @staticmethod
-    def _parse_error(details: Sequence[pbuf.PBAny]) -> dict[int, P4SubError]:
-        result: dict[int, P4SubError] = {}
+    def _parse_error(details: Sequence[pbuf.PBAny]) -> dict[int, P4Error]:
+        result: dict[int, P4Error] = {}
 
         for i in range(len(details)):
             err = pbuf.from_any(details[i], p4r.Error)
             if err.canonical_code != rpc_code.OK:
-                result[i] = P4SubError(
+                result[i] = P4Error(
                     GRPCStatusCode(err.canonical_code),
                     err.message,
                     err.space,
@@ -151,7 +151,7 @@ class P4ClientError(Exception):
         return self._status.message
 
     @property
-    def details(self) -> dict[int, P4SubError]:
+    def details(self) -> dict[int, P4Error]:
         return self._status.details
 
     @property
@@ -191,7 +191,7 @@ class P4ClientError(Exception):
         "Return string representation of P4ClientError object."
         if self.details:
 
-            def _indent(value: P4SubError):
+            def _indent(value: P4Error):
                 s = repr(value).replace("\n}\n)", "\n})")  # tidy multiline repr
                 return s.replace("\n", "\n" + " " * 6)
 
