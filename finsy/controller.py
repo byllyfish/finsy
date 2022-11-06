@@ -38,7 +38,7 @@ class Controller:
     control_task: asyncio.Task[Any] | None = None
     "Keep track of controller's main task."
 
-    def __init__(self, switches: Iterable[Switch], *, name="controller"):
+    def __init__(self, switches: Iterable[Switch], *, name: str = "controller"):
         self._name = name
         self._switches = {}
         self._removed = set()
@@ -161,7 +161,7 @@ class Controller:
         if self.running:
             self._stop_switch(switch)
             self._removed.add(switch)
-            switch.ee.once(SwitchEvent.CONTROLLER_LEAVE, self._removed.discard)
+            switch.ee.once(SwitchEvent.CONTROLLER_LEAVE, self._removed.discard)  # type: ignore
 
     def _start_switch(self, switch: Switch):
         "Start the switch's control task."

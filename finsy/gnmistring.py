@@ -14,9 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pyright/strict and parsy don't mix well.
+#   pyright: reportUnknownMemberType=false, reportUnknownArgumentType=false
+#   pyright: reportUnknownParameterType=false, reportUnknownVariableType=false
+#   pyright: reportFunctionMemberAccess=false, reportUnknownLambdaType=false
+
 import re
 
-import parsy as pa
+import parsy as pa  # pyright: ignore[reportMissingTypeStubs]
 
 from finsy.proto import gnmi
 

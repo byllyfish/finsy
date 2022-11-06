@@ -71,7 +71,7 @@ class U128:
     def encode(value: int) -> p4r.Uint128:
         "Create a Uint128 object from an integer."
 
-        if not isinstance(value, int) or value < 0:
+        if value < 0:
             raise ValueError(f"invalid argument: {value!r}")
         return p4r.Uint128(high=value >> 64, low=value & 0xFFFFFFFFFFFFFFFF)
 

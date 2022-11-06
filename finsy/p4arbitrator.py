@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pyright: reportPrivateUsage=false
+
 import finsy.switch as _sw  # break circular import
 from finsy import pbuf
 from finsy.grpcutil import GRPCStatusCode
