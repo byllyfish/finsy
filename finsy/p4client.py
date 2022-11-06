@@ -59,7 +59,7 @@ class P4SubError:
 
 
 @dataclass
-class P4Status:
+class P4RpcStatus:
     "Implements rpc.status."
 
     code: GRPCStatusCode
@@ -94,35 +94,35 @@ class P4Status:
         )
 
     @staticmethod
-    def from_rpc_error(error: grpc.RpcError) -> "P4Status":
+    def from_rpc_error(error: grpc.RpcError) -> "P4RpcStatus":
         "Construct status from RpcError."
         assert isinstance(error, grpc.aio.AioRpcError)
 
         for key, value in error.trailing_metadata():
             if key == "grpc-status-details-bin":
                 assert isinstance(value, bytes)
-                return P4Status.from_bytes(value)
+                return P4RpcStatus.from_bytes(value)
 
-        return P4Status(
+        return P4RpcStatus(
             GRPCStatusCode.from_status_code(error.code()),
             error.details() or "",
             {},
         )
 
     @staticmethod
-    def from_bytes(data: bytes) -> "P4Status":
+    def from_bytes(data: bytes) -> "P4RpcStatus":
         "Construct status from protobuf bytes."
         status = rpc_status.Status()
         status.ParseFromString(data)
-        return P4Status.from_status(status)
+        return P4RpcStatus.from_status(status)
 
     @staticmethod
-    def from_status(status: rpc_status.Status) -> "P4Status":
+    def from_status(status: rpc_status.Status) -> "P4RpcStatus":
         "Construct status from RPC status."
-        return P4Status(
+        return P4RpcStatus(
             GRPCStatusCode(status.code),
             status.message,
-            P4Status._parse_error(status.details),
+            P4RpcStatus._parse_error(status.details),
         )
 
     @staticmethod
@@ -145,7 +145,7 @@ class P4ClientError(Exception):
     "Wrap `grpc.RpcError`."
 
     _operation: str
-    _status: P4Status
+    _status: P4RpcStatus
     _outer_code: GRPCStatusCode
     _outer_message: str
 
@@ -160,7 +160,7 @@ class P4ClientError(Exception):
         assert isinstance(error, grpc.aio.AioRpcError)
 
         self._operation = operation
-        self._status = P4Status.from_rpc_error(error)
+        self._status = P4RpcStatus.from_rpc_error(error)
         self._outer_code = GRPCStatusCode.from_status_code(error.code())
         self._outer_message = error.details() or ""
 
@@ -170,7 +170,7 @@ class P4ClientError(Exception):
         LOGGER.debug("%s failed: %s", operation, self)
 
     @property
-    def status(self) -> P4Status:
+    def status(self) -> P4RpcStatus:
         return self._status
 
     @property
