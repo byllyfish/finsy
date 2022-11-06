@@ -86,7 +86,7 @@ class P4Status:
         )
 
     @property
-    def is_no_pipeline_configured(self) -> bool:
+    def is_pipeline_missing(self) -> bool:
         "Return true if error is that no pipeline config is set."
         return (
             self.code == GRPCStatusCode.FAILED_PRECONDITION

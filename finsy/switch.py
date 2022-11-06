@@ -634,7 +634,7 @@ class Switch:
                     LOGGER.warning("Retrieved P4Info is different than expected!")
 
         except P4ClientError as ex:
-            if not ex.status.is_no_pipeline_configured:
+            if not ex.status.is_pipeline_missing:
                 raise
 
         if not has_pipeline and self.p4info.exists:
@@ -650,7 +650,7 @@ class Switch:
                 cookie = reply.config.cookie.cookie
 
         except P4ClientError as ex:
-            if not ex.status.is_no_pipeline_configured:
+            if not ex.status.is_pipeline_missing:
                 raise
 
         if cookie != self.p4info.p4cookie:
