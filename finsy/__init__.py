@@ -49,6 +49,7 @@ from .p4entity import (
     P4TableMatch,
 )
 from .p4schema import P4ConfigAction, P4CounterUnit, P4Schema
+from .ports import SwitchPort, SwitchPortList
 from .switch import Switch, SwitchEvent, SwitchOptions
 
 __all__ = [
@@ -83,6 +84,8 @@ __all__ = [
     "Switch",
     "SwitchEvent",
     "SwitchOptions",
+    "SwitchPort",
+    "SwitchPortList",
     "gNMIClient",
     "gNMIPath",
     "gNMISubscription",

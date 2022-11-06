@@ -1,11 +1,12 @@
 import asyncio
 
 import pytest
-from finsy.ports import PortList
+
+from finsy.ports import SwitchPortList
 
 
 def test_ports():
-    ports = PortList()
+    ports = SwitchPortList()
     assert len(ports) == 0
     assert list(ports) == []
 
@@ -14,7 +15,7 @@ def test_ports():
 
 
 async def test_gnmi_ports_subscribe(gnmi_client):
-    ports = PortList()
+    ports = SwitchPortList()
 
     await ports.subscribe(gnmi_client)
     for port in ports:

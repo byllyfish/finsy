@@ -46,7 +46,7 @@ from finsy.log import LOGGER
 from finsy.p4arbitrator import Arbitrator
 from finsy.p4client import P4Client, P4ClientError
 from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema
-from finsy.ports import PortList
+from finsy.ports import SwitchPortList
 from finsy.proto import p4r
 
 # Maximum size of queues used for PacketIn, DigestList, etc.
@@ -148,7 +148,7 @@ class Switch:
     _packet_queues: list[tuple[Callable[[bytes], bool], asyncio.Queue[Any]]]
     _arbitrator: "Arbitrator"
     _gnmi_client: gNMIClient | None
-    _ports: PortList
+    _ports: SwitchPortList
     _is_channel_up: bool = False
     _api_version: ApiVersion = ApiVersion(1, 0, 0, "")
 
@@ -182,7 +182,7 @@ class Switch:
             options.initial_election_id, options.role_name, options.role_config
         )
         self._gnmi_client = None
-        self._ports = PortList()
+        self._ports = SwitchPortList()
         self.ee = SwitchEmitter(self)
 
     @property
@@ -253,7 +253,7 @@ class Switch:
         return self._gnmi_client
 
     @property
-    def ports(self) -> PortList:
+    def ports(self) -> SwitchPortList:
         "Switch's list of interfaces."
         return self._ports
 
