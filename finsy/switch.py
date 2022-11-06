@@ -403,7 +403,7 @@ class Switch:
             try:
                 msg = await client.receive()
             except P4ClientError as ex:
-                if not ex.status.is_election_id_used:
+                if not ex.is_election_id_used:
                     raise
                 # Handle "election ID in use" error.
                 await self._arbitrator.handshake(self, conflict=True)
@@ -634,7 +634,7 @@ class Switch:
                     LOGGER.warning("Retrieved P4Info is different than expected!")
 
         except P4ClientError as ex:
-            if not ex.status.is_pipeline_missing:
+            if not ex.is_pipeline_missing:
                 raise
 
         if not has_pipeline and self.p4info.exists:
@@ -650,7 +650,7 @@ class Switch:
                 cookie = reply.config.cookie.cookie
 
         except P4ClientError as ex:
-            if not ex.status.is_pipeline_missing:
+            if not ex.is_pipeline_missing:
                 raise
 
         if cookie != self.p4info.p4cookie:
@@ -884,7 +884,7 @@ class Switch:
                 )
             )
         except P4ClientError as ex:
-            if strict or not ex.status.is_not_found_only:
+            if strict or not ex.is_not_found_only:
                 if warn_only:
                     LOGGER.warning(
                         "WriteRequest with `warn_only=True` failed",
@@ -893,7 +893,7 @@ class Switch:
                 else:
                     raise
 
-            assert (not strict and ex.status.is_not_found_only) or warn_only
+            assert (not strict and ex.is_not_found_only) or warn_only
 
     async def _fetch_capabilities(self):
         "Check the P4Runtime protocol version supported by the other end."

@@ -66,33 +66,6 @@ class P4RpcStatus:
     message: str
     details: dict[int, P4SubError]
 
-    @property
-    def is_not_found_only(self) -> bool:
-        """Return True if the only sub-errors are NOT_FOUND."""
-        if self.code != GRPCStatusCode.UNKNOWN:
-            return False
-
-        for err in self.details.values():
-            if err.canonical_code != GRPCStatusCode.NOT_FOUND:
-                return False
-        return True
-
-    @property
-    def is_election_id_used(self) -> bool:
-        """Return true if error is that election ID is in use."""
-        return (
-            self.code == GRPCStatusCode.INVALID_ARGUMENT
-            and _ELECTION_ID_EXISTS.search(self.message) is not None
-        )
-
-    @property
-    def is_pipeline_missing(self) -> bool:
-        "Return true if error is that no pipeline config is set."
-        return (
-            self.code == GRPCStatusCode.FAILED_PRECONDITION
-            and _NO_PIPELINE_CONFIG.search(self.message) is not None
-        )
-
     @staticmethod
     def from_rpc_error(error: grpc.RpcError) -> "P4RpcStatus":
         "Construct status from RpcError."
@@ -170,10 +143,6 @@ class P4ClientError(Exception):
         LOGGER.debug("%s failed: %s", operation, self)
 
     @property
-    def status(self) -> P4RpcStatus:
-        return self._status
-
-    @property
     def code(self) -> GRPCStatusCode:
         return self._status.code
 
@@ -184,6 +153,33 @@ class P4ClientError(Exception):
     @property
     def details(self) -> dict[int, P4SubError]:
         return self._status.details
+
+    @property
+    def is_not_found_only(self) -> bool:
+        """Return True if the only sub-errors are NOT_FOUND."""
+        if self.code != GRPCStatusCode.UNKNOWN:
+            return False
+
+        for err in self.details.values():
+            if err.canonical_code != GRPCStatusCode.NOT_FOUND:
+                return False
+        return True
+
+    @property
+    def is_election_id_used(self) -> bool:
+        """Return true if error is that election ID is in use."""
+        return (
+            self.code == GRPCStatusCode.INVALID_ARGUMENT
+            and _ELECTION_ID_EXISTS.search(self.message) is not None
+        )
+
+    @property
+    def is_pipeline_missing(self) -> bool:
+        "Return true if error is that no pipeline config is set."
+        return (
+            self.code == GRPCStatusCode.FAILED_PRECONDITION
+            and _NO_PIPELINE_CONFIG.search(self.message) is not None
+        )
 
     def _attach_details(self, msg: pbuf.PBMessage):
         "Attach the subvalue(s) from the message that caused the error."

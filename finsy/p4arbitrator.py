@@ -189,7 +189,7 @@ class Arbitrator:
             response = await switch._p4client.receive()
 
         except P4ClientError as ex:
-            if ex.status.is_election_id_used:
+            if ex.is_election_id_used:
                 return None
             raise
 
