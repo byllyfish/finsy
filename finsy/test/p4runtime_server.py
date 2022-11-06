@@ -61,7 +61,9 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         "Create AIO server."
 
         server = grpc.aio.server()
-        p4r_grpc.add_P4RuntimeServicer_to_server(self, server)
+        p4r_grpc.add_P4RuntimeServicer_to_server(
+            self, server  # pyright: ignore[reportGeneralTypeIssues]
+        )
         server.add_insecure_port(self._listen_addr)
         return server
 

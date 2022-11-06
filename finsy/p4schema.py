@@ -944,7 +944,7 @@ class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
     "Represents ActionProfile in schema."
 
     _actions: P4EntityMap[P4Action]
-    _table_names: list[str]
+    _table_names: list[str] = []
 
     def __init__(self, pbuf: p4i.ActionProfile):
         super().__init__(pbuf)
@@ -1199,7 +1199,7 @@ class P4CPMetadata(_P4AnnoMixin, _P4NamedMixin[p4i.ControllerPacketMetadata.Meta
 class P4DirectCounter(_P4TopLevel[p4i.DirectCounter]):
     "Represents DirectCounter in schema."
 
-    _direct_table_name: str
+    _direct_table_name: str = ""
 
     def _finish_init(self, defs: _P4Defs):
         direct_table = defs.tables[self.direct_table_id]
@@ -1808,7 +1808,7 @@ class P4Register(_P4TopLevel[p4i.Register]):
 class P4Digest(_P4TopLevel[p4i.Digest]):
     "Represents Digest in schema."
 
-    _type_spec: _P4Type
+    _type_spec: _P4Type  # pyright: ignore[reportUninitializedInstanceVariable]
 
     def _finish_init(self, defs: _P4Defs):
         self._type_spec = _parse_type_spec(self.pbuf.type_spec, defs.type_info)

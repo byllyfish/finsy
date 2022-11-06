@@ -1,4 +1,5 @@
 import pytest
+
 from finsy.proto import U128
 
 UINT128_VALUES = {
@@ -20,7 +21,7 @@ def test_uint128():
     UINT128_INVALID = [2**128, -1, 1.0, 1e10, 1 + 2j]
 
     for value in UINT128_INVALID:
-        with pytest.raises(ValueError):
+        with pytest.raises((ValueError, TypeError)):
             U128.encode(value)
 
 

@@ -58,28 +58,19 @@ ignore = [
 ]
 strict = [
   "examples/**/*.py", 
-  "finsy/p4values.py", 
-  "finsy/pbuf.py", 
-  "finsy/util.py", 
-  "finsy/log.py", 
-  "finsy/grpcutil.py", 
-  "finsy/p4entity.py", 
-  "finsy/p4schema.py", 
-  "finsy/p4client.py", 
-  "finsy/gnmipath.py", 
-  "finsy/gnmiclient.py", 
-  "finsy/ports.py", 
-  "finsy/switch.py", 
+  "finsy/*.py",
   "tests/test_p4data.py",
   "tests/test_p4entity.py",
-  "tests/test_p4values.py"
+  "tests/test_p4values.py",
+  "tests/test_controller.py",
+  "tests/test_switch.py"
 ]
 useLibraryCodeForTypes = true
 
 # Enable additional warnings for things not enabled by `strict`.
-# reportUninitializedInstanceVariable = "warning"
+reportUninitializedInstanceVariable = "warning"
 reportCallInDefaultInitializer = "warning"
-reportUnnecessaryTypeIgnoreComment = "warning"
+# reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']

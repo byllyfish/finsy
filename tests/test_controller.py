@@ -1,3 +1,5 @@
+# pyright: reportPrivateUsage=false
+
 import asyncio
 
 from finsy import Controller, Switch
@@ -36,7 +38,7 @@ async def test_controller_ctxt_empty():
     assert not controller.running
 
 
-async def test_controller_ctxt(p4rt_server_target):
+async def test_controller_ctxt(p4rt_server_target: str):
     "Test Finsy Controller class."
 
     N = 2
