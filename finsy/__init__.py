@@ -26,7 +26,7 @@ from .gnmiclient import gNMIClient, gNMISubscription, gNMIUpdate
 from .gnmipath import gNMIPath
 from .grpcutil import GRPCStatusCode
 from .log import LoggerAdapter
-from .p4client import P4Client, P4ClientError
+from .p4client import P4Client, P4ClientError, P4Error
 from .p4entity import (
     P4ActionProfileGroup,
     P4ActionProfileMember,
@@ -49,6 +49,7 @@ from .p4entity import (
     P4TableMatch,
 )
 from .p4schema import P4ConfigAction, P4CounterUnit, P4Schema
+from .ports import SwitchPort, SwitchPortList
 from .switch import Switch, SwitchEvent, SwitchOptions
 
 __all__ = [
@@ -67,6 +68,7 @@ __all__ = [
     "P4DigestList",
     "P4DigestListAck",
     "P4DirectCounterEntry",
+    "P4Error",
     "P4IndirectAction",
     "P4MeterConfig",
     "P4MeterCounterData",
@@ -82,6 +84,8 @@ __all__ = [
     "Switch",
     "SwitchEvent",
     "SwitchOptions",
+    "SwitchPort",
+    "SwitchPortList",
     "gNMIClient",
     "gNMIPath",
     "gNMISubscription",

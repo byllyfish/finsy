@@ -18,7 +18,7 @@ import finsy.switch as _sw  # break circular import
 from finsy import pbuf
 from finsy.grpcutil import GRPCStatusCode
 from finsy.log import LOGGER
-from finsy.p4client import P4ClientError, P4Status
+from finsy.p4client import P4ClientError, P4RpcStatus
 from finsy.proto import U128, p4r
 
 _NOT_ASSIGNED = -1
@@ -65,14 +65,14 @@ class Arbitrator:
             self.election_id -= 1
 
         response = await self._arbitration_request(switch)
-        status = P4Status.from_status(response.status)
+        status = P4RpcStatus.from_status(response.status)
         primary_id = U128.decode(response.election_id)
 
         while status.code == GRPCStatusCode.NOT_FOUND:
             self.election_id = primary_id
 
             response = await self._arbitration_request(switch)
-            status = P4Status.from_status(response.status)
+            status = P4RpcStatus.from_status(response.status)
             primary_id = U128.decode(response.election_id)
 
         assert status.code in (GRPCStatusCode.OK, GRPCStatusCode.ALREADY_EXISTS)
@@ -84,7 +84,7 @@ class Arbitrator:
     async def update(self, switch: "_sw.Switch", msg: p4r.MasterArbitrationUpdate):
         "Called with subsequent arbitration update responses."
 
-        status_code = P4Status.from_status(msg.status).code
+        status_code = P4RpcStatus.from_status(msg.status).code
         new_primary_id = U128.decode(msg.election_id)
 
         if new_primary_id >= self.primary_id:
@@ -189,7 +189,7 @@ class Arbitrator:
             response = await switch._p4client.receive()
 
         except P4ClientError as ex:
-            if ex.status.is_election_id_used:
+            if ex.is_election_id_used:
                 return None
             raise
 

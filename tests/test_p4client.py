@@ -1,7 +1,7 @@
 import grpc
 
 from finsy import GRPCStatusCode, P4Client, P4ClientError, pbuf
-from finsy.p4client import P4SubError
+from finsy.p4client import P4Error
 from finsy.proto import U128, p4r, rpc_status
 
 
@@ -52,17 +52,16 @@ def test_client_error():
 
     ex = grpc.aio.AioRpcError(
         code=grpc.StatusCode.INTERNAL,
-        initial_metadata=[],
+        initial_metadata=grpc.aio.Metadata(),
         trailing_metadata=meta,
         details="outer message",
     )
 
     err = P4ClientError(ex, "test_client_error")
     assert err.code == GRPCStatusCode.UNKNOWN
-    assert not err.is_unimplemented
     assert err.message == "inner message"
     assert err.details == {
-        0: P4SubError(
+        0: P4Error(
             canonical_code=GRPCStatusCode.NOT_FOUND,
             message="sub message",
             space="",
@@ -71,4 +70,6 @@ def test_client_error():
         )
     }
 
-    assert err.status.is_not_found_only
+    assert err.is_not_found_only
+    assert not err.is_election_id_used
+    assert not err.is_pipeline_missing

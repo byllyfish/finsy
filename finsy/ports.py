@@ -39,7 +39,7 @@ class OperStatus(enum.Enum):
 
 
 @dataclass
-class Port:
+class SwitchPort:
     "Represents a switch port."
 
     id: int
@@ -52,10 +52,10 @@ class Port:
         return self.oper_status == OperStatus.UP
 
 
-class PortList:
+class SwitchPortList:
     "Represents a list of switch ports."
 
-    _ports: dict[str, Port]
+    _ports: dict[str, SwitchPort]
     _subscription: gNMISubscription | None = None
 
     def __init__(self):
@@ -89,16 +89,16 @@ class PortList:
             self._subscription = None
             self._ports = {}
 
-    async def _get_ports(self, client: gNMIClient) -> dict[str, Port]:
+    async def _get_ports(self, client: gNMIClient) -> dict[str, SwitchPort]:
         "Retrieve ID and name of each port."
-        ports: dict[str, Port] = {}
+        ports: dict[str, SwitchPort] = {}
 
         result = await client.get(_ifIndex)
         for update in result:
             path = update.path
             assert path.last == _ifIndex.last
 
-            port = Port(update.value, path["name"])
+            port = SwitchPort(update.value, path["name"])
             ports[port.name] = port
 
         return ports

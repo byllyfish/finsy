@@ -46,7 +46,7 @@ from finsy.log import LOGGER
 from finsy.p4arbitrator import Arbitrator
 from finsy.p4client import P4Client, P4ClientError
 from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema
-from finsy.ports import PortList
+from finsy.ports import SwitchPortList
 from finsy.proto import p4r
 
 # Maximum size of queues used for PacketIn, DigestList, etc.
@@ -148,7 +148,7 @@ class Switch:
     _packet_queues: list[tuple[Callable[[bytes], bool], asyncio.Queue[Any]]]
     _arbitrator: "Arbitrator"
     _gnmi_client: gNMIClient | None
-    _ports: PortList
+    _ports: SwitchPortList
     _is_channel_up: bool = False
     _api_version: ApiVersion = ApiVersion(1, 0, 0, "")
 
@@ -182,7 +182,7 @@ class Switch:
             options.initial_election_id, options.role_name, options.role_config
         )
         self._gnmi_client = None
-        self._ports = PortList()
+        self._ports = SwitchPortList()
         self.ee = SwitchEmitter(self)
 
     @property
@@ -253,7 +253,7 @@ class Switch:
         return self._gnmi_client
 
     @property
-    def ports(self) -> PortList:
+    def ports(self) -> SwitchPortList:
         "Switch's list of interfaces."
         return self._ports
 
@@ -403,7 +403,7 @@ class Switch:
             try:
                 msg = await client.receive()
             except P4ClientError as ex:
-                if not ex.status.is_election_id_used:
+                if not ex.is_election_id_used:
                     raise
                 # Handle "election ID in use" error.
                 await self._arbitrator.handshake(self, conflict=True)
@@ -634,7 +634,7 @@ class Switch:
                     LOGGER.warning("Retrieved P4Info is different than expected!")
 
         except P4ClientError as ex:
-            if not ex.status.is_no_pipeline_configured:
+            if not ex.is_pipeline_missing:
                 raise
 
         if not has_pipeline and self.p4info.exists:
@@ -650,7 +650,7 @@ class Switch:
                 cookie = reply.config.cookie.cookie
 
         except P4ClientError as ex:
-            if not ex.status.is_no_pipeline_configured:
+            if not ex.is_pipeline_missing:
                 raise
 
         if cookie != self.p4info.p4cookie:
@@ -884,7 +884,7 @@ class Switch:
                 )
             )
         except P4ClientError as ex:
-            if strict or not ex.status.is_not_found_only:
+            if strict or not ex.is_not_found_only:
                 if warn_only:
                     LOGGER.warning(
                         "WriteRequest with `warn_only=True` failed",
@@ -893,7 +893,7 @@ class Switch:
                 else:
                     raise
 
-            assert (not strict and ex.status.is_not_found_only) or warn_only
+            assert (not strict and ex.is_not_found_only) or warn_only
 
     async def _fetch_capabilities(self):
         "Check the P4Runtime protocol version supported by the other end."
@@ -904,7 +904,7 @@ class Switch:
             self._api_version = ApiVersion.parse(reply.p4runtime_api_version)
 
         except P4ClientError as ex:
-            if not ex.is_unimplemented:
+            if ex.code != GRPCStatusCode.UNIMPLEMENTED:
                 raise
             LOGGER.warning("CapabilitiesRequest is not implemented")
 
@@ -921,7 +921,7 @@ class Switch:
             self.create_task(self._ports.update(), background=True, name="_ports")
 
         except gNMIClientError as ex:
-            if not ex.is_unimplemented:
+            if ex.code != GRPCStatusCode.UNIMPLEMENTED:
                 raise
             LOGGER.warning("gNMI is not implemented")
             await self._gnmi_client.close()

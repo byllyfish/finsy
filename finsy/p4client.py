@@ -48,7 +48,9 @@ _NO_PIPELINE_CONFIG = re.compile(
 
 
 @dataclass
-class P4SubError:
+class P4Error:
+    "P4Runtime Error message used to report a single P4-entity error."
+
     canonical_code: GRPCStatusCode
     message: str
     space: str
@@ -57,12 +59,100 @@ class P4SubError:
 
 
 @dataclass
-class P4Status:
+class P4RpcStatus:
     "Implements rpc.status."
 
     code: GRPCStatusCode
     message: str
-    details: dict[int, P4SubError]
+    details: dict[int, P4Error]
+
+    @staticmethod
+    def from_rpc_error(error: grpc.RpcError) -> "P4RpcStatus":
+        "Construct status from RpcError."
+        assert isinstance(error, grpc.aio.AioRpcError)
+
+        for key, value in error.trailing_metadata():
+            if key == "grpc-status-details-bin":
+                assert isinstance(value, bytes)
+                return P4RpcStatus.from_bytes(value)
+
+        return P4RpcStatus(
+            GRPCStatusCode.from_status_code(error.code()),
+            error.details() or "",
+            {},
+        )
+
+    @staticmethod
+    def from_bytes(data: bytes) -> "P4RpcStatus":
+        "Construct status from protobuf bytes."
+        status = rpc_status.Status()
+        status.ParseFromString(data)
+        return P4RpcStatus.from_status(status)
+
+    @staticmethod
+    def from_status(status: rpc_status.Status) -> "P4RpcStatus":
+        "Construct status from RPC status."
+        return P4RpcStatus(
+            GRPCStatusCode(status.code),
+            status.message,
+            P4RpcStatus._parse_error(status.details),
+        )
+
+    @staticmethod
+    def _parse_error(details: Sequence[pbuf.PBAny]) -> dict[int, P4Error]:
+        result: dict[int, P4Error] = {}
+
+        for i in range(len(details)):
+            err = pbuf.from_any(details[i], p4r.Error)
+            if err.canonical_code != rpc_code.OK:
+                result[i] = P4Error(
+                    GRPCStatusCode(err.canonical_code),
+                    err.message,
+                    err.space,
+                    err.code,
+                )
+        return result
+
+
+class P4ClientError(Exception):
+    "Wrap `grpc.RpcError`."
+
+    _operation: str
+    _status: P4RpcStatus
+    _outer_code: GRPCStatusCode
+    _outer_message: str
+
+    def __init__(
+        self,
+        error: grpc.RpcError,
+        operation: str,
+        *,
+        msg: pbuf.PBMessage | None = None,
+    ):
+        super().__init__()
+        assert isinstance(error, grpc.aio.AioRpcError)
+
+        self._operation = operation
+        self._status = P4RpcStatus.from_rpc_error(error)
+        self._outer_code = GRPCStatusCode.from_status_code(error.code())
+        self._outer_message = error.details() or ""
+
+        if msg is not None and self.details:
+            self._attach_details(msg)
+
+        LOGGER.debug("%s failed: %s", operation, self)
+
+    @property
+    def code(self) -> GRPCStatusCode:
+        return self._status.code
+
+    @property
+    def message(self) -> str:
+        return self._status.message
+
+    @property
+    def details(self) -> dict[int, P4Error]:
+        return self._status.details
 
     @property
     def is_not_found_only(self) -> bool:
@@ -84,112 +174,12 @@ class P4Status:
         )
 
     @property
-    def is_no_pipeline_configured(self) -> bool:
+    def is_pipeline_missing(self) -> bool:
         "Return true if error is that no pipeline config is set."
         return (
             self.code == GRPCStatusCode.FAILED_PRECONDITION
             and _NO_PIPELINE_CONFIG.search(self.message) is not None
         )
-
-    @staticmethod
-    def from_rpc_error(error: grpc.RpcError) -> "P4Status":
-        "Construct status from RpcError."
-        assert isinstance(error, grpc.aio.AioRpcError)
-
-        for key, value in error.trailing_metadata():
-            if key == "grpc-status-details-bin":
-                assert isinstance(value, bytes)
-                return P4Status.from_bytes(value)
-
-        return P4Status(
-            GRPCStatusCode.from_status_code(error.code()),
-            error.details() or "",
-            {},
-        )
-
-    @staticmethod
-    def from_bytes(data: bytes) -> "P4Status":
-        "Construct status from protobuf bytes."
-        status = rpc_status.Status()
-        status.ParseFromString(data)
-        return P4Status.from_status(status)
-
-    @staticmethod
-    def from_status(status: rpc_status.Status) -> "P4Status":
-        "Construct status from RPC status."
-        return P4Status(
-            GRPCStatusCode(status.code),
-            status.message,
-            P4Status._parse_error(status.details),
-        )
-
-    @staticmethod
-    def _parse_error(details: Sequence[pbuf.PBAny]) -> dict[int, P4SubError]:
-        result: dict[int, P4SubError] = {}
-
-        for i in range(len(details)):
-            err = pbuf.from_any(details[i], p4r.Error)
-            if err.canonical_code != rpc_code.OK:
-                result[i] = P4SubError(
-                    GRPCStatusCode(err.canonical_code),
-                    err.message,
-                    err.space,
-                    err.code,
-                )
-        return result
-
-
-class P4ClientError(Exception):
-    "Wrap grpc.RpcError."
-
-    _operation: str
-    _status: P4Status
-    _outer_code: GRPCStatusCode
-    _outer_message: str
-
-    def __init__(
-        self,
-        error: grpc.RpcError,
-        operation: str,
-        *,
-        msg: pbuf.PBMessage | None = None,
-    ):
-        super().__init__()
-        assert isinstance(error, grpc.aio.AioRpcError)
-
-        self._operation = operation
-        self._status = P4Status.from_rpc_error(error)
-        self._outer_code = GRPCStatusCode.from_status_code(error.code())
-        self._outer_message = error.details() or ""
-
-        if msg is not None and self.details:
-            self._attach_details(msg)
-
-        LOGGER.debug("%s failed: %s", operation, self)
-
-    @property
-    def operation(self) -> str:
-        return self._operation
-
-    @property
-    def status(self) -> P4Status:
-        return self._status
-
-    @property
-    def code(self) -> GRPCStatusCode:
-        return self._status.code
-
-    @property
-    def message(self) -> str:
-        return self._status.message
-
-    @property
-    def details(self) -> dict[int, P4SubError]:
-        return self._status.details
-
-    @property
-    def is_unimplemented(self) -> bool:
-        return self.code == GRPCStatusCode.UNIMPLEMENTED
 
     def _attach_details(self, msg: pbuf.PBMessage):
         "Attach the subvalue(s) from the message that caused the error."
@@ -198,9 +188,10 @@ class P4ClientError(Exception):
                 value.subvalue = msg.updates[key]
 
     def __str__(self) -> str:
+        "Return string representation of P4ClientError object."
         if self.details:
 
-            def _indent(value: P4SubError):
+            def _indent(value: P4Error):
                 s = repr(value).replace("\n}\n)", "\n})")  # tidy multiline repr
                 return s.replace("\n", "\n" + " " * 6)
 
@@ -213,12 +204,12 @@ class P4ClientError(Exception):
 
         if self.code == self._outer_code and self.message == self._outer_message:
             return (
-                f"operation={self.operation} code={self.code!r} "
+                f"operation={self._operation} code={self.code!r} "
                 f"message={self.message!r} {details}"
             )
         return (
             f"code={self.code!r} message={self.message!r} "
-            f"details={self.details!r} operation={self.operation} "
+            f"details={self.details!r} operation={self._operation} "
             f"_outer_message={self._outer_message!r} _outer_code={self._outer_code!r}"
         )
 
