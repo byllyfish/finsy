@@ -68,9 +68,9 @@ strict = [
 useLibraryCodeForTypes = true
 
 # Enable additional warnings for things not enabled by `strict`.
-# reportUninitializedInstanceVariable = "warning"
+reportUninitializedInstanceVariable = "warning"
 reportCallInDefaultInitializer = "warning"
-reportUnnecessaryTypeIgnoreComment = "warning"
+# reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']
