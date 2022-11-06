@@ -170,10 +170,6 @@ class P4ClientError(Exception):
         LOGGER.debug("%s failed: %s", operation, self)
 
     @property
-    def operation(self) -> str:
-        return self._operation
-
-    @property
     def status(self) -> P4Status:
         return self._status
 
@@ -212,12 +208,12 @@ class P4ClientError(Exception):
 
         if self.code == self._outer_code and self.message == self._outer_message:
             return (
-                f"operation={self.operation} code={self.code!r} "
+                f"operation={self._operation} code={self.code!r} "
                 f"message={self.message!r} {details}"
             )
         return (
             f"code={self.code!r} message={self.message!r} "
-            f"details={self.details!r} operation={self.operation} "
+            f"details={self.details!r} operation={self._operation} "
             f"_outer_message={self._outer_message!r} _outer_code={self._outer_code!r}"
         )
 
