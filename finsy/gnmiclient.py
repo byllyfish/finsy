@@ -82,6 +82,38 @@ class gNMIUpdate:
         return f"gNMIUpdate(timestamp={self.timestamp!r}, path={self.path!r}, typed_value=`{value}`)"
 
 
+gNMISetValueType = bool | int | float | str | bytes | gnmi.TypedValue
+
+
+def gnmi_update(
+    path: gNMIPath,
+    value: gNMISetValueType,
+) -> gnmi.Update:
+    "Construct a `gnmi.Update` message from path and value."
+
+    match value:
+        case gnmi.TypedValue():
+            val = value
+        case bool():
+            val = gnmi.TypedValue(bool_val=value)
+        case int():
+            # Use uint_val if value is non-negative?
+            if value >= 0:
+                val = gnmi.TypedValue(uint_val=value)
+            else:
+                val = gnmi.TypedValue(int_val=value)
+        case float():
+            val = gnmi.TypedValue(double_val=value)
+        case str():
+            val = gnmi.TypedValue(string_val=value)
+        case bytes():
+            val = gnmi.TypedValue(bytes_val=value)
+        case _:
+            raise TypeError(f"unexpected type: {type(value).__name__}")
+
+    return gnmi.Update(path=path.path, val=val)
+
+
 class gNMIClient:
     """Async GNMI client.
 
@@ -272,8 +304,8 @@ class gNMIClient:
     async def set(
         self,
         *,
-        update: dict[gNMIPath, gnmi.TypedValue] | None = None,
-        replace: dict[gNMIPath, gnmi.TypedValue] | None = None,
+        update: dict[gNMIPath, gNMISetValueType] | None = None,
+        replace: dict[gNMIPath, gNMISetValueType] | None = None,
         delete: Sequence[gNMIPath] | None = None,
         prefix: gNMIPath | None = None,
     ) -> int:
@@ -285,17 +317,12 @@ class gNMIClient:
             raise RuntimeError("gNMIClient: client is not open")
 
         if update is not None:
-            updates = [
-                gnmi.Update(path=path.path, val=value) for path, value in update.items()
-            ]
+            updates = [gnmi_update(path, value) for path, value in update.items()]
         else:
             updates = None
 
         if replace is not None:
-            replaces = [
-                gnmi.Update(path=path.path, val=value)
-                for path, value in replace.items()
-            ]
+            replaces = [gnmi_update(path, value) for path, value in replace.items()]
         else:
             replaces = None
 
