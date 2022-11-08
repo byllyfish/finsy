@@ -87,7 +87,6 @@ ignore-paths = ["finsy/proto"]
 
 [tool.pylint.basic]
 good-names = ["i", "j", "k", "ex", "Run", "_", "m", "s", "ee", "up", "id", "vt"]
-good-names-rgxs = ["gNMI[A-Za-z]*"]
 
 [tool.pylint.design]
 max-attributes = 15

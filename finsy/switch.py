@@ -40,7 +40,7 @@ from typing_extensions import Self
 
 from finsy import p4entity, pbuf
 from finsy.futures import CountdownFuture
-from finsy.gnmiclient import gNMIClient, gNMIClientError
+from finsy.gnmiclient import GNMIClient, GNMIClientError
 from finsy.grpcutil import GRPCStatusCode
 from finsy.log import LOGGER
 from finsy.p4arbitrator import Arbitrator
@@ -147,7 +147,7 @@ class Switch:
     _queues: dict[str, asyncio.Queue[Any]]
     _packet_queues: list[tuple[Callable[[bytes], bool], asyncio.Queue[Any]]]
     _arbitrator: "Arbitrator"
-    _gnmi_client: gNMIClient | None
+    _gnmi_client: GNMIClient | None
     _ports: SwitchPortList
     _is_channel_up: bool = False
     _api_version: ApiVersion = ApiVersion(1, 0, 0, "")
@@ -248,7 +248,7 @@ class Switch:
         return self._p4schema
 
     @property
-    def gnmi_client(self) -> gNMIClient | None:
+    def gnmi_client(self) -> GNMIClient | None:
         "Switch's gNMI client."
         return self._gnmi_client
 
@@ -913,14 +913,14 @@ class Switch:
         assert self._gnmi_client is None
         assert self._p4client is not None
 
-        self._gnmi_client = gNMIClient(self._address, self._options.channel_credentials)
+        self._gnmi_client = GNMIClient(self._address, self._options.channel_credentials)
         await self._gnmi_client.open(channel=self._p4client.channel)
 
         try:
             await self._ports.subscribe(self._gnmi_client)
             self.create_task(self._ports.update(), background=True, name="_ports")
 
-        except gNMIClientError as ex:
+        except GNMIClientError as ex:
             if ex.code != GRPCStatusCode.UNIMPLEMENTED:
                 raise
             LOGGER.warning("gNMI is not implemented")

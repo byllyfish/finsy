@@ -1,7 +1,8 @@
 import os
 
 import pytest
-from finsy.gnmiclient import gNMIClient
+
+from finsy.gnmiclient import GNMIClient
 from finsy.test.gnmi_server import gNMIServer
 from finsy.test.p4runtime_server import P4RuntimeServer
 
@@ -31,7 +32,7 @@ async def gnmi_server_target():
 async def gnmi_client(gnmi_server_target):
     "Fixture to test GNMI at a pre-specified target."
 
-    async with gNMIClient(gnmi_server_target) as client:
+    async with GNMIClient(gnmi_server_target) as client:
         yield client
 
 

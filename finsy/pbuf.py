@@ -25,7 +25,7 @@ from google.protobuf.any_pb2 import Any as _Any  # pylint: disable=E0611
 from google.protobuf.message import Message as _Message
 
 import finsy as _fy
-from finsy.gnmiclient import gNMIPath
+from finsy.gnmiclient import GNMIPath
 from finsy.log import MSG_LOG
 from finsy.proto import gnmi, p4r
 
@@ -109,12 +109,12 @@ def _message_formatter(msg: PBMessage, _indent: int, as_one_line: bool):
         return f"📦p4cookie={cookie}"
 
     if isinstance(msg, gnmi.Path):
-        return f"📂{gNMIPath(msg)}"
+        return f"📂{GNMIPath(msg)}"
 
     if isinstance(msg, gnmi.Update):
         value = repr(msg.val).strip()
         dups = "" if not msg.duplicates else f" ({msg.duplicates} dups)"
-        return f"📂{gNMIPath(msg.path)} = {value}{dups}"
+        return f"📂{GNMIPath(msg.path)} = {value}{dups}"
 
     if isinstance(msg, (p4r.PacketIn, p4r.PacketOut)):
         metadata = " ".join(

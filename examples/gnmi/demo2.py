@@ -2,9 +2,9 @@ import asyncio
 import logging
 import signal
 
-from finsy import gNMIClient, gNMIPath
+from finsy import GNMIClient, GNMIPath
 
-_INTERFACE = gNMIPath("interfaces/interface[name=*]/state")
+_INTERFACE = GNMIPath("interfaces/interface[name=*]/state")
 INTERFACE_ID = _INTERFACE / "id"
 INTERFACE_STATUS = _INTERFACE / "oper-status"
 
@@ -19,7 +19,7 @@ async def main():
         asyncio.current_task(),
     )
 
-    async with gNMIClient("127.0.0.1:50001") as client:
+    async with GNMIClient("127.0.0.1:50001") as client:
         # Get list of interface names.
         ids = await client.get(INTERFACE_ID)
         names = [update.path["name"] for update in ids]

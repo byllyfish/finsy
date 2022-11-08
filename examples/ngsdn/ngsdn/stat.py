@@ -1,8 +1,9 @@
 import asyncio
 import random
 
-import finsy as fy
 from prometheus_client import Counter
+
+import finsy as fy
 
 _DIRECT_COUNTERS: dict[str, Counter] = {}
 _PORT_COUNTERS: dict[str, Counter] = {}
@@ -120,9 +121,9 @@ class StatManager:
                 self._update_port_counter(update)
 
     def _port_paths(self):
-        return [fy.gNMIPath("/interfaces/interface[name=*]/state/counters")]
+        return [fy.GNMIPath("/interfaces/interface[name=*]/state/counters")]
 
-    def _update_port_counter(self, update: fy.gNMIUpdate):
+    def _update_port_counter(self, update: fy.GNMIUpdate):
         labels = {
             "switch": self.switch.name,
             "port": update.path["name"],

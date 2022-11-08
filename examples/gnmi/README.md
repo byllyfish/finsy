@@ -1,6 +1,6 @@
 # gNMI Demo
 
-The gnmi demo programs demonstrate how to use Finsy's `gNMIClient` and `gNMIPath` classes.
+The gnmi demo programs demonstrate how to use Finsy's `GNMIClient` and `GNMIPath` classes.
 
 ## demo1.py
 

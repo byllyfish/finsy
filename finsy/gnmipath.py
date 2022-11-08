@@ -1,4 +1,4 @@
-"Implements the gNMIPath class."
+"Implements the GNMIPath class."
 
 # Copyright (c) 2022 Bill Fisher
 #
@@ -23,28 +23,28 @@ from finsy import gnmistring
 from finsy.proto import gnmi
 
 
-class gNMIPath:
+class GNMIPath:
     """Concrete class for working with `gnmi.Path` objects.
 
-    A `gNMIPath` should be treated as an immutable object. You can access
+    A `GNMIPath` should be treated as an immutable object. You can access
     the wrapped `gnmi.Path` protobuf class using the `.path` property.
-    `gNMIPath` objects are hashable, but you must be careful that you do not
+    `GNMIPath` objects are hashable, but you must be careful that you do not
     mutate them via the underlying `gnmi.Path`.
 
-    You can construct a gNMIPath from a string:
+    You can construct a GNMIPath from a string:
     ```
-    path = gNMIPath("interfaces/interface[name=eth1]/state")
+    path = GNMIPath("interfaces/interface[name=eth1]/state")
     ```
 
-    You can construct a gNMIPath object from a `gnmi.Path` directly.
+    You can construct a GNMIPath object from a `gnmi.Path` directly.
     ```
-    path = gNMIPath(update.path)
+    path = GNMIPath(update.path)
     ```
 
     You can create paths by using an existing path as a template, without
     modifying the original path. Use the `set` method:
     ```
-    operStatus = gNMIPath("interfaces/interface/state/oper-status")
+    operStatus = GNMIPath("interfaces/interface/state/oper-status")
     path = operStatus.set("interface", name="eth1")
     ```
 
@@ -66,7 +66,7 @@ class gNMIPath:
         origin: str = "",
         target: str = "",
     ):
-        "Construct a `gNMIPath` from a string or `gnmi.Path`."
+        "Construct a `GNMIPath` from a string or `gnmi.Path`."
         if isinstance(path, str):
             path = gnmistring.parse(path)
 
@@ -99,7 +99,7 @@ class gNMIPath:
         return self.path.target
 
     def set(self, __elem: str | int | None = None, **kwds: Any) -> Self:
-        "Construct a new gNMIPath with keys set for the given elem."
+        "Construct a new GNMIPath with keys set for the given elem."
         if __elem is None:
             return self._rekey(kwds)
 
@@ -118,7 +118,7 @@ class gNMIPath:
         "Return a copy of the path."
         new_path = gnmi.Path()
         new_path.CopyFrom(self.path)
-        return gNMIPath(new_path)
+        return GNMIPath(new_path)
 
     @overload
     def __getitem__(self, key: int | str | tuple[int | str, str]) -> str:
@@ -158,7 +158,7 @@ class gNMIPath:
 
     def __eq__(self, rhs: Self) -> bool:
         "Return True if path's are equal."
-        if not isinstance(rhs, gNMIPath):
+        if not isinstance(rhs, GNMIPath):
             return False
         return self.path == rhs.path  # pyright: ignore[reportUnknownVariableType]
 
@@ -177,8 +177,8 @@ class gNMIPath:
         "Return string representation of path."
         path = gnmistring.to_str(self.path)
         if self.target or self.origin:
-            return f"gNMIPath({path!r}, origin={self.origin!r}, target={self.target!r})"
-        return f"gNMIPath({path!r})"
+            return f"GNMIPath({path!r}, origin={self.origin!r}, target={self.target!r})"
+        return f"GNMIPath({path!r})"
 
     def __str__(self) -> str:
         "Return path as string."
@@ -190,21 +190,21 @@ class gNMIPath:
 
     def __truediv__(self, rhs: Self | str) -> Self:
         "Append values to end of path."
-        if not isinstance(rhs, gNMIPath):
-            rhs = gNMIPath(rhs)
+        if not isinstance(rhs, GNMIPath):
+            rhs = GNMIPath(rhs)
 
         result = gnmi.Path(elem=itertools.chain(self.path.elem, rhs.path.elem))
-        return gNMIPath(result)
+        return GNMIPath(result)
 
     def __rtruediv__(self, lhs: str) -> Self:
         "Prepend values to the beginning of the path."
-        path = gNMIPath(lhs)
+        path = GNMIPath(lhs)
 
         result = gnmi.Path(elem=itertools.chain(path.path.elem, self.path.elem))
-        return gNMIPath(result)
+        return GNMIPath(result)
 
     def _slice(self, start: int | None, stop: int | None, step: int | None) -> Self:
-        "Return specified slice of gNMIPath."
+        "Return specified slice of GNMIPath."
 
         if start is None:
             start = 0
@@ -222,7 +222,7 @@ class gNMIPath:
             elem = self.path.elem[i]
             path.elem.append(gnmi.PathElem(name=elem.name, key=elem.key))
 
-        return gNMIPath(path)
+        return GNMIPath(path)
 
     def _rekey(self, keys: dict[str, Any]) -> Self:
         """Construct a new path with specified keys replaced."""

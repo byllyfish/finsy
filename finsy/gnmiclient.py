@@ -1,4 +1,4 @@
-"Implements the gNMIClient class."
+"Implements the GNMIClient class."
 
 # Copyright (c) 2022 Bill Fisher
 #
@@ -23,13 +23,13 @@ from typing import Any, AsyncIterator, Iterator, Sequence, TypeAlias
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 
 from finsy import pbuf
-from finsy.gnmipath import gNMIPath
+from finsy.gnmipath import GNMIPath
 from finsy.grpcutil import GRPC_EOF, GRPCStatusCode, grpc_channel
 from finsy.log import LOGGER
 from finsy.proto import gnmi, gnmi_grpc
 
 
-class gNMIClientError(Exception):
+class GNMIClientError(Exception):
     "Represents a `grpc.RpcError`."
 
     _code: GRPCStatusCode
@@ -42,7 +42,7 @@ class gNMIClientError(Exception):
         self._code = GRPCStatusCode.from_status_code(error.code())
         self._message = error.details() or ""
 
-        LOGGER.debug("gNMI failed: %s", self)
+        LOGGER.debug("GNMI failed: %s", self)
 
     @property
     def code(self):
@@ -53,15 +53,15 @@ class gNMIClientError(Exception):
         return self._message
 
     def __str__(self) -> str:
-        return f"gNMIClientError(code={self.code!r}, message={self.message!r})"
+        return f"GNMIClientError(code={self.code!r}, message={self.message!r})"
 
 
 @dataclass
-class gNMIUpdate:
-    "Represents a gNMI update returned from gNMIClient."
+class GNMIUpdate:
+    "Represents a gNMI update returned from GNMIClient."
 
     timestamp: int
-    path: gNMIPath
+    path: GNMIPath
     typed_value: gnmi.TypedValue | None
 
     @property
@@ -79,15 +79,15 @@ class gNMIUpdate:
         "Override repr to strip newline from end of `TypedValue`."
 
         value = repr(self.typed_value).rstrip()
-        return f"gNMIUpdate(timestamp={self.timestamp!r}, path={self.path!r}, typed_value=`{value}`)"
+        return f"GNMIUpdate(timestamp={self.timestamp!r}, path={self.path!r}, typed_value=`{value}`)"
 
 
-gNMISetValueType = bool | int | float | str | bytes | gnmi.TypedValue
+GNMISetValueType = bool | int | float | str | bytes | gnmi.TypedValue
 
 
 def gnmi_update(
-    path: gNMIPath,
-    value: gNMISetValueType,
+    path: GNMIPath,
+    value: GNMISetValueType,
 ) -> gnmi.Update:
     "Construct a `gnmi.Update` message from path and value."
 
@@ -114,7 +114,7 @@ def gnmi_update(
     return gnmi.Update(path=path.path, val=val)
 
 
-class gNMIClient:
+class GNMIClient:
     """Async GNMI client.
 
     This client implements `get`, `set`, `subscribe` and `capabilities`.
@@ -123,17 +123,17 @@ class gNMIClient:
 
     Get usage:
     ```
-    client = gNMIClient('127.0.0.1:9339')
+    client = GNMIClient('127.0.0.1:9339')
     await client.open()
 
-    path = gNMIPath("interfaces/interface")
+    path = GNMIPath("interfaces/interface")
     async for update in client.get(path):
         print(update)
     ```
 
     Subscribe usage:
     ```
-    path = gNMIPath("interfaces/interface[name=eth1]/state/oper-status")
+    path = GNMIPath("interfaces/interface[name=eth1]/state/oper-status")
     sub = client.subscribe()
     sub.on_change(path)
 
@@ -146,7 +146,7 @@ class gNMIClient:
 
     Set usage:
     ```
-    enabled = gNMIPath("interfaces/interface[name=eth1]/config/enabled")
+    enabled = GNMIPath("interfaces/interface[name=eth1]/config/enabled")
 
     await client.set(update={
         enabled: gnmi.TypedValue(boolValue=True),
@@ -185,7 +185,7 @@ class gNMIClient:
         Note: This method is `async` for forward-compatible reasons.
         """
         if self._channel is not None:
-            raise RuntimeError("gNMIClient: client is already open")
+            raise RuntimeError("GNMIClient: client is already open")
 
         assert self._stub is None
 
@@ -196,7 +196,7 @@ class gNMIClient:
             self._channel = grpc_channel(
                 self._address,
                 credentials=self._credentials,
-                client_type="gNMIClient",
+                client_type="GNMIClient",
             )
 
         self._stub = gnmi_grpc.gNMIStub(self._channel)  # type: ignore
@@ -205,7 +205,7 @@ class gNMIClient:
         "Close the client channel."
         if self._channel is not None:
             if not self._channel_reused:
-                LOGGER.debug("gNMIClient: close channel %r", self._address)
+                LOGGER.debug("GNMIClient: close channel %r", self._address)
                 await self._channel.close()
 
             self._channel = None
@@ -214,13 +214,13 @@ class gNMIClient:
 
     async def get(
         self,
-        *path: gNMIPath,
-        prefix: gNMIPath | None = None,
+        *path: GNMIPath,
+        prefix: GNMIPath | None = None,
         config: bool = False,
-    ) -> Sequence[gNMIUpdate]:
+    ) -> Sequence[GNMIUpdate]:
         "Retrieve value(s) using a GetRequest."
         if self._stub is None:
-            raise RuntimeError("gNMIClient: client is not open")
+            raise RuntimeError("GNMIClient: client is not open")
 
         request = gnmi.GetRequest(
             path=(i.path for i in path),
@@ -237,11 +237,11 @@ class gNMIClient:
         try:
             reply: gnmi.GetResponse = await self._stub.Get(request)
         except grpc.RpcError as ex:
-            raise gNMIClientError(ex) from None
+            raise GNMIClientError(ex) from None
 
         self._log_msg(reply)
 
-        result: list[gNMIUpdate] = []
+        result: list[GNMIUpdate] = []
         for notification in reply.notification:
             for update in _read_updates(notification):
                 result.append(update)
@@ -251,8 +251,8 @@ class gNMIClient:
     def subscribe(
         self,
         *,
-        prefix: gNMIPath | None = None,
-    ) -> "gNMISubscription":
+        prefix: GNMIPath | None = None,
+    ) -> "GNMISubscription":
         """Subscribe to gNMI change notifications.
 
         Usage:
@@ -281,14 +281,14 @@ class gNMIClient:
         subscription may be reused.
         """
         if self._stub is None:
-            raise RuntimeError("gNMIClient: client is not open")
+            raise RuntimeError("GNMIClient: client is not open")
 
-        return gNMISubscription(self, prefix)
+        return GNMISubscription(self, prefix)
 
     async def capabilities(self) -> gnmi.CapabilityResponse:
         "Issue a CapabilitiesRequest."
         if self._stub is None:
-            raise RuntimeError("gNMIClient: client is not open")
+            raise RuntimeError("GNMIClient: client is not open")
 
         request = gnmi.CapabilityRequest()
 
@@ -296,7 +296,7 @@ class gNMIClient:
         try:
             reply: gnmi.CapabilityResponse = await self._stub.Capabilities(request)
         except grpc.RpcError as ex:
-            raise gNMIClientError(ex) from None
+            raise GNMIClientError(ex) from None
 
         self._log_msg(reply)
         return reply
@@ -304,17 +304,17 @@ class gNMIClient:
     async def set(
         self,
         *,
-        update: Sequence[tuple[gNMIPath, gNMISetValueType]] | None = None,
-        replace: Sequence[tuple[gNMIPath, gNMISetValueType]] | None = None,
-        delete: Sequence[gNMIPath] | None = None,
-        prefix: gNMIPath | None = None,
+        update: Sequence[tuple[GNMIPath, GNMISetValueType]] | None = None,
+        replace: Sequence[tuple[GNMIPath, GNMISetValueType]] | None = None,
+        delete: Sequence[GNMIPath] | None = None,
+        prefix: GNMIPath | None = None,
     ) -> int:
         """Set value(s) using SetRequest.
 
         Returns the timestamp from the successful `SetResponse`.
         """
         if self._stub is None:
-            raise RuntimeError("gNMIClient: client is not open")
+            raise RuntimeError("GNMIClient: client is not open")
 
         if update is not None:
             updates = [gnmi_update(path, value) for path, value in update]
@@ -344,7 +344,7 @@ class gNMIClient:
         try:
             reply: gnmi.SetResponse = await self._stub.Set(request)
         except grpc.RpcError as ex:
-            raise gNMIClientError(ex) from None
+            raise GNMIClientError(ex) from None
 
         self._log_msg(reply)
 
@@ -371,13 +371,13 @@ _StreamTypeAlias: TypeAlias = grpc.aio.StreamStreamCall[
 ]
 
 
-class gNMISubscription:
+class GNMISubscription:
     """Represents a gNMI subscription stream."""
 
-    _client: gNMIClient
+    _client: GNMIClient
     _stream: _StreamTypeAlias | None
 
-    def __init__(self, client: gNMIClient, prefix: gNMIPath | None = None):
+    def __init__(self, client: GNMIClient, prefix: GNMIPath | None = None):
         self._client = client
         self._stream = None
         self._sublist = gnmi.SubscriptionList(
@@ -386,14 +386,14 @@ class gNMISubscription:
         if prefix is not None:
             self._sublist.prefix.CopyFrom(prefix.path)
 
-    def once(self, *paths: gNMIPath):
+    def once(self, *paths: GNMIPath):
         self._sublist.mode = gnmi.SubscriptionList.Mode.ONCE
 
         for path in paths:
             sub = gnmi.Subscription(path=path.path)
             self._sublist.subscription.append(sub)
 
-    def on_change(self, *paths: gNMIPath):
+    def on_change(self, *paths: GNMIPath):
         assert self._sublist.mode == gnmi.SubscriptionList.Mode.STREAM
 
         for path in paths:
@@ -405,7 +405,7 @@ class gNMISubscription:
 
     def sample(
         self,
-        *paths: gNMIPath,
+        *paths: GNMIPath,
         sample_interval: int,
         suppress_redundant: bool = False,
         heartbeat_interval: int = 0,
@@ -422,7 +422,7 @@ class gNMISubscription:
             )
             self._sublist.subscription.append(sub)
 
-    async def synchronize(self) -> AsyncIterator[gNMIUpdate]:
+    async def synchronize(self) -> AsyncIterator[GNMIUpdate]:
         if self._stream is None:
             await self._subscribe()
 
@@ -430,9 +430,9 @@ class gNMISubscription:
             async for result in self._read(True):
                 yield result
         except grpc.RpcError as ex:
-            raise gNMIClientError(ex) from None
+            raise GNMIClientError(ex) from None
 
-    async def updates(self) -> AsyncIterator[gNMIUpdate]:
+    async def updates(self) -> AsyncIterator[GNMIUpdate]:
         if self._stream is None:
             await self._subscribe()
 
@@ -440,7 +440,7 @@ class gNMISubscription:
             async for result in self._read(False):
                 yield result
         except grpc.RpcError as ex:
-            raise gNMIClientError(ex) from None
+            raise GNMIClientError(ex) from None
 
     def cancel(self):
         if self._stream is not None:
@@ -459,9 +459,9 @@ class gNMISubscription:
         try:
             await self._stream.write(request)
         except grpc.RpcError as ex:
-            raise gNMIClientError(ex) from None
+            raise GNMIClientError(ex) from None
 
-    async def _read(self, stop_at_sync: bool) -> AsyncIterator[gNMIUpdate]:
+    async def _read(self, stop_at_sync: bool) -> AsyncIterator[GNMIUpdate]:
         assert self._stream is not None
 
         while True:
@@ -495,19 +495,19 @@ class gNMISubscription:
         return self._sublist.mode == gnmi.SubscriptionList.Mode.ONCE
 
 
-def _read_updates(notification: gnmi.Notification) -> Iterator[gNMIUpdate]:
+def _read_updates(notification: gnmi.Notification) -> Iterator[GNMIUpdate]:
     "Generator to retrieve all updates from a notification."
 
     for update in notification.update:
-        yield gNMIUpdate(
+        yield GNMIUpdate(
             timestamp=notification.timestamp,
-            path=gNMIPath(update.path),
+            path=GNMIPath(update.path),
             typed_value=update.val,
         )
 
     for delete in notification.delete:
-        yield gNMIUpdate(
+        yield GNMIUpdate(
             timestamp=notification.timestamp,
-            path=gNMIPath(delete),
+            path=GNMIPath(delete),
             typed_value=None,
         )
