@@ -1,8 +1,9 @@
 import os
 
 import pytest
-from finsy.gnmiclient import gNMIClient
-from finsy.test.gnmi_server import gNMIServer
+
+from finsy.gnmiclient import GNMIClient
+from finsy.test.gnmi_server import GNMIServer
 from finsy.test.p4runtime_server import P4RuntimeServer
 
 # Set environment variable to "skip" to skip tests that rely on GRPC servers.
@@ -22,7 +23,7 @@ async def gnmi_server_target():
         yield TEST_GNMI_TARGET
     else:
         target = "127.0.0.1:51001"
-        server = gNMIServer(target)
+        server = GNMIServer(target)
         async with server.run():
             yield target
 
@@ -31,7 +32,7 @@ async def gnmi_server_target():
 async def gnmi_client(gnmi_server_target):
     "Fixture to test GNMI at a pre-specified target."
 
-    async with gNMIClient(gnmi_server_target) as client:
+    async with GNMIClient(gnmi_server_target) as client:
         yield client
 
 

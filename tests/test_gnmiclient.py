@@ -3,27 +3,27 @@ import asyncio
 import pytest
 
 from finsy import pbuf
-from finsy.gnmiclient import gnmi_update, gNMIClient, gNMIPath
+from finsy.gnmiclient import GNMIClient, GNMIPath, gnmi_update
 
 
-async def test_gnmi_get_top(gnmi_client: gNMIClient):
+async def test_gnmi_get_top(gnmi_client: GNMIClient):
     # Stratum only supports config elements.
-    result = await gnmi_client.get(gNMIPath("/"), config=True)
+    result = await gnmi_client.get(GNMIPath("/"), config=True)
     assert len(result) == 1
-    assert result[0].path == gNMIPath("/")
+    assert result[0].path == GNMIPath("/")
 
 
-async def test_gnmi_get_interfaces(gnmi_client: gNMIClient):
-    interfaces = gNMIPath("interfaces/interface")
+async def test_gnmi_get_interfaces(gnmi_client: GNMIClient):
+    interfaces = GNMIPath("interfaces/interface")
     result = await gnmi_client.get(interfaces)
 
     for update in result:
         assert update.path.first == "interfaces"
 
 
-async def test_gnmi_get_ifstuff(gnmi_client: gNMIClient):
-    ifindex = gNMIPath("interfaces/interface[name=*]/state/ifindex")
-    state_id = gNMIPath("interfaces/interface[name=*]/state/id")
+async def test_gnmi_get_ifstuff(gnmi_client: GNMIClient):
+    ifindex = GNMIPath("interfaces/interface[name=*]/state/ifindex")
+    state_id = GNMIPath("interfaces/interface[name=*]/state/id")
 
     result = await gnmi_client.get(ifindex, state_id)
 
@@ -31,10 +31,10 @@ async def test_gnmi_get_ifstuff(gnmi_client: gNMIClient):
         assert update.path.last in ("ifindex", "id")
 
 
-async def test_gnmi_subscribe_once(gnmi_client: gNMIClient):
+async def test_gnmi_subscribe_once(gnmi_client: GNMIClient):
     interfaces = await _get_interfaces(gnmi_client)
 
-    oper_status = gNMIPath("interfaces/interface/state/oper-status")
+    oper_status = GNMIPath("interfaces/interface/state/oper-status")
     sub = gnmi_client.subscribe()
     for ifname in interfaces:
         sub.once(oper_status.set("interface", name=ifname))
@@ -45,10 +45,10 @@ async def test_gnmi_subscribe_once(gnmi_client: gNMIClient):
     assert sub._stream is None
 
 
-async def test_gnmi_subscribe_on_change(gnmi_client: gNMIClient):
+async def test_gnmi_subscribe_on_change(gnmi_client: GNMIClient):
     interfaces = await _get_interfaces(gnmi_client)
 
-    oper_status = gNMIPath("interfaces/interface/state/oper-status")
+    oper_status = GNMIPath("interfaces/interface/state/oper-status")
     sub = gnmi_client.subscribe()
     for ifname in interfaces:
         sub.on_change(oper_status.set("interface", name=ifname))
@@ -65,10 +65,10 @@ async def test_gnmi_subscribe_on_change(gnmi_client: gNMIClient):
         await asyncio.wait_for(_read_stream(), 1.0)
 
 
-async def test_gnmi_subscribe_sample(gnmi_client: gNMIClient):
+async def test_gnmi_subscribe_sample(gnmi_client: GNMIClient):
     interfaces = await _get_interfaces(gnmi_client)
 
-    in_octets = gNMIPath("interfaces/interface/state/counters/in-octets")
+    in_octets = GNMIPath("interfaces/interface/state/counters/in-octets")
     sub = gnmi_client.subscribe()
     for ifname in interfaces:
         # FIXME: stratum sample_interval appears to be in milliseconds? (not
@@ -84,24 +84,24 @@ async def test_gnmi_subscribe_sample(gnmi_client: gNMIClient):
         await asyncio.wait_for(_read_stream(), 1.0)
 
 
-async def test_gnmi_capabilities(gnmi_client: gNMIClient):
+async def test_gnmi_capabilities(gnmi_client: GNMIClient):
     result = await gnmi_client.capabilities()
     assert result.gNMI_version[:2] in ("0.", "1.")
 
 
-async def test_gnmi_set(gnmi_client: gNMIClient):
-    enabled = gNMIPath("interfaces/interface[name=s1-eth1]/config/enabled")
+async def test_gnmi_set(gnmi_client: GNMIClient):
+    enabled = GNMIPath("interfaces/interface[name=s1-eth1]/config/enabled")
     result = await gnmi_client.get(enabled)
 
     await gnmi_client.set(replace=[(enabled, False)])
 
     await gnmi_client.get(
-        gNMIPath("interfaces/interface[name=s1-eth1]/state/admin-status")
+        GNMIPath("interfaces/interface[name=s1-eth1]/state/admin-status")
     )
 
 
-async def _get_interfaces(gnmi_client: gNMIClient):
-    ifindex = gNMIPath("interfaces/interface[name=*]/state/ifindex")
+async def _get_interfaces(gnmi_client: GNMIClient):
+    ifindex = GNMIPath("interfaces/interface[name=*]/state/ifindex")
     result = await gnmi_client.get(ifindex)
 
     interfaces = {}
@@ -129,6 +129,6 @@ def test_gnmi_update():
         (b"b", {"bytes_val": "Yg=="}),
     ]
 
-    path = gNMIPath("path")
+    path = GNMIPath("path")
     for val, result in examples:
         assert pbuf.to_dict(gnmi_update(path, val).val) == result

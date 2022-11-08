@@ -1,11 +1,11 @@
 import pytest
 
 from finsy import pbuf
-from finsy.gnmipath import gNMIPath
+from finsy.gnmipath import GNMIPath
 
 
 def test_path_basics():
-    path1 = gNMIPath("interfaces/interface[a=A][b=B]/state/counters")
+    path1 = GNMIPath("interfaces/interface[a=A][b=B]/state/counters")
 
     assert pbuf.to_dict(path1.path) == {
         "elem": [
@@ -16,7 +16,7 @@ def test_path_basics():
         ]
     }
 
-    path2 = gNMIPath(path1.path)
+    path2 = GNMIPath(path1.path)
     assert path2.path is path1.path
 
     path3 = path2.copy()
@@ -27,31 +27,31 @@ def test_path_basics():
 
 
 def test_path_repr():
-    assert repr(gNMIPath()) == "gNMIPath('/')"
-    assert repr(gNMIPath("interfaces/interface")) == "gNMIPath('interfaces/interface')"
-    assert repr(gNMIPath("/interfaces/")) == "gNMIPath('interfaces')"
+    assert repr(GNMIPath()) == "GNMIPath('/')"
+    assert repr(GNMIPath("interfaces/interface")) == "GNMIPath('interfaces/interface')"
+    assert repr(GNMIPath("/interfaces/")) == "GNMIPath('interfaces')"
 
     assert (
-        repr(gNMIPath("/a/b", origin="c", target="d"))
-        == "gNMIPath('a/b', origin='c', target='d')"
+        repr(GNMIPath("/a/b", origin="c", target="d"))
+        == "GNMIPath('a/b', origin='c', target='d')"
     )
 
 
 def test_path_str():
-    assert str(gNMIPath()) == "/"
-    assert str(gNMIPath("interfaces/interface")) == "interfaces/interface"
-    assert str(gNMIPath("/interfaces/")) == "interfaces"
+    assert str(GNMIPath()) == "/"
+    assert str(GNMIPath("interfaces/interface")) == "interfaces/interface"
+    assert str(GNMIPath("/interfaces/")) == "interfaces"
 
 
 def test_path_properties():
-    path1 = gNMIPath("interfaces/interface/state/oper-status")
+    path1 = GNMIPath("interfaces/interface/state/oper-status")
 
     assert path1.last == "oper-status"
     assert path1.first == "interfaces"
 
 
 def test_path_keys():
-    path1 = gNMIPath("interfaces/interface[name=eth0]/state/oper-status")
+    path1 = GNMIPath("interfaces/interface[name=eth0]/state/oper-status")
 
     assert path1[2] == "state"
     assert path1["interface", "name"] == "eth0"
@@ -70,10 +70,10 @@ def test_path_keys():
 
 
 def test_path_keys2():
-    path1 = gNMIPath("a/b[name=x][alias=z]/c[name=y]")
+    path1 = GNMIPath("a/b[name=x][alias=z]/c[name=y]")
 
     path2 = path1.set(name="eth0")
-    assert path2 == gNMIPath("a/b[name=eth0][alias=z]/c[name=eth0]")
+    assert path2 == GNMIPath("a/b[name=eth0][alias=z]/c[name=eth0]")
 
     with pytest.raises(ValueError, match="no keys found in path"):
         path1.set(x="d")
@@ -83,7 +83,7 @@ def test_path_keys2():
 
 
 def test_path_origin():
-    path1 = gNMIPath("interfaces", origin="abc", target="def")
+    path1 = GNMIPath("interfaces", origin="abc", target="def")
 
     assert path1.origin == "abc"
     assert path1.target == "def"
@@ -96,9 +96,9 @@ def test_path_origin():
 
 
 def test_path_equals():
-    path1 = gNMIPath("a")
-    path2 = gNMIPath("a", origin="b")
-    path3 = gNMIPath("a")
+    path1 = GNMIPath("a")
+    path2 = GNMIPath("a", origin="b")
+    path3 = GNMIPath("a")
 
     assert path1 == path3
     assert path1 != path2
@@ -107,7 +107,7 @@ def test_path_equals():
 
 
 def test_path_getitem():
-    path1 = gNMIPath("interfaces/interface[a=A][b=B]/state")
+    path1 = GNMIPath("interfaces/interface[a=A][b=B]/state")
 
     assert path1[0] == "interfaces"
     assert path1[1] == "interface"
@@ -145,33 +145,33 @@ def test_path_getitem():
 def test_path_slice():
     "Test __getitem__ with slice."
 
-    path1 = gNMIPath("interfaces/interface[a=A][b=B]/state")
+    path1 = GNMIPath("interfaces/interface[a=A][b=B]/state")
 
     path2 = path1[:]
     assert path1 is not path2
     assert path1 == path2
 
-    assert path1[0:1] == gNMIPath("interfaces")
-    assert path1[0:2] == gNMIPath("interfaces/interface[a=A][b=B]")
-    assert path1[1:2] == gNMIPath("interface[a=A][b=B]")
-    assert path1[1:] == gNMIPath("interface[a=A][b=B]/state")
-    assert path1[:1] == gNMIPath("interfaces")
-    assert path1[::2] == gNMIPath("interfaces/state")
-    assert path1[:-1] == gNMIPath("interfaces/interface[a=A][b=B]")
+    assert path1[0:1] == GNMIPath("interfaces")
+    assert path1[0:2] == GNMIPath("interfaces/interface[a=A][b=B]")
+    assert path1[1:2] == GNMIPath("interface[a=A][b=B]")
+    assert path1[1:] == GNMIPath("interface[a=A][b=B]/state")
+    assert path1[:1] == GNMIPath("interfaces")
+    assert path1[::2] == GNMIPath("interfaces/state")
+    assert path1[:-1] == GNMIPath("interfaces/interface[a=A][b=B]")
 
 
 def test_hash():
-    "Test hash operation on gNMIPath."
+    "Test hash operation on GNMIPath."
 
-    path1 = gNMIPath("a")
-    path2 = gNMIPath("a", origin="b")
-    path3 = gNMIPath("a")
+    path1 = GNMIPath("a")
+    path2 = GNMIPath("a", origin="b")
+    path3 = GNMIPath("a")
 
     assert hash(path1) == hash(path3)
     assert hash(path1) == hash(path2)  # N.B. origin not included in hash
 
-    path4 = gNMIPath("a/b[name=s]")
-    path5 = gNMIPath("a/b")
+    path4 = GNMIPath("a/b[name=s]")
+    path5 = GNMIPath("a/b")
 
     assert hash(path4) != hash(path5)
     assert path4 != path5
@@ -180,10 +180,10 @@ def test_hash():
 def test_truediv():
     "Test path append operator (/)."
 
-    path1 = gNMIPath("a")
-    path2 = gNMIPath("b[x=1]")
+    path1 = GNMIPath("a")
+    path2 = GNMIPath("b[x=1]")
     path3 = path1 / path2
-    assert path3 == gNMIPath("a/b[x=1]")
+    assert path3 == GNMIPath("a/b[x=1]")
 
     path4 = path3 / "r/s/t"
     assert str(path4) == "a/b[x=1]/r/s/t"
@@ -192,9 +192,9 @@ def test_truediv():
 def test_rtruediv():
     "Test path prepend operator (/)."
 
-    path1 = gNMIPath("b[x=1]")
+    path1 = GNMIPath("b[x=1]")
     path2 = "a" / path1
-    assert path2 == gNMIPath("a/b[x=1]")
+    assert path2 == GNMIPath("a/b[x=1]")
 
     path3 = "r/s/t" / path2
     assert str(path3) == "r/s/t/a/b[x=1]"
@@ -203,6 +203,6 @@ def test_rtruediv():
 def test_contains():
     "Test path `in` operator."
 
-    path1 = gNMIPath("a/b/c")
+    path1 = GNMIPath("a/b/c")
     assert "b" in path1
     assert "z" not in path1

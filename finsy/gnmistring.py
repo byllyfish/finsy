@@ -93,7 +93,7 @@ def _elems():
 # ```
 #
 # This module does NOT allow the `origin` or `target` prefix properties to be
-# specified in the string. Set these in `gNMIPath`.
+# specified in the string. Set these in `GNMIPath`.
 #
 # FIXME: This module does not support Unicode surrogate pairs.
 #

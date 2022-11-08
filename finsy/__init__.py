@@ -22,8 +22,8 @@ if sys.version_info < (3, 10):  # pragma: no cover
     raise RuntimeError("Requires Python 3.10+.")
 
 from .controller import Controller, current_controller
-from .gnmiclient import gNMIClient, gNMISubscription, gNMIUpdate
-from .gnmipath import gNMIPath
+from .gnmiclient import GNMIClient, GNMISubscription, GNMIUpdate
+from .gnmipath import GNMIPath
 from .grpcutil import GRPCStatusCode
 from .log import LoggerAdapter
 from .p4client import P4Client, P4ClientError, P4Error
@@ -86,9 +86,9 @@ __all__ = [
     "SwitchOptions",
     "SwitchPort",
     "SwitchPortList",
-    "gNMIClient",
-    "gNMIPath",
-    "gNMISubscription",
-    "gNMIUpdate",
+    "GNMIClient",
+    "GNMIPath",
+    "GNMISubscription",
+    "GNMIUpdate",
     "GRPCStatusCode",
 ]

@@ -2,12 +2,12 @@ import asyncio
 import logging
 import signal
 
-from finsy import gNMIClient, gNMIPath
+from finsy import GNMIClient, GNMIPath
 
-_INTERFACE = gNMIPath("interfaces/interface[name=*]/state")
+_INTERFACE = GNMIPath("interfaces/interface[name=*]/state")
 INTERFACE_ID = _INTERFACE / "id"
 INTERFACE_STATUS = _INTERFACE / "oper-status"
-INTERFACE_ENABLED = gNMIPath("interfaces/interface[name=*]/config/enabled")
+INTERFACE_ENABLED = GNMIPath("interfaces/interface[name=*]/config/enabled")
 
 
 async def main():
@@ -20,7 +20,7 @@ async def main():
         asyncio.current_task(),
     )
 
-    async with gNMIClient("127.0.0.1:50001") as client:
+    async with GNMIClient("127.0.0.1:50001") as client:
         # Get list of interface names.
         ids = await client.get(INTERFACE_ID)
         names = [update.path["name"] for update in ids]
@@ -46,7 +46,7 @@ async def main():
 async def toggle_enabled(names: list[str]):
     "Repeatedly disable and enable interfaces using a separate GNMI client."
 
-    async with gNMIClient("127.0.0.1:50001") as client:
+    async with GNMIClient("127.0.0.1:50001") as client:
         while True:
             await asyncio.sleep(1.0)
             updates = [(INTERFACE_ENABLED.set(name=name), False) for name in names]

@@ -18,12 +18,12 @@ import enum
 from dataclasses import dataclass
 
 import finsy.switch as _sw  # circular import
-from finsy.gnmiclient import gNMIClient, gNMIPath, gNMISubscription, gNMIUpdate
+from finsy.gnmiclient import GNMIClient, GNMIPath, GNMISubscription, GNMIUpdate
 from finsy.log import LOGGER
 
 # FIXME: Use GNMI id or ifIndex?
-_ifIndex = gNMIPath("interfaces/interface[name=*]/state/ifindex")
-_ifOperStatus = gNMIPath("interfaces/interface[name=*]/state/oper-status")
+_ifIndex = GNMIPath("interfaces/interface[name=*]/state/ifindex")
+_ifOperStatus = GNMIPath("interfaces/interface[name=*]/state/oper-status")
 
 
 class OperStatus(enum.Enum):
@@ -56,7 +56,7 @@ class SwitchPortList:
     "Represents a list of switch ports."
 
     _ports: dict[str, SwitchPort]
-    _subscription: gNMISubscription | None = None
+    _subscription: GNMISubscription | None = None
 
     def __init__(self):
         self._ports = {}
@@ -71,7 +71,7 @@ class SwitchPortList:
     def __iter__(self):
         return iter(self._ports.values())
 
-    async def subscribe(self, client: gNMIClient):
+    async def subscribe(self, client: GNMIClient):
         assert self._subscription is None
 
         self._ports = await self._get_ports(client)
@@ -89,7 +89,7 @@ class SwitchPortList:
             self._subscription = None
             self._ports = {}
 
-    async def _get_ports(self, client: gNMIClient) -> dict[str, SwitchPort]:
+    async def _get_ports(self, client: GNMIClient) -> dict[str, SwitchPort]:
         "Retrieve ID and name of each port."
         ports: dict[str, SwitchPort] = {}
 
@@ -103,7 +103,7 @@ class SwitchPortList:
 
         return ports
 
-    async def _get_subscription(self, client: gNMIClient):
+    async def _get_subscription(self, client: GNMIClient):
         sub = client.subscribe()
 
         # Subscribe to change notifications.
@@ -116,7 +116,7 @@ class SwitchPortList:
 
         return sub
 
-    def _update(self, update: gNMIUpdate, switch: "_sw.Switch | None"):
+    def _update(self, update: GNMIUpdate, switch: "_sw.Switch | None"):
         path = update.path
         name = path["name"]
 
