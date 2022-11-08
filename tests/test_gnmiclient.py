@@ -1,8 +1,9 @@
 import asyncio
 
 import pytest
-from finsy.gnmiclient import gNMIClient, gNMIPath
-from finsy.proto import gnmi
+
+from finsy import pbuf
+from finsy.gnmiclient import gnmi_update, gNMIClient, gNMIPath
 
 
 async def test_gnmi_get_top(gnmi_client: gNMIClient):
@@ -92,11 +93,7 @@ async def test_gnmi_set(gnmi_client: gNMIClient):
     enabled = gNMIPath("interfaces/interface[name=s1-eth1]/config/enabled")
     result = await gnmi_client.get(enabled)
 
-    await gnmi_client.set(
-        replace={
-            enabled: gnmi.TypedValue(bool_val=False),
-        }
-    )
+    await gnmi_client.set(replace=[(enabled, False)])
 
     await gnmi_client.get(
         gNMIPath("interfaces/interface[name=s1-eth1]/state/admin-status")
@@ -116,3 +113,22 @@ async def _get_interfaces(gnmi_client: gNMIClient):
         interfaces[ifname] = update.value
 
     return interfaces
+
+
+def test_gnmi_update():
+    "Test the internal `gnmi_update` function."
+
+    examples = [
+        (True, {"bool_val": True}),
+        (False, {"bool_val": False}),
+        (0, {"uint_val": "0"}),
+        (1, {"uint_val": "1"}),
+        (-1, {"int_val": "-1"}),
+        (1.1, {"double_val": 1.1}),
+        ("s", {"string_val": "s"}),
+        (b"b", {"bytes_val": "Yg=="}),
+    ]
+
+    path = gNMIPath("path")
+    for val, result in examples:
+        assert pbuf.to_dict(gnmi_update(path, val).val) == result

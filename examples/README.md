@@ -16,6 +16,10 @@ Mininet network. To run the demo network, type `./demonet/run.sh`. The demonet s
 - Python 3.10 virtual environment with `finsy` installed.
 - [podman](https://podman.io/) and a unix shell for `run.sh`.
 
+## gnmi
+
+The [gnmi](./gnmi/README.md) directory contains programs that demonstrate Finsy's standalone gNMI API.
+
 ## hello
 
 The [hello](./hello/README.md) directory contains several introductory demo programs. These examples use 
