@@ -4,7 +4,6 @@ import pytest
 
 from finsy import pbuf
 from finsy.gnmiclient import gnmi_update, gNMIClient, gNMIPath
-from finsy.proto import gnmi
 
 
 async def test_gnmi_get_top(gnmi_client: gNMIClient):
@@ -94,11 +93,7 @@ async def test_gnmi_set(gnmi_client: gNMIClient):
     enabled = gNMIPath("interfaces/interface[name=s1-eth1]/config/enabled")
     result = await gnmi_client.get(enabled)
 
-    await gnmi_client.set(
-        replace={
-            enabled: gnmi.TypedValue(bool_val=False),
-        }
-    )
+    await gnmi_client.set(replace=[(enabled, False)])
 
     await gnmi_client.get(
         gNMIPath("interfaces/interface[name=s1-eth1]/state/admin-status")

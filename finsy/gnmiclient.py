@@ -304,8 +304,8 @@ class gNMIClient:
     async def set(
         self,
         *,
-        update: dict[gNMIPath, gNMISetValueType] | None = None,
-        replace: dict[gNMIPath, gNMISetValueType] | None = None,
+        update: Sequence[tuple[gNMIPath, gNMISetValueType]] | None = None,
+        replace: Sequence[tuple[gNMIPath, gNMISetValueType]] | None = None,
         delete: Sequence[gNMIPath] | None = None,
         prefix: gNMIPath | None = None,
     ) -> int:
@@ -317,12 +317,12 @@ class gNMIClient:
             raise RuntimeError("gNMIClient: client is not open")
 
         if update is not None:
-            updates = [gnmi_update(path, value) for path, value in update.items()]
+            updates = [gnmi_update(path, value) for path, value in update]
         else:
             updates = None
 
         if replace is not None:
-            replaces = [gnmi_update(path, value) for path, value in replace.items()]
+            replaces = [gnmi_update(path, value) for path, value in replace]
         else:
             replaces = None
 

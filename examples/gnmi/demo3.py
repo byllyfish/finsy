@@ -3,15 +3,11 @@ import logging
 import signal
 
 from finsy import gNMIClient, gNMIPath
-from finsy.proto import gnmi
 
 _INTERFACE = gNMIPath("interfaces/interface[name=*]/state")
 INTERFACE_ID = _INTERFACE / "id"
 INTERFACE_STATUS = _INTERFACE / "oper-status"
 INTERFACE_ENABLED = gNMIPath("interfaces/interface[name=*]/config/enabled")
-
-ON = gnmi.TypedValue(bool_val=True)
-OFF = gnmi.TypedValue(bool_val=False)
 
 
 async def main():
@@ -53,11 +49,11 @@ async def toggle_enabled(names: list[str]):
     async with gNMIClient("127.0.0.1:50001") as client:
         while True:
             await asyncio.sleep(1.0)
-            updates = {INTERFACE_ENABLED.set(name=name): OFF for name in names}
+            updates = [(INTERFACE_ENABLED.set(name=name), False) for name in names]
             await client.set(update=updates)
 
             await asyncio.sleep(1.0)
-            updates = {INTERFACE_ENABLED.set(name=name): ON for name in names}
+            updates = [(INTERFACE_ENABLED.set(name=name), True) for name in names]
             await client.set(update=updates)
 
 
