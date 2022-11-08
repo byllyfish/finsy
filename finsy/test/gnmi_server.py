@@ -19,11 +19,12 @@ import contextlib
 from typing import AsyncIterator
 
 import grpc
+
 from finsy import pbuf
 from finsy.proto import gnmi, gnmi_grpc
 
 
-class gNMIServer(gnmi_grpc.gNMIServicer):
+class GNMIServer(gnmi_grpc.gNMIServicer):
     "Test gNMI server."
 
     _listen_addr: str

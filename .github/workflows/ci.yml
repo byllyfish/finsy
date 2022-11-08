@@ -17,7 +17,7 @@ jobs:
         python-version: [ "3.10", "3.11" ]
 
     env:
-      # Skip the test gNMIServer on Python 3.11 (due to seg fault issues).
+      # Skip the test GNMIServer on Python 3.11 (due to seg fault issues).
       FINSY_TEST_GNMI_TARGET: "${{ matrix.python-version == '3.11' && 'skip' || '' }}"
       # Skip the test P4RuntimeServer on Python 3.11 (due to seg fault issues).
       FINSY_TEST_P4RUNTIME_TARGET: "${{ matrix.python-version == '3.11' && 'skip' || '' }}"
