@@ -1,0 +1,43 @@
+name: docs
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: |
+        pip install -r ci/requirements-dev.txt
+    - name: Build Docs
+      run: |
+        pdoc -t ci/custom-template -o html/ finsy
+    - name: Upload Docs
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: html/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v1
