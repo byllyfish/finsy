@@ -23,11 +23,11 @@ jobs:
         pip install -r ci/requirements-dev.txt
     - name: Build Docs
       run: |
-        pdoc -o docs/ finsy
+        pdoc -o html/ finsy
     - name: Upload Docs
       uses: actions/upload-pages-artifact@v1
       with:
-        path: docs/
+        path: html/
 
   deploy:
     needs: build
