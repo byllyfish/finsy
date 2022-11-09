@@ -23,7 +23,7 @@ jobs:
         pip install -r ci/requirements-dev.txt
     - name: Build Docs
       run: |
-        pdoc -o html/ finsy
+        pdoc -t ci/custom-template -o html/ finsy
     - name: Upload Docs
       uses: actions/upload-pages-artifact@v1
       with:
