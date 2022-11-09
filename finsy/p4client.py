@@ -144,14 +144,17 @@ class P4ClientError(Exception):
 
     @property
     def code(self) -> GRPCStatusCode:
+        "GRPC status code."
         return self._status.code
 
     @property
     def message(self) -> str:
+        "GRPC status message."
         return self._status.message
 
     @property
     def details(self) -> dict[int, P4Error]:
+        "Optional details about P4Runtime Write updates that failed."
         return self._status.details
 
     @property
