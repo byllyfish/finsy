@@ -486,10 +486,11 @@ class Switch:
         assert not self._is_channel_up
 
         LOGGER.info(
-            "Switch start (name=%r, address=%r, device_id=%r, initial_election_id=%r)",
+            "Switch start (name=%r, address=%r, device_id=%r, role_name=%r, initial_election_id=%r)",
             self.name,
-            self._address,
+            self.address,
             self.device_id,
+            self.role_name,
             self.options.initial_election_id,
         )
         self.ee.emit(SwitchEvent.SWITCH_START)
@@ -498,7 +499,13 @@ class Switch:
         "Called when switch stops its run() cycle."
         assert not self._is_channel_up
 
-        LOGGER.info("Switch stop (name=%r)", self.name)
+        LOGGER.info(
+            "Switch stop (name=%r, address=%r, device_id=%r, role_name=%r)",
+            self.name,
+            self.address,
+            self.device_id,
+            self.role_name,
+        )
         self.ee.emit(SwitchEvent.SWITCH_STOP)
 
     def _channel_up(self):
@@ -507,11 +514,9 @@ class Switch:
 
         ports = " ".join(f"({port.id}){port.name}" for port in self.ports)
         LOGGER.info(
-            "Channel up (is_primary=%r, role_name=%r, election_id=%r, primary_id=%r, p4r=%s): %s",
+            "Channel up (is_primary=%r, role_name=%r, p4r=%s): %s",
             self.is_primary,
             self.role_name,
-            self.election_id,
-            self.primary_id,
             self.api_version,
             ports,
         )
@@ -539,11 +544,9 @@ class Switch:
         assert self._tasks is not None
 
         LOGGER.info(
-            "Become primary (is_primary=%r, role_name=%r, election_id=%r, primary_id=%r)",
+            "Become primary (is_primary=%r, role_name=%r)",
             self.is_primary,
             self.role_name,
-            self.election_id,
-            self.primary_id,
         )
 
         self._tasks.cancel_primary()
@@ -556,11 +559,9 @@ class Switch:
         assert self._tasks is not None
 
         LOGGER.info(
-            "Become backup (is_primary=%r, role_name=%r, election_id=%r, primary_id=%r)",
+            "Become backup (is_primary=%r, role_name=%r)",
             self.is_primary,
             self.role_name,
-            self.election_id,
-            self.primary_id,
         )
 
         self._tasks.cancel_primary()
