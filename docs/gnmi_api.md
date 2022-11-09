@@ -238,7 +238,8 @@ Now, let's display the value of `interfaces/interface/state/oper-status` for the
 >>> oper_status = GNMIPath("interfaces/interface[name=*]/state/oper-status")
 >>> paths = [oper_status.set(name=name) for name in ports]
 >>> async with client:
-...   result = await client.get(*paths)]
+...   result = await client.get(*paths)
+...
 >>> for update in result:
 ...   print(update.path["name"], update.value)
 ... 
@@ -281,9 +282,8 @@ GNMIUpdate(timestamp=1659380663818110532, path=GNMIPath('interfaces/interface[na
 GNMIUpdate(timestamp=1659380663818678235, path=GNMIPath('interfaces/interface[name=s1-eth2]/state/oper-status'), typed_value=`string_val: "UP"`)
 ```
 
-We are not allowed to make changes to the subscription after calling `synchronize`.
-To receive further changes to the subscription, we call the `updates` method.
-Here we will create an asyncio task to do that.
+To receive further changes to the subscription, we call the `updates()` method.
+Let's create an asyncio task to listen for updates in the background.
 
 ```pycon
 >>> async def listen():
@@ -293,24 +293,14 @@ Here we will create an asyncio task to do that.
 >>> listen_task = asyncio.create_task(listen())
 ```
 
-If we check the topology in Mininet, we can see that interface `s1-eth1` on switch `s1` is
-connected to interface `s2-eth3` on switch `s2`. Let's disable interface `s2-eth3` and see
-how this changes that status of `s1-eth1`.
+Let's disable h1's interface `h1-eth0` and see how this affects `s1-eth1`.
 
 ```shell
-mininet> net
-h1 h1-eth0:s2-eth1
-h2 h2-eth0:s2-eth2
-h3 h3-eth0:s3-eth1
-h4 h4-eth0:s3-eth2
-s1 lo:  s1-eth1:s2-eth3 s1-eth2:s3-eth3
-s2 lo:  s2-eth1:h1-eth0 s2-eth2:h2-eth0 s2-eth3:s1-eth1
-s3 lo:  s3-eth1:h3-eth0 s3-eth2:h4-eth0 s3-eth3:s1-eth2
-mininet> sh ifconfig s2-eth3 down
+mininet> h1 ifconfig h1-eth0 down
 ```
 
 We should see some new output in the asyncio REPL from our "listen_task". The status of the 
-interface is now down.
+interface `s1-eth1` is now down.
 
 ```pycon
 >>> 
@@ -318,43 +308,28 @@ interface is now down.
 ```
 
 Use Mininet to re-enable the interface. You should see another GNMIUpdate message for interface
-"s1-eth1".
+`s1-eth1`.
 
 ```shell
-mininet> sh ifconfig s2-eth3 up
+mininet> h1 ifconfig h1-eth0 up
 ```
 
-Let's leave our `listen_task` running. In the next section, we will disable the interface using gNMI set.
+We will leave `listen_task` running. In the next section, we will disable the interface using gNMI set.
 
 ### gNMI Set
 
-We use a gNMI Set operation to create, modify or delete a value. Let's use gNMI set to re-enable the 
-interface we just disabled.
-
-We'll need to use the `TypedValue` class directly. Let's import the "gnmi" protobuf definitions.
-We also create a path to the "enabled" variable we'll need to set.
+We use a gNMI Set operation to create, modify or delete a value. Let's use gNMI to disable an interface.
 
 ```pycon
->>> from finsy.proto import gnmi
->>> enabled = GNMIPath("interfaces/interface[name=s2-eth3]/config/enabled")
+>>> enabled = GNMIPath("interfaces/interface[name=s1-eth1]/config/enabled")
+>>> async with GNMIClient("127.0.0.1:50001") as s2:
+...   result = await s2.set(update=[(enabled, False)])
+...
 ```
 
-Before starting, let's double-check the status of interface "s2-eth3". This 
-interface is on switch "s2", so we temporarily create another client:
+We should see some new output from the gNMI subscription (listen_task) that we left running.
 
 ```pycon
->>> async with GNMIClient("127.0.0.1:50002") as s2:
-...   result = await s2.get(oper_status.set(name="s2-eth3"))
-...
->>> result
-[GNMIUpdate(timestamp=1659379912824896183, path=GNMIPath('interfaces/interface[name=s2-eth3]/state/oper-status'), typed_value=`string_val: "DOWN"`)]
-```
-
-Now, let's re-enable the interface:
-
-```pycon
->>> async with GNMIClient("127.0.0.1:50002") as s2:
-...   result = await s2.set(update={enabled: gnmi.TypedValue(bool_val=True)})
-...
-(something is not working right?)
+>>>
+  *** GNMIUpdate(timestamp=1667922774538720422, path=GNMIPath('interfaces/interface[name=s1-eth1]/state/oper-status'), typed_value=`string_val: "DOWN"`)
 ```
