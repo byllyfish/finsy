@@ -1,25 +1,12 @@
-# 🐟 Tutorial 2: Using gNMI
+# gNMI API
 
-🚧 This tutorial is under development.
-
-In this tutorial, we will demonstrate how to use the `Finsy` gNMI client.
-gNMI is a protocol for reading and writing a key/value store that describes a 
-device's configuration and runtime state.
-
-Each gNMI key is a path, e.g. `interfaces/interface/state/oper-status`. A path
-may specify a specific instance with embedded key-value pairs. For
-example, the path `interfaces/interface[name=en0]/state/oper-status` specifies
-the operational status of interface "en0" -- whether the interface is up or not.
-
-The gNMI client API consists of two classes `gNMIClient` and `gNMIPath`. A `gNMIClient` 
-object manages the client TCP connection to the target device. A `gNMIPath` creates and 
+The gNMI client API consists of two classes `GNMIClient` and `GNMIPath`. A `GNMIClient` 
+object manages the client TCP connection to the target device. A `GNMIPath` creates and 
 manipulates gNMI path objects.
 
-First, we'll discuss the use of gNMI paths.
+## GNMIPath
 
-## ◉ gNMIPath
-
-Use the `gNMIPath` class to create and manipulate gNMI paths.
+Use the `GNMIPath` class to create and manipulate gNMI paths.
 
 A gNMI path is a sequence of names separated by '/'. Each name may
 optionally have one or more key-value pairs. Each key-value pair is enclosed in square brackets, 
@@ -29,10 +16,10 @@ e.g. \[key=value\]. The specification for the string format is
 Start the Python3 asyncio REPL by typing `python -m asyncio`.
 
 ```pycon
->>> from finsy import gNMIPath
->>> p = gNMIPath("a/b[x=1]/c")
+>>> from finsy import GNMIPath
+>>> p = GNMIPath("a/b[x=1]/c")
 >>> p
-gNMIPath('a/b[x=1]/c')
+GNMIPath('a/b[x=1]/c')
 >>> len(p)
 3
 ```
@@ -56,7 +43,7 @@ elem {
 }
 ```
 
-You can retrieve element names from the gNMIPath object using [] and an integer subscript.
+You can retrieve element names from the GNMIPath object using [] and an integer subscript.
 
 ```pycon
 >>> p[0]
@@ -87,21 +74,21 @@ You can retrieve a portion of a path using [] and a slice subscript.
 
 ```pycon
 >>> p[0:2]
-gNMIPath('a/b[x=1]')
+GNMIPath('a/b[x=1]')
 >>> p[1:2]
-gNMIPath('b[x=1]')
+GNMIPath('b[x=1]')
 ```
 
 ### Setting Keys
 
-gNMIPath objects are intended to be immutable. You can set an element key using the `set()` method. 
+GNMIPath objects are intended to be immutable. You can set an element key using the `set()` method. 
 Remember that this method constructs and returns a new object. You must store the result in a 
 new variable; the original object is unchanged.
 
 ```pycon
 >>> q = p.set("c", x=1, y=2)
 >>> q
-gNMIPath('a/b[x=1]/c[x=1][y=2]')
+GNMIPath('a/b[x=1]/c[x=1][y=2]')
 ```
 
 The `set()` method replaces the entire key. To delete all keys from element "b", call `set` with
@@ -109,14 +96,14 @@ no keyword arguments.
 
 ```pycon
 >>> q.set("c")
-gNMIPath('a/b[x=1]/c')
+GNMIPath('a/b[x=1]/c')
 ```
 
-If the gNMIPath has an existing key, you do not need to specify the element name.
+If the GNMIPath has an existing key, you do not need to specify the element name.
 
 ```pycon
 >>> p.set(x=99)
-gNMIPath('a/b[x=99]/c')
+GNMIPath('a/b[x=99]/c')
 ```
 
 ### Editing Paths
@@ -124,8 +111,8 @@ gNMIPath('a/b[x=99]/c')
 You can concatenate paths using the `/` operator.
 
 ```pycon
->>> gNMIPath("interfaces") / "interface[name=eth0]" / "state/oper-status"
-gNMIPath('interfaces/interface[name=eth0]/state/oper-status')
+>>> GNMIPath("interfaces") / "interface[name=eth0]" / "state/oper-status"
+GNMIPath('interfaces/interface[name=eth0]/state/oper-status')
 ```
 
 Avoid using accessors on the underlying `gnmi.Path` object. It's easy to inadvertently
@@ -135,16 +122,16 @@ add a key. Here is one way that could happen:
 >>> p.path.elem[2].key["d"]    # adds empty "d" key!
 ''
 >>> p
-gNMIPath('a/b[x=1]/c[d=]')
+GNMIPath('a/b[x=1]/c[d=]')
 ```
 
-## ◉ gNMIClient
+## GNMIClient
 
-The gNMIClient class provides an API to retrieve values from the key/value store that describes a 
+The GNMIClient class provides an API to retrieve values from the key/value store that describes a 
 device's configuration and runtime state. The client can also set certain values controlling
 the device's configuration state.
 
-Finally, a gNMIClient can sample or observe how values change over time using the `subscribe` API.
+Finally, a GNMIClient can sample or observe how values change over time using the `subscribe` API.
 
 ### gNMI Get
 
@@ -152,9 +139,9 @@ Run the asyncio REPL, `python -m asyncio`. Unlike the normal Python REPL we used
 the asyncio REPL allows you to make async calls.
 
 ```pycon
->>> from finsy import gNMIClient, gNMIPath
->>> client = gNMIClient("127.0.0.1:50001")
->>> interface_id = gNMIPath("interfaces/interface[name=*]/state/id")
+>>> from finsy import GNMIClient, GNMIPath
+>>> client = GNMIClient("127.0.0.1:50001")
+>>> interface_id = GNMIPath("interfaces/interface[name=*]/state/id")
 ```
 
 `interface_id` is the gNMI path for the port number of an interface. The `*` in `[name=*]` key
@@ -168,8 +155,8 @@ specifies we want to match any interface name.
 2
 >>> for i in result: print(i)
 ...
-gNMIUpdate(timestamp=1659325786657061923, path=gNMIPath('interfaces/interface[name=s1-eth1]/state/id'), typed_value=`uint_val: 1`)
-gNMIUpdate(timestamp=1659325786657089008, path=gNMIPath('interfaces/interface[name=s1-eth2]/state/id'), typed_value=`uint_val: 2`)
+GNMIUpdate(timestamp=1659325786657061923, path=GNMIPath('interfaces/interface[name=s1-eth1]/state/id'), typed_value=`uint_val: 1`)
+GNMIUpdate(timestamp=1659325786657089008, path=GNMIPath('interfaces/interface[name=s1-eth2]/state/id'), typed_value=`uint_val: 2`)
 ```
 
 The output shows two values because our `s1` switch has two interfaces. From the "name" key, we see that
@@ -219,7 +206,7 @@ Let's examine the first result.
 ```pycon
 >>> update1 = result[0]
 >>> update1
-gNMIUpdate(timestamp=1659128669262256490, path=gNMIPath('interfaces/interface[name=s1-eth1]/state/id'), typed_value=`uint_val: 1`)
+GNMIUpdate(timestamp=1659128669262256490, path=GNMIPath('interfaces/interface[name=s1-eth1]/state/id'), typed_value=`uint_val: 1`)
 ```
 
 We are interested in the name of the interface and the value of 'id'. Note that we can obtain the value
@@ -248,7 +235,7 @@ Let's collect the interface names and values into a Python dictionary.
 Now, let's display the value of `interfaces/interface/state/oper-status` for the interfaces.
 
 ```pycon
->>> oper_status = gNMIPath("interfaces/interface[name=*]/state/oper-status")
+>>> oper_status = GNMIPath("interfaces/interface[name=*]/state/oper-status")
 >>> paths = [oper_status.set(name=name) for name in ports]
 >>> async with client:
 ...   result = await client.get(*paths)]
@@ -290,8 +277,8 @@ of the values we are subscribing to.
 >>> async for update in sub.synchronize():
 ...   print(update)
 ...
-gNMIUpdate(timestamp=1659380663818110532, path=gNMIPath('interfaces/interface[name=s1-eth1]/state/oper-status'), typed_value=`string_val: "UP"`)
-gNMIUpdate(timestamp=1659380663818678235, path=gNMIPath('interfaces/interface[name=s1-eth2]/state/oper-status'), typed_value=`string_val: "UP"`)
+GNMIUpdate(timestamp=1659380663818110532, path=GNMIPath('interfaces/interface[name=s1-eth1]/state/oper-status'), typed_value=`string_val: "UP"`)
+GNMIUpdate(timestamp=1659380663818678235, path=GNMIPath('interfaces/interface[name=s1-eth2]/state/oper-status'), typed_value=`string_val: "UP"`)
 ```
 
 We are not allowed to make changes to the subscription after calling `synchronize`.
@@ -327,10 +314,10 @@ interface is now down.
 
 ```pycon
 >>> 
-  *** gNMIUpdate(timestamp=1659376837812996081, path=gNMIPath('interfaces/interface[name=s1-eth1]/state/oper-status'), typed_value=`string_val: "DOWN"`)
+  *** GNMIUpdate(timestamp=1659376837812996081, path=GNMIPath('interfaces/interface[name=s1-eth1]/state/oper-status'), typed_value=`string_val: "DOWN"`)
 ```
 
-Use Mininet to re-enable the interface. You should see another gNMIUpdate message for interface
+Use Mininet to re-enable the interface. You should see another GNMIUpdate message for interface
 "s1-eth1".
 
 ```shell
@@ -349,24 +336,24 @@ We also create a path to the "enabled" variable we'll need to set.
 
 ```pycon
 >>> from finsy.proto import gnmi
->>> enabled = gNMIPath("interfaces/interface[name=s2-eth3]/config/enabled")
+>>> enabled = GNMIPath("interfaces/interface[name=s2-eth3]/config/enabled")
 ```
 
 Before starting, let's double-check the status of interface "s2-eth3". This 
 interface is on switch "s2", so we temporarily create another client:
 
 ```pycon
->>> async with gNMIClient("127.0.0.1:50002") as s2:
+>>> async with GNMIClient("127.0.0.1:50002") as s2:
 ...   result = await s2.get(oper_status.set(name="s2-eth3"))
 ...
 >>> result
-[gNMIUpdate(timestamp=1659379912824896183, path=gNMIPath('interfaces/interface[name=s2-eth3]/state/oper-status'), typed_value=`string_val: "DOWN"`)]
+[GNMIUpdate(timestamp=1659379912824896183, path=GNMIPath('interfaces/interface[name=s2-eth3]/state/oper-status'), typed_value=`string_val: "DOWN"`)]
 ```
 
 Now, let's re-enable the interface:
 
 ```pycon
->>> async with gNMIClient("127.0.0.1:50002") as s2:
+>>> async with GNMIClient("127.0.0.1:50002") as s2:
 ...   result = await s2.set(update={enabled: gnmi.TypedValue(bool_val=True)})
 ...
 (something is not working right?)
