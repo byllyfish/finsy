@@ -1,5 +1,19 @@
 # Finsy Change Log
 
+## 0.9.0
+
+- Rename gNMI classes to start with "GNMI" instead of "gNMI".
+- Rename `is_no_pipeline_configured` property to `is_pipeline_missing`.
+- Rename `P4Status` to `P4RpcStatus`.
+- Rename `P4SubError` to `P4Error`.
+- Rename `Port` to `SwitchPort` and `PortList` to `SwitchPortList`.
+- GNMIClient.set(): argument is now a sequence of 2-tuples.
+- Add GNMI example programs. 
+- Minor test changes to improve code coverage.
+- Minor pyright fixes.
+- Update dependency versions.
+- Build API docs.
+
 ## 0.8.0
 
 - Update `gnmi.proto`, `p4info.proto` protobuf files. Re-compile using latest mypy-protobuf compiler.

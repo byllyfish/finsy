@@ -15,7 +15,11 @@ async def main():
 asyncio.run(main())
 ```
 
-## Multiple Switches
+## Requirements
+
+Finsy requires Python 3.10 or later.
+
+## P4Runtime Controller
 
 With Finsy, you can write a P4Runtime controller that manages multiple switches.
 
@@ -27,7 +31,7 @@ When you write P4Runtime updates to the switch, you use a unary operator (+, -, 
 INSERT (+), DELETE (-) or MODIFY (\~).
 
 ```python
-async def ready_handler(sw: fy.Switch):
+async def ready_handler(sw):
     await sw.delete_all()
     await sw.write(
         [
