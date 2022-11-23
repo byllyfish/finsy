@@ -34,9 +34,9 @@ _LBRACK = pa.string("[")
 _RBRACK = pa.string("]")
 _EQUALS = pa.string("=")
 
-__ID1 = pa.regex(r"[^\s\\/\[=\]]+")  # char+ not including: SPACE \ / [ ] =
-__KEY = pa.regex(r"[^\s\\\]=\[]+")  # char+ not including: SPACE \ [ ] =
-__VAL = pa.regex(r"[^\\\]]+")  # char+ not including: \ ]
+__ID1 = pa.regex(r"[^\s\\/\[=\]]+").desc("_ID1")  # char+ no SPACE \ / [ ] =
+__KEY = pa.regex(r"[^\s\\\]=\[]+").desc("_KEY")  # char+ no SPACE \ [ ] =
+__VAL = pa.regex(r"[^\\\]]+").desc("_VAL")  # char+ no \ ]
 __ESC = pa.string("\\") >> (  # backslash escape sequence
     pa.char_from("\\/[]=")
     | pa.string("n").result("\n")
@@ -129,9 +129,9 @@ def to_str(path: gnmi.Path) -> str:
 
 def _elem_str(elem: gnmi.PathElem) -> str:
     """Encode a `gnmi.PathElem` as a string."""
-    name = _escape(elem.name, "[]/")
+    name = _escape(elem.name, "[]/=", True)
     keyvals = [
-        f"[{_escape(key,']=')}={_escape(val, ']')}]"
+        f"[{_escape(key,'[]=', True)}={_escape(val, ']', False)}]"
         for key, val in sorted(elem.key.items())
     ]
 
@@ -141,8 +141,9 @@ def _elem_str(elem: gnmi.PathElem) -> str:
 _REPLACE_ESCAPES = re.compile(rb"\\x[0-9a-fA-F]{2}|\\t")
 
 
-def _escape(value: str, chars: str) -> str:
-    "Backslash escape the specified characters in value"
+def _escape(value: str, chars: str, esc_space: bool) -> str:
+    """Backslash escape the specified characters in value. If `esc_space` is
+    True, we also escape spaces."""
 
     def _replace(m: re.Match[bytes]) -> bytes:
         s = m.group(0)
@@ -156,4 +157,7 @@ def _escape(value: str, chars: str) -> str:
     data = _REPLACE_ESCAPES.sub(_replace, data)
 
     table = {ord(char): f"\\{char}" for char in chars}
+    if esc_space:  # space is escaped in ID and KEY (but not in VAL).
+        table[0x20] = r"\u0020"
+
     return data.decode("ascii").translate(table)
