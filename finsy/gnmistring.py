@@ -35,6 +35,8 @@ _RBRACK = pa.string("]")
 _EQUALS = pa.string("=")
 
 __ID1 = pa.regex(r"[^\s\\/\[=\]]+").desc("_ID1")  # char+ no SPACE \ / [ ] =
+# N.B. '[' is not allowed in a key unless it is escaped. This is required by
+# unit tests, but this restriction could be removed in the future.
 __KEY = pa.regex(r"[^\s\\\]=\[]+").desc("_KEY")  # char+ no SPACE \ [ ] =
 __VAL = pa.regex(r"[^\\\]]+").desc("_VAL")  # char+ no \ ]
 __ESC = pa.string("\\") >> (  # backslash escape sequence

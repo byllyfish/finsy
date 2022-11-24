@@ -317,6 +317,9 @@ _INVALID_PATHS2 = [
     "foo[bar =baz]",
     "foo bar/baz",
     r"\ud83d\ude4f",  # surrogate pairs not supported...
+    "\u0020",  # space
+    "\u00a0",  # non-breaking space
+    "\u0085",  # next line
 ]
 
 # Test Unicode escapes.
@@ -340,6 +343,11 @@ _VALID_PATHS3 = {
     r"\U0001d11e": {
         "elem": [
             {"name": "\U0001D11E"},
+        ]
+    },
+    r"\u0020": {
+        "elem": [
+            {"name": " "},
         ]
     },
 }
