@@ -69,6 +69,10 @@ class GNMIPath:
         "Construct a `GNMIPath` from a string or `gnmi.Path`."
         if isinstance(path, str):
             path = gnmistring.parse(path)
+        elif isinstance(path, GNMIPath):
+            path = _copy_path(path.path)
+
+        assert isinstance(path, gnmi.Path)
 
         if origin:
             path.origin = origin
@@ -116,9 +120,7 @@ class GNMIPath:
 
     def copy(self) -> Self:
         "Return a copy of the path."
-        new_path = gnmi.Path()
-        new_path.CopyFrom(self.path)
-        return GNMIPath(new_path)
+        return GNMIPath(_copy_path(self.path))
 
     @overload
     def __getitem__(self, key: int | str | tuple[int | str, str]) -> str:
@@ -263,3 +265,10 @@ def _find_key(key: str, path: gnmi.Path) -> int:
 def _to_tuple(elem: gnmi.PathElem) -> tuple[str, ...]:
     "Return a tuple of name and key'd values."
     return (elem.name,) + tuple(sorted(elem.key.values()))
+
+
+def _copy_path(path: gnmi.Path) -> gnmi.Path:
+    "Return a copy of given path."
+    new_path = gnmi.Path()
+    new_path.CopyFrom(path)
+    return new_path

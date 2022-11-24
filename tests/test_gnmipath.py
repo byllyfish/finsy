@@ -26,6 +26,26 @@ def test_path_basics():
     assert len(path1) == 4
 
 
+def test_path_copy():
+    "Test GNMIPath copy constructor."
+    path1 = GNMIPath("a/b[x=1]/c")
+    path2 = GNMIPath(path1)
+    path3 = path1.copy()
+
+    assert path1 == path2
+    assert path1 == path3
+
+    assert path1 is not path2
+    assert path1 is not path3
+    assert path1.path is not path2.path
+    assert path1.path is not path3.path
+
+    path4 = GNMIPath(path1, origin="origin")
+    assert path4 != path1
+    assert path4.path.elem == path1.path.elem
+    assert path4.origin == "origin" and path1.origin == ""
+
+
 def test_path_repr():
     assert repr(GNMIPath()) == "GNMIPath('/')"
     assert repr(GNMIPath("interfaces/interface")) == "GNMIPath('interfaces/interface')"
