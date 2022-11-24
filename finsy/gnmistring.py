@@ -70,7 +70,13 @@ def _elem():
     "Parse `IDENT KEYVAL*`"
     ident = yield _IDENT
     kvs = yield _keyval.many()
-    return ident, dict(kvs)
+
+    keys = {}
+    for k, v in kvs:
+        if k in keys:
+            raise ValueError(f"parse failed: duplicate key {k!r}")
+        keys[k] = v
+    return ident, keys
 
 
 @pa.generate
