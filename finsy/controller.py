@@ -197,6 +197,6 @@ def current_controller() -> Controller:
 
     result = _CONTROLLER.get()
     if result is None:
-        raise RuntimeError("current_controller() does not exist")
+        raise RuntimeError("controller does not exist")
 
     return result
