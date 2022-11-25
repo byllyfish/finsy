@@ -2,7 +2,9 @@
 
 import asyncio
 
-from finsy import Controller, Switch
+import pytest
+
+from finsy import Controller, Switch, current_controller
 
 
 async def test_controller_run_empty():
@@ -18,7 +20,8 @@ async def test_controller_run_empty():
         controller.stop()
 
     task = asyncio.create_task(_stop_later())
-    await controller.run()
+    with pytest.raises(asyncio.CancelledError):
+        await controller.run()
     await task
 
     assert not controller.running
@@ -29,13 +32,20 @@ async def test_controller_ctxt_empty():
 
     controller = Controller([])
     assert len(controller) == 0
+
     assert not controller.running
+    with pytest.raises(RuntimeError, match="controller does not exist"):
+        current_controller()
 
     async with controller:
         assert controller.running
+        assert current_controller() == controller
+
         await asyncio.sleep(0.01)
 
     assert not controller.running
+    with pytest.raises(RuntimeError, match="controller does not exist"):
+        current_controller()
 
 
 async def test_controller_ctxt(p4rt_server_target: str):

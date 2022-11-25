@@ -29,8 +29,9 @@ async def wait_for_cancel() -> None:
     "Wait for the running task to be cancelled or interrupted."
     try:
         await _create_future()
-    except (asyncio.CancelledError, KeyboardInterrupt) as ex:
+    except BaseException as ex:
         LOGGER.debug("wait_for_cancel interrupted: %r", ex)
+        raise
 
 
 class CountdownFuture:
