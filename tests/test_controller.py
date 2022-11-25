@@ -2,6 +2,8 @@
 
 import asyncio
 
+import pytest
+
 from finsy import Controller, Switch
 
 
@@ -18,7 +20,8 @@ async def test_controller_run_empty():
         controller.stop()
 
     task = asyncio.create_task(_stop_later())
-    await controller.run()
+    with pytest.raises(asyncio.CancelledError):
+        await controller.run()
     await task
 
     assert not controller.running

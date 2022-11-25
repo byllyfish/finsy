@@ -56,33 +56,8 @@ class Controller:
 
     async def run(self):
         "Run the controller."
-        assert not self.running, "Controller.run() is not re-entrant"
-        assert self._task_count.value() == 0
-        assert not self._removed
-
-        self.control_task = asyncio.current_task()
-        assert self.control_task is not None
-        self.control_task.set_name(f"fy:{self._name}")
-        _CONTROLLER.set(self)
-
-        try:
-            # Start each switch running.
-            for switch in self:
-                self._start_switch(switch)
-
-            # Run forever.
+        async with self:
             await wait_for_cancel()
-
-            # Stop all the switches.
-            for switch in self:
-                self._stop_switch(switch)
-
-            # Wait for switch tasks to finish.
-            await self._task_count.wait()
-
-        finally:
-            self.control_task = None
-            _CONTROLLER.set(None)
 
     def stop(self):
         "Stop the controller if it is running."

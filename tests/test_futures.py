@@ -11,7 +11,9 @@ async def test_wait_for_cancel():
     task = asyncio.create_task(wait_for_cancel())
     await asyncio.sleep(0.1)
     task.cancel()
-    assert (await task) is None
+
+    with pytest.raises(asyncio.CancelledError):
+        await task
 
 
 async def test_countdown_future():
