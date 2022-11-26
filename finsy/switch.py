@@ -20,6 +20,7 @@ import enum
 import logging
 import re
 import time
+from asyncio import Queue
 from contextlib import asynccontextmanager
 from pathlib import Path
 from types import TracebackType
@@ -144,11 +145,9 @@ class Switch:
     _p4client: P4Client | None
     _p4schema: P4Schema
     _tasks: "SwitchTasks | None"
-    _packet_queues: list[
-        tuple[Callable[[bytes], bool], asyncio.Queue[p4entity.P4PacketIn]]
-    ]
-    _digest_queues: dict[str, asyncio.Queue[p4entity.P4DigestList]]
-    _timeout_queue: asyncio.Queue[p4entity.P4IdleTimeoutNotification] | None
+    _packet_queues: list[tuple[Callable[[bytes], bool], Queue[p4entity.P4PacketIn]]]
+    _digest_queues: dict[str, Queue[p4entity.P4DigestList]]
+    _timeout_queue: Queue[p4entity.P4IdleTimeoutNotification] | None
     _arbitrator: "Arbitrator"
     _gnmi_client: GNMIClient | None
     _ports: SwitchPortList
@@ -286,7 +285,7 @@ class Switch:
             def _pkt_filter(payload: bytes) -> bool:
                 return payload[12:14] in _filter
 
-        queue = asyncio.Queue[p4entity.P4PacketIn](queue_size)
+        queue = Queue[p4entity.P4PacketIn](queue_size)
         queue_filter = (_pkt_filter, queue)
         self._packet_queues.append(queue_filter)
 
@@ -309,7 +308,7 @@ class Switch:
         if digest_id in self._digest_queues:
             raise ValueError(f"queue for digest_id {digest_id!r} already open")
 
-        queue = asyncio.Queue[p4entity.P4DigestList](queue_size)
+        queue = Queue[p4entity.P4DigestList](queue_size)
         self._digest_queues[digest_id] = queue
         try:
             while True:
@@ -329,7 +328,7 @@ class Switch:
         if self._timeout_queue is not None:
             raise ValueError(f"timeout queue already open")
 
-        queue = asyncio.Queue[p4entity.P4IdleTimeoutNotification](queue_size)
+        queue = Queue[p4entity.P4IdleTimeoutNotification](queue_size)
         self._timeout_queue = queue
         try:
             while True:
