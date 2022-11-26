@@ -145,8 +145,10 @@ class Switch:
     _p4schema: P4Schema
     _tasks: "SwitchTasks | None"
     _queues: dict[str, asyncio.Queue[Any]]
-    _packet_queues: list[tuple[Callable[[bytes], bool], asyncio.Queue[Any]]]
-    _digest_queues: dict[int, asyncio.Queue[Any]]
+    _packet_queues: list[
+        tuple[Callable[[bytes], bool], asyncio.Queue[p4entity.P4PacketIn]]
+    ]
+    _digest_queues: dict[str, asyncio.Queue[p4entity.P4DigestList]]
     _arbitrator: "Arbitrator"
     _gnmi_client: GNMIClient | None
     _ports: SwitchPortList
@@ -285,15 +287,13 @@ class Switch:
 
         LOGGER.debug("read_packets: opening packet queue: eth_types=%r", eth_types)
 
-        queue = asyncio.Queue[Any](queue_size)
+        queue = asyncio.Queue[p4entity.P4PacketIn](queue_size)
         queue_filter = (_pkt_filter, queue)
         self._packet_queues.append(queue_filter)
 
         try:
             while True:
-                result = await queue.get()
-                yield result
-
+                yield await queue.get()
         finally:
             LOGGER.debug("read_packets: closing packet queue: eth_types=%r", eth_types)
             self._packet_queues.remove(queue_filter)
@@ -308,18 +308,17 @@ class Switch:
 
         LOGGER.debug("read_digests: opening digest queue: digest_id=%r", digest_id)
 
-        digest = self.p4info.digests[digest_id]
-        if digest.id in self._digest_queues:
+        if digest_id in self._digest_queues:
             raise ValueError(f"queue for digest_id {digest_id} already open")
 
-        queue = asyncio.Queue[Any](queue_size)
-        self._digest_queues[digest.id] = queue
+        queue = asyncio.Queue[p4entity.P4DigestList](queue_size)
+        self._digest_queues[digest_id] = queue
         try:
             while True:
                 yield await queue.get()
         finally:
             LOGGER.debug("read_digests: closing digest queue: digest_id=%r", digest_id)
-            del self._digest_queues[digest.id]
+            del self._digest_queues[digest_id]
 
     def read_idle_timeouts(
         self,
@@ -437,6 +436,8 @@ class Switch:
 
         if msg_type == "packet":
             self._stream_packet_message(msg)
+        elif msg_type == "digest":
+            self._stream_digest_message(msg)
         elif msg_type == "arbitration":
             await self._arbitrator.update(self, msg.arbitration)
         elif msg_type == "error":
@@ -612,6 +613,16 @@ class Switch:
 
         if not was_queued:
             LOGGER.warning("packet ignored: %r", packet)
+
+    def _stream_digest_message(self, msg: p4r.StreamMessageResponse):
+        "Called when a P4Runtime digest response is received."
+        digest: p4entity.P4DigestList = p4entity.decode_stream(msg, self.p4info)
+        queue = self._digest_queues.get(digest.digest_id)
+
+        if queue is not None and not queue.full():
+            queue.put_nowait(digest)
+        else:
+            LOGGER.warning("digest ignored: %r", digest)
 
     def _stream_error_message(self, msg: p4r.StreamMessageResponse):
         "Called when a P4Runtime stream error response is received."
