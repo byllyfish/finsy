@@ -61,7 +61,7 @@ class GNMIPath:
 
     def __init__(
         self,
-        path: gnmi.Path | str = "",
+        path: gnmi.Path | str | Self = "",
         *,
         origin: str = "",
         target: str = "",
