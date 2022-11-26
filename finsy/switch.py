@@ -144,11 +144,11 @@ class Switch:
     _p4client: P4Client | None
     _p4schema: P4Schema
     _tasks: "SwitchTasks | None"
-    _queues: dict[str, asyncio.Queue[Any]]
     _packet_queues: list[
         tuple[Callable[[bytes], bool], asyncio.Queue[p4entity.P4PacketIn]]
     ]
     _digest_queues: dict[str, asyncio.Queue[p4entity.P4DigestList]]
+    _timeout_queue: asyncio.Queue[p4entity.P4IdleTimeoutNotification] | None
     _arbitrator: "Arbitrator"
     _gnmi_client: GNMIClient | None
     _ports: SwitchPortList
@@ -179,9 +179,9 @@ class Switch:
         self._p4client = None
         self._p4schema = P4Schema(options.p4info, options.p4blob)
         self._tasks = None
-        self._queues = {}
         self._packet_queues = []
         self._digest_queues = {}
+        self._timeout_queue = None
         self._arbitrator = Arbitrator(
             options.initial_election_id, options.role_name, options.role_config
         )
@@ -273,6 +273,7 @@ class Switch:
         eth_types: Iterable[int] | None = None,
     ) -> AsyncIterator["p4entity.P4PacketIn"]:
         "Async iterator for incoming packets (P4PacketIn)."
+        LOGGER.debug("read_packets: opening queue: eth_types=%r", eth_types)
 
         if eth_types is None:
 
@@ -285,8 +286,6 @@ class Switch:
             def _pkt_filter(payload: bytes) -> bool:
                 return payload[12:14] in _filter
 
-        LOGGER.debug("read_packets: opening packet queue: eth_types=%r", eth_types)
-
         queue = asyncio.Queue[p4entity.P4PacketIn](queue_size)
         queue_filter = (_pkt_filter, queue)
         self._packet_queues.append(queue_filter)
@@ -295,7 +294,7 @@ class Switch:
             while True:
                 yield await queue.get()
         finally:
-            LOGGER.debug("read_packets: closing packet queue: eth_types=%r", eth_types)
+            LOGGER.debug("read_packets: closing queue: eth_types=%r", eth_types)
             self._packet_queues.remove(queue_filter)
 
     async def read_digests(
@@ -305,11 +304,10 @@ class Switch:
         queue_size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4DigestList"]:
         "Async iterator for incoming digest lists (P4DigestList)."
-
-        LOGGER.debug("read_digests: opening digest queue: digest_id=%r", digest_id)
+        LOGGER.debug("read_digests: opening queue: digest_id=%r", digest_id)
 
         if digest_id in self._digest_queues:
-            raise ValueError(f"queue for digest_id {digest_id} already open")
+            raise ValueError(f"queue for digest_id {digest_id!r} already open")
 
         queue = asyncio.Queue[p4entity.P4DigestList](queue_size)
         self._digest_queues[digest_id] = queue
@@ -317,35 +315,28 @@ class Switch:
             while True:
                 yield await queue.get()
         finally:
-            LOGGER.debug("read_digests: closing digest queue: digest_id=%r", digest_id)
+            LOGGER.debug("read_digests: closing queue: digest_id=%r", digest_id)
             del self._digest_queues[digest_id]
 
-    def read_idle_timeouts(
+    async def read_idle_timeouts(
         self,
         *,
         queue_size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4IdleTimeoutNotification"]:
         "Async iterator for incoming idle timeouts (P4IdleTimeoutNotification)."
-        return self._queue_iter("idle_timeout_notification", queue_size)
+        LOGGER.debug("read_idle_timeouts: opening queue")
 
-    async def _queue_iter(self, name: str, size: int) -> AsyncIterator[Any]:
-        "Helper function to iterate over a Packet/Digest queue."
-        assert name != "arbitration"
+        if self._timeout_queue is not None:
+            raise ValueError(f"timeout queue already open")
 
-        if name in self._queues:
-            raise RuntimeError(f"iterator {name!r} already open")
-
-        LOGGER.debug("_queue_iter: opening queue %r", name)
-        queue = asyncio.Queue[Any](size)
-        self._queues[name] = queue
-
+        queue = asyncio.Queue[p4entity.P4IdleTimeoutNotification](queue_size)
+        self._timeout_queue = queue
         try:
             while True:
-                result = await queue.get()
-                yield result
+                yield await queue.get()
         finally:
-            LOGGER.debug("_queue_iter: closing queue %r", name)
-            del self._queues[name]
+            LOGGER.debug("read_idle_timeouts: closing queue")
+            self._timeout_queue = None
 
     async def run(self):
         "Run the switch's lifecycle repeatedly."
@@ -429,25 +420,19 @@ class Switch:
     async def _handle_stream_message(self, msg: p4r.StreamMessageResponse):
         "Handle a P4Runtime StreamMessageResponse."
 
-        msg_type = msg.WhichOneof("update")
-        if msg_type is None:
-            LOGGER.error("missing update: %r", msg)
-            return
-
-        if msg_type == "packet":
-            self._stream_packet_message(msg)
-        elif msg_type == "digest":
-            self._stream_digest_message(msg)
-        elif msg_type == "arbitration":
-            await self._arbitrator.update(self, msg.arbitration)
-        elif msg_type == "error":
-            self._stream_error_message(msg)
-        else:
-            queue = self._queues.get(msg_type)
-            if queue:
-                if not queue.full():
-                    obj = p4entity.decode_stream(msg, self.p4info)
-                    queue.put_nowait(obj)
+        match msg.WhichOneof("update"):
+            case "packet":
+                self._stream_packet_message(msg)
+            case "digest":
+                self._stream_digest_message(msg)
+            case "idle_timeout_notification":
+                self._stream_timeout_message(msg)
+            case "arbitration":
+                await self._arbitrator.update(self, msg.arbitration)
+            case "error":
+                self._stream_error_message(msg)
+            case other:
+                LOGGER.error("_handle_stream_message: unknown update %r", other)
 
     async def __aenter__(self):
         "Similar to run() but provides a one-time context manager interface."
@@ -623,6 +608,18 @@ class Switch:
             queue.put_nowait(digest)
         else:
             LOGGER.warning("digest ignored: %r", digest)
+
+    def _stream_timeout_message(self, msg: p4r.StreamMessageResponse):
+        "Called when a P4Runtime timeout notification is received."
+        timeout: p4entity.P4IdleTimeoutNotification = p4entity.decode_stream(
+            msg, self.p4info
+        )
+        queue = self._timeout_queue
+
+        if queue is not None and not queue.full():
+            queue.put_nowait(timeout)
+        else:
+            LOGGER.warning("timeout ignored: %r", timeout)
 
     def _stream_error_message(self, msg: p4r.StreamMessageResponse):
         "Called when a P4Runtime stream error response is received."
