@@ -146,6 +146,7 @@ class Switch:
     _tasks: "SwitchTasks | None"
     _queues: dict[str, asyncio.Queue[Any]]
     _packet_queues: list[tuple[Callable[[bytes], bool], asyncio.Queue[Any]]]
+    _digest_queues: dict[int, asyncio.Queue[Any]]
     _arbitrator: "Arbitrator"
     _gnmi_client: GNMIClient | None
     _ports: SwitchPortList
@@ -178,6 +179,7 @@ class Switch:
         self._tasks = None
         self._queues = {}
         self._packet_queues = []
+        self._digest_queues = {}
         self._arbitrator = Arbitrator(
             options.initial_election_id, options.role_name, options.role_config
         )
@@ -296,13 +298,28 @@ class Switch:
             LOGGER.debug("read_packets: closing packet queue: eth_types=%r", eth_types)
             self._packet_queues.remove(queue_filter)
 
-    def read_digests(
+    async def read_digests(
         self,
+        digest_id: str,
         *,
         queue_size: int = _DEFAULT_QUEUE_SIZE,
     ) -> AsyncIterator["p4entity.P4DigestList"]:
         "Async iterator for incoming digest lists (P4DigestList)."
-        return self._queue_iter("digest", queue_size)
+
+        LOGGER.debug("read_digests: opening digest queue: digest_id=%r", digest_id)
+
+        digest = self.p4info.digests[digest_id]
+        if digest.id in self._digest_queues:
+            raise ValueError(f"queue for digest_id {digest_id} already open")
+
+        queue = asyncio.Queue[Any](queue_size)
+        self._digest_queues[digest.id] = queue
+        try:
+            while True:
+                yield await queue.get()
+        finally:
+            LOGGER.debug("read_digests: closing digest queue: digest_id=%r", digest_id)
+            del self._digest_queues[digest.id]
 
     def read_idle_timeouts(
         self,
