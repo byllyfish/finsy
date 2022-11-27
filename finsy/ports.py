@@ -66,24 +66,30 @@ class SwitchPortList:
         return self._ports[key]
 
     def __len__(self):
+        "Return number of switch ports."
         return len(self._ports)
 
     def __iter__(self):
+        "Iterate over switch ports."
         return iter(self._ports.values())
 
     async def subscribe(self, client: GNMIClient):
+        """Obtain the initial list of ports and subscribe to switch port status
+        updates using GNMI."""
         assert self._subscription is None
 
         self._ports = await self._get_ports(client)
         self._subscription = await self._get_subscription(client)
 
-    async def update(self, switch: "_sw.Switch | None" = None):
+    async def listen(self, switch: "_sw.Switch | None" = None):
+        "Listen for switch port updates."
         assert self._subscription is not None
 
         async for update in self._subscription.updates():
             self._update(update, switch)
 
     def close(self):
+        "Close the switch port subscription."
         if self._subscription is not None:
             self._subscription.cancel()
             self._subscription = None

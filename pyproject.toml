@@ -86,20 +86,17 @@ ignore-patterns = [".*_pb2\\.py", ".*_pb2_grpc\\.py"]
 ignore-paths = ["finsy/proto"]
 
 [tool.pylint.basic]
-good-names = ["i", "j", "k", "ex", "Run", "_", "m", "s", "ee", "up", "id", "vt"]
+good-names = ["i", "j", "k", "v", "ex", "Run", "_", "m", "s", "ee", "up", "id", "vt"]
 
 [tool.pylint.design]
 max-attributes = 15
 max-public-methods = 25
 
 [tool.pylint.format]
-max-module-lines = 2000
+max-module-lines = 2500
 
 [tool.pylint."messages control"]
-# 1. `no-value-for-parameter` false positive from dataclass, KW_ONLY parameter '_'.
-# (see https://github.com/PyCQA/pylint/issues/5225)
-# 2. `missing-function-docstring` is *temporarily* disabled.
-disable = ["wrong-import-position", "cyclic-import", "no-value-for-parameter", "protected-access", "missing-function-docstring", "too-few-public-methods" ]
+disable = ["wrong-import-position", "cyclic-import", "protected-access", "too-few-public-methods"]
 
 [tool.mypy]
 

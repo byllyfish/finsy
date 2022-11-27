@@ -45,11 +45,13 @@ class GNMIClientError(Exception):
         LOGGER.debug("GNMI failed: %s", self)
 
     @property
-    def code(self):
+    def code(self) -> GRPCStatusCode:
+        "GRPC status code."
         return self._code
 
     @property
-    def message(self):
+    def message(self) -> str:
+        "GRPC error message."
         return self._message
 
     def __str__(self) -> str:
@@ -387,6 +389,7 @@ class GNMISubscription:
             self._sublist.prefix.CopyFrom(prefix.path)
 
     def once(self, *paths: GNMIPath):
+        "Subscribe in `ONCE` mode to given paths."
         self._sublist.mode = gnmi.SubscriptionList.Mode.ONCE
 
         for path in paths:
@@ -394,6 +397,7 @@ class GNMISubscription:
             self._sublist.subscription.append(sub)
 
     def on_change(self, *paths: GNMIPath):
+        "Subscribe in `ON_CHANGE` mode to given paths."
         assert self._sublist.mode == gnmi.SubscriptionList.Mode.STREAM
 
         for path in paths:
@@ -410,6 +414,7 @@ class GNMISubscription:
         suppress_redundant: bool = False,
         heartbeat_interval: int = 0,
     ):
+        "Subscribe in `SAMPLE` mode to given paths."
         assert self._sublist.mode == gnmi.SubscriptionList.Mode.STREAM
 
         for path in paths:
@@ -423,6 +428,10 @@ class GNMISubscription:
             self._sublist.subscription.append(sub)
 
     async def synchronize(self) -> AsyncIterator[GNMIUpdate]:
+        """Async iterator for initial subscription updates.
+
+        Retrieve all updates up to `sync_response` message.
+        """
         if self._stream is None:
             await self._subscribe()
 
@@ -433,6 +442,7 @@ class GNMISubscription:
             raise GNMIClientError(ex) from None
 
     async def updates(self) -> AsyncIterator[GNMIUpdate]:
+        "Async iterator for all remaining subscription updates."
         if self._stream is None:
             await self._subscribe()
 
@@ -443,6 +453,7 @@ class GNMISubscription:
             raise GNMIClientError(ex) from None
 
     def cancel(self):
+        "Cancel the subscription."
         if self._stream is not None:
             self._stream.cancel()
             self._stream = None

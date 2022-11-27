@@ -91,6 +91,7 @@ class GRPCOptions:
     max_reconnect_backoff_ms: int | None = None
 
     def args(self) -> Sequence[tuple[str, int]]:
+        "Return GRPC options in form suitable for grpc API."
         results: list[tuple[str, int]] = []
 
         if self.max_metadata_size is not None:

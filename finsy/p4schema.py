@@ -101,6 +101,7 @@ class P4ConfigResponseType(_EnumBase):
     )
 
     def vt(self) -> p4r.GetForwardingPipelineConfigRequest.ResponseType.ValueType:
+        "Cast `self` to `ValueType`."
         return cast(p4r.GetForwardingPipelineConfigRequest.ResponseType.ValueType, self)
 
 
@@ -116,6 +117,7 @@ class P4ConfigAction(_EnumBase):
     )
 
     def vt(self) -> p4r.SetForwardingPipelineConfigRequest.Action.ValueType:
+        "Cast `self` to `ValueType`."
         return cast(p4r.SetForwardingPipelineConfigRequest.Action.ValueType, self)
 
 
@@ -134,6 +136,7 @@ class P4UpdateType(_EnumBase):
     MODIFY = p4r.Update.Type.MODIFY
 
     def vt(self) -> p4r.Update.Type.ValueType:
+        "Cast `self` to `ValueType`."
         return cast(p4r.Update.Type.ValueType, self)
 
 
