@@ -192,7 +192,11 @@ class GNMIPath:
         if not isinstance(rhs, GNMIPath):
             rhs = GNMIPath(rhs)
 
-        result = gnmi.Path(elem=itertools.chain(self.path.elem, rhs.path.elem))
+        result = gnmi.Path(
+            elem=itertools.chain(self.path.elem, rhs.path.elem),
+            origin=self.origin,
+            target=self.target,
+        )
         return GNMIPath(result)
 
     def __rtruediv__(self, lhs: str) -> Self:
