@@ -1,5 +1,5 @@
 """
-Finsy demo program that reads an existing P4Info file and prints out a 
+Finsy demo program that reads an existing P4Info file and prints out a
 description of its contents.
 """
 

@@ -40,16 +40,19 @@ class _SupportsDecode(Protocol):
         msg: Any,  # (p4r.Entity | p4r.StreamMessageResponse)
         schema: P4Schema,
     ) -> Self:
+        "Decode message to produce entity or stream response."
         ...  # pragma: no cover
 
 
 class _SupportsEncodeEntity(Protocol):
     def encode(self, schema: P4Schema) -> p4r.Entity:
+        "Encode object as an entity."
         ...  # pragma: no cover
 
 
 class _SupportsEncodeUpdate(Protocol):
     def encode_update(self, schema: P4Schema) -> p4r.Update | p4r.StreamMessageRequest:
+        "Encode object as an update or stream request."
         ...  # pragma: no cover
 
 
@@ -176,9 +179,11 @@ class _P4Writable:
         return self
 
     def encode(self, _schema: P4Schema) -> p4r.Entity:
+        "Encode object as an entity."
         raise NotImplementedError()  # pragma: no cover
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
+        "Encode object as an update or stream request."
         if self._update_type == P4UpdateType.UNSPECIFIED:
             raise ValueError(f"unspecified update type (+, ~, -): {self!r}")
         return p4r.Update(type=self._update_type.vt(), entity=self.encode(schema))
@@ -191,9 +196,11 @@ class _P4ModifyOnly:
         return self
 
     def encode(self, _schema: P4Schema) -> p4r.Entity:
+        "Encode object as an entity."
         raise NotImplementedError()  # pragma: no cover
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
+        "Encode object as an update or stream request."
         return p4r.Update(type=P4UpdateType.MODIFY.vt(), entity=self.encode(schema))
 
 
@@ -429,6 +436,7 @@ class P4IndirectAction:
     group_id: int | None = None
 
     def encode_table_action(self, table: P4Table) -> p4r.TableAction:
+        "Encode object as a TableAction."
         if self.action_set is not None:
             assert self.member_id is None and self.group_id is None
             return p4r.TableAction(
@@ -443,6 +451,7 @@ class P4IndirectAction:
         return p4r.TableAction(action_profile_group_id=self.group_id)
 
     def encode_action_set(self, table: P4Table) -> p4r.ActionProfileActionSet:
+        "Encode object as an ActionProfileActionSet."
         assert self.action_set is not None
 
         profile_actions: list[p4r.ActionProfileAction] = []
@@ -466,6 +475,7 @@ class P4IndirectAction:
 
     @classmethod
     def decode_action_set(cls, msg: p4r.ActionProfileActionSet, table: P4Table) -> Self:
+        "Decode ActionProfileActionSet."
         action_set = list[P4WeightedAction]()
 
         for action in msg.action_profile_actions:
@@ -518,10 +528,12 @@ class P4MeterConfig:
     pburst: int
 
     def encode(self) -> p4r.MeterConfig:
+        "Encode object as MeterConfig."
         return p4r.MeterConfig(**self.__dict__)
 
     @classmethod
     def decode(cls, msg: p4r.MeterConfig) -> Self:
+        "Decode MeterConfig."
         return cls(cir=msg.cir, cburst=msg.cburst, pir=msg.pir, pburst=msg.pburst)
 
 
@@ -533,10 +545,12 @@ class P4CounterData:
     packet_count: int = 0
 
     def encode(self) -> p4r.CounterData:
+        "Encode object as CounterData."
         return p4r.CounterData(**self.__dict__)
 
     @classmethod
     def decode(cls, msg: p4r.CounterData) -> Self:
+        "Decode CounterData."
         return cls(byte_count=msg.byte_count, packet_count=msg.packet_count)
 
 
@@ -549,6 +563,7 @@ class P4MeterCounterData:
     red: P4CounterData
 
     def encode(self) -> p4r.MeterCounterData:
+        "Encode object as MeterCounterData."
         return p4r.MeterCounterData(
             green=self.green.encode(),
             yellow=self.yellow.encode(),
@@ -557,6 +572,7 @@ class P4MeterCounterData:
 
     @classmethod
     def decode(cls, msg: p4r.MeterCounterData) -> Self:
+        "Decode MeterCounterData."
         return cls(
             green=P4CounterData.decode(msg.green),
             yellow=P4CounterData.decode(msg.yellow),

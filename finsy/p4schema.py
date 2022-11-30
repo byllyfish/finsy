@@ -68,7 +68,7 @@ class P4IdleTimeoutBehavior(_EnumBase):
 
 
 class P4ActionScope(_EnumBase):
-    "IntEnum equivalent to `p4i.Table.IdleTimeoutBehavior`."
+    "IntEnum equivalent to `p4i.ActionRef.Scope`."
     TABLE_AND_DEFAULT = p4i.ActionRef.Scope.TABLE_AND_DEFAULT
     TABLE_ONLY = p4i.ActionRef.Scope.TABLE_ONLY
     DEFAULT_ONLY = p4i.ActionRef.Scope.DEFAULT_ONLY
@@ -101,6 +101,7 @@ class P4ConfigResponseType(_EnumBase):
     )
 
     def vt(self) -> p4r.GetForwardingPipelineConfigRequest.ResponseType.ValueType:
+        "Cast `self` to `ValueType`."
         return cast(p4r.GetForwardingPipelineConfigRequest.ResponseType.ValueType, self)
 
 
@@ -116,6 +117,7 @@ class P4ConfigAction(_EnumBase):
     )
 
     def vt(self) -> p4r.SetForwardingPipelineConfigRequest.Action.ValueType:
+        "Cast `self` to `ValueType`."
         return cast(p4r.SetForwardingPipelineConfigRequest.Action.ValueType, self)
 
 
@@ -134,6 +136,7 @@ class P4UpdateType(_EnumBase):
     MODIFY = p4r.Update.Type.MODIFY
 
     def vt(self) -> p4r.Update.Type.ValueType:
+        "Cast `self` to `ValueType`."
         return cast(p4r.Update.Type.ValueType, self)
 
 
@@ -225,10 +228,12 @@ class _P4DocMixin:
 
     @property
     def brief(self) -> str:
+        "Brief description."
         return self.pbuf.doc.brief  # type: ignore[attr-defined]
 
     @property
     def description(self) -> str:
+        "Long description."
         return self.pbuf.doc.description  # type: ignore[attr-defined]
 
 
@@ -674,19 +679,23 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
                 value._finish_init(self)
 
     @property
-    def headers(self):
+    def headers(self) -> dict[str, "P4HeaderType"]:
+        "Collection of P4HeaderType."
         return self._headers
 
     @property
-    def structs(self):
+    def structs(self) -> dict[str, "P4StructType"]:
+        "Collection of P4StructType."
         return self._structs
 
     @property
-    def header_unions(self):
+    def header_unions(self) -> dict[str, "P4HeaderUnionType"]:
+        "Collection of P4HeaderUnionType."
         return self._header_unions
 
     @property
-    def new_types(self):
+    def new_types(self) -> dict[str, "P4NewType"]:
+        "Collection of P4NewType."
         return self._new_types
 
     def __getitem__(self, name: str) -> "_P4Type":
@@ -808,39 +817,47 @@ class P4Table(_P4TopLevel[p4i.Table]):
 
     @property
     def size(self) -> int:
+        "Table size."
         return self.pbuf.size
 
     @property
-    def match_fields(self):
+    def match_fields(self) -> P4EntityMap["P4MatchField"]:
+        "Table match fields."
         return self._match_fields
 
     @property
-    def actions(self):
+    def actions(self) -> P4EntityMap["P4ActionRef"]:
+        "Table actions."
         return self._actions
 
     @property
-    def const_default_action(self):
+    def const_default_action(self) -> "P4ActionRef | None":
+        "Optional reference to table's constant default action."
         return self._const_default_action
 
     @property
-    def is_const(self):
+    def is_const(self) -> bool:
         "True if table has static entries that cannot be modified at runtime."
         return self.pbuf.is_const_table
 
     @property
-    def action_profile(self):
+    def action_profile(self) -> "P4ActionProfile | None":
+        "Optional reference to table's action profile."
         return self._action_profile
 
     @property
-    def idle_timeout_behavior(self):
+    def idle_timeout_behavior(self) -> P4IdleTimeoutBehavior:
+        "Table's idle timeout behavior."
         return P4IdleTimeoutBehavior(self.pbuf.idle_timeout_behavior)
 
     @property
-    def direct_counter(self):
+    def direct_counter(self) -> "P4DirectCounter | None":
+        "Optional reference to table's direct counter."
         return self._direct_counter
 
     @property
-    def direct_meter(self):
+    def direct_meter(self) -> "P4DirectMeter | None":
+        "Optional reference to table's direct meter."
         return self._direct_meter
 
 
@@ -865,10 +882,12 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
 
     @property
     def bitwidth(self) -> int:
+        "Parameter's width in bits."
         return self._bitwidth
 
     @property
     def type_spec(self) -> "_P4Type | None":
+        "Parameter's optional named type."
         return self._type_spec
 
     def encode_param(self, value: p4values.P4ParamValue) -> p4r.Action.Param:
@@ -904,7 +923,8 @@ class P4Action(_P4TopLevel[p4i.Action]):
             param._finish_init(defs)
 
     @property
-    def params(self):
+    def params(self) -> P4EntityMap[P4ActionParam]:
+        "Collection of action's parameters."
         return self._params
 
 
@@ -920,23 +940,28 @@ class P4ActionRef(_P4AnnoMixin, _P4Bridged[p4i.ActionRef]):
         self._id = self._action.id
 
     @property
-    def id(self):
+    def id(self) -> int:
+        "Action ID."
         return self._id
 
     @property
-    def name(self):
+    def name(self) -> str:
+        "Action name."
         return self._action.name
 
     @property
-    def alias(self):
+    def alias(self) -> str:
+        "Action alias."
         return self._action.alias
 
     @property
-    def params(self):
+    def params(self) -> P4EntityMap[P4ActionParam]:
+        "Collection of action's parameters."
         return self._action._params
 
     @property
-    def scope(self):
+    def scope(self) -> P4ActionScope:
+        "Action's scope, i.e. table-only or default-only."
         return P4ActionScope(self.pbuf.scope)
 
 
@@ -944,11 +969,12 @@ class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
     "Represents ActionProfile in schema."
 
     _actions: P4EntityMap[P4Action]
-    _table_names: list[str] = []
+    _table_names: list[str]
 
     def __init__(self, pbuf: p4i.ActionProfile):
         super().__init__(pbuf)
         self._actions = P4EntityMap("action")
+        self._table_names = []
 
     def _finish_init(self, defs: _P4Defs):
         # Copy actions from first table.  FIXME: Is `actions` used anywhere?
@@ -964,22 +990,27 @@ class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
 
     @property
     def with_selector(self) -> bool:
+        "True if action profile uses a selector."
         return self.pbuf.with_selector
 
     @property
     def size(self) -> int:
+        "Action profile size."
         return self.pbuf.size
 
     @property
     def max_group_size(self) -> int:
+        "Action profile max_group_size."
         return self.pbuf.max_group_size
 
     @property
     def actions(self) -> P4EntityMap[P4Action]:
+        "Collection of actions."
         return self._actions
 
     @property
     def table_names(self) -> list[str]:
+        "Table names using this action profile."
         return self._table_names
 
 
@@ -1015,18 +1046,22 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
 
     @property
     def alias(self) -> str:
+        "Match field alias."
         return self._alias
 
     @property
     def bitwidth(self) -> int:
+        "Width of match field in bits."
         return self._bitwidth
 
     @property
     def match_type(self) -> P4MatchType | str:
+        "Match field's type."
         return self._match_type
 
     @property
     def type_spec(self) -> "_P4Type | None":
+        "Match field's optional named type."
         return self._type_spec
 
     def encode_field(self, value: Any) -> p4r.FieldMatch | None:
@@ -1138,7 +1173,8 @@ class P4ControllerPacketMetadata(_P4TopLevel[p4i.ControllerPacketMetadata]):
             metadata._finish_init(defs)
 
     @property
-    def metadata(self):
+    def metadata(self) -> P4EntityMap["P4CPMetadata"]:
+        "Collection of packet metadata fields."
         return self._metadata
 
     def encode(self, metadata: dict[str, Any]) -> list[p4r.PacketMetadata]:
@@ -1182,17 +1218,21 @@ class P4CPMetadata(_P4AnnoMixin, _P4NamedMixin[p4i.ControllerPacketMetadata.Meta
 
     @property
     def bitwidth(self) -> int:
+        "Width of packet metadata field in bits."
         return self.pbuf.bitwidth
 
     @property
     def type_spec(self) -> "_P4Type | None":
+        "Packet metadata field's optional named type."
         return self._type_spec
 
     def encode(self, value: p4values.P4ParamValue) -> p4r.PacketMetadata:
+        "Encode PacketMetadata value."
         data = p4values.encode_exact(value, self.bitwidth)
         return p4r.PacketMetadata(metadata_id=self.id, value=data)
 
-    def decode(self, data: p4r.PacketMetadata):
+    def decode(self, data: p4r.PacketMetadata) -> p4values._ExactReturn:
+        "Decode PacketMetadata value."
         return p4values.decode_exact(data.value, self.bitwidth)
 
 
@@ -1207,15 +1247,18 @@ class P4DirectCounter(_P4TopLevel[p4i.DirectCounter]):
         self._direct_table_name = direct_table.name
 
     @property
-    def unit(self):
+    def unit(self) -> P4CounterUnit:
+        "Direct counter unit."
         return P4CounterUnit(self.pbuf.spec.unit)
 
     @property
     def direct_table_id(self) -> int:
+        "Counter's direct table ID."
         return self.pbuf.direct_table_id
 
     @property
     def direct_table_name(self) -> str:
+        "Name of counter's direct table."
         return self._direct_table_name
 
 

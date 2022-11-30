@@ -1,4 +1,4 @@
-# 🐟 Finsy P4Runtime Library
+# 🐟 Finsy P4Runtime Python Library
 
 [![pypi](https://img.shields.io/pypi/v/finsy)](https://pypi.org/project/finsy/) [![ci](https://github.com/byllyfish/finsy/actions/workflows/ci.yml/badge.svg)](https://github.com/byllyfish/finsy/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/byllyfish/finsy/branch/main/graph/badge.svg?token=8RPYWRXNGS)](https://codecov.io/gh/byllyfish/finsy) [![docs](https://img.shields.io/badge/-docs-informational)](https://byllyfish.github.io/finsy/finsy.html)
 

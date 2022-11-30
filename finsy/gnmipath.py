@@ -61,7 +61,7 @@ class GNMIPath:
 
     def __init__(
         self,
-        path: gnmi.Path | str = "",
+        path: gnmi.Path | str | Self = "",
         *,
         origin: str = "",
         target: str = "",
@@ -139,10 +139,7 @@ class GNMIPath:
             case int(idx):
                 return self.path.elem[idx].name
             case str(name):
-                result = self.path.elem[_find_key(name, self.path)].key.get(name)
-                if result is None:
-                    raise KeyError(name)
-                return result
+                return _retrieve_key(name, self.path)
             case (int(idx), str(k)):
                 result = self.path.elem[idx].key.get(k)
                 if result is None:
@@ -195,7 +192,11 @@ class GNMIPath:
         if not isinstance(rhs, GNMIPath):
             rhs = GNMIPath(rhs)
 
-        result = gnmi.Path(elem=itertools.chain(self.path.elem, rhs.path.elem))
+        result = gnmi.Path(
+            elem=itertools.chain(self.path.elem, rhs.path.elem),
+            origin=self.origin,
+            target=self.target,
+        )
         return GNMIPath(result)
 
     def __rtruediv__(self, lhs: str) -> Self:
@@ -254,16 +255,17 @@ def _find_index(name: str, path: gnmi.Path) -> int:
     raise KeyError(name)
 
 
-def _find_key(key: str, path: gnmi.Path) -> int:
-    "Return index in path of element with specified key."
-    for i, elem in enumerate(path.elem):
-        if key in elem.key:
-            return i
+def _retrieve_key(key: str, path: gnmi.Path) -> str:
+    "Retrieve keyed value from first element that has that key."
+    for elem in path.elem:
+        val = elem.key.get(key)
+        if val is not None:
+            return val
     raise KeyError(key)
 
 
 def _to_tuple(elem: gnmi.PathElem) -> tuple[str, ...]:
-    "Return a tuple of name and key'd values."
+    "Return a tuple of element name and values (does not include key names)."
     return (elem.name,) + tuple(sorted(elem.key.values()))
 
 

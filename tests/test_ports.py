@@ -23,6 +23,6 @@ async def test_gnmi_ports_subscribe(gnmi_client):
         assert ports[port.name] is port
 
     with pytest.raises(asyncio.TimeoutError):
-        await asyncio.wait_for(ports.update(), 0.5)
+        await asyncio.wait_for(ports.listen(), 0.5)
 
     ports.close()

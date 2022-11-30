@@ -40,10 +40,16 @@ def test_path_copy():
     assert path1.path is not path2.path
     assert path1.path is not path3.path
 
-    path4 = GNMIPath(path1, origin="origin")
+    path4 = GNMIPath(path1, origin="origin", target="target")
     assert path4 != path1
     assert path4.path.elem == path1.path.elem
     assert path4.origin == "origin" and path1.origin == ""
+    assert path4.target == "target" and path1.target == ""
+
+    path5 = path4.copy()
+    assert path5 is not path4
+    assert path5.path == path4.path
+    assert path5.path is not path4.path
 
 
 def test_path_repr():
@@ -226,3 +232,17 @@ def test_contains():
     path1 = GNMIPath("a/b/c")
     assert "b" in path1
     assert "z" not in path1
+
+
+def test_truediv_origin():
+    "Test path append operator (/) with origin."
+
+    path1 = GNMIPath("a", origin="ao", target="at")
+    path2 = GNMIPath("b", origin="bo", target="bt")
+
+    path3 = path1 / path2
+    assert path3 == GNMIPath("a/b", origin="ao", target="at")
+    assert path3 is not path1
+
+    path4 = GNMIPath("c") / path1
+    assert path4 == GNMIPath("c/a")

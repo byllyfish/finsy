@@ -59,7 +59,7 @@ def mask_to_prefix(value: int, bitwidth: int) -> int:
     return bitwidth - mask.bit_length()
 
 
-def _InvalidErr(kind: str, bitwidth: int, value: Any) -> ValueError:
+def _invalid_err(kind: str, bitwidth: int, value: Any) -> ValueError:
     "Construct formatted ValueError message."
 
     # Replace "exact" with empty string. Otherwise, prepend a space.
@@ -86,7 +86,7 @@ def _parse_exact_str(value: str, bitwidth: int) -> int:
     try:
         return int(value, base=0)
     except ValueError:
-        raise _InvalidErr("exact", bitwidth, value) from None
+        raise _invalid_err("exact", bitwidth, value) from None
 
 
 def _decode_addr(value: int, bitwidth: int, format: DecodeFormat):
@@ -180,10 +180,10 @@ def encode_exact(value: _ExactValue, bitwidth: int, mask: int = ~0) -> bytes:
         case MACAddress() if bitwidth == 48:
             ival = int(value)
         case _:
-            raise _InvalidErr("exact", bitwidth, value)
+            raise _invalid_err("exact", bitwidth, value)
 
     if ival >= (1 << bitwidth) or ival < 0:
-        raise _InvalidErr("exact", bitwidth, value)
+        raise _invalid_err("exact", bitwidth, value)
 
     size = p4r_minimum_string_size(bitwidth)
     if mask != ~0:
@@ -203,11 +203,11 @@ def decode_exact(
         return data.decode()
 
     if not data:
-        raise _InvalidErr("exact", bitwidth, data)
+        raise _invalid_err("exact", bitwidth, data)
 
     ival = int.from_bytes(data, "big")
     if ival >= (1 << bitwidth):
-        raise _InvalidErr("exact", bitwidth, data)
+        raise _invalid_err("exact", bitwidth, data)
 
     if format & DecodeFormat.ADDRESS:
         return _decode_addr(ival, bitwidth, format)
@@ -304,7 +304,7 @@ def _parse_lpm_str(value: str, bitwidth: int) -> tuple[bytes, int]:
     prefix = _parse_lpm_prefix(vals[1], bitwidth)
 
     if prefix > bitwidth or prefix < 0:
-        raise _InvalidErr("lpm", bitwidth, value)
+        raise _invalid_err("lpm", bitwidth, value)
 
     mask = ~all_ones(bitwidth - prefix)
     return (encode_exact(vals[0], bitwidth, mask), prefix)
@@ -315,7 +315,7 @@ def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
     assert value is not None
 
     if bitwidth == 0:
-        raise _InvalidErr("lpm", bitwidth, value)
+        raise _invalid_err("lpm", bitwidth, value)
 
     match value:
         case int():
@@ -324,23 +324,23 @@ def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
             return _parse_lpm_str(value, bitwidth)
         case (val, int(prefix)):
             if prefix > bitwidth or prefix < 0:
-                raise _InvalidErr("lpm", bitwidth, value)
+                raise _invalid_err("lpm", bitwidth, value)
             mask = ~all_ones(bitwidth - prefix)
             return (encode_exact(val, bitwidth, mask), prefix)
         case IPv4Network() | IPv6Network():
             if bitwidth != value.max_prefixlen:
-                raise _InvalidErr("lpm", bitwidth, value)
+                raise _invalid_err("lpm", bitwidth, value)
             return (encode_exact(value.network_address, bitwidth), value.prefixlen)
         case IPv4Address() | IPv6Address():
             if bitwidth != value.max_prefixlen:
-                raise _InvalidErr("lpm", bitwidth, value)
+                raise _invalid_err("lpm", bitwidth, value)
             return (encode_exact(value, bitwidth), bitwidth)
         case MACAddress():
             if bitwidth != 48:  # MACAddress is missing max_prefixlen.
-                raise _InvalidErr("lpm", bitwidth, value)
+                raise _invalid_err("lpm", bitwidth, value)
             return (encode_exact(value, bitwidth), bitwidth)
         case _:
-            raise _InvalidErr("lpm", bitwidth, value)
+            raise _invalid_err("lpm", bitwidth, value)
 
 
 def decode_lpm(
@@ -453,7 +453,7 @@ def encode_ternary(value: _TernaryValue, bitwidth: int) -> tuple[bytes, bytes]:
             val = int(value)
             mask = all_ones(bitwidth)
         case _:
-            raise _InvalidErr("ternary", bitwidth, value)
+            raise _invalid_err("ternary", bitwidth, value)
 
     # TODO: Masked bits in value must be zero.
     return (encode_exact(val, bitwidth), encode_exact(mask, bitwidth))
@@ -524,7 +524,7 @@ def encode_range(value: _RangeValue, bitwidth: int) -> tuple[bytes, bytes]:
         case (low, high):
             pass
         case _:
-            raise _InvalidErr("range", bitwidth, value)
+            raise _invalid_err("range", bitwidth, value)
 
     return (encode_exact(low, bitwidth), encode_exact(high, bitwidth))
 

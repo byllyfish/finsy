@@ -326,7 +326,7 @@ class Switch:
         LOGGER.debug("read_idle_timeouts: opening queue")
 
         if self._timeout_queue is not None:
-            raise ValueError(f"timeout queue already open")
+            raise ValueError("timeout queue already open")
 
         queue = Queue[p4entity.P4IdleTimeoutNotification](queue_size)
         self._timeout_queue = queue
@@ -590,8 +590,8 @@ class Switch:
         packet = p4entity.decode_stream(msg, self.p4info)
 
         was_queued = False
-        for filter, queue in self._packet_queues:
-            if not queue.full() and filter(packet.payload):
+        for pkt_filter, queue in self._packet_queues:
+            if not queue.full() and pkt_filter(packet.payload):
                 queue.put_nowait(packet)
                 was_queued = True
 
@@ -943,7 +943,7 @@ class Switch:
 
         try:
             await self._ports.subscribe(self._gnmi_client)
-            self.create_task(self._ports.update(), background=True, name="_ports")
+            self.create_task(self._ports.listen(), background=True, name="_ports")
 
         except GNMIClientError as ex:
             if ex.code != GRPCStatusCode.UNIMPLEMENTED:

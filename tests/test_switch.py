@@ -45,12 +45,13 @@ async def test_switch2(p4rt_server_target: str):
         await asyncio.wait_for(sw1.run(), 2.0)
 
 
-def test_switch3():
+def test_switch3(unused_tcp_target: str):
+    "Test switch with unavailable TCP server."
     options = SwitchOptions(
         p4info=Path("tests/test_data/p4info/basic.p4.p4info.txt"),
     )
 
-    sw1 = Switch("sw1", "127.0.0.1:19559", options)
+    sw1 = Switch("sw1", unused_tcp_target, options)
 
     with pytest.raises(asyncio.TimeoutError):
         asyncio.run(asyncio.wait_for(sw1.run(), 2.0))
