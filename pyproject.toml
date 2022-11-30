@@ -98,6 +98,9 @@ max-module-lines = 2500
 [tool.pylint."messages control"]
 disable = ["wrong-import-position", "cyclic-import", "protected-access", "too-few-public-methods"]
 
+[tool.pylint.variables]
+allowed-redefined-builtins = ["format"]
+
 [tool.mypy]
 
 disallow_untyped_defs = true

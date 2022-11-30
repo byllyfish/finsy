@@ -590,8 +590,8 @@ class Switch:
         packet = p4entity.decode_stream(msg, self.p4info)
 
         was_queued = False
-        for filter, queue in self._packet_queues:
-            if not queue.full() and filter(packet.payload):
+        for pkt_filter, queue in self._packet_queues:
+            if not queue.full() and pkt_filter(packet.payload):
                 queue.put_nowait(packet)
                 was_queued = True
 

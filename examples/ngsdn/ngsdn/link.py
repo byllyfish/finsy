@@ -4,8 +4,9 @@ import random
 import struct
 from dataclasses import dataclass
 
-import finsy as fy
 from macaddress import MAC
+
+import finsy as fy
 
 from . import netcfg
 from .log import LOG

@@ -1,9 +1,6 @@
 import asyncio
 from pathlib import Path
 
-import pytest
-from shellous import sh
-
 NGSDN_DIR = Path(__file__).parent.parent / "ngsdn"
 
 DEMONET = NGSDN_DIR / "demonet/run.sh"

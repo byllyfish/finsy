@@ -92,6 +92,7 @@ async def test_gnmi_capabilities(gnmi_client: GNMIClient):
 async def test_gnmi_set(gnmi_client: GNMIClient):
     enabled = GNMIPath("interfaces/interface[name=s1-eth1]/config/enabled")
     result = await gnmi_client.get(enabled)
+    assert result
 
     await gnmi_client.set(replace=[(enabled, False)])
 

@@ -47,7 +47,7 @@ def test_path_copy():
     assert path4.target == "target" and path1.target == ""
 
     path5 = path4.copy()
-    path5 is not path4
+    assert path5 is not path4
     assert path5.path == path4.path
     assert path5.path is not path4.path
 

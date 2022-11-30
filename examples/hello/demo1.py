@@ -1,6 +1,6 @@
 """
 Finsy demo program for a simple P4Runtime controller that floods every packet.
-Incoming packets are copied and delivered to all other ports using a 
+Incoming packets are copied and delivered to all other ports using a
 P4MulticastGroupEntry. In addition, copies of all packets are sent to the
 controller as P4PacketIn messages.
 """
