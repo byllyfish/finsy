@@ -1,5 +1,12 @@
 # Finsy Change Log
 
+## 0.10.0
+
+- The `Switch.read_digests` method now requires the name of the digest as an argument.
+- Fix issues related to parsing GNMI path strings and `to_str` escaping. (#117)
+- Fix differences in cancellation behavior in `Controller.run`. (#101)
+- Added documentation comments and pylint fixes.
+
 ## 0.9.0
 
 - Rename gNMI classes to start with "GNMI" instead of "gNMI".
