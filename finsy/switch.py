@@ -600,13 +600,20 @@ class Switch:
 
     def _stream_digest_message(self, msg: p4r.StreamMessageResponse):
         "Called when a P4Runtime digest response is received."
-        digest: p4entity.P4DigestList = p4entity.decode_stream(msg, self.p4info)
-        queue = self._digest_queues.get(digest.digest_id)
-
-        if queue is not None and not queue.full():
-            queue.put_nowait(digest)
+        try:
+            # Decode the digest list message.
+            digest: p4entity.P4DigestList = p4entity.decode_stream(msg, self.p4info)
+        except ValueError as ex:
+            # It's possible to receive a digest for a different P4Info file, or
+            # even before a P4Info is fetched from the switch.
+            LOGGER.warning("digest decode failed: %s", ex)
         else:
-            LOGGER.warning("digest ignored: %r", digest)
+            # Place the decoded digest list in a queue, if one is waiting.
+            queue = self._digest_queues.get(digest.digest_id)
+            if queue is not None and not queue.full():
+                queue.put_nowait(digest)
+            else:
+                LOGGER.warning("digest ignored: %r", digest)
 
     def _stream_timeout_message(self, msg: p4r.StreamMessageResponse):
         "Called when a P4Runtime timeout notification is received."
