@@ -274,13 +274,30 @@ class P4TableMatch(dict[str, Any]):
 
         return cls(result)
 
-    def fill_wildcards(self, table: P4Table, default: str):
-        "Fill in missing fields with `default` value."
-        for fld in table.match_fields:
-            if fld.alias not in self:
-                self[fld.alias] = default
+    def format_dict(
+        self,
+        table: P4Table,
+        *,
+        wildcard: str | None = None,
+    ) -> dict[str, str]:
+        """Format the table match fields as a human-readable dictionary."""
+        result: dict[str, str] = {}
 
-    def format(self, table: P4Table) -> str:
+        for fld in table.match_fields:
+            value = self.get(fld.alias, None)
+            if value is not None:
+                result[fld.alias] = fld.format_field(value)
+            elif wildcard is not None:
+                result[fld.alias] = wildcard
+
+        return result
+
+    def format_str(
+        self,
+        table: P4Table,
+        *,
+        wildcard: str | None = None,
+    ) -> str:
         """Format the table match fields as a human-readable string."""
         result = list[str]()
 
@@ -288,6 +305,8 @@ class P4TableMatch(dict[str, Any]):
             value = self.get(fld.alias, None)
             if value is not None:
                 result.append(f"{fld.alias}={fld.format_field(value)}")
+            elif wildcard is not None:
+                result.append(f"{fld.alias}={wildcard}")
 
         return ", ".join(result)
 
@@ -399,7 +418,7 @@ class P4TableAction:
 
         return cls(action.alias, **args)
 
-    def format(self, table: P4Table) -> str:
+    def format_str(self, table: P4Table) -> str:
         """Format the table action as a human-readable string."""
 
         aps = table.actions[self.name].params
@@ -494,12 +513,13 @@ class P4IndirectAction:
 
         return cls(action_set)
 
-    def format(self, table: P4Table) -> str:
+    def format_str(self, table: P4Table) -> str:
         """Format the indirect table action as a human-readable string."""
 
         if self.action_set is not None:
             weighted_actions = [
-                f"{weight}*{action.format(table)}" for weight, action in self.action_set
+                f"{weight}*{action.format_str(table)}"
+                for weight, action in self.action_set
             ]
             return ", ".join(weighted_actions)
 
@@ -603,18 +623,6 @@ class P4TableEntry(_P4Writable):
         if self.match is not None:
             return self.match[key]
         raise KeyError(key)
-
-    def full_match(self, schema: P4Schema, default: str = "*") -> P4TableMatch:
-        "Return copy of `match` but with all fields filled in as `default`."
-        table = schema.tables[self.table_id]
-
-        if self.match is None:
-            match = P4TableMatch()
-        else:
-            match = P4TableMatch(self.match)
-
-        match.fill_wildcards(table, default)
-        return match
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode TableEntry data as protobuf."
@@ -754,6 +762,48 @@ class P4TableEntry(_P4Writable):
             time_since_last_hit=last_hit,
             metadata=entry.metadata,
         )
+
+    def match_dict(
+        self,
+        schema: P4Schema | None = None,
+        *,
+        wildcard: str | None = None,
+    ) -> dict[str, str]:
+        """Format the match fields as a dictionary of strings.
+
+        If `wildcard` is None, only include match fields that have values. If
+        `wildcard` is set, include all field names but replace unset values with
+        given wildcard (e.g. "*")
+        """
+        if schema is None:
+            schema = P4Schema.current()
+        table = schema.tables[self.table_id]
+        if self.match is not None:
+            return self.match.format_dict(table, wildcard=wildcard)
+        return P4TableMatch().format_dict(table, wildcard=wildcard)
+
+    def match_str(
+        self,
+        schema: P4Schema | None = None,
+        *,
+        wildcard: str | None = None,
+    ) -> str:
+        "Format the match fields as a human-readable, canonical string."
+        if schema is None:
+            schema = P4Schema.current()
+        table = schema.tables[self.table_id]
+        if self.match is not None:
+            return self.match.format_str(table, wildcard=wildcard)
+        return P4TableMatch().format_str(table, wildcard=wildcard)
+
+    def action_str(self, schema: P4Schema | None = None) -> str:
+        "Format the actions as a human-readable, canonical string."
+        if schema is None:
+            schema = P4Schema.current()
+        table = schema.tables[self.table_id]
+        if self.action is None:
+            return "NoAction()"
+        return self.action.format_str(table)
 
 
 @decodable("register_entry")

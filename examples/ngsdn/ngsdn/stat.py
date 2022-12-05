@@ -77,8 +77,7 @@ class StatManager:
     ):
         assert entry.table_entry is not None
 
-        full_match = entry.table_entry.full_match(self.switch.p4info)
-        labels = {key: str(value) for key, value in full_match.items()}
+        labels = entry.table_entry.match_dict(self.switch.p4info, wildcard="*")
         labels["switch"] = self.switch.name
 
         counter = self._get_direct_counter(entry, units)
