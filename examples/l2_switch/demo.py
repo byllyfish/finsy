@@ -87,8 +87,8 @@ async def _log_counters(switch: fy.Switch, name: str):
     ports = set(PORTS)
     counts = {
         counter.index: counter.data.packet_count
-        async for counter in switch.read([fy.P4CounterEntry(name)])
-        if counter.index in ports
+        async for counter in switch.read(fy.P4CounterEntry(name))
+        if counter.index in ports and counter.data is not None
     }
     LOG.info("%s: %r", name, counts)
 

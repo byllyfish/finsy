@@ -82,20 +82,9 @@ async def _table(controller: fy.Controller, args: list[str]):
     if switch is None:
         raise ValueError(f"no such device: {device_name}")
 
-    p4table = switch.p4info.tables[table_name]
-
     async for table in switch.read(entities):
-        if table.match:
-            match = table.match.format(p4table)
-        else:
-            match = None
-        if table.action:
-            action = table.action.format(p4table)
-        elif table.is_default_action and p4table.action_profile is not None:
-            action = "NoAction()"  # default action is always NoAction()
-        else:
-            action = None
-        print(table.priority, match, "->", action)
+        with switch.p4info:
+            print(table.priority, table.match_str(), "->", table.action_str())
 
 
 async def _srv6_insert(controller: fy.Controller, args: list[str]):

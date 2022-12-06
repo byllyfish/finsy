@@ -734,19 +734,29 @@ class Switch:
         self,
         entities: _ET,
     ) -> AsyncGenerator[_ET, None]:
+        "Overload for read of a single P4Entity subtype."
+        ...
+
+    @overload
+    async def read(
+        self,
+        entities: Iterable[_ET],
+    ) -> AsyncGenerator[_ET, None]:
+        "Overload for read of an iterable of the same P4Entity subtype."
         ...
 
     @overload
     async def read(
         self,
         entities: Iterable[p4entity.P4EntityList],
-    ) -> AsyncGenerator[Any, None]:
+    ) -> AsyncGenerator[p4entity.P4Entity, None]:
+        "Most general overload: we can't determine the return type exactly."
         ...
 
     async def read(
         self,
         entities: Iterable[p4entity.P4EntityList] | p4entity.P4Entity,
-    ) -> AsyncGenerator[Any, None]:
+    ) -> AsyncGenerator[p4entity.P4Entity, None]:
         "Async iterator that reads entities from the switch."
         assert self._p4client is not None
 
