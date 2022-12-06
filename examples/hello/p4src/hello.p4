@@ -115,7 +115,7 @@ control MyIngress(
 
     table ipv4 {
         key = {
-            hdr.ipv4.ipv4_dst: exact @finsy_addr;
+            hdr.ipv4.ipv4_dst: exact @format(IPV4_ADDRESS);
         }
         actions = {
             forward;

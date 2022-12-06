@@ -15,7 +15,7 @@ tables {
   match_fields {
     id: 1
     name: "hdr.ipv4.ipv4_dst"
-    annotations: "@finsy_addr"
+    annotations: "@format(IPV4_ADDRESS)"
     bitwidth: 32
     match_type: EXACT
   }
