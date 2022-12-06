@@ -161,7 +161,15 @@ def encode_updates(
     return [_encode_update(val, schema) for val in flatten(values)]
 
 
-class _P4Writable:
+class P4Entity:
+    "Abstract marker superclass for P4Entity subclasses."
+
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
+        "Encode object as an entity."
+        raise NotImplementedError()  # pragma: no cover
+
+
+class _P4Writable(P4Entity):
     "Abstract base class for entities that support insert/modify/delete."
 
     _update_type: P4UpdateType = P4UpdateType.UNSPECIFIED
@@ -178,10 +186,6 @@ class _P4Writable:
         self._update_type = P4UpdateType.MODIFY
         return self
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
-        "Encode object as an entity."
-        raise NotImplementedError()  # pragma: no cover
-
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         "Encode object as an update or stream request."
         if self._update_type == P4UpdateType.UNSPECIFIED:
@@ -189,15 +193,11 @@ class _P4Writable:
         return p4r.Update(type=self._update_type.vt(), entity=self.encode(schema))
 
 
-class _P4ModifyOnly:
+class _P4ModifyOnly(P4Entity):
     "Abstract base class for entities that only support modify (no insert/delete)."
 
     def __invert__(self):
         return self
-
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
-        "Encode object as an entity."
-        raise NotImplementedError()  # pragma: no cover
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         "Encode object as an update or stream request."

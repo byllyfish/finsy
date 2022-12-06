@@ -60,7 +60,7 @@ async def _read_tables(target) -> set[str]:
 
     async with fy.Switch("sw", target) as sw:
         with sw.p4info:
-            async for entry in sw.read([fy.P4TableEntry()]):
+            async for entry in sw.read(fy.P4TableEntry()):
                 result.add(
                     f"{entry.table_id} {entry.match_str(wildcard='*')} {entry.action_str()}"
                 )

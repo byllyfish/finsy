@@ -26,6 +26,7 @@ from pathlib import Path
 from types import TracebackType
 from typing import (
     Any,
+    AsyncGenerator,
     AsyncIterator,
     Callable,
     Coroutine,
@@ -33,6 +34,7 @@ from typing import (
     NamedTuple,
     SupportsBytes,
     TypeVar,
+    overload,
 )
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
@@ -61,6 +63,7 @@ _FAIL_MIN_TIME_SECS = 2.0
 _FAIL_THROTTLE_SECS = 10.0
 
 _T = TypeVar("_T")
+_ET = TypeVar("_ET", bound=p4entity.P4Entity)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -726,12 +729,32 @@ class Switch:
             )
         )
 
-    async def read(self, entities: Iterable[p4entity.P4EntityList]):
+    @overload
+    async def read(
+        self,
+        entities: _ET,
+    ) -> AsyncGenerator[_ET, None]:
+        ...
+
+    @overload
+    async def read(
+        self,
+        entities: Iterable[p4entity.P4EntityList],
+    ) -> AsyncGenerator[Any, None]:
+        ...
+
+    async def read(
+        self,
+        entities: Iterable[p4entity.P4EntityList] | p4entity.P4Entity,
+    ) -> AsyncGenerator[Any, None]:
         "Async iterator that reads entities from the switch."
         assert self._p4client is not None
 
         if not entities:
             return
+
+        if isinstance(entities, p4entity.P4Entity):
+            entities = [entities]
 
         request = p4r.ReadRequest(
             device_id=self.device_id,
