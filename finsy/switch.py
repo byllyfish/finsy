@@ -268,6 +268,52 @@ class Switch:
         "P4Runtime protocol version."
         return self._api_version
 
+    @overload
+    async def read(
+        self,
+        entities: _ET,
+    ) -> AsyncGenerator[_ET, None]:
+        "Overload for read of a single P4Entity subtype."
+        ...
+
+    @overload
+    async def read(
+        self,
+        entities: Iterable[_ET],
+    ) -> AsyncGenerator[_ET, None]:
+        "Overload for read of an iterable of the same P4Entity subtype."
+        ...
+
+    @overload
+    async def read(
+        self,
+        entities: Iterable[p4entity.P4EntityList],
+    ) -> AsyncGenerator[p4entity.P4Entity, None]:
+        "Most general overload: we can't determine the return type exactly."
+        ...
+
+    async def read(
+        self,
+        entities: Iterable[p4entity.P4EntityList] | p4entity.P4Entity,
+    ) -> AsyncGenerator[p4entity.P4Entity, None]:
+        "Async iterator that reads entities from the switch."
+        assert self._p4client is not None
+
+        if not entities:
+            return
+
+        if isinstance(entities, p4entity.P4Entity):
+            entities = [entities]
+
+        request = p4r.ReadRequest(
+            device_id=self.device_id,
+            entities=p4entity.encode_entities(entities, self.p4info),
+        )
+
+        async for reply in self._p4client.request_iter(request):
+            for ent in reply.entities:
+                yield p4entity.decode_entity(ent, self.p4info)
+
     async def read_packets(
         self,
         *,
@@ -339,6 +385,150 @@ class Switch:
         finally:
             LOGGER.debug("read_idle_timeouts: closing queue")
             self._timeout_queue = None
+
+    async def write(
+        self,
+        entities: Iterable[p4entity.P4UpdateList],
+        *,
+        strict: bool = True,
+        warn_only: bool = False,
+    ):
+        """Write updates and stream messages to the switch.
+
+        If `strict` is False, MODIFY and DELETE operations will NOT raise an
+        error if the entity does not exist (NOT_FOUND).
+
+        If `warn_only` is True, no operations will raise an error. Instead,
+        the exception will be logged as a WARNING and the method will return
+        normally.
+        """
+        assert self._p4client is not None
+
+        if not entities:
+            return
+
+        msgs = p4entity.encode_updates(entities, self.p4info)
+
+        updates: list[p4r.Update] = []
+        for msg in msgs:
+            if isinstance(msg, p4r.StreamMessageRequest):
+                # StreamMessageRequests are transmitted immediately.
+                # TODO: Understand what happens with backpressure?
+                await self._p4client.send(msg)
+            else:
+                updates.append(msg)
+
+        if updates:
+            await self._write_request(updates, strict, warn_only)
+
+    async def insert(
+        self,
+        entities: Iterable[p4entity.P4EntityList],
+        *,
+        warn_only: bool = False,
+    ):
+        """Insert the specified entities.
+
+        If `warn_only` is True, errors will be logged as warnings instead of
+        raising an exception.
+        """
+        if entities:
+            await self._write_request(
+                [
+                    p4r.Update(type=p4r.Update.INSERT, entity=ent)
+                    for ent in p4entity.encode_entities(entities, self.p4info)
+                ],
+                True,
+                warn_only,
+            )
+
+    async def modify(
+        self,
+        entities: Iterable[p4entity.P4EntityList],
+        *,
+        strict: bool = True,
+        warn_only: bool = False,
+    ):
+        """Modify the specified entities.
+
+        If `strict` is False, NOT_FOUND errors will be ignored.
+
+        If `warn_only` is True, errors will be logged as warnings instead of
+        raising an exception.
+        """
+        if entities:
+            await self._write_request(
+                [
+                    p4r.Update(type=p4r.Update.MODIFY, entity=ent)
+                    for ent in p4entity.encode_entities(entities, self.p4info)
+                ],
+                strict,
+                warn_only,
+            )
+
+    async def delete(
+        self,
+        entities: Iterable[p4entity.P4EntityList],
+        *,
+        strict: bool = True,
+        warn_only: bool = False,
+    ):
+        """Delete the specified entities.
+
+        If `strict` is False, NOT_FOUND errors will be ignored.
+
+        If `warn_only` is True, errors will be logged as warnings instead of
+        raising an exception.
+        """
+        if entities:
+            await self._write_request(
+                [
+                    p4r.Update(type=p4r.Update.DELETE, entity=ent)
+                    for ent in p4entity.encode_entities(entities, self.p4info)
+                ],
+                strict,
+                warn_only,
+            )
+
+    async def delete_all(
+        self,
+        entities: Iterable[p4entity.P4EntityList] = (),
+    ):
+        """Delete all entities if no parameter is passed. Otherwise, delete
+        items that match `entities`.
+
+        TODO: This method does not affect indirect counters or meters.
+
+        TODO: ActionProfileGroup/Member, ValueSet.
+        """
+        if entities:
+            # Delete just the matching entities and return.
+            return await self._wildcard_delete(entities)
+
+        # Start by deleting everything that matches these wildcards.
+        await self._wildcard_delete(
+            [
+                p4entity.P4TableEntry(),
+                p4entity.P4MulticastGroupEntry(),
+                p4entity.P4CloneSessionEntry(),
+            ]
+        )
+
+        # Reset all default table entries.
+        default_entries = [
+            p4entity.P4TableEntry(table.alias, is_default_action=True)
+            for table in self.p4info.tables
+            if table.const_default_action is None and table.action_profile is None
+        ]
+        if default_entries:
+            await self.modify(default_entries)
+
+        # Delete DigestEntry separately. Wildcard reads are not supported.
+        digest_entries = [
+            p4entity.P4DigestEntry(digest.alias) for digest in self.p4info.digests
+        ]
+        if digest_entries:
+            await self.delete(digest_entries, strict=False)
 
     async def run(self):
         "Run the switch's lifecycle repeatedly."
@@ -728,196 +918,6 @@ class Switch:
                 config=config,
             )
         )
-
-    @overload
-    async def read(
-        self,
-        entities: _ET,
-    ) -> AsyncGenerator[_ET, None]:
-        "Overload for read of a single P4Entity subtype."
-        ...
-
-    @overload
-    async def read(
-        self,
-        entities: Iterable[_ET],
-    ) -> AsyncGenerator[_ET, None]:
-        "Overload for read of an iterable of the same P4Entity subtype."
-        ...
-
-    @overload
-    async def read(
-        self,
-        entities: Iterable[p4entity.P4EntityList],
-    ) -> AsyncGenerator[p4entity.P4Entity, None]:
-        "Most general overload: we can't determine the return type exactly."
-        ...
-
-    async def read(
-        self,
-        entities: Iterable[p4entity.P4EntityList] | p4entity.P4Entity,
-    ) -> AsyncGenerator[p4entity.P4Entity, None]:
-        "Async iterator that reads entities from the switch."
-        assert self._p4client is not None
-
-        if not entities:
-            return
-
-        if isinstance(entities, p4entity.P4Entity):
-            entities = [entities]
-
-        request = p4r.ReadRequest(
-            device_id=self.device_id,
-            entities=p4entity.encode_entities(entities, self.p4info),
-        )
-
-        async for reply in self._p4client.request_iter(request):
-            for ent in reply.entities:
-                yield p4entity.decode_entity(ent, self.p4info)
-
-    async def write(
-        self,
-        entities: Iterable[p4entity.P4UpdateList],
-        *,
-        strict: bool = True,
-        warn_only: bool = False,
-    ):
-        """Write updates and stream messages to the switch.
-
-        If `strict` is False, MODIFY and DELETE operations will NOT raise an
-        error if the entity does not exist (NOT_FOUND).
-
-        If `warn_only` is True, no operations will raise an error. Instead,
-        the exception will be logged as a WARNING and the method will return
-        normally.
-        """
-        assert self._p4client is not None
-
-        if not entities:
-            return
-
-        msgs = p4entity.encode_updates(entities, self.p4info)
-
-        updates: list[p4r.Update] = []
-        for msg in msgs:
-            if isinstance(msg, p4r.StreamMessageRequest):
-                # StreamMessageRequests are transmitted immediately.
-                # TODO: Understand what happens with backpressure?
-                await self._p4client.send(msg)
-            else:
-                updates.append(msg)
-
-        if updates:
-            await self._write_request(updates, strict, warn_only)
-
-    async def insert(
-        self,
-        entities: Iterable[p4entity.P4EntityList],
-        *,
-        warn_only: bool = False,
-    ):
-        """Insert the specified entities.
-
-        If `warn_only` is True, errors will be logged as warnings instead of
-        raising an exception.
-        """
-        if entities:
-            await self._write_request(
-                [
-                    p4r.Update(type=p4r.Update.INSERT, entity=ent)
-                    for ent in p4entity.encode_entities(entities, self.p4info)
-                ],
-                True,
-                warn_only,
-            )
-
-    async def modify(
-        self,
-        entities: Iterable[p4entity.P4EntityList],
-        *,
-        strict: bool = True,
-        warn_only: bool = False,
-    ):
-        """Modify the specified entities.
-
-        If `strict` is False, NOT_FOUND errors will be ignored.
-
-        If `warn_only` is True, errors will be logged as warnings instead of
-        raising an exception.
-        """
-        if entities:
-            await self._write_request(
-                [
-                    p4r.Update(type=p4r.Update.MODIFY, entity=ent)
-                    for ent in p4entity.encode_entities(entities, self.p4info)
-                ],
-                strict,
-                warn_only,
-            )
-
-    async def delete(
-        self,
-        entities: Iterable[p4entity.P4EntityList],
-        *,
-        strict: bool = True,
-        warn_only: bool = False,
-    ):
-        """Delete the specified entities.
-
-        If `strict` is False, NOT_FOUND errors will be ignored.
-
-        If `warn_only` is True, errors will be logged as warnings instead of
-        raising an exception.
-        """
-        if entities:
-            await self._write_request(
-                [
-                    p4r.Update(type=p4r.Update.DELETE, entity=ent)
-                    for ent in p4entity.encode_entities(entities, self.p4info)
-                ],
-                strict,
-                warn_only,
-            )
-
-    async def delete_all(
-        self,
-        entities: Iterable[p4entity.P4EntityList] = (),
-    ):
-        """Delete all entities if no parameter is passed. Otherwise, delete
-        items that match `entities`.
-
-        TODO: This method does not affect indirect counters or meters.
-
-        TODO: ActionProfileGroup/Member, ValueSet.
-        """
-        if entities:
-            # Delete just the matching entities and return.
-            return await self._wildcard_delete(entities)
-
-        # Start by deleting everything that matches these wildcards.
-        await self._wildcard_delete(
-            [
-                p4entity.P4TableEntry(),
-                p4entity.P4MulticastGroupEntry(),
-                p4entity.P4CloneSessionEntry(),
-            ]
-        )
-
-        # Reset all default table entries.
-        default_entries = [
-            p4entity.P4TableEntry(table.alias, is_default_action=True)
-            for table in self.p4info.tables
-            if table.const_default_action is None and table.action_profile is None
-        ]
-        if default_entries:
-            await self.modify(default_entries)
-
-        # Delete DigestEntry separately. Wildcard reads are not supported.
-        digest_entries = [
-            p4entity.P4DigestEntry(digest.alias) for digest in self.p4info.digests
-        ]
-        if digest_entries:
-            await self.delete(digest_entries, strict=False)
 
     async def _wildcard_delete(self, entities: Iterable[p4entity.P4EntityList]):
         "Delete entities that match a wildcard read."
