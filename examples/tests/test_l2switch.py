@@ -1,6 +1,8 @@
 import asyncio
 from pathlib import Path
 
+import testlib
+
 import finsy as fy
 
 L2SWITCH_DIR = Path(__file__).parent.parent / "l2_switch"
@@ -48,21 +50,7 @@ async def test_read_tables(demonet):
     }
 
     for target, expected_state in expected_switch_states.items():
-        actual_state = await _read_tables(target)
+        actual_state = await testlib.read_p4_tables(target)
         # At a minimum, the actual state should be the expected state.
         # Ignore additional host address noise.
         assert actual_state >= expected_state
-
-
-async def _read_tables(target) -> set[str]:
-    "Read all table entries from the P4Runtime switch."
-    result = set()
-
-    async with fy.Switch("sw", target) as sw:
-        with sw.p4info:
-            async for entry in sw.read(fy.P4TableEntry()):
-                result.add(
-                    f"{entry.table_id} {entry.match_str(wildcard='*')} {entry.action_str()}"
-                )
-
-    return result
