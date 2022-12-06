@@ -14,6 +14,7 @@ async def test_ngsdn(demonet, python):
 
         # These are IPv6 pings.
         await demonet.send("h1a ping -c 1 h3")
-        await demonet.send("h3 ping -c 1 h1a", expect=" 0% packet loss")
+        await demonet.send("h3 ping -c 1 h1a")
+        await demonet.send("h1a ping -c 1 h3", expect=" 0% packet loss")
 
         demo.cancel()
