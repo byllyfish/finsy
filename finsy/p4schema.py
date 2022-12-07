@@ -19,6 +19,7 @@
 import hashlib
 import inspect
 import re
+from contextvars import ContextVar
 from pathlib import Path
 from typing import (
     Any,
@@ -628,6 +629,23 @@ class P4Schema(_ReprMixin):
         "Type Info object."
         return self._p4defs.type_info
 
+    @staticmethod
+    def current() -> "P4Schema":
+        "Return the current P4Schema context."
+        result = _P4SCHEMA_CTXT.get()
+        if result is None:
+            raise RuntimeError("not in P4Schema context")
+        return result
+
+    def __enter__(self) -> "P4Schema":
+        if _P4SCHEMA_CTXT.get() is not None:
+            raise RuntimeError("Do not stack P4Schema context managers")
+        _P4SCHEMA_CTXT.set(self)
+        return self
+
+    def __exit__(self, *_args: Any):
+        _P4SCHEMA_CTXT.set(None)
+
     def __str__(self):
         if self._p4info is None:
             return "<P4Info: No pipeline configured>"
@@ -639,6 +657,11 @@ class P4Schema(_ReprMixin):
         hasher.update(self.p4blob)
         digest = hasher.digest()
         self._p4cookie = int.from_bytes(digest[0:8], "big")
+
+
+# Context var that stores the current context for convenience. Returned by
+# `P4Schema.current()`.
+_P4SCHEMA_CTXT: ContextVar[P4Schema | None] = ContextVar("_P4SCHEMA_CTXT", default=None)
 
 
 def _sort_map(value: Mapping[Any, Any]):

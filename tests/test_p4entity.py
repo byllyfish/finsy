@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+
 from finsy import pbuf
 from finsy.p4entity import (
     P4ActionProfileGroup,
@@ -84,7 +85,7 @@ def test_table_match1():
         }
     ]
     assert match == P4TableMatch.decode(msgs, table)
-    assert match.format(table) == "dstAddr=0xa000000/24"
+    assert match.format_str(table) == "dstAddr=0xa000000/24"
 
 
 def test_table_match2():
@@ -158,7 +159,7 @@ def test_table_action1():
         }
     }
     assert action == P4TableAction.decode_table_action(msg, table)
-    assert action.format(table) == "ipv4_forward(dstAddr=0xa000001, port=0x1)"
+    assert action.format_str(table) == "ipv4_forward(dstAddr=0xa000001, port=0x1)"
 
 
 def test_table_action2():
@@ -239,7 +240,7 @@ def test_indirect_action1():
         "2}))])"
     )
     assert (
-        action.format(table)
+        action.format_str(table)
         == "1*ipv4_forward(dstAddr=0xa000001, port=0x1), 1*ipv4_forward(dstAddr=0xa000001, port=0x2)"
     )
 
@@ -256,7 +257,7 @@ def test_indirect_action2():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(group_id=123)"
-    assert action.format(table) == "__indirect(group_id=123)"
+    assert action.format_str(table) == "__indirect(group_id=123)"
 
 
 def test_indirect_action3():
@@ -271,7 +272,7 @@ def test_indirect_action3():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(member_id=345)"
-    assert action.format(table) == "__indirect(member_id=345)"
+    assert action.format_str(table) == "__indirect(member_id=345)"
 
 
 def test_indirect_action4():
@@ -455,14 +456,14 @@ def test_table_entry_indirect():
     assert decoded_entry == P4TableEntry.decode(msg, schema)
 
 
-def test_table_entry_full_match():
-    "Test TableEntry full_match method."
+def test_table_entry_match_dict():
+    "Test TableEntry match_dict method."
 
     entry1 = P4TableEntry("ipv4_lpm")
-    assert entry1.full_match(_SCHEMA) == {"dstAddr": "*"}
+    assert entry1.match_dict(_SCHEMA, wildcard="*") == {"dstAddr": "*"}
 
     entry2 = P4TableEntry("ipv4_lpm", match=P4TableMatch(dstAddr=1))
-    assert entry2.full_match(_SCHEMA) == {"dstAddr": 1}
+    assert entry2.match_dict(_SCHEMA, wildcard="*") == {"dstAddr": "0x1/32"}
 
 
 def test_table_entry_accessor():
@@ -477,6 +478,25 @@ def test_table_entry_accessor():
     entry2 = P4TableEntry("ipv4_lpm")
     with pytest.raises(KeyError):
         entry2["dstAddr"]
+
+
+def test_table_entry_str_display():
+    "Test P4TableEntry match_str and action_str methods."
+
+    entry = P4TableEntry(
+        "ipv4_lpm",
+        match=P4TableMatch(dstAddr=1),
+        action=P4TableAction("ipv4_forward", dstAddr=1108152157446, port=1),
+    )
+    assert f"{entry}" == str(entry)
+
+    with _SCHEMA:
+        # Test schema-aware formatting.
+        assert entry.match_str() == "dstAddr=0x1/32"
+        assert entry.action_str() == "ipv4_forward(dstAddr=0x10203040506, port=0x1)"
+
+    with pytest.raises(RuntimeError, match="not in P4Schema context"):
+        assert entry.action_str()
 
 
 def test_decode_entity1():

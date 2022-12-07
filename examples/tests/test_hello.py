@@ -1,6 +1,8 @@
 import asyncio
 from pathlib import Path
 
+import testlib
+
 HELLO_DIR = Path(__file__).parent.parent / "hello"
 
 DEMONET = HELLO_DIR / "demonet/run.sh"
@@ -58,3 +60,28 @@ async def test_demo3(demonet, python):
         await demonet.send("pingall")
         await demonet.send("pingall", expect="(6/6 received)")
         demo3.cancel()
+
+
+async def test_read_tables(demonet):
+    "Read the state of the P4Runtime tables after running all the tests."
+    expected_switch_states = {
+        "127.0.0.1:50001": {
+            "ipv4 ipv4_dst=10.0.0.1 forward(port=0x1)",
+            "ipv4 ipv4_dst=10.0.0.2 forward(port=0x2)",
+            "ipv4 ipv4_dst=10.0.0.3 forward(port=0x2)",
+        },
+        "127.0.0.1:50002": {
+            "ipv4 ipv4_dst=10.0.0.1 forward(port=0x2)",
+            "ipv4 ipv4_dst=10.0.0.2 forward(port=0x1)",
+            "ipv4 ipv4_dst=10.0.0.3 forward(port=0x3)",
+        },
+        "127.0.0.1:50003": {
+            "ipv4 ipv4_dst=10.0.0.1 forward(port=0x2)",
+            "ipv4 ipv4_dst=10.0.0.2 forward(port=0x2)",
+            "ipv4 ipv4_dst=10.0.0.3 forward(port=0x1)",
+        },
+    }
+
+    for target, expected_state in expected_switch_states.items():
+        actual_state = await testlib.read_p4_tables(target)
+        assert actual_state == expected_state
