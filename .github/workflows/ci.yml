@@ -49,4 +49,6 @@ jobs:
         FINSY_TEST_NO_BENCHMARK=1 pytest --cov finsy
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v3
-  
+    - name: Format Check
+      run: |
+        black --check finsy tests
