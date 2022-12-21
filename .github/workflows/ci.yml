@@ -51,4 +51,4 @@ jobs:
       uses: codecov/codecov-action@v3
     - name: Format Check
       run: |
-        black -v --check finsy tests
+        black --check finsy tests
