@@ -524,9 +524,9 @@ class P4IndirectAction:
             return " ".join(weighted_actions)
 
         if self.member_id is not None:
-            return f"__indirect(member_id={self.member_id!r})"
+            return f"__indirect(member_id={self.member_id:#x})"
 
-        return f"__indirect(group_id={self.group_id!r})"
+        return f"__indirect(group_id={self.group_id:#x})"
 
     def __repr__(self):
         "Customize representation to make it more concise."

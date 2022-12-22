@@ -257,7 +257,7 @@ def test_indirect_action2():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(group_id=123)"
-    assert action.format_str(table) == "__indirect(group_id=123)"
+    assert action.format_str(table) == "__indirect(group_id=0x7b)"
 
 
 def test_indirect_action3():
@@ -272,7 +272,7 @@ def test_indirect_action3():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(member_id=345)"
-    assert action.format_str(table) == "__indirect(member_id=345)"
+    assert action.format_str(table) == "__indirect(member_id=0x159)"
 
 
 def test_indirect_action4():
