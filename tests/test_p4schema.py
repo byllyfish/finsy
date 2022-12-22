@@ -5,6 +5,7 @@ from ipaddress import IPv4Address, IPv4Network
 from pathlib import Path
 
 import pytest
+
 from finsy import p4values, pbuf
 from finsy.p4schema import (
     P4ActionParam,
@@ -653,14 +654,14 @@ def test_p4matchfield_ternary():
     assert field.encode_field("0.0.0.0/0.0.0.0") is None
 
     assert field.decode_field(field_p4) == (167772160, 4278190080)
-    assert field.format_field("10.0.0.0/255.0.0.0") == "0xa000000/&0xff000000"
+    assert field.format_field("10.0.0.0/255.0.0.0") == "0xa000000/8"
 
     field._format |= p4values.DecodeFormat.ADDRESS
     assert field.decode_field(field_p4) == (
         IPv4Address("10.0.0.0"),
         IPv4Address("255.0.0.0"),
     )
-    assert field.format_field("10.0.0.0/255.0.0.0") == "10.0.0.0/&255.0.0.0"
+    assert field.format_field("10.0.0.0/255.0.0.0") == "10.0.0.0/8"
 
 
 def test_p4matchfield_range():

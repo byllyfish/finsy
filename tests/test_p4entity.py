@@ -471,7 +471,7 @@ def test_table_entry_match_dict():
     assert entry1.match_dict(_SCHEMA, wildcard="*") == {"dstAddr": "*"}
 
     entry2 = P4TableEntry("ipv4_lpm", match=P4TableMatch(dstAddr=1))
-    assert entry2.match_dict(_SCHEMA, wildcard="*") == {"dstAddr": "0x1/32"}
+    assert entry2.match_dict(_SCHEMA, wildcard="*") == {"dstAddr": "0x1"}
 
 
 def test_table_entry_accessor():
@@ -500,7 +500,7 @@ def test_table_entry_str_display():
 
     with _SCHEMA:
         # Test schema-aware formatting.
-        assert entry.match_str() == "dstAddr=0x1/32"
+        assert entry.match_str() == "dstAddr=0x1"
         assert entry.action_str() == "ipv4_forward(dstAddr=0x10203040506, port=0x1)"
 
     with pytest.raises(RuntimeError, match="not in P4Schema context"):
