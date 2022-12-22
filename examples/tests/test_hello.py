@@ -66,21 +66,21 @@ async def test_read_tables(demonet):
     "Read the state of the P4Runtime tables after running all the tests."
     expected_switch_states = {
         "127.0.0.1:50001": {
-            "ipv4 0x0 ipv4_dst=10.0.0.1 forward(port=0x1)",
-            "ipv4 0x0 ipv4_dst=10.0.0.2 forward(port=0x2)",
-            "ipv4 0x0 ipv4_dst=10.0.0.3 forward(port=0x2)",
+            "ipv4 ipv4_dst=10.0.0.1 forward(port=0x1)",
+            "ipv4 ipv4_dst=10.0.0.2 forward(port=0x2)",
+            "ipv4 ipv4_dst=10.0.0.3 forward(port=0x2)",
             "ipv4 MyIngress.drop()",
         },
         "127.0.0.1:50002": {
-            "ipv4 0x0 ipv4_dst=10.0.0.1 forward(port=0x2)",
-            "ipv4 0x0 ipv4_dst=10.0.0.2 forward(port=0x1)",
-            "ipv4 0x0 ipv4_dst=10.0.0.3 forward(port=0x3)",
+            "ipv4 ipv4_dst=10.0.0.1 forward(port=0x2)",
+            "ipv4 ipv4_dst=10.0.0.2 forward(port=0x1)",
+            "ipv4 ipv4_dst=10.0.0.3 forward(port=0x3)",
             "ipv4 MyIngress.drop()",
         },
         "127.0.0.1:50003": {
-            "ipv4 0x0 ipv4_dst=10.0.0.1 forward(port=0x2)",
-            "ipv4 0x0 ipv4_dst=10.0.0.2 forward(port=0x2)",
-            "ipv4 0x0 ipv4_dst=10.0.0.3 forward(port=0x1)",
+            "ipv4 ipv4_dst=10.0.0.1 forward(port=0x2)",
+            "ipv4 ipv4_dst=10.0.0.2 forward(port=0x2)",
+            "ipv4 ipv4_dst=10.0.0.3 forward(port=0x1)",
             "ipv4 MyIngress.drop()",
         },
     }

@@ -10,8 +10,12 @@ async def read_p4_tables(target: str) -> set[str]:
             # Wildcard-read does not read default entries.
             async for entry in sw.read(fy.P4TableEntry()):
                 assert not entry.is_default_action
+                if entry.priority != 0:
+                    info = f"{entry.table_id} {entry.priority:#x}"
+                else:
+                    info = entry.table_id
                 result.add(
-                    f"{entry.table_id} {entry.priority:#x} {entry.match_str(wildcard='*')} {entry.action_str()}"
+                    f"{info} {entry.match_str(wildcard='*')} {entry.action_str()}"
                 )
             # Read default entries for each table.
             for table in sw.p4info.tables:
