@@ -22,6 +22,7 @@ async def test_demo(demonet, python):
 async def test_read_tables(demonet):
     "Test the state of the tables after the demo finishes."
 
+    # FIXME: bmv2 switch doesn't return default entries?
     expected_switch_states = {
         "127.0.0.1:50001": {
             "smac srcAddr=0x1 NoAction()",

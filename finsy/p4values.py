@@ -359,6 +359,8 @@ def decode_lpm(
         case IPv6Address():
             return IPv6Network((value, prefix_len))
         case str():
+            if prefix_len == bitwidth:
+                return value
             return f"{value}/{prefix_len}"
         case _:
             return (value, prefix_len)
@@ -467,13 +469,24 @@ def decode_ternary(
 ) -> _TernaryReturn:
     "Decode a P4R Ternary value."
 
-    result = (decode_exact(data, bitwidth, hint), decode_exact(mask, bitwidth, hint))
+    if hint & DecodeFormat.STRING:
+        # When decoding to string, check if mask can be represented
+        # using LPM syntax or if the mask is all ones.
+        prefix = mask_to_prefix(int.from_bytes(mask, "big"), bitwidth)
+        if prefix >= 0:
+            value = decode_exact(data, bitwidth, hint)
+            if prefix == bitwidth:
+                return value
+            else:
+                return f"{value}/{prefix}"
+        else:
+            tup = (
+                decode_exact(data, bitwidth, hint),
+                decode_exact(mask, bitwidth, hint),
+            )
+            return f"{tup[0]}/&{tup[1]}"
 
-    match result[0]:
-        case str():
-            return f"{result[0]}/&{result[1]}"
-        case _:
-            return result
+    return (decode_exact(data, bitwidth, hint), decode_exact(mask, bitwidth, hint))
 
 
 def format_ternary(value: _TernaryValue, bitwidth: int, format: DecodeFormat) -> str:

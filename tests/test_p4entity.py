@@ -241,7 +241,7 @@ def test_indirect_action1():
     )
     assert (
         action.format_str(table)
-        == "1*ipv4_forward(dstAddr=0xa000001, port=0x1), 1*ipv4_forward(dstAddr=0xa000001, port=0x2)"
+        == "1*ipv4_forward(dstAddr=0xa000001, port=0x1) 1*ipv4_forward(dstAddr=0xa000001, port=0x2)"
     )
 
 
@@ -257,7 +257,7 @@ def test_indirect_action2():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(group_id=123)"
-    assert action.format_str(table) == "__indirect(group_id=123)"
+    assert action.format_str(table) == "__indirect(group_id=0x7b)"
 
 
 def test_indirect_action3():
@@ -272,7 +272,7 @@ def test_indirect_action3():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(member_id=345)"
-    assert action.format_str(table) == "__indirect(member_id=345)"
+    assert action.format_str(table) == "__indirect(member_id=0x159)"
 
 
 def test_indirect_action4():
@@ -305,6 +305,14 @@ def test_indirect_action4():
     }
 
     assert action == P4TableAction.decode_table_action(msg, table)
+
+    assert (
+        repr(action)
+        == "P4IndirectAction(action_set=[((1, 1), P4TableAction(name='ipv4_forward', args={'dstAddr': 167772161, 'port': 1}))])"
+    )
+    assert (
+        action.format_str(table) == "(1, 1)*ipv4_forward(dstAddr=0xa000001, port=0x1)"
+    )
 
 
 def test_weighted_action():
@@ -463,7 +471,7 @@ def test_table_entry_match_dict():
     assert entry1.match_dict(_SCHEMA, wildcard="*") == {"dstAddr": "*"}
 
     entry2 = P4TableEntry("ipv4_lpm", match=P4TableMatch(dstAddr=1))
-    assert entry2.match_dict(_SCHEMA, wildcard="*") == {"dstAddr": "0x1/32"}
+    assert entry2.match_dict(_SCHEMA, wildcard="*") == {"dstAddr": "0x1"}
 
 
 def test_table_entry_accessor():
@@ -492,7 +500,7 @@ def test_table_entry_str_display():
 
     with _SCHEMA:
         # Test schema-aware formatting.
-        assert entry.match_str() == "dstAddr=0x1/32"
+        assert entry.match_str() == "dstAddr=0x1"
         assert entry.action_str() == "ipv4_forward(dstAddr=0x10203040506, port=0x1)"
 
     with pytest.raises(RuntimeError, match="not in P4Schema context"):
