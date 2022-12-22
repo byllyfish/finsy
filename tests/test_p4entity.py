@@ -241,7 +241,7 @@ def test_indirect_action1():
     )
     assert (
         action.format_str(table)
-        == "1*ipv4_forward(dstAddr=0xa000001, port=0x1), 1*ipv4_forward(dstAddr=0xa000001, port=0x2)"
+        == "1*ipv4_forward(dstAddr=0xa000001, port=0x1) 1*ipv4_forward(dstAddr=0xa000001, port=0x2)"
     )
 
 
@@ -305,6 +305,14 @@ def test_indirect_action4():
     }
 
     assert action == P4TableAction.decode_table_action(msg, table)
+
+    assert (
+        repr(action)
+        == "P4IndirectAction(action_set=[((1, 1), P4TableAction(name='ipv4_forward', args={'dstAddr': 167772161, 'port': 1}))])"
+    )
+    assert (
+        action.format_str(table) == "(1, 1)*ipv4_forward(dstAddr=0xa000001, port=0x1)"
+    )
 
 
 def test_weighted_action():

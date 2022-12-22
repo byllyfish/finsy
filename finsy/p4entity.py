@@ -299,7 +299,7 @@ class P4TableMatch(dict[str, Any]):
         wildcard: str | None = None,
     ) -> str:
         """Format the table match fields as a human-readable string."""
-        result = list[str]()
+        result: list[str] = []
 
         for fld in table.match_fields:
             value = self.get(fld.alias, None)
@@ -308,7 +308,7 @@ class P4TableMatch(dict[str, Any]):
             elif wildcard is not None:
                 result.append(f"{fld.alias}={wildcard}")
 
-        return ", ".join(result)
+        return " ".join(result)
 
 
 @dataclass
@@ -521,7 +521,7 @@ class P4IndirectAction:
                 f"{weight}*{action.format_str(table)}"
                 for weight, action in self.action_set
             ]
-            return ", ".join(weighted_actions)
+            return " ".join(weighted_actions)
 
         if self.member_id is not None:
             return f"__indirect(member_id={self.member_id!r})"
