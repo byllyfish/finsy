@@ -18,6 +18,7 @@ Here is the full table:
     gnmi1.gnmi_pb2_grpc       => `from finsy.proto import gnmi_grpc`
     gnmi1.gnmi_ext_pb2        => `from finsy.proto import gnmi_ext`
     stratum1.p4_role_config   => `from finsy.proto import stratum`
+    p4testgen1.p4testgen      => `from finsy.proto import p4testgen`
 
 """
 
@@ -33,6 +34,7 @@ __all__ = (
     "rpc_code",
     "rpc_status",
     "stratum",
+    "p4testgen",
     "U128",
 )
 
@@ -59,6 +61,7 @@ from p4.config.v1 import p4types_pb2 as p4t
 from p4.v1 import p4data_pb2 as p4d
 from p4.v1 import p4runtime_pb2 as p4r
 from p4.v1 import p4runtime_pb2_grpc as p4r_grpc
+from p4testgen1 import p4testgen_pb2 as p4testgen
 from stratum1 import p4_role_config_pb2 as stratum
 
 del sys.path[0]

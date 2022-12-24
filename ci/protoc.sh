@@ -17,6 +17,7 @@ GOOGLE_RPC_FILES_URL="https://github.com/googleapis/api-common-protos/tree/main/
 GNMI_URL="https://raw.githubusercontent.com/openconfig/gnmi/master/proto/gnmi/gnmi.proto"
 GNMI_EXT_URL="https://raw.githubusercontent.com/openconfig/gnmi/master/proto/gnmi_ext/gnmi_ext.proto"
 STRATUM_P4ROLECONFIG_URL="https://raw.githubusercontent.com/stratum/stratum/main/stratum/public/proto/p4_role_config.proto"
+P4TESTGEN_URL="https://raw.githubusercontent.com/p4lang/p4c/main/backends/p4tools/modules/testgen/targets/bmv2/proto/p4testgen.proto"
 
 if ! [ -d "finsy/proto" ]; then
     echo "Wrong working directory."
@@ -49,6 +50,12 @@ download_proto_files() {
     # Make a "stratum1" directory and download "p4_role_config.proto" inside.
     mkdir "stratum1" && pushd "stratum1"
     curl "$STRATUM_P4ROLECONFIG_URL" > "p4_role_config.proto"
+    popd
+
+    # Make a "p4testgen1" directory and download "p4testgen.proto" inside. Fix
+    # up the #import statement to reflect the local build directory structure.
+    mkdir "p4testgen1" && pushd "p4testgen1"
+    curl "$P4TESTGEN_URL" | sed 's+p4runtime/proto/++' > "p4testgen.proto"
     popd
 
     # Move .proto files to their destination.
