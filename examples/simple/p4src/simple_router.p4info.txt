@@ -1,0 +1,137 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 43030458
+    name: "ingress.ipv4_lpm"
+    alias: "ipv4_lpm"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ipv4.dstAddr"
+    bitwidth: 32
+    match_type: LPM
+  }
+  action_refs {
+    id: 19344232
+  }
+  action_refs {
+    id: 29239084
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 1024
+}
+tables {
+  preamble {
+    id: 43289378
+    name: "ingress.forward"
+    alias: "forward"
+  }
+  match_fields {
+    id: 1
+    name: "meta.ingress_metadata.nhop_ipv4"
+    bitwidth: 32
+    match_type: EXACT
+  }
+  action_refs {
+    id: 30489383
+  }
+  action_refs {
+    id: 19344232
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 512
+}
+tables {
+  preamble {
+    id: 49367184
+    name: "egress.send_frame"
+    alias: "send_frame"
+  }
+  match_fields {
+    id: 1
+    name: "standard_metadata.egress_port"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  action_refs {
+    id: 23531945
+  }
+  action_refs {
+    id: 25850727
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 256
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 19344232
+    name: "ingress._drop"
+    alias: "ingress._drop"
+  }
+}
+actions {
+  preamble {
+    id: 29239084
+    name: "ingress.set_nhop"
+    alias: "set_nhop"
+  }
+  params {
+    id: 1
+    name: "nhop_ipv4"
+    bitwidth: 32
+  }
+  params {
+    id: 2
+    name: "port"
+    bitwidth: 9
+  }
+}
+actions {
+  preamble {
+    id: 30489383
+    name: "ingress.set_dmac"
+    alias: "set_dmac"
+  }
+  params {
+    id: 1
+    name: "dmac"
+    bitwidth: 48
+  }
+}
+actions {
+  preamble {
+    id: 23531945
+    name: "egress.rewrite_mac"
+    alias: "rewrite_mac"
+  }
+  params {
+    id: 1
+    name: "smac"
+    bitwidth: 48
+  }
+}
+actions {
+  preamble {
+    id: 25850727
+    name: "egress._drop"
+    alias: "egress._drop"
+  }
+}
+type_info {
+}
