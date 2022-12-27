@@ -121,6 +121,7 @@ class P4ClientError(Exception):
     _status: P4RpcStatus
     _outer_code: GRPCStatusCode
     _outer_message: str
+    _schema: P4Schema | None = None  # for annotating sub-value details
 
     def __init__(
         self,
@@ -128,6 +129,7 @@ class P4ClientError(Exception):
         operation: str,
         *,
         msg: pbuf.PBMessage | None = None,
+        schema: P4Schema | None = None,
     ):
         super().__init__()
         assert isinstance(error, grpc.aio.AioRpcError)
@@ -139,6 +141,7 @@ class P4ClientError(Exception):
 
         if msg is not None and self.details:
             self._attach_details(msg)
+            self._schema = schema
 
         LOGGER.debug("%s failed: %s", operation, self)
 
@@ -194,12 +197,15 @@ class P4ClientError(Exception):
         "Return string representation of P4ClientError object."
         if self.details:
 
-            def _indent(value: P4Error):
-                s = repr(value).replace("\n}\n)", "\n})")  # tidy multiline repr
-                return s.replace("\n", "\n" + " " * 6)
+            def _show(value: P4Error):
+                s = repr(value)
+                if self._schema:
+                    s = pbuf.log_annotate(s, self._schema)
+                s = s.replace("\n}\n)", "\n})")  # tidy multiline repr
+                return s.replace("\n", "\n" + " " * 6)  # indent 6 spaces
 
             items = [""] + [
-                f"  [details.{key}] {_indent(val)}" for key, val in self.details.items()
+                f"  [details.{key}] {_show(val)}" for key, val in self.details.items()
             ]
             details = "\n".join(items)
         else:
@@ -373,7 +379,7 @@ class P4Client:
                 timeout=_DEFAULT_RPC_TIMEOUT,
             )
         except grpc.RpcError as ex:
-            raise P4ClientError(ex, msg_type, msg=msg) from None
+            raise P4ClientError(ex, msg_type, msg=msg, schema=self._schema) from None
 
         self._log_msg(reply)
         return reply
