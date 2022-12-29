@@ -162,7 +162,7 @@ def log_msg(
     if isinstance(msg, (p4r.ReadResponse, p4r.WriteRequest)):
         text = to_text(msg, as_one_line=False, custom_format=True)
         if schema is not None:
-            text = _log_annotate(text, schema)
+            text = log_annotate(text, schema)
     elif isinstance(msg, gnmi.GetResponse):
         text = to_text(msg, as_one_line=False, custom_format=True)
     else:
@@ -188,7 +188,7 @@ def log_msg(
 _ANNOTATE_REGEX = re.compile(r'([a-z]+_id|value|mask): (\d+|"[^"]+")\n', re.MULTILINE)
 
 
-def _log_annotate(text: str, schema: "_fy.P4Schema") -> str:
+def log_annotate(text: str, schema: "_fy.P4Schema") -> str:
     "Annotate table_id, action_id, etc. in log messages."
 
     action_id = 0
