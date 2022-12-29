@@ -75,4 +75,5 @@ async def main():
         await sw.write(ENTRIES)
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

@@ -328,7 +328,11 @@ class P4EntityMap(Generic[_T]):
         return f"[{', '.join([repr(item) for item in self])}]"
 
     def _add(self, entity: _T, split_suffix: bool = False) -> None:
-        "Add entity."
+        """Add entity by ID, name and alias.
+
+        If `split_suffix` is True and alias == name, then also index entry by
+        the last portion of the alias.
+        """
         ident: int = entity.id  # type: ignore[attr-defined]
         name: str = entity.name  # type: ignore[attr-defined]
 

@@ -1,16 +1,12 @@
-from mininet.cli import CLI
-from mininet.log import setLogLevel
-from mininet.net import Mininet
 from mininet.node import Host
 from mininet.topo import Topo
-from stratum import StratumBmv2Switch
 
 
 class SimpleHost(Host):
     "Simple host with default gateway / arp support."
 
     def config(self, ip_gw=None, arp=None, **params):
-        super().config(**params)
+        super(SimpleHost, self).config(**params)
 
         self.defaultIntf().rename("eth0")
         for feature in ["rx", "tx", "sg"]:
@@ -28,11 +24,12 @@ class SimpleTopo(Topo):
     "Simple 2 host topology."
 
     def __init__(self, *args, **kwargs):
-        super().__init__(self, *args, **kwargs)
+        super(SimpleTopo, self).__init__(*args, **kwargs)
 
         s1 = self.addSwitch("s1")
         h1 = self.addHost(
             "h1",
+            cls=SimpleHost,
             mac="00:00:00:00:00:01",
             ip="10.0.1.10/24",
             ip_gw="10.0.1.1",
@@ -40,6 +37,7 @@ class SimpleTopo(Topo):
         )
         h2 = self.addHost(
             "h2",
+            cls=SimpleHost,
             mac="00:00:00:00:00:02",
             ip="10.0.2.10/24",
             ip_gw="10.0.2.1",
@@ -49,14 +47,4 @@ class SimpleTopo(Topo):
         self.addLink(h2, s1)
 
 
-if __name__ == "__main__":
-    setLogLevel("info")
-    net = Mininet(
-        switch=StratumBmv2Switch,
-        host=SimpleHost,
-        topo=SimpleTopo(),
-        controller=None,
-    )
-    net.start()
-    CLI(net)
-    net.stop()
+topos = {"simple": SimpleTopo}
