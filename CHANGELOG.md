@@ -1,5 +1,15 @@
 # Finsy Change Log
 
+## 0.11.0
+
+- Added some typing overloads for `Switch.read()` to improve IDE experience.
+- Annotate the details in a `P4ClientError` exception from a failed WriteRequest.
+- Improve support for displaying match/action information as plain text.
+- Added `read_tables` support to example tests.
+- Added `P4Entity` marker superclass for P4Entity subclasses.
+- Add protobuf support for p4testgen.
+- Update dependency versions.
+
 ## 0.10.0
 
 - The `Switch.read_digests` method now requires the name of the digest as an argument.
