@@ -37,6 +37,10 @@ The [ngsdn](./ngsdn/README.md) directory implements a controller similar to the 
 In this example, the `p4src` directory is embedded in the `ngsdn` Python package. This example also uses
 the third-party `prometheus-client` to export statistics to the Prometheus/Grafana.
 
+## simple
+
+The [simple](./simple/README.md) directory contains a P4Runtime script for the `simple_router` example from ["P4App"](https://github.com/p4lang/p4app/tree/master/examples/simple_router.p4app)
+
 ## References
 
 Most of the Finsy example programs use P4 programs from other open source projects. These
