@@ -278,9 +278,9 @@ class P4Client:
         assert self._channel is None
         assert self._stub is None
 
-        # Increase max_metadata_size from 8 KB to 32 KB.
+        # Increase max_metadata_size from 8 KB to 64 KB.
         options = GRPCOptions(
-            max_metadata_size=32 * 1024,  # 32 kilobytes
+            max_metadata_size=64 * 1024,  # 64 kilobytes
             max_reconnect_backoff_ms=15000,  # 15.0 seconds
         )
 
