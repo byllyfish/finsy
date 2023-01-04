@@ -14,4 +14,5 @@ esac
 podman run --privileged --rm -it \
     --name mininet \
     --publish 50001-50003:50001-50003 \
+    --sysctl net.ipv6.conf.default.disable_ipv6=1 \
     "$MININET_IMAGE" --topo=linear,3 --mac
