@@ -1,8 +1,18 @@
-# 🐟 Finsy P4Runtime Python Library
+# Finsy P4Runtime Controller Library 
 
-[![pypi](https://img.shields.io/pypi/v/finsy)](https://pypi.org/project/finsy/) [![ci](https://github.com/byllyfish/finsy/actions/workflows/ci.yml/badge.svg)](https://github.com/byllyfish/finsy/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/byllyfish/finsy/branch/main/graph/badge.svg?token=8RPYWRXNGS)](https://codecov.io/gh/byllyfish/finsy) [![docs](https://img.shields.io/badge/-docs-informational)](https://byllyfish.github.io/finsy/finsy.html)
+[![pypi](https://img.shields.io/pypi/v/finsy)](https://pypi.org/project/finsy/) [![ci](https://github.com/byllyfish/finsy/actions/workflows/ci.yml/badge.svg)](https://github.com/byllyfish/finsy/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/byllyfish/finsy/branch/main/graph/badge.svg?token=8RPYWRXNGS)](https://codecov.io/gh/byllyfish/finsy) [![docs](https://img.shields.io/badge/-docs-informational)](https://byllyfish.github.io/finsy/finsy.html) 
 
-Finsy is a [P4Runtime](https://p4.org/p4-spec/p4runtime/main/P4Runtime-Spec.html) controller library written in Python using asyncio. Finsy includes support for [gNMI](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md).
+Finsy is a [P4Runtime](https://p4.org/p4-spec/p4runtime/main/P4Runtime-Spec.html) controller library written in Python using [asyncio](https://docs.python.org/3/library/asyncio.html). Finsy includes support for [gNMI](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md).
+
+## Requirements
+
+Finsy requires Python 3.10 or later.
+
+## P4Runtime Scripts
+
+With Finsy, you can write a Python script that reads/writes P4Runtime entities for a single switch.
+
+Here is a complete example that retrieves the P4Info from a switch:
 
 ```python
 import asyncio
@@ -10,18 +20,30 @@ import finsy as fy
 
 async def main():
     async with fy.Switch("sw1", "127.0.0.1:50001") as sw1:
+        # Print out a description of the switch's P4Info, if one is configured.
         print(sw1.p4info)
 
 asyncio.run(main())
 ```
 
-## Requirements
+Here is another example that prints out all non-default table entries.
 
-Finsy requires Python 3.10 or later.
+```python
+import asyncio
+import finsy as fy
+
+async def main():
+    async with fy.Switch("sw1", "127.0.0.1:50001") as sw1:
+        # Do a wildcard read for table entries.
+        async for entry in sw1.read(fy.P4TableEntry()):
+            print(entry)
+
+asyncio.run(main())
+```
 
 ## P4Runtime Controller
 
-With Finsy, you can write a P4Runtime controller that manages multiple switches.
+You can also write a P4Runtime controller that manages multiple switches independently.
 
 Each switch is managed by an async `ready_handler` function. Your `ready_handler` function can read or 
 update various P4Runtime entities in the switch. It can also create tasks to listen for 
@@ -35,9 +57,9 @@ async def ready_handler(sw):
     await sw.delete_all()
     await sw.write(
         [
-            # Insert multicast group with ports 1, 2, 3 and CONTROLLER.
+            # Insert (+) multicast group with ports 1, 2, 3 and CONTROLLER.
             +fy.P4MulticastGroupEntry(1, replicas=[1, 2, 3, 255]),
-            # Modify default table entry to flood all unmatched packets.
+            # Modify (~) default table entry to flood all unmatched packets.
             ~fy.P4TableEntry(
                 "ipv4",
                 action=fy.P4TableAction("flood"),
@@ -71,6 +93,9 @@ controller = fy.Controller([
 
 asyncio.run(controller.run())
 ```
+
+Your `ready_handler` can spawn concurrent tasks with the `Switch.create_task` method. Tasks
+created this way will have their lifetimes managed by the switch object.
 
 If the switch disconnects or its role changes to backup, the task running your `ready_handler` 
 (and any tasks it spawned) will be cancelled and the `ready_handler` will begin again.
