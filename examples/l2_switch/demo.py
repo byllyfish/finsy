@@ -6,7 +6,7 @@ from pathlib import Path
 
 import finsy as fy
 
-P4SRC = Path(__file__).parent / "p4src"
+P4SRC = Path(__file__).parent / "p4"
 MGRP = 0xAB
 PORTS = [1, 2, 3]
 

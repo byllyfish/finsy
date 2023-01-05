@@ -6,7 +6,7 @@ import testlib
 
 NGSDN_DIR = Path(__file__).parent.parent / "ngsdn"
 
-DEMONET = NGSDN_DIR / "demonet/run.sh"
+DEMONET = NGSDN_DIR / "net/run.sh"
 
 
 async def test_ngsdn(demonet, python):

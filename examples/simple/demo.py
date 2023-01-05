@@ -4,7 +4,7 @@ from typing import Any
 
 import finsy as fy
 
-P4SRC = Path(__file__).parent / "p4src"
+P4SRC = Path(__file__).parent / "p4"
 
 
 def table_set_default(

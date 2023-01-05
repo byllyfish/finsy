@@ -17,8 +17,8 @@ from pathlib import Path
 import finsy as fy
 from finsy.proto import stratum
 
-# P4SRC is the path to the "p4src" directory in the same directory as demo3.py.
-P4SRC = Path(__file__).parent / "p4src"
+# P4SRC is the path to the "p4" directory in the same directory as demo3.py.
+P4SRC = Path(__file__).parent / "p4"
 
 # LOG is a logger that will include the current asyncio task name. The task
 # name includes the name of the switch, so you don't have to include that

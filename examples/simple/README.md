@@ -20,7 +20,7 @@ The P4Info.txt for the `simple_router.p4` program looks like this:
 
 ## Running the Demo
 
-To run the demo network, type `./demonet/run.sh`.
+To run the demo network, type `./net/run.sh`.
 
 To load the P4 tables with the proper entries, run `python demo.py`. The program should
 exit immediately with no output.

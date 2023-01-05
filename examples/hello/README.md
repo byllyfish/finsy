@@ -8,7 +8,7 @@ This demo program reads an existing P4Info file and prints out a description of 
 contents.
 
 ```
-$ python demo0.py p4src/hello.p4info.txt
+$ python demo0.py p4/hello.p4info.txt
 ```
 
 You should see output like:
@@ -61,7 +61,7 @@ $ python demo1.py
 In another terminal, start the demo network:
 
 ```
-$ ./demonet/run.sh
+$ ./net/run.sh
 ```
 
 After a couple of seconds, the controller should connect to the switches running in Mininet. You
@@ -109,7 +109,7 @@ $ python demo2.py
 In another terminal, start the demo network (if it is not already running):
 
 ```
-$ ./demonet/run.sh
+$ ./net/run.sh
 ```
 
 In the demo network (Mininet) shell, run the `ping` command.

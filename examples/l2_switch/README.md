@@ -31,7 +31,7 @@ also receives updates from the switch in a form of a digest `digest_t`with two f
 
 ## Running the Demo
 
-To run the demo network, type `./demonet/run.sh`.
+To run the demo network, type `./net/run.sh`.
 
 To run the Finsy example program, type `python demo.py`.
 

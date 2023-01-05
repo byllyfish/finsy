@@ -5,7 +5,7 @@ import testlib
 
 HELLO_DIR = Path(__file__).parent.parent / "hello"
 
-DEMONET = HELLO_DIR / "demonet/run.sh"
+DEMONET = HELLO_DIR / "net/run.sh"
 
 
 async def test_demo0(python):
@@ -13,7 +13,7 @@ async def test_demo0(python):
 
     result = await python(
         HELLO_DIR / "demo0.py",
-        HELLO_DIR / "p4src/hello.p4info.txt",
+        HELLO_DIR / "p4/hello.p4info.txt",
     )
 
     assert (
