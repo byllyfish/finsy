@@ -1,2 +1,0 @@
-finsy
-prometheus-client

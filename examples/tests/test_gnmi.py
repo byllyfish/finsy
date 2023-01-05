@@ -3,7 +3,7 @@ from pathlib import Path
 
 GNMI_DIR = Path(__file__).parent.parent / "gnmi"
 
-DEMONET = GNMI_DIR / "demonet/run.sh"
+DEMONET = GNMI_DIR / "net/run.sh"
 
 
 async def test_demo1(demonet, python):

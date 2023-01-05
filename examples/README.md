@@ -2,13 +2,13 @@
 
 Here are some example programs that demonstrate how to use Finsy.
 
-In each example directory, you'll find two support directories: `p4src` and `demonet`.
+In each example directory, you'll find two support directories: `p4` and `net`.
 
-- `p4src` contains the source code for a P4 program, along with the compiled code for
+- `p4` contains the source code for a P4 program, along with the compiled code for
 bmv2. Each Finsy controller will load this program into the switch for its forwarding
 pipeline. 
-- `demonet` contains a shell script and resources for setting up a demonstration 
-Mininet network. To run the demo network, type `./demonet/run.sh`. The demonet script uses 
+- `net` contains a shell script and resources for setting up a demonstration 
+Mininet network. To run the demo network, type `./net/run.sh`. The `run.sh` script uses 
 `podman` to run the demonstration network in containers.
 
 ### Requirements
@@ -34,7 +34,7 @@ l2_switch example from ["p4runtime-go-client"](https://github.com/antoninbas/p4r
 
 The [ngsdn](./ngsdn/README.md) directory implements a controller similar to the ONOS example in ["Next-Gen SDN Tutorial (Advanced)"](https://github.com/opennetworkinglab/ngsdn-tutorial).
 
-In this example, the `p4src` directory is embedded in the `ngsdn` Python package. This example also uses
+In this example, the `p4` directory is embedded in the `ngsdn` Python package. This example also uses
 the third-party `prometheus-client` to export statistics to the Prometheus/Grafana.
 
 ## simple

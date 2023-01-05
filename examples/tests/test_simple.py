@@ -9,7 +9,7 @@ from finsy import pbuf
 
 SIMPLE_DIR = Path(__file__).parent.parent / "simple"
 
-DEMONET = SIMPLE_DIR / "demonet/run.sh"
+DEMONET = SIMPLE_DIR / "net/run.sh"
 
 
 async def test_demo(demonet, python):
