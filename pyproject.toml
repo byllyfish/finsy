@@ -54,6 +54,7 @@ ignore = [
   "finsy/proto/**/*_pb2_grpc.py", 
   "finsy/proto/**/*_pb2_grpc.pyi", 
   "examples/ngsdn/net/topo-v6.py",
+  "examples/simple/net/simple_topo.py",
   "examples/tests/*.py"
 ]
 strict = [
