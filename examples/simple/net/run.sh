@@ -4,7 +4,7 @@ set -e
 
 SCRIPT_DIR=$(dirname "$0")
 
-podman --noout create --privileged --rm -it \
+podman  create --privileged --rm -it \
     --name mininet \
     --publish 50001:50001 \
     --sysctl net.ipv6.conf.default.disable_ipv6=1 \

@@ -4,24 +4,24 @@ set -e
 
 SCRIPT_DIR=$(dirname "$0")
 
-podman --noout create --privileged --rm -it \
+podman create --privileged --rm -it \
     --name mininet \
     --publish 50001-50004:50001-50004 \
     --entrypoint python3 \
     opennetworking/mn-stratum \
     /root/demonet/topo-v6.py
 
-podman --noout pod create --replace \
+podman pod create --replace \
     --publish 3000:3000 \
     --publish 9090:9090 \
-    demo_pod
+    --name demo_pod
 
-podman --noout create --rm \
+podman create --rm \
     --pod demo_pod \
     --name grafana \
     grafana/grafana
 
-podman --noout create --rm \
+podman create --rm \
     --pod demo_pod \
     --name prometheus \
     prom/prometheus
@@ -29,6 +29,6 @@ podman --noout create --rm \
 podman cp "$SCRIPT_DIR/." mininet:/root/demonet
 podman cp "$SCRIPT_DIR/prometheus.yml" prometheus:/etc/prometheus/prometheus.yml
 
-podman --noout pod start demo_pod
+podman pod start demo_pod
 podman start -ai mininet
-podman --noout pod stop demo_pod
+podman pod stop demo_pod
