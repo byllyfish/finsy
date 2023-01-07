@@ -6,16 +6,16 @@ podman pod create --replace \
     --publish 50001-50004:50001-50004 \
     --publish 8181:8181 \
     --publish 8101:8101 \
-    onos_pod
+    --name onos_pod
 
-podman --noout create --privileged --rm -it \
+podman create --privileged --rm -it \
     --pod onos_pod \
     --name mininet \
     --entrypoint python3 \
     opennetworking/mn-stratum \
     /root/demonet/topo-v6.py
 
-podman --noout create --rm \
+podman create --rm \
     --pod onos_pod \
     --name onos \
     --env ONOS_APPS=gui2,drivers.bmv2,lldpprovider,hostprovider \
