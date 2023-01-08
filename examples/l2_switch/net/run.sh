@@ -4,10 +4,10 @@ set -e
 
 case "$1" in 
     stratum)
-        MININET_IMAGE="opennetworking/mn-stratum"
+        MININET_IMAGE="docker.io/opennetworking/mn-stratum"
         ;;
     *)
-        MININET_IMAGE="opennetworking/p4mn"
+        MININET_IMAGE="docker.io/opennetworking/p4mn"
         ;;
 esac
 

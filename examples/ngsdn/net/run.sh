@@ -8,7 +8,7 @@ podman create --privileged --rm -it \
     --name mininet \
     --publish 50001-50004:50001-50004 \
     --entrypoint python3 \
-    opennetworking/mn-stratum \
+    docker.io/opennetworking/mn-stratum \
     /root/demonet/topo-v6.py
 
 podman pod create --replace \
@@ -19,12 +19,12 @@ podman pod create --replace \
 podman create --rm \
     --pod demo_pod \
     --name grafana \
-    grafana/grafana
+    docker.io/grafana/grafana
 
 podman create --rm \
     --pod demo_pod \
     --name prometheus \
-    prom/prometheus
+    docker.io/prom/prometheus
 
 podman cp "$SCRIPT_DIR/." mininet:/root/demonet
 podman cp "$SCRIPT_DIR/prometheus.yml" prometheus:/etc/prometheus/prometheus.yml
