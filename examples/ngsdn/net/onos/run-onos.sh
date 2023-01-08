@@ -12,14 +12,14 @@ podman create --privileged --rm -it \
     --pod onos_pod \
     --name mininet \
     --entrypoint python3 \
-    opennetworking/mn-stratum \
+    docker.io/opennetworking/mn-stratum \
     /root/demonet/topo-v6.py
 
 podman create --rm \
     --pod onos_pod \
     --name onos \
     --env ONOS_APPS=gui2,drivers.bmv2,lldpprovider,hostprovider \
-    onosproject/onos:2.2.2
+    docker.io/onosproject/onos:2.2.2
 
 podman cp demonet mininet:/root/demonet
 
