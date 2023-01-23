@@ -18,28 +18,32 @@ Mininet network. To run the demo network, type `./net/run.sh`. The `run.sh` scri
 
 ## gnmi
 
-The [gnmi](./gnmi/README.md) directory contains programs that demonstrate Finsy's standalone gNMI API.
+The [gnmi](./gnmi) directory contains programs that demonstrate Finsy's standalone gNMI API.
 
 ## hello
 
-The [hello](./hello/README.md) directory contains several introductory demo programs. These examples use 
+The [hello](./hello) directory contains several introductory demo programs. These examples use 
 a minimal `hello.p4` program to demonstrate Finsy with a single table.
 
 ## l2_switch
 
-The [l2_switch](./l2_switch/README.md) directory implements a controller for the P4 program from the
+The [l2_switch](./l2_switch) directory implements a controller for the P4 program from the
 l2_switch example from ["p4runtime-go-client"](https://github.com/antoninbas/p4runtime-go-client).
 
 ## ngsdn
 
-The [ngsdn](./ngsdn/README.md) directory implements a controller similar to the ONOS example in ["Next-Gen SDN Tutorial (Advanced)"](https://github.com/opennetworkinglab/ngsdn-tutorial).
+The [ngsdn](./ngsdn) directory implements a controller similar to the ONOS example in ["Next-Gen SDN Tutorial (Advanced)"](https://github.com/opennetworkinglab/ngsdn-tutorial).
 
 In this example, the `p4` directory is embedded in the `ngsdn` Python package. This example also uses
 the third-party `prometheus-client` to export statistics to the Prometheus/Grafana.
 
 ## simple
 
-The [simple](./simple/README.md) directory contains a P4Runtime script for the `simple_router` example from ["P4App"](https://github.com/p4lang/p4app/tree/master/examples/simple_router.p4app)
+The [simple](./simple) directory contains a P4Runtime script for the `simple_router` example from ["P4App"](https://github.com/p4lang/p4app/tree/master/examples/simple_router.p4app)
+
+## tunnel
+
+The [tunnel](./tunnel) directory contains a P4Runtime script for the `advanced_tunnel.p4` example from the [P4Runtime exercise](https://github.com/p4lang/tutorials/tree/master/exercises/p4runtime)  in the P4 tutorial.
 
 ## Integration Tests
 
