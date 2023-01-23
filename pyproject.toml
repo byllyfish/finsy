@@ -19,7 +19,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 grpcio = "^1.50.0"
-macaddress = "^1.2.0"
+macaddress = ">=1.2,<3.0"
 parsy = "^2.0.0"
 pyee = "^9.0.4"
 pylev = "^1.4.0"

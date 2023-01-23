@@ -352,14 +352,14 @@ files = [
 
 [[package]]
 name = "macaddress"
-version = "1.2.0"
+version = "2.0.2"
 description = "Like ``ipaddress``, but for hardware identifiers such as MAC addresses."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "macaddress-1.2.0-py3-none-any.whl", hash = "sha256:09efb3fdd161643c1b53037647127ddf42071022f57d78cc8d4cca02633407e1"},
-    {file = "macaddress-1.2.0.tar.gz", hash = "sha256:e93d7fba733626f98c7567440ccd2e6768b5fb3fb474d45f55643670ac88b765"},
+    {file = "macaddress-2.0.2-py3-none-any.whl", hash = "sha256:6f4a0430f9b5af6d98a582b8d527ba2cd3f0825fce5503a9ce5c73acb772c30f"},
+    {file = "macaddress-2.0.2.tar.gz", hash = "sha256:1400ccdc28d747102d57ae61e5b78d8985872930810ceb8860cd49abd1e1fa37"},
 ]
 
 [[package]]
@@ -921,4 +921,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "2091f43928a612082326927398a453f3af90112b71525174c4ec0be28d045265"
+content-hash = "653c84fd0732630a64f0a32ce6c3dac6d1aa5b33aa775b21b11e5ea98d58aac1"
