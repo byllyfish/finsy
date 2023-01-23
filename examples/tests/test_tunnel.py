@@ -13,8 +13,8 @@ DEMONET = TUNNEL_DIR / "net/run.sh"
 
 
 async def test_demo(demonet, python):
-    "Test the simple/demo example program."
-    await python(TUNNEL_DIR / "demo.py")
+    "Test the tunnel/demo1 example program."
+    await python(TUNNEL_DIR / "demo1.py")
     await demonet.send("h1 ping -c 3 h2", expect=" 0% packet loss")
     await demonet.send("h2 ping -c 3 h1", expect=" 0% packet loss")
 
