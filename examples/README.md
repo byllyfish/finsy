@@ -41,6 +41,10 @@ the third-party `prometheus-client` to export statistics to the Prometheus/Grafa
 
 The [simple](./simple/README.md) directory contains a P4Runtime script for the `simple_router` example from ["P4App"](https://github.com/p4lang/p4app/tree/master/examples/simple_router.p4app)
 
+## tunnel
+
+The [tunnel](./tunnel) directory contains a P4Runtime script for the `advanced_tunnel.p4` example from the [P4Runtime exercise](https://github.com/p4lang/tutorials/tree/master/exercises/p4runtime)  in the P4 tutorial.
+
 ## Integration Tests
 
 To run the integration tests, enter the examples directory and type 
