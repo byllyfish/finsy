@@ -25,13 +25,13 @@ class InputPacketAtPort(google.protobuf.message.Message):
     PORT_FIELD_NUMBER: builtins.int
     packet: builtins.bytes
     """The raw bytes of the test packet."""
-    port: builtins.bytes
+    port: builtins.int
     """The raw bytes of the port associated with the packet."""
     def __init__(
         self,
         *,
         packet: builtins.bytes = ...,
-        port: builtins.bytes = ...,
+        port: builtins.int = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["packet", b"packet", "port", b"port"]) -> None: ...
 
@@ -46,7 +46,7 @@ class OutputPacketAtPort(google.protobuf.message.Message):
     PACKET_MASK_FIELD_NUMBER: builtins.int
     packet: builtins.bytes
     """The raw bytes of the test packet."""
-    port: builtins.bytes
+    port: builtins.int
     """The raw bytes of the port associated with the packet."""
     packet_mask: builtins.bytes
     """The don't care mask of the packet."""
@@ -54,7 +54,7 @@ class OutputPacketAtPort(google.protobuf.message.Message):
         self,
         *,
         packet: builtins.bytes = ...,
-        port: builtins.bytes = ...,
+        port: builtins.int = ...,
         packet_mask: builtins.bytes = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["packet", b"packet", "packet_mask", b"packet_mask", "port", b"port"]) -> None: ...
