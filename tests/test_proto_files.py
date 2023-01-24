@@ -13,12 +13,12 @@ def test_p4testgen_testcase_0():
 
     assert isinstance(testcase.input_packet.packet, bytes)
     assert len(testcase.input_packet.packet) == 929
-    assert testcase.input_packet.port == b"255"
+    assert testcase.input_packet.port == 255
 
     for expected in testcase.expected_output_packet:
         assert expected.packet == testcase.input_packet.packet
         assert expected.packet_mask == b"\xff" * 929
-        assert expected.port == b"255"
+        assert expected.port == 255
 
 
 def test_p4testgen_testcase_13():
@@ -28,7 +28,7 @@ def test_p4testgen_testcase_13():
 
     assert isinstance(testcase.input_packet.packet, bytes)
     assert len(testcase.input_packet.packet) == 8193
-    assert testcase.input_packet.port == b"0"
+    assert testcase.input_packet.port == 0
 
     assert len(testcase.entities) == 1
     assert pbuf.to_dict(testcase.entities[0]) == {
