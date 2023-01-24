@@ -16,15 +16,20 @@
 
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
-from typing import (Any, Iterable, Iterator, NoReturn, Protocol, Sequence,
-                    TypeVar)
+from typing import Any, Iterable, Iterator, NoReturn, Protocol, Sequence, TypeVar
 
 from typing_extensions import Self
 
 from finsy import p4values
 from finsy.log import LOGGER
-from finsy.p4schema import (P4Action, P4ActionRef, P4Schema, P4Table,
-                            P4UpdateType, P4ValueSet)
+from finsy.p4schema import (
+    P4Action,
+    P4ActionRef,
+    P4Schema,
+    P4Table,
+    P4UpdateType,
+    P4ValueSet,
+)
 from finsy.proto import p4r
 
 
