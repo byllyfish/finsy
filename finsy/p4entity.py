@@ -1287,6 +1287,20 @@ class P4CounterEntry(_P4ModifyOnly):
     index: int | None = None
     data: P4CounterData | None = None
 
+    @property
+    def packet_count(self) -> int:
+        "Packet count from counter data (or 0 if there is no data)."
+        if self.data is not None:
+            return self.data.packet_count
+        return 0
+
+    @property
+    def byte_count(self) -> int:
+        "Byte count from counter data (or 0 if there is no data)."
+        if self.data is not None:
+            return self.data.byte_count
+        return 0
+
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4CounterEntry as protobuf."
 
@@ -1351,6 +1365,20 @@ class P4DirectCounterEntry(_P4ModifyOnly):
         if self.table_entry is None:
             return ""
         return self.table_entry.table_id
+
+    @property
+    def packet_count(self) -> int:
+        "Packet count from counter data (or 0 if there is no data)."
+        if self.data is not None:
+            return self.data.packet_count
+        return 0
+
+    @property
+    def byte_count(self) -> int:
+        "Byte count from counter data (or 0 if there is no data)."
+        if self.data is not None:
+            return self.data.byte_count
+        return 0
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4DirectCounterEntry as protobuf."

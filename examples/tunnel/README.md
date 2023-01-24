@@ -21,8 +21,11 @@ The P4Info.txt for the `advanced_tunnel.p4` program looks like this:
 
 To run the demo network, type `./net/run.sh`.
 
-To load the P4 tables with the proper entries, run `python demo.py`. The program should
+To load the P4 tables with the proper entries, run `python demo1.py`. The program should
 exit immediately with no output.
 
 In the Mininet CLI, the `h1 ping h2` and `h2 ping h1` commands now work. `h3` cannot ping 
 anyone because the script only sets up a tunnel between `h1` and `h2`.
+
+If you run `python demo2.py`, this demo program will print out the ingress and egress
+counters for tunnels 100 and 200. The `demo2.py` program is read-only.

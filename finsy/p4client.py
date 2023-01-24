@@ -364,6 +364,7 @@ class P4Client:
 
     async def request(self, msg: pbuf.PBMessage) -> pbuf.PBMessage:
         "Send a unary-unary P4Runtime request and wait for the response."
+        assert self._stub is not None
 
         if self._complete_request:
             self._complete_request(msg)
@@ -388,6 +389,7 @@ class P4Client:
         self, msg: p4r.ReadRequest
     ) -> AsyncIterator[p4r.ReadResponse]:
         "Send a unary-stream P4Runtime read request and wait for the responses."
+        assert self._stub is not None
 
         if self._complete_request:
             self._complete_request(msg)

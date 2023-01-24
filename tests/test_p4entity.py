@@ -837,8 +837,11 @@ def test_counter_entry2():
         index=2,
         data=P4CounterData(byte_count=1, packet_count=2),
     )
-    msg = entry.encode(_SCHEMA)
+    assert entry.counter_id == "other_counter"
+    assert entry.byte_count == 1
+    assert entry.packet_count == 2
 
+    msg = entry.encode(_SCHEMA)
     assert pbuf.to_dict(msg) == {
         "counter_entry": {
             "counter_id": 307710742,
@@ -876,6 +879,8 @@ def test_direct_counter_entry2():
     )
     assert entry.counter_id == ""
     assert entry.table_id == "ipv4_lpm"
+    assert entry.byte_count == 1
+    assert entry.packet_count == 2
 
     msg = entry.encode(_SCHEMA)
     assert pbuf.to_dict(msg) == {
