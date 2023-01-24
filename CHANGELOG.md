@@ -1,12 +1,20 @@
 # Finsy Change Log
 
+## 0.12.0
+
+- Add convenience accessors to P4CounterEntry and P4DirectCounterEntry.
+- Add the tunnel example.
+- Make podman scripts compatible with podman 3.4 on ubuntu.
+- Update protobuf support for p4testgen.
+- Update dependency versions.
+
 ## 0.11.0
 
-- Added some typing overloads for `Switch.read()` to improve IDE experience.
+- Add some typing overloads for `Switch.read()` to improve IDE experience.
 - Annotate the details in a `P4ClientError` exception from a failed WriteRequest.
 - Improve support for displaying match/action information as plain text.
-- Added `read_tables` support to example tests.
-- Added `P4Entity` marker superclass for P4Entity subclasses.
+- Add `read_tables` support to example tests.
+- Add `P4Entity` marker superclass for P4Entity subclasses.
 - Add protobuf support for p4testgen.
 - Update dependency versions.
 
