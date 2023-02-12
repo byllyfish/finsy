@@ -498,7 +498,6 @@ class P4IndirectAction:
         action_set = list[P4WeightedAction]()
 
         for action in msg.action_profile_actions:
-
             match action.WhichOneof("watch_kind"):
                 case "watch_port":
                     weight = (action.weight, decode_watch_port(action.watch_port))

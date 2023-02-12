@@ -3,6 +3,7 @@ import time
 from pathlib import Path
 
 import pytest
+
 from finsy import P4TableAction, P4TableEntry, P4TableMatch, Switch, SwitchOptions
 from finsy.log import LOGGER, get_setting
 from finsy.proto import p4r
@@ -19,7 +20,6 @@ async def test_benchmark_table_entry1(p4rt_server_target):
     opts = SwitchOptions(p4info=P4INFO_TEST_DIR / "basic.p4.p4info.txt")
 
     async with Switch("sw1", p4rt_server_target, opts) as sw:
-
         with _logger_disabled(LOGGER):
             with _timer("entries0"):
                 entries1 = _make_entries1()

@@ -18,7 +18,6 @@ def _switch_event(switch: str, event: str):
 
 
 class StatManager:
-
     switch: fy.Switch
 
     def __init__(self, switch: fy.Switch):

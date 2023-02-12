@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+
 from finsy import pbuf
 from finsy.p4schema import P4Schema
 
