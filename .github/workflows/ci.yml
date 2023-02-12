@@ -46,5 +46,5 @@ jobs:
       uses: codecov/codecov-action@v3
     - name: Format Check
       run: |
-        black --check finsy tests
-        isort --check finsy tests
+        black --check .
+        isort --check .

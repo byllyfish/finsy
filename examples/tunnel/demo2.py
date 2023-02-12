@@ -22,7 +22,6 @@ async def main():
     sw2 = fy.Switch("sw2", "127.0.0.1:50002", opts)
 
     async with sw1, sw2:
-
         while True:
             for sw in (sw1, sw2):
                 await log_counters(sw, "ingressTunnelCounter", (100, 200))

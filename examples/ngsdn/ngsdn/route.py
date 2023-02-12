@@ -5,7 +5,6 @@ from .link import LinkEvent, LinkReady
 
 
 class RouteManager:
-
     switch: fy.Switch
 
     def __init__(self, switch: fy.Switch):

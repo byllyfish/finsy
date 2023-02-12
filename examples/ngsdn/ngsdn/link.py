@@ -26,7 +26,6 @@ class LinkReady:
 
 
 class LinkManager:
-
     switch: fy.Switch
     links: dict[int, LinkReady]
 
