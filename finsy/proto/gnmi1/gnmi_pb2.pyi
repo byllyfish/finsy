@@ -755,9 +755,9 @@ class SetResponse(google.protobuf.message.Message):
     client. It reports the result of the modifications to the data tree that were
     specified by the client. Errors for this RPC should be reported using the
     https://github.com/googleapis/googleapis/blob/master/google/rpc/status.proto
-    message in the RPC return. The gnmi.Error message can be used to add additional
-    details where required.
-    Reference: gNMI Specification Section 3.4.2
+    message in the RPC return. The gnmi.Error message can be used to add
+    additional details where required. Reference: gNMI Specification
+    Section 3.4.2
     """
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
