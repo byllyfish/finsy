@@ -19,7 +19,6 @@ async def test_benchmark_table_entry1(p4rt_server_target):
     opts = SwitchOptions(p4info=P4INFO_TEST_DIR / "basic.p4.p4info.txt")
 
     async with Switch("sw1", p4rt_server_target, opts) as sw:
-
         with _logger_disabled(LOGGER):
             with _timer("entries0"):
                 entries1 = _make_entries1()

@@ -417,7 +417,7 @@ class _P4Defs:
         self.value_sets = P4EntityMap("P4ValueSet")
         self.type_info = P4TypeInfo(p4info.type_info)
 
-        for (name, cls) in [
+        for name, cls in [
             ("actions", P4Action),
             ("action_profiles", P4ActionProfile),
             ("controller_packet_metadata", P4ControllerPacketMetadata),
