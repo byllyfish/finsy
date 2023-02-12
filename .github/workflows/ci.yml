@@ -16,18 +16,13 @@ jobs:
       matrix:
         python-version: [ "3.10", "3.11" ]
 
-    env:
-      # Skip the test GNMIServer on Python 3.11 (due to seg fault issues).
-      FINSY_TEST_GNMI_TARGET: "${{ matrix.python-version == '3.11' && 'skip' || '' }}"
-      # Skip the test P4RuntimeServer on Python 3.11 (due to seg fault issues).
-      FINSY_TEST_P4RUNTIME_TARGET: "${{ matrix.python-version == '3.11' && 'skip' || '' }}"
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+        check-latest: true
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
