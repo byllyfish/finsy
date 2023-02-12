@@ -3,9 +3,10 @@ import struct
 from dataclasses import dataclass, field
 from ipaddress import IPv4Address, IPv6Address
 
+from macaddress import MAC
+
 import finsy as fy
 from finsy import Switch
-from macaddress import MAC
 
 from . import netcfg
 from .log import LOG

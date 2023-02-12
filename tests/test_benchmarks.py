@@ -3,6 +3,7 @@ import time
 from pathlib import Path
 
 import pytest
+
 from finsy import P4TableAction, P4TableEntry, P4TableMatch, Switch, SwitchOptions
 from finsy.log import LOGGER, get_setting
 from finsy.proto import p4r

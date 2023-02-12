@@ -1,6 +1,7 @@
 from unittest.mock import Mock
 
 import pytest
+
 from finsy.grpcutil import GRPCStatusCode
 from finsy.p4arbitrator import Arbitrator
 from finsy.p4client import P4Client

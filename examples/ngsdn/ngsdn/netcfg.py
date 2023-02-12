@@ -4,8 +4,9 @@ from ipaddress import IPv6Address, IPv6Interface, IPv6Network
 from typing import Any, Iterator
 from urllib.parse import parse_qs, urlparse
 
-import finsy as fy
 from macaddress import MAC
+
+import finsy as fy
 
 
 def configured_devices(netcfg: dict[str, Any]) -> Iterator[tuple[str, str, int]]:

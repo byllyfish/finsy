@@ -4,6 +4,7 @@ import signal
 from pathlib import Path
 
 import prometheus_client
+
 from finsy import Controller
 
 from .app import load_netcfg
