@@ -34,7 +34,7 @@ mypy = "^1.0.0"
 pdoc = "^12.3.1"
 pyright = "^1.1.293"
 pytest-cov = "^4.0.0"
-pylint = "^2.16.1"
+pylint = "^2.16.2"
 
 [tool.poetry.group.dev.dependencies]
 prometheus-client = "^0.16.0"
