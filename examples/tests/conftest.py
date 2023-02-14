@@ -5,6 +5,8 @@ import pytest
 from shellous import sh
 from shellous.harvest import harvest_results
 
+from finsy.test import demonet as dn
+
 
 @pytest.fixture(scope="module")
 def event_loop():
@@ -27,6 +29,12 @@ async def demonet(request):
 
         yield prompt
         await prompt.send("exit")
+
+
+@pytest.fixture(scope="module")
+async def demonet2(request):
+    async with dn.DemoNet(request.module.DEMONET) as net:
+        yield net
 
 
 @pytest.fixture

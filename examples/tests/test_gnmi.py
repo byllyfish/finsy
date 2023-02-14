@@ -1,28 +1,33 @@
 import asyncio
 from pathlib import Path
 
+from finsy.test import demonet as dn
+
 GNMI_DIR = Path(__file__).parent.parent / "gnmi"
 
-DEMONET = GNMI_DIR / "net/run.sh"
+# DEMONET = GNMI_DIR / "net/run.sh"
+DEMONET = [
+    dn.Image("docker.io/opennetworking/mn-stratum"),
+    dn.Switch("s1"),
+    dn.Host("h1", "s1"),
+]
 
 
-async def test_demo1(demonet, python):
+async def test_demo1(demonet2, python):
     "Test the gnmi/demo1 example program."
-
     result = await python(GNMI_DIR / "demo1.py")
     assert result == "Interface 's1-eth1' is UP\n"
 
 
-async def test_demo2(demonet, python):
+async def test_demo2(demonet2, python):
     "Test the gnmi/demo2 example program."
-
     result = bytearray()
 
     async with python(GNMI_DIR / "demo2.py") | result as demo2:
         await asyncio.sleep(0.5)
-        await demonet.send("h1 ifconfig h1-eth0 down")
+        await demonet2.cmd("h1 ifconfig eth0 down")
         await asyncio.sleep(0.5)
-        await demonet.send("h1 ifconfig h1-eth0 up")
+        await demonet2.cmd("h1 ifconfig eth0 up")
         await asyncio.sleep(0.5)
         demo2.cancel()
 
@@ -32,9 +37,8 @@ async def test_demo2(demonet, python):
     )
 
 
-async def test_demo3(demonet, python):
+async def test_demo3(demonet2, python):
     "Test the gnmi/demo3 example program."
-
     result = bytearray()
 
     async with python(GNMI_DIR / "demo3.py") | result as demo3:

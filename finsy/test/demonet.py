@@ -14,14 +14,21 @@ from shellous.harvest import harvest_results
 
 
 class DemoItem:
-    pass
+    "Marker superclass for all Demo configuration directives."
+
+
+@dataclass
+class CopyFile(DemoItem):
+    source: Path
+    dest: str
 
 
 @dataclass
 class Image(DemoItem):
-    image: str
+    name: str
     _: KW_ONLY
     kind: str = field(default="image", init=False)
+    files: Sequence[CopyFile] = field(default_factory=list)
 
 
 @dataclass
@@ -29,7 +36,7 @@ class Switch(DemoItem):
     name: str
     _: KW_ONLY
     kind: str = field(default="switch", init=False)
-    opts: dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -40,7 +47,7 @@ class Host(DemoItem):
     kind: str = field(default="host", init=False)
     ifname: str = "eth0"
     mac: str = ""
-    ipv4: str = ""
+    ipv4: str = "auto"
     ipv4_gw: str = ""
     ipv6: str = ""
     ipv6_gw: str = ""
@@ -55,6 +62,15 @@ class Link(DemoItem):
     end: str
     _: KW_ONLY
     kind: str = field(default="link", init=False)
+
+
+@dataclass
+class Pod(DemoItem):
+    name: str
+    _: KW_ONLY
+    kind: str = field(default="pod", init=False)
+    images: Sequence[Image] = field(default_factory=list)
+    publish: Sequence[int] = field(default_factory=list)
 
 
 class Prompt:
@@ -152,18 +168,36 @@ class DemoNet:
         finally:
             await self._teardown()
 
+    def __await__(self):
+        return self._interact().__await__()
+
+    async def _interact(self):
+        try:
+            await self._setup()
+            cmd = podman_start("mininet")
+            await cmd.stdin(sh.INHERIT).stdout(sh.INHERIT).stderr(sh.INHERIT)
+            await self._teardown()
+        except Exception:
+            await self._cleanup()
+            raise
+
+    async def cmd(self, cmdline):
+        return await self._prompt.send(cmdline)
+
     async def pingall(self):
-        return await self._prompt.send("pingall")
+        return await self.cmd("pingall")
 
     async def ifconfig(self, host):
-        return await self._prompt.send(f"{host} ifconfig")
+        return await self.cmd(f"{host} ifconfig")
 
     async def _setup(self):
-        await podman_create("mininet", "docker.io/opennetworking/p4mn")
+        image = self._image()
+        host_count = self._host_count()
+        await podman_create("mininet", image.name, host_count)
         await podman_copy(DEMONET_TOPO, "mininet", "/root/demonet_topo.py")
 
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as tfile:
-            json.dump(self._config, tfile, default=asdict)
+            json.dump(self._config, tfile, default=_json_default)
 
         try:
             await podman_copy(tfile.name, "mininet", "/root/demonet_topo.json")
@@ -176,11 +210,46 @@ class DemoNet:
     async def _cleanup(self):
         await podman_rm("mininet")
 
+    def _image(self) -> Image:
+        "Return the configured image, or the default image if none found."
+        images = [item for item in self._config if isinstance(item, Image)]
+        if len(images) > 1:
+            raise ValueError("There should only be one Image config.")
+        if not images:
+            return Image("docker.io/opennetworking/p4mn")
+        return images[0]
+
+    def _host_count(self) -> int:
+        "Return the number of hosts in the config."
+        return sum(1 for item in self._config if isinstance(item, Host))
+
+
+def run(config: Sequence[DemoItem]):
+    "Create demo network and run it interactively."
+
+    async def _main():
+        await DemoNet(config)
+
+    asyncio.run(_main())
+
+
+def _json_default(obj):
+    try:
+        if isinstance(obj, Path):
+            return str(obj)
+        return asdict(obj)
+    except TypeError as ex:
+        raise ValueError(
+            f"DemoNet can't serialize {type(obj).__name__!r}: {obj!r}"
+        ) from ex
+
 
 DEMONET_TOPO = Path(__file__).parent / "demonet_topo.py"
+PUBLISH_BASE = 50000
 
 
-def podman_create(container: str, image_slug: str) -> Command:
+def podman_create(container: str, image_slug: str, host_count: int) -> Command:
+    publish = f"{PUBLISH_BASE + 1}-{PUBLISH_BASE+host_count}"
     return sh(
         "podman",
         "create",
@@ -190,7 +259,7 @@ def podman_create(container: str, image_slug: str) -> Command:
         "--name",
         container,
         "--publish",
-        "50001-50003:50001-50003",
+        f"{publish}:{publish}",
         "--sysctl",
         "net.ipv6.conf.default.disable_ipv6=1",
         image_slug,
