@@ -2,7 +2,7 @@ from pathlib import Path
 
 from finsy.test import demonet as dn
 
-SWITCH_PARAMS = {"cpuport": 255}
+SWITCH_PARAMS = {"cpuport": 255, "loglevel": "trace"}
 
 PROM_YML = Path(__file__).parent / "prometheus.yml"
 
@@ -19,7 +19,7 @@ DEMONET = [
     dn.Link("spine1", "leaf2"),
     dn.Link("spine2", "leaf1"),
     dn.Link("spine2", "leaf2"),
-    # IPv6 hosts attached to leaf 1.
+    # 4 IPv6 hosts attached to leaf1.
     dn.Host(
         "h1a",
         "leaf1",
@@ -52,7 +52,7 @@ DEMONET = [
         ipv6="2001:1:2::1/64",
         ipv6_gw="2001:1:2::ff",
     ),
-    # IPv6 hosts attached to leaf 2.
+    # 2 IPv6 hosts attached to leaf2.
     dn.Host(
         "h3",
         "leaf2",

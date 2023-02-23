@@ -3,6 +3,7 @@
 import asyncio
 import json
 import os
+import re
 import tempfile
 from dataclasses import KW_ONLY, asdict, dataclass, field
 from pathlib import Path
@@ -47,13 +48,13 @@ class Host(DemoItem):
     kind: str = field(default="host", init=False)
     ifname: str = "eth0"
     mac: str = ""
-    ipv4: str = "auto"
+    ipv4: str = ""
     ipv4_gw: str = ""
     ipv6: str = ""
     ipv6_gw: str = ""
+    ipv6_linklocal: bool = False
     static_arp: dict[str, str] = field(default_factory=dict)
     disable_offload: Sequence[str] = ("tx", "rx", "sg")
-    disable_ipv6: bool = True
 
 
 @dataclass
@@ -97,15 +98,12 @@ class Prompt:
 
         # Drain our write to stdin, and wait for prompt from stdout.
         cancelled, (buf, _) = await harvest_results(
-            stdout.readuntil(self.prompt_bytes),
+            _read_until(stdout, self.prompt_bytes),
             stdin.drain(),
             timeout=timeout,
         )
         if cancelled:
             raise asyncio.CancelledError()
-
-        if isinstance(buf, asyncio.IncompleteReadError):
-            buf = buf.partial
 
         # Clean up the output to remove the prompt, then return as string.
         buf = buf.replace(b"\r\n", b"\n")
@@ -114,6 +112,34 @@ class Prompt:
             buf = buf[0:-promptlen].rstrip(b"\n")
 
         return buf.decode("utf-8")
+
+
+async def _read_until(stream: asyncio.StreamReader, sep: bytes) -> bytes:
+    "Read all data until separator."
+
+    # Most reads can complete without buffering.
+    try:
+        return await stream.readuntil(sep)
+    except asyncio.IncompleteReadError as ex:
+        return ex.partial
+    except asyncio.LimitOverrunError as ex:
+        # Okay, we have to buffer.
+        buf = bytearray(await stream.read(ex.consumed))
+
+    while True:
+        try:
+            buf.extend(await stream.readuntil(sep))
+        except asyncio.IncompleteReadError as ex:
+            buf.extend(ex.partial)
+        except asyncio.LimitOverrunError as ex:
+            buf.extend(await stream.read(ex.consumed))
+            continue
+        break
+
+    return bytes(buf)
+
+
+PID_MATCH = re.compile(r"<\w+ (\w+):.* pid=(\d+)>", re.MULTILINE)
 
 
 class DemoNet:
@@ -135,11 +161,16 @@ class DemoNet:
     _config: Sequence[DemoItem]
     _runner: shellous.Runner | None
     _prompt: Prompt | None
+    _pids: dict[str, int]
 
-    def __init__(self, config: Sequence[DemoItem]):
+    def __init__(
+        self,
+        config: Sequence[DemoItem],
+    ):
         self._config = config
         self._runner = None
         self._prompt = None
+        self._pids = {}
 
     async def __aenter__(self):
         try:
@@ -148,10 +179,8 @@ class DemoNet:
             await self._runner.__aenter__()
             self._prompt = Prompt(self._runner, "mininet> ")
 
-            welcome = await self._prompt.send()
-            if welcome.startswith("Error:"):
-                raise RuntimeError(welcome)
-            print(welcome)
+            await self._read_welcome()
+            await self._read_pids()
 
         except Exception:
             await self._cleanup()
@@ -160,7 +189,7 @@ class DemoNet:
         return self
 
     async def __aexit__(self, *exc):
-        print(await self._prompt.send("exit"))
+        await self._read_exit()
         try:
             await self._runner.__aexit__(*exc)
             self._prompt = None
@@ -170,6 +199,25 @@ class DemoNet:
 
     def __await__(self):
         return self._interact().__await__()
+
+    async def _read_welcome(self):
+        "Collect welcome message from Mininet."
+        welcome = await self._prompt.send()
+        if welcome.startswith("Error:"):
+            raise RuntimeError(welcome)
+        print(welcome)
+
+    async def _read_pids(self):
+        "Retrieve the PID's so we can do our own `mnexec`."
+        dump = await self.cmd("dump")
+        for mo in PID_MATCH.finditer(dump):
+            name, pid = mo.groups()
+            self._pids[name] = int(pid)
+        print(self._pids)
+
+    async def _read_exit(self):
+        "Exit and collect exit message from Mininet."
+        print(await self._prompt.send("exit"))
 
     async def _interact(self):
         try:
@@ -181,8 +229,19 @@ class DemoNet:
             await self._cleanup()
             raise
 
-    async def cmd(self, cmdline):
-        return await self._prompt.send(cmdline)
+    def mnexec(self, host, *args):
+        pid = self._pids[host]
+        return sh("podman", "exec", "-it", "mininet", "mnexec", "-a", pid, *args)
+
+    async def cmd(self, cmdline, *, expect=""):
+        result = await self._prompt.send(cmdline)
+        print(result)
+        if expect:
+            assert expect in result
+        return result
+
+    # FIXME: for temporary compatibility
+    send = cmd
 
     async def pingall(self):
         return await self.cmd("pingall")
@@ -248,8 +307,18 @@ DEMONET_TOPO = Path(__file__).parent / "demonet_topo.py"
 PUBLISH_BASE = 50000
 
 
-def podman_create(container: str, image_slug: str, host_count: int) -> Command:
-    publish = f"{PUBLISH_BASE + 1}-{PUBLISH_BASE+host_count}"
+def podman_create(
+    container: str,
+    image_slug: str,
+    host_count: int,
+) -> Command:
+    assert host_count > 0
+
+    if host_count == 1:
+        publish = f"{PUBLISH_BASE + 1}"
+    else:
+        publish = f"{PUBLISH_BASE + 1}-{PUBLISH_BASE+host_count}"
+
     return sh(
         "podman",
         "create",
@@ -269,7 +338,7 @@ def podman_create(container: str, image_slug: str, host_count: int) -> Command:
         "demonet",
         # "-v",
         # "debug",
-    )
+    ).stderr(sh.INHERIT)
 
 
 def podman_copy(src_path: Path, container: str, dest_path: Path) -> Command:

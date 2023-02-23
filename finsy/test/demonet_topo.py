@@ -20,35 +20,53 @@ class DemoHost(Host):
     def __init__(self, name, **kwds):
         super(DemoHost, self).__init__(name, **kwds)
 
-        # Disable IPv6 here to make sure no autoconf packets are sent.
-        config = kwds["config"]
-        if config["disable_ipv6"] and not config["ipv6"]:
-            self.cmd("sysctl -w net.ipv6.conf.all.disable_ipv6=1")
+        # Do not generate an IPv6 link-local address when interface goes UP.
+        # (This does not affect interface 'lo', which already exists.)
+        self.cmd("sysctl -w net.ipv6.conf.default.addr_gen_mode=1")
 
-    def config(self, config=None, **params):
-        "Load host config."
-        if config["mac"]:
-            params["mac"] = config["mac"]
+    def config(self, config=None, **_params):
+        """Load the host config.
 
-        if config["ipv4"] != "auto":
-            params["ip"] = config["ipv4"]
-            if not params["ip"]:
-                del params["ip"]
+        This subclass does NOT invoke the superclass method. Instead, we
+        configure everything here and then bring the default interface UP.
+        """
 
-        ipv4 = params.get("ip")
+        # Bring the default interface down.
+        intf = self.defaultIntf()
+        intf.ifconfig("down")
 
-        # Let superclass configure the IPv4 and MAC address.
-        super(DemoHost, self).config(**params)
-
-        # Rename the interface.
+        # Rename the default interface.
+        old_ifname = intf.name
         ifname = config["ifname"]
-        self.defaultIntf().rename(ifname)
+        intf.name = ifname
+        self.nameToIntf[ifname] = self.nameToIntf.pop(old_ifname)
+        self.cmd("ip link set %s name %s" % (old_ifname, ifname))
 
         # Disable offload features.
         for feature in config["disable_offload"]:
             self.cmd("ethtool --offload %s %s off" % (ifname, feature))
 
+        # Set the MAC address.
+        mac = config["mac"]
+        if mac:
+            intf.mac = mac
+            intf.ifconfig("hw", "ether", mac)
+
+        # Reset the addr_gen_mode if we actually want IPv6 link local address.
+        if config["ipv6_linklocal"]:
+            self.cmd("sysctl -w net.ipv6.conf.%s.addr_gen_mode=0" % ifname)
+
+        # Bring the default interface back up.
+        intf.ifconfig("up")
+
+        # Bring the loopback interface up.
+        self.cmd("ifconfig lo up")
+
         # Configure IPv4.
+        ipv4 = config["ipv4"]
+        if ipv4:
+            intf.setIP(ipv4)
+
         ipv4_gw = config["ipv4_gw"]
         if ipv4_gw:
             self.setDefaultRoute("dev %s via %s" % (ifname, ipv4_gw))
@@ -72,7 +90,7 @@ class DemoHost(Host):
             def updateIP():
                 return ipv6.split("/")[0]
 
-            self.defaultIntf().updateIP = updateIP
+            intf.updateIP = updateIP
 
 
 class DemoTopo(Topo):

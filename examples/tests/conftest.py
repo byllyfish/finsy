@@ -1,5 +1,7 @@
 import asyncio
+import importlib
 import sys
+from pathlib import Path
 
 import pytest
 from shellous import sh
@@ -31,9 +33,27 @@ async def demonet(request):
         await prompt.send("exit")
 
 
+def _import_module(path: Path):
+    # Reference: https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
+    assert path.suffix == ".py"
+    module_name = path.stem
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    module = importlib.util.module_from_spec(spec)
+    # sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 @pytest.fixture(scope="module")
 async def demonet2(request):
-    async with dn.DemoNet(request.module.DEMONET) as net:
+    if isinstance(request.module.DEMONET, Path):
+        # Load module at path and obtain its DEMONET value.
+        module = _import_module(request.module.DEMONET)
+        config = module.DEMONET
+    else:
+        config = request.module.DEMONET
+
+    async with dn.DemoNet(config) as net:
         yield net
 
 

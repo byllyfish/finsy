@@ -5,12 +5,7 @@ from finsy.test import demonet as dn
 
 GNMI_DIR = Path(__file__).parent.parent / "gnmi"
 
-# DEMONET = GNMI_DIR / "net/run.sh"
-DEMONET = [
-    dn.Image("docker.io/opennetworking/mn-stratum"),
-    dn.Switch("s1"),
-    dn.Host("h1", "s1"),
-]
+DEMONET = GNMI_DIR / "net/run.py"
 
 
 async def test_demo1(demonet2, python):

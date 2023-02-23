@@ -17,6 +17,7 @@
 // HISTORY:
 //   - Replace clone3 with clone_preserving_field_list.
 //   - Preserve copy of ingress_port in local_metadata
+//   - Make sure we don't mis-parse cloned packets coming from CPU_PORT.
 
 #include <core.p4>
 #include <v1model.p4>
@@ -217,12 +218,18 @@ struct local_metadata_t {
 parser ParserImpl (packet_in packet,
                    out parsed_headers_t hdr,
                    inout local_metadata_t local_metadata,
-                   inout standard_metadata_t standard_metadata)
+                   inout standard_metadata_t std_metadata)
 {
     state start {
-        local_metadata.ingress_port = standard_metadata.ingress_port;
-        transition select(standard_metadata.ingress_port) {
-            CPU_PORT: parse_packet_out;
+        // On stratum:
+        // I'm seeing an issue where cloned packets are showing up from port 255. 
+        // This is the CPU port and it causes a problem because `parse_packet_out`
+        // extracts a 2-byte header that doesn't actually exist. To mitigate this,
+        // I'm added a check with instance_type. Unfortunately, it looks like 
+        // instance_type remains 0 even for cloned packets. :(
+
+        transition select(std_metadata.ingress_port, std_metadata.instance_type) {
+            (CPU_PORT, 0): parse_packet_out;  // from CPU. Not cloned or recirculated.
             default: parse_ethernet;
         }
     }
@@ -666,6 +673,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
     }
 
     apply {
+        local_metadata.ingress_port = standard_metadata.ingress_port;
 
         if (hdr.cpu_out.isValid()) {
             // *** TODO EXERCISE 4
