@@ -9,7 +9,7 @@ from finsy import pbuf
 
 TUNNEL_DIR = Path(__file__).parent.parent / "tunnel"
 
-DEMONET = TUNNEL_DIR / "net/run.sh"
+DEMONET = TUNNEL_DIR / "net/run.py"
 
 
 async def test_demo(demonet, python):

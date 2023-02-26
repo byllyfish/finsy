@@ -52,6 +52,6 @@ are supported in both.
 
 ## Running the Demo
 
-To run the demo network, type `./net/run.sh`.
+To run the demo network, type `./net/run.py`.
 
 To run the Finsy example program, type `python -m ngsdn`.

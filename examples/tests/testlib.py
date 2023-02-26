@@ -5,7 +5,7 @@ async def read_p4_tables(target: str) -> set[str]:
     "Read all table entries from the P4Runtime switch."
     result: set[str] = set()
 
-    async with fy.Switch("sw", target) as sw:
+    async with fy.Switch(f"sw@{target}", target) as sw:
         with sw.p4info:
             # Wildcard-read does not read default entries.
             async for entry in sw.read(fy.P4TableEntry()):

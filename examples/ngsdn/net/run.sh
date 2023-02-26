@@ -7,6 +7,7 @@ SCRIPT_DIR=$(dirname "$0")
 podman create --privileged --rm -it \
     --name mininet \
     --publish 50001-50004:50001-50004 \
+    --sysctl net.ipv6.conf.default.disable_ipv6=1 \
     --entrypoint python3 \
     docker.io/opennetworking/mn-stratum \
     /root/demonet/topo-v6.py

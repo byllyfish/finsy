@@ -7,14 +7,14 @@ In each example directory, you'll find two support directories: `p4` and `net`.
 - `p4` contains the source code for a P4 program, along with the compiled code for
 bmv2. Each Finsy controller will load this program into the switch for its forwarding
 pipeline. 
-- `net` contains a shell script and resources for setting up a demonstration 
-Mininet network. To run the demo network, type `./net/run.sh`. The `run.sh` script uses 
-`podman` to run the demonstration network in containers.
+- `net` contains a Python script and resources for setting up a demonstration 
+Mininet network. To run the demo network, type `./net/run.py`. The `run.py` script uses 
+`podman` to run the demonstration network in a container.
 
 ### Requirements
 
 - Python 3.10 virtual environment with `finsy` installed.
-- [podman](https://podman.io/) and a unix shell for `run.sh`.
+- [podman](https://podman.io/).
 
 ## gnmi
 

@@ -5,7 +5,7 @@ import testlib
 
 HELLO_DIR = Path(__file__).parent.parent / "hello"
 
-DEMONET = HELLO_DIR / "net/run.sh"
+DEMONET = HELLO_DIR / "net/run.py"
 
 
 async def test_demo0(python):

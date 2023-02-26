@@ -4,9 +4,11 @@ from pathlib import Path
 
 import testlib
 
+from finsy.test import demonet as dn
+
 NGSDN_DIR = Path(__file__).parent.parent / "ngsdn"
 
-DEMONET = NGSDN_DIR / "net/run.sh"
+DEMONET = NGSDN_DIR / "net/run.py"
 
 
 async def test_ngsdn(demonet, python):
@@ -23,8 +25,14 @@ async def test_ngsdn(demonet, python):
         demo.cancel()
 
 
+async def test_leaf2(demonet):
+    "Test the packet log from leaf2."
+    await demonet.send("sh cat /tmp/leaf2/stratum_bmv2.log")
+
+
 async def test_read_tables(demonet, caplog):
     "Test the state of the tables after the demo finishes."
+    caplog.set_level(logging.INFO, logger="finsy")
 
     expected_switch_states = {
         "127.0.0.1:50001": {

@@ -3,6 +3,7 @@
 import asyncio
 import json
 import os
+import re
 import tempfile
 from dataclasses import KW_ONLY, asdict, dataclass, field
 from pathlib import Path
@@ -14,14 +15,21 @@ from shellous.harvest import harvest_results
 
 
 class DemoItem:
-    pass
+    "Marker superclass for all Demo configuration directives."
+
+
+@dataclass
+class CopyFile(DemoItem):
+    source: Path
+    dest: str
 
 
 @dataclass
 class Image(DemoItem):
-    image: str
+    name: str
     _: KW_ONLY
     kind: str = field(default="image", init=False)
+    files: Sequence[CopyFile] = field(default_factory=list)
 
 
 @dataclass
@@ -29,7 +37,7 @@ class Switch(DemoItem):
     name: str
     _: KW_ONLY
     kind: str = field(default="switch", init=False)
-    opts: dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -39,14 +47,14 @@ class Host(DemoItem):
     _: KW_ONLY
     kind: str = field(default="host", init=False)
     ifname: str = "eth0"
-    mac: str = ""
-    ipv4: str = ""
+    mac: str = "auto"
+    ipv4: str = "auto"
     ipv4_gw: str = ""
     ipv6: str = ""
     ipv6_gw: str = ""
+    ipv6_linklocal: bool = False
     static_arp: dict[str, str] = field(default_factory=dict)
     disable_offload: Sequence[str] = ("tx", "rx", "sg")
-    disable_ipv6: bool = True
 
 
 @dataclass
@@ -55,6 +63,15 @@ class Link(DemoItem):
     end: str
     _: KW_ONLY
     kind: str = field(default="link", init=False)
+
+
+@dataclass
+class Pod(DemoItem):
+    name: str
+    _: KW_ONLY
+    kind: str = field(default="pod", init=False)
+    images: Sequence[Image] = field(default_factory=list)
+    publish: Sequence[int] = field(default_factory=list)
 
 
 class Prompt:
@@ -81,15 +98,12 @@ class Prompt:
 
         # Drain our write to stdin, and wait for prompt from stdout.
         cancelled, (buf, _) = await harvest_results(
-            stdout.readuntil(self.prompt_bytes),
+            _read_until(stdout, self.prompt_bytes),
             stdin.drain(),
             timeout=timeout,
         )
         if cancelled:
             raise asyncio.CancelledError()
-
-        if isinstance(buf, asyncio.IncompleteReadError):
-            buf = buf.partial
 
         # Clean up the output to remove the prompt, then return as string.
         buf = buf.replace(b"\r\n", b"\n")
@@ -98,6 +112,34 @@ class Prompt:
             buf = buf[0:-promptlen].rstrip(b"\n")
 
         return buf.decode("utf-8")
+
+
+async def _read_until(stream: asyncio.StreamReader, sep: bytes) -> bytes:
+    "Read all data until separator."
+
+    # Most reads can complete without buffering.
+    try:
+        return await stream.readuntil(sep)
+    except asyncio.IncompleteReadError as ex:
+        return ex.partial
+    except asyncio.LimitOverrunError as ex:
+        # Okay, we have to buffer.
+        buf = bytearray(await stream.read(ex.consumed))
+
+    while True:
+        try:
+            buf.extend(await stream.readuntil(sep))
+        except asyncio.IncompleteReadError as ex:
+            buf.extend(ex.partial)
+        except asyncio.LimitOverrunError as ex:
+            buf.extend(await stream.read(ex.consumed))
+            continue
+        break
+
+    return bytes(buf)
+
+
+PID_MATCH = re.compile(r"<\w+ (\w+):.* pid=(\d+)>", re.MULTILINE)
 
 
 class DemoNet:
@@ -119,11 +161,16 @@ class DemoNet:
     _config: Sequence[DemoItem]
     _runner: shellous.Runner | None
     _prompt: Prompt | None
+    _pids: dict[str, int]
 
-    def __init__(self, config: Sequence[DemoItem]):
+    def __init__(
+        self,
+        config: Sequence[DemoItem],
+    ):
         self._config = config
         self._runner = None
         self._prompt = None
+        self._pids = {}
 
     async def __aenter__(self):
         try:
@@ -132,10 +179,8 @@ class DemoNet:
             await self._runner.__aenter__()
             self._prompt = Prompt(self._runner, "mininet> ")
 
-            welcome = await self._prompt.send()
-            if welcome.startswith("Error:"):
-                raise RuntimeError(welcome)
-            print(welcome)
+            await self._read_welcome()
+            await self._read_pids()
 
         except Exception:
             await self._cleanup()
@@ -144,7 +189,7 @@ class DemoNet:
         return self
 
     async def __aexit__(self, *exc):
-        print(await self._prompt.send("exit"))
+        await self._read_exit()
         try:
             await self._runner.__aexit__(*exc)
             self._prompt = None
@@ -152,18 +197,63 @@ class DemoNet:
         finally:
             await self._teardown()
 
+    def __await__(self):
+        return self._interact().__await__()
+
+    async def _read_welcome(self):
+        "Collect welcome message from Mininet."
+        welcome = await self._prompt.send()
+        if welcome.startswith("Error:"):
+            raise RuntimeError(welcome)
+        print(welcome)
+
+    async def _read_pids(self):
+        "Retrieve the PID's so we can do our own `mnexec`."
+        dump = await self.send("dump")
+        for mo in PID_MATCH.finditer(dump):
+            name, pid = mo.groups()
+            self._pids[name] = int(pid)
+        print(self._pids)
+
+    async def _read_exit(self):
+        "Exit and collect exit message from Mininet."
+        print(await self._prompt.send("exit"))
+
+    async def _interact(self):
+        try:
+            await self._setup()
+            cmd = podman_start("mininet")
+            await cmd.stdin(sh.INHERIT).stdout(sh.INHERIT).stderr(sh.INHERIT)
+            await self._teardown()
+        except Exception:
+            await self._cleanup()
+            raise
+
+    def mnexec(self, host, *args):
+        pid = self._pids[host]
+        return sh("podman", "exec", "-it", "mininet", "mnexec", "-a", pid, *args)
+
+    async def send(self, cmdline, *, expect=""):
+        result = await self._prompt.send(cmdline)
+        print(result)
+        if expect:
+            assert expect in result
+        return result
+
     async def pingall(self):
-        return await self._prompt.send("pingall")
+        return await self.send("pingall")
 
     async def ifconfig(self, host):
-        return await self._prompt.send(f"{host} ifconfig")
+        return await self.send(f"{host} ifconfig")
 
     async def _setup(self):
-        await podman_create("mininet", "docker.io/opennetworking/p4mn")
+        image = self._image()
+        host_count = self._host_count()
+        await podman_create("mininet", image.name, host_count)
         await podman_copy(DEMONET_TOPO, "mininet", "/root/demonet_topo.py")
 
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as tfile:
-            json.dump(self._config, tfile, default=asdict)
+            json.dump(self._config, tfile, default=_json_default)
 
         try:
             await podman_copy(tfile.name, "mininet", "/root/demonet_topo.json")
@@ -176,11 +266,56 @@ class DemoNet:
     async def _cleanup(self):
         await podman_rm("mininet")
 
+    def _image(self) -> Image:
+        "Return the configured image, or the default image if none found."
+        images = [item for item in self._config if isinstance(item, Image)]
+        if len(images) > 1:
+            raise ValueError("There should only be one Image config.")
+        if not images:
+            return Image("docker.io/opennetworking/p4mn")
+        return images[0]
+
+    def _host_count(self) -> int:
+        "Return the number of hosts in the config."
+        return sum(1 for item in self._config if isinstance(item, Host))
+
+
+def run(config: Sequence[DemoItem]):
+    "Create demo network and run it interactively."
+
+    async def _main():
+        await DemoNet(config)
+
+    asyncio.run(_main())
+
+
+def _json_default(obj):
+    try:
+        if isinstance(obj, Path):
+            return str(obj)
+        return asdict(obj)
+    except TypeError as ex:
+        raise ValueError(
+            f"DemoNet can't serialize {type(obj).__name__!r}: {obj!r}"
+        ) from ex
+
 
 DEMONET_TOPO = Path(__file__).parent / "demonet_topo.py"
+PUBLISH_BASE = 50000
 
 
-def podman_create(container: str, image_slug: str) -> Command:
+def podman_create(
+    container: str,
+    image_slug: str,
+    host_count: int,
+) -> Command:
+    assert host_count > 0
+
+    if host_count == 1:
+        publish = f"{PUBLISH_BASE + 1}"
+    else:
+        publish = f"{PUBLISH_BASE + 1}-{PUBLISH_BASE+host_count}"
+
     return sh(
         "podman",
         "create",
@@ -190,7 +325,7 @@ def podman_create(container: str, image_slug: str) -> Command:
         "--name",
         container,
         "--publish",
-        "50001-50003:50001-50003",
+        f"{publish}:{publish}",
         "--sysctl",
         "net.ipv6.conf.default.disable_ipv6=1",
         image_slug,
@@ -198,9 +333,10 @@ def podman_create(container: str, image_slug: str) -> Command:
         "/root/demonet_topo.py",
         "--topo",
         "demonet",
+        "--mac",
         # "-v",
         # "debug",
-    )
+    ).stderr(sh.INHERIT)
 
 
 def podman_copy(src_path: Path, container: str, dest_path: Path) -> Command:
@@ -218,21 +354,3 @@ def podman_start(container: str) -> Command:
 
 def podman_rm(container: str) -> Command:
     return sh("podman", "rm", container).set(exit_codes={0, 1})
-
-
-async def main():
-    topo = [
-        Image("xyz"),  # FIXME: Image not supported yet.
-        Switch("s1"),
-        Host("h1", "s1", ipv4="192.168.0.1/24"),
-        Host("h2", "s1"),
-    ]
-
-    async with DemoNet(topo) as net:
-        print(await net.ifconfig("h1"))
-        print(await net.ifconfig("h2"))
-        # print(await net.pingall())
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

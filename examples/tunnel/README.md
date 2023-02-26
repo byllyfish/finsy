@@ -19,7 +19,7 @@ The P4Info.txt for the `advanced_tunnel.p4` program looks like this:
 
 ## Running the Demo
 
-To run the demo network, type `./net/run.sh`.
+To run the demo network, type `./net/run.py`.
 
 To load the P4 tables with the proper entries, run `python demo1.py`. The program should
 exit immediately with no output.

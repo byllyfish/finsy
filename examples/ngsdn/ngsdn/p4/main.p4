@@ -17,6 +17,7 @@
 // HISTORY:
 //   - Replace clone3 with clone_preserving_field_list.
 //   - Preserve copy of ingress_port in local_metadata
+//   - Make sure we don't mis-parse cloned packets coming from CPU_PORT.
 
 #include <core.p4>
 #include <v1model.p4>
@@ -66,6 +67,8 @@ const bit<32> NDP_FLAG_ROUTER    = 0x80000000;
 const bit<32> NDP_FLAG_SOLICITED = 0x40000000;
 const bit<32> NDP_FLAG_OVERRIDE  = 0x20000000;
 
+// MAC address prefix BE:30 or BE:31 when << 1.
+const bit<15> MAGIC_PREFIX = 0x5F18;
 
 //------------------------------------------------------------------------------
 // HEADER DEFINITIONS
@@ -179,8 +182,8 @@ header cpu_in_header_t {
 // port this packet-out should be transmitted.
 @controller_header("packet_out")
 header cpu_out_header_t {
+    bit<15>     magic_val;  // must be MAGIC_PREFIX
     port_num_t  egress_port;
-    bit<7>      _pad;
 }
 
 struct parsed_headers_t {
@@ -217,12 +220,17 @@ struct local_metadata_t {
 parser ParserImpl (packet_in packet,
                    out parsed_headers_t hdr,
                    inout local_metadata_t local_metadata,
-                   inout standard_metadata_t standard_metadata)
+                   inout standard_metadata_t std_metadata)
 {
     state start {
-        local_metadata.ingress_port = standard_metadata.ingress_port;
-        transition select(standard_metadata.ingress_port) {
-            CPU_PORT: parse_packet_out;
+        // On stratum:
+        // I'm seeing an issue where cloned packets are showing up from port 255. 
+        // To verify that the packet is really from the controller, we check for
+        // the magic prefix.
+
+        bit<15> magic = packet.lookahead<bit<15>>();
+        transition select(std_metadata.ingress_port, magic) {
+            (CPU_PORT, MAGIC_PREFIX): parse_packet_out;
             default: parse_ethernet;
         }
     }
@@ -666,6 +674,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
     }
 
     apply {
+        local_metadata.ingress_port = standard_metadata.ingress_port;
 
         if (hdr.cpu_out.isValid()) {
             // *** TODO EXERCISE 4
