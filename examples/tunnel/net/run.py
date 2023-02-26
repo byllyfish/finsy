@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from finsy.test import demonet as dn
 
 DEMONET = [

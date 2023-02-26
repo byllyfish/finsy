@@ -61,7 +61,7 @@ $ python demo1.py
 In another terminal, start the demo network:
 
 ```
-$ ./net/run.sh
+$ ./net/run.py
 ```
 
 After a couple of seconds, the controller should connect to the switches running in Mininet. You
@@ -109,7 +109,7 @@ $ python demo2.py
 In another terminal, start the demo network (if it is not already running):
 
 ```
-$ ./net/run.sh
+$ ./net/run.py
 ```
 
 In the demo network (Mininet) shell, run the `ping` command.
