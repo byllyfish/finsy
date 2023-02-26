@@ -20,9 +20,9 @@ async def test_demo2(demonet, python):
 
     async with python(GNMI_DIR / "demo2.py") | result as demo2:
         await asyncio.sleep(0.5)
-        await demonet.cmd("h1 ifconfig eth0 down")
+        await demonet.send("h1 ifconfig eth0 down")
         await asyncio.sleep(0.5)
-        await demonet.cmd("h1 ifconfig eth0 up")
+        await demonet.send("h1 ifconfig eth0 up")
         await asyncio.sleep(0.5)
         demo2.cancel()
 

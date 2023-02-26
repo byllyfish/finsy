@@ -209,7 +209,7 @@ class DemoNet:
 
     async def _read_pids(self):
         "Retrieve the PID's so we can do our own `mnexec`."
-        dump = await self.cmd("dump")
+        dump = await self.send("dump")
         for mo in PID_MATCH.finditer(dump):
             name, pid = mo.groups()
             self._pids[name] = int(pid)
@@ -233,21 +233,18 @@ class DemoNet:
         pid = self._pids[host]
         return sh("podman", "exec", "-it", "mininet", "mnexec", "-a", pid, *args)
 
-    async def cmd(self, cmdline, *, expect=""):
+    async def send(self, cmdline, *, expect=""):
         result = await self._prompt.send(cmdline)
         print(result)
         if expect:
             assert expect in result
         return result
 
-    # FIXME: for temporary compatibility
-    send = cmd
-
     async def pingall(self):
-        return await self.cmd("pingall")
+        return await self.send("pingall")
 
     async def ifconfig(self, host):
-        return await self.cmd(f"{host} ifconfig")
+        return await self.send(f"{host} ifconfig")
 
     async def _setup(self):
         image = self._image()
@@ -357,21 +354,3 @@ def podman_start(container: str) -> Command:
 
 def podman_rm(container: str) -> Command:
     return sh("podman", "rm", container).set(exit_codes={0, 1})
-
-
-async def main():
-    topo = [
-        Image("xyz"),  # FIXME: Image not supported yet.
-        Switch("s1"),
-        Host("h1", "s1", ipv4="192.168.0.1/24"),
-        Host("h2", "s1"),
-    ]
-
-    async with DemoNet(topo) as net:
-        print(await net.ifconfig("h1"))
-        print(await net.ifconfig("h2"))
-        # print(await net.pingall())
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
