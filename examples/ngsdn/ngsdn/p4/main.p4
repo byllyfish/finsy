@@ -67,6 +67,8 @@ const bit<32> NDP_FLAG_ROUTER    = 0x80000000;
 const bit<32> NDP_FLAG_SOLICITED = 0x40000000;
 const bit<32> NDP_FLAG_OVERRIDE  = 0x20000000;
 
+// MAC address prefix BE:30 or BE:31 when << 1.
+const bit<15> MAGIC_PREFIX = 0x5F18;
 
 //------------------------------------------------------------------------------
 // HEADER DEFINITIONS
@@ -180,8 +182,8 @@ header cpu_in_header_t {
 // port this packet-out should be transmitted.
 @controller_header("packet_out")
 header cpu_out_header_t {
+    bit<15>     magic_val;  // must be MAGIC_PREFIX
     port_num_t  egress_port;
-    bit<7>      _pad;
 }
 
 struct parsed_headers_t {
@@ -223,13 +225,12 @@ parser ParserImpl (packet_in packet,
     state start {
         // On stratum:
         // I'm seeing an issue where cloned packets are showing up from port 255. 
-        // This is the CPU port and it causes a problem because `parse_packet_out`
-        // extracts a 2-byte header that doesn't actually exist. To mitigate this,
-        // I'm added a check with instance_type. Unfortunately, it looks like 
-        // instance_type remains 0 even for cloned packets. :(
+        // To verify that the packet is really from the controller, we check for
+        // the magic prefix.
 
-        transition select(std_metadata.ingress_port, std_metadata.instance_type) {
-            (CPU_PORT, 0): parse_packet_out;  // from CPU. Not cloned or recirculated.
+        bit<15> magic = packet.lookahead<bit<15>>();
+        transition select(std_metadata.ingress_port, magic) {
+            (CPU_PORT, MAGIC_PREFIX): parse_packet_out;
             default: parse_ethernet;
         }
     }

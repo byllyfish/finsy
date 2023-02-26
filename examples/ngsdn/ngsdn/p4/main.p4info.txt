@@ -489,13 +489,13 @@ controller_packet_metadata {
   }
   metadata {
     id: 1
-    name: "egress_port"
-    bitwidth: 9
+    name: "magic_val"
+    bitwidth: 15
   }
   metadata {
     id: 2
-    name: "_pad"
-    bitwidth: 7
+    name: "egress_port"
+    bitwidth: 9
   }
 }
 type_info {

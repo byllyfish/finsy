@@ -6,6 +6,7 @@
       "fields" : [
         ["tmp_1", 1, false],
         ["tmp_2", 1, false],
+        ["magic_0", 15, false],
         ["host_ipv6_tmp_0", 128, false],
         ["do_l3_l2_0", 1, false],
         ["tmp", 1, false],
@@ -17,7 +18,7 @@
         ["local_metadata_t.ip_proto", 8, false],
         ["local_metadata_t.icmp_type", 8, false],
         ["local_metadata_t.ingress_port", 9, false],
-        ["_padding_0", 1, false]
+        ["_padding_0", 2, false]
       ]
     },
     {
@@ -47,8 +48,8 @@
       "name" : "cpu_out_header_t",
       "id" : 2,
       "fields" : [
-        ["egress_port", 9, false],
-        ["_pad", 7, false]
+        ["magic_val", 15, false],
+        ["egress_port", 9, false]
       ]
     },
     {
@@ -345,11 +346,25 @@
         {
           "name" : "start",
           "id" : 0,
-          "parser_ops" : [],
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "magic_0"]
+                },
+                {
+                  "type" : "lookahead",
+                  "value" : [0, 15]
+                }
+              ],
+              "op" : "set"
+            }
+          ],
           "transitions" : [
             {
               "type" : "hexstr",
-              "value" : "0x00ff00000000",
+              "value" : "0x00ff5f18",
               "mask" : null,
               "next_state" : "parse_packet_out"
             },
@@ -367,7 +382,7 @@
             },
             {
               "type" : "field",
-              "value" : ["standard_metadata", "instance_type"]
+              "value" : ["scalars", "magic_0"]
             }
           ]
         },
@@ -1074,7 +1089,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 802,
+        "line" : 810,
         "column" : 8,
         "source_fragment" : "DeparserImpl"
       },
@@ -1089,7 +1104,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 480,
+        "line" : 488,
         "column" : 8,
         "source_fragment" : "counters"
       },
@@ -1101,7 +1116,7 @@
       "id" : 1,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 491,
+        "line" : 499,
         "column" : 8,
         "source_fragment" : "counters"
       },
@@ -1113,7 +1128,7 @@
       "id" : 2,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 522,
+        "line" : 530,
         "column" : 6,
         "source_fragment" : "counters"
       },
@@ -1125,7 +1140,7 @@
       "id" : 3,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 405,
+        "line" : 413,
         "column" : 8,
         "source_fragment" : "counters"
       },
@@ -1137,7 +1152,7 @@
       "id" : 4,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 429,
+        "line" : 437,
         "column" : 8,
         "source_fragment" : "counters"
       },
@@ -1149,7 +1164,7 @@
       "id" : 5,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 665,
+        "line" : 673,
         "column" : 8,
         "source_fragment" : "counters"
       },
@@ -1163,7 +1178,7 @@
       "binding" : "IngressPipeImpl.srv6_my_sid",
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 540,
+        "line" : 548,
         "column" : 50,
         "source_fragment" : "srv6_my_sid_table_counter"
       }
@@ -1175,7 +1190,7 @@
       "binding" : "IngressPipeImpl.srv6_transit",
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 596,
+        "line" : 604,
         "column" : 50,
         "source_fragment" : "srv6_transit_table_counter"
       }
@@ -1188,7 +1203,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 780,
+        "line" : 788,
         "column" : 8,
         "source_fragment" : "update_checksum(hdr.ndp.isValid(), ..."
       },
@@ -1299,7 +1314,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 357,
+            "line" : 365,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
           }
@@ -1321,7 +1336,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 357,
+            "line" : 365,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
           }
@@ -1343,7 +1358,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 357,
+            "line" : 365,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
           }
@@ -1365,7 +1380,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 357,
+            "line" : 365,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
           }
@@ -1396,7 +1411,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 389,
+            "line" : 397,
             "column" : 8,
             "source_fragment" : "standard_metadata.egress_spec = port_num"
           }
@@ -1427,7 +1442,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 415,
+            "line" : 423,
             "column" : 8,
             "source_fragment" : "standard_metadata.mcast_grp = gid"
           }
@@ -1456,7 +1471,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 416,
+            "line" : 424,
             "column" : 8,
             "source_fragment" : "local_metadata.is_multicast = true"
           }
@@ -1487,7 +1502,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 458,
+            "line" : 466,
             "column" : 8,
             "source_fragment" : "hdr.ethernet.src_addr = target_mac"
           }
@@ -1525,7 +1540,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 460,
+            "line" : 468,
             "column" : 8,
             "source_fragment" : "ipv6_addr_t host_ipv6_tmp = hdr.ipv6.src_addr;"
           }
@@ -1544,7 +1559,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 461,
+            "line" : 469,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.src_addr = hdr.ndp.target_ipv6_addr"
           }
@@ -1563,7 +1578,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 462,
+            "line" : 470,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.dst_addr = host_ipv6_tmp"
           }
@@ -1620,7 +1635,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 465,
+            "line" : 473,
             "column" : 8,
             "source_fragment" : "hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_OVERRIDE"
           }
@@ -1658,7 +1673,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 467,
+            "line" : 475,
             "column" : 8,
             "source_fragment" : "hdr.ndp.length = 1"
           }
@@ -1677,7 +1692,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 468,
+            "line" : 476,
             "column" : 8,
             "source_fragment" : "hdr.ndp.target_mac_addr = target_mac"
           }
@@ -1696,7 +1711,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 469,
+            "line" : 477,
             "column" : 8,
             "source_fragment" : "standard_metadata.egress_spec = standard_metadata.ingress_port"
           }
@@ -1727,7 +1742,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 499,
+            "line" : 507,
             "column" : 8,
             "source_fragment" : "hdr.ethernet.src_addr = hdr.ethernet.dst_addr"
           }
@@ -1746,7 +1761,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 500,
+            "line" : 508,
             "column" : 8,
             "source_fragment" : "hdr.ethernet.dst_addr = dmac"
           }
@@ -1788,7 +1803,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 502,
+            "line" : 510,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.hop_limit = hdr.ipv6.hop_limit - 1"
           }
@@ -1837,7 +1852,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 536,
+            "line" : 544,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.segment_left = hdr.srv6h.segment_left - 1"
           }
@@ -1856,7 +1871,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 537,
+            "line" : 545,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.dst_addr = local_metadata.next_srv6_sid"
           }
@@ -1891,7 +1906,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 575,
+            "line" : 583,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.dst_addr = s1"
           }
@@ -1933,7 +1948,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 576,
+            "line" : 584,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.payload_len = hdr.ipv6.payload_len + 40"
           }
@@ -1948,7 +1963,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 558,
+            "line" : 566,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.setValid()"
           }
@@ -1967,7 +1982,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 559,
+            "line" : 567,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.next_hdr = hdr.ipv6.next_hdr"
           }
@@ -1986,7 +2001,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 560,
+            "line" : 568,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.hdr_ext_len = num_segments * 2"
           }
@@ -2005,7 +2020,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 561,
+            "line" : 569,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.routing_type = 4"
           }
@@ -2024,7 +2039,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 562,
+            "line" : 570,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.segment_left = num_segments - 1"
           }
@@ -2043,7 +2058,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 563,
+            "line" : 571,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.last_entry = num_segments - 1"
           }
@@ -2062,7 +2077,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 564,
+            "line" : 572,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.flags = 0"
           }
@@ -2081,7 +2096,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 565,
+            "line" : 573,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.tag = 0"
           }
@@ -2115,7 +2130,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 578,
+            "line" : 586,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[0].setValid()"
           }
@@ -2134,7 +2149,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 579,
+            "line" : 587,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[0].segment_id = s2"
           }
@@ -2149,7 +2164,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 580,
+            "line" : 588,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[1].setValid()"
           }
@@ -2168,7 +2183,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 581,
+            "line" : 589,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[1].segment_id = s1"
           }
@@ -2207,7 +2222,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 585,
+            "line" : 593,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.dst_addr = s1"
           }
@@ -2249,7 +2264,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 586,
+            "line" : 594,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.payload_len = hdr.ipv6.payload_len + 56"
           }
@@ -2264,7 +2279,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 558,
+            "line" : 566,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.setValid()"
           }
@@ -2283,7 +2298,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 559,
+            "line" : 567,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.next_hdr = hdr.ipv6.next_hdr"
           }
@@ -2302,7 +2317,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 560,
+            "line" : 568,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.hdr_ext_len = num_segments * 2"
           }
@@ -2321,7 +2336,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 561,
+            "line" : 569,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.routing_type = 4"
           }
@@ -2340,7 +2355,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 562,
+            "line" : 570,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.segment_left = num_segments - 1"
           }
@@ -2359,7 +2374,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 563,
+            "line" : 571,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.last_entry = num_segments - 1"
           }
@@ -2378,7 +2393,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 564,
+            "line" : 572,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.flags = 0"
           }
@@ -2397,7 +2412,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 565,
+            "line" : 573,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.tag = 0"
           }
@@ -2431,7 +2446,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 588,
+            "line" : 596,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[0].setValid()"
           }
@@ -2450,7 +2465,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 589,
+            "line" : 597,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[0].segment_id = s3"
           }
@@ -2465,7 +2480,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 590,
+            "line" : 598,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[1].setValid()"
           }
@@ -2484,7 +2499,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 591,
+            "line" : 599,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[1].segment_id = s2"
           }
@@ -2499,7 +2514,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 592,
+            "line" : 600,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[2].setValid()"
           }
@@ -2518,7 +2533,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 593,
+            "line" : 601,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[2].segment_id = s1"
           }
@@ -2544,7 +2559,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 612,
+            "line" : 620,
             "column" : 6,
             "source_fragment" : "hdr.ipv6.next_hdr = hdr.srv6h.next_hdr"
           }
@@ -2656,7 +2671,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 617,
+            "line" : 625,
             "column" : 6,
             "source_fragment" : "hdr.ipv6.payload_len = hdr.ipv6.payload_len - srv6h_size"
           }
@@ -2671,7 +2686,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 619,
+            "line" : 627,
             "column" : 6,
             "source_fragment" : "hdr.srv6h.setInvalid()"
           }
@@ -2686,7 +2701,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 621,
+            "line" : 629,
             "column" : 6,
             "source_fragment" : "hdr.srv6_list[0].setInvalid()"
           }
@@ -2701,7 +2716,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 622,
+            "line" : 630,
             "column" : 6,
             "source_fragment" : "hdr.srv6_list[1].setInvalid()"
           }
@@ -2716,7 +2731,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 623,
+            "line" : 631,
             "column" : 6,
             "source_fragment" : "hdr.srv6_list[2].setInvalid()"
           }
@@ -2742,7 +2757,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 637,
+            "line" : 645,
             "column" : 8,
             "source_fragment" : "standard_metadata.egress_spec = 255"
           }
@@ -2768,7 +2783,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 645,
+            "line" : 653,
             "column" : 8,
             "source_fragment" : "clone_preserving_field_list(CloneType.I2E, 99, 1)"
           }
@@ -2776,7 +2791,7 @@
       ]
     },
     {
-      "name" : "main679",
+      "name" : "main687",
       "id" : 20,
       "runtime_data" : [],
       "primitives" : [
@@ -2794,7 +2809,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 679,
+            "line" : 687,
             "column" : 12,
             "source_fragment" : "standard_metadata.egress_spec = hdr.cpu_out.egress_port"
           }
@@ -2809,7 +2824,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 680,
+            "line" : 688,
             "column" : 12,
             "source_fragment" : "hdr.cpu_out.setInvalid()"
           }
@@ -2819,7 +2834,7 @@
           "parameters" : [],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 681,
+            "line" : 689,
             "column" : 12,
             "source_fragment" : "exit"
           }
@@ -2827,7 +2842,7 @@
       ]
     },
     {
-      "name" : "main669",
+      "name" : "main677",
       "id" : 21,
       "runtime_data" : [],
       "primitives" : [
@@ -2845,7 +2860,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 669,
+            "line" : 677,
             "column" : 8,
             "source_fragment" : "local_metadata.ingress_port = standard_metadata.ingress_port"
           }
@@ -2853,7 +2868,7 @@
       ]
     },
     {
-      "name" : "main695",
+      "name" : "main703",
       "id" : 22,
       "runtime_data" : [],
       "primitives" : [
@@ -2881,7 +2896,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 695,
+            "line" : 703,
             "column" : 16,
             "source_fragment" : "do_l3_l2 = false"
           }
@@ -2889,7 +2904,7 @@
       ]
     },
     {
-      "name" : "main684",
+      "name" : "main692",
       "id" : 23,
       "runtime_data" : [],
       "primitives" : [
@@ -2917,7 +2932,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 684,
+            "line" : 692,
             "column" : 8,
             "source_fragment" : "bool do_l3_l2 = true;"
           }
@@ -2985,7 +3000,7 @@
       ]
     },
     {
-      "name" : "main712",
+      "name" : "main720",
       "id" : 26,
       "runtime_data" : [],
       "primitives" : [
@@ -3020,7 +3035,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 712,
+            "line" : 720,
             "column" : 16,
             "source_fragment" : "hdr.ipv6.isValid() && my_station_table.apply().hit"
           }
@@ -3028,7 +3043,7 @@
       ]
     },
     {
-      "name" : "main712_0",
+      "name" : "main720_0",
       "id" : 27,
       "runtime_data" : [],
       "primitives" : [
@@ -3056,7 +3071,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 712,
+            "line" : 720,
             "column" : 16,
             "source_fragment" : "hdr.ipv6.isValid() && my_station_table.apply().hit"
           }
@@ -3064,7 +3079,7 @@
       ]
     },
     {
-      "name" : "main756",
+      "name" : "main764",
       "id" : 28,
       "runtime_data" : [],
       "primitives" : [
@@ -3078,7 +3093,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 756,
+            "line" : 764,
             "column" : 12,
             "source_fragment" : "hdr.cpu_in.setValid()"
           }
@@ -3097,7 +3112,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 757,
+            "line" : 765,
             "column" : 12,
             "source_fragment" : "hdr.cpu_in.ingress_port = local_metadata.ingress_port"
           }
@@ -3107,7 +3122,7 @@
           "parameters" : [],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 758,
+            "line" : 766,
             "column" : 12,
             "source_fragment" : "exit"
           }
@@ -3115,7 +3130,7 @@
       ]
     },
     {
-      "name" : "main767",
+      "name" : "main775",
       "id" : 29,
       "runtime_data" : [],
       "primitives" : [
@@ -3129,7 +3144,7 @@
           ],
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 767,
+            "line" : 775,
             "column" : 12,
             "source_fragment" : "mark_to_drop(standard_metadata)"
           }
@@ -3143,18 +3158,18 @@
       "id" : 0,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 351,
+        "line" : 359,
         "column" : 8,
         "source_fragment" : "IngressPipeImpl"
       },
-      "init_table" : "tbl_main669",
+      "init_table" : "tbl_main677",
       "tables" : [
         {
-          "name" : "tbl_main669",
+          "name" : "tbl_main677",
           "id" : 0,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 669,
+            "line" : 677,
             "column" : 36,
             "source_fragment" : "="
           },
@@ -3166,10 +3181,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [21],
-          "actions" : ["main669"],
+          "actions" : ["main677"],
           "base_default_next" : "node_3",
           "next_tables" : {
-            "main669" : "node_3"
+            "main677" : "node_3"
           },
           "default_entry" : {
             "action_id" : 21,
@@ -3179,11 +3194,11 @@
           }
         },
         {
-          "name" : "tbl_main679",
+          "name" : "tbl_main687",
           "id" : 1,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 679,
+            "line" : 687,
             "column" : 42,
             "source_fragment" : "= hdr.cpu_out.egress_port; ..."
           },
@@ -3195,10 +3210,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [20],
-          "actions" : ["main679"],
-          "base_default_next" : "tbl_main684",
+          "actions" : ["main687"],
+          "base_default_next" : "tbl_main692",
           "next_tables" : {
-            "main679" : "tbl_main684"
+            "main687" : "tbl_main692"
           },
           "default_entry" : {
             "action_id" : 20,
@@ -3208,11 +3223,11 @@
           }
         },
         {
-          "name" : "tbl_main684",
+          "name" : "tbl_main692",
           "id" : 2,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 684,
+            "line" : 692,
             "column" : 8,
             "source_fragment" : "bool do_l3_l2 = true;"
           },
@@ -3224,10 +3239,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [23],
-          "actions" : ["main684"],
+          "actions" : ["main692"],
           "base_default_next" : "node_6",
           "next_tables" : {
-            "main684" : "node_6"
+            "main692" : "node_6"
           },
           "default_entry" : {
             "action_id" : 23,
@@ -3241,7 +3256,7 @@
           "id" : 3,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 472,
+            "line" : 480,
             "column" : 10,
             "source_fragment" : "ndp_reply_table"
           },
@@ -3263,7 +3278,7 @@
           "actions" : ["IngressPipeImpl.ndp_ns_to_na", "NoAction"],
           "base_default_next" : null,
           "next_tables" : {
-            "__HIT__" : "tbl_main695",
+            "__HIT__" : "tbl_main703",
             "__MISS__" : "node_9"
           },
           "default_entry" : {
@@ -3274,11 +3289,11 @@
           }
         },
         {
-          "name" : "tbl_main695",
+          "name" : "tbl_main703",
           "id" : 4,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 695,
+            "line" : 703,
             "column" : 25,
             "source_fragment" : "="
           },
@@ -3290,10 +3305,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [22],
-          "actions" : ["main695"],
+          "actions" : ["main703"],
           "base_default_next" : "node_9",
           "next_tables" : {
-            "main695" : "node_9"
+            "main703" : "node_9"
           },
           "default_entry" : {
             "action_id" : 22,
@@ -3307,7 +3322,7 @@
           "id" : 5,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 485,
+            "line" : 493,
             "column" : 10,
             "source_fragment" : "my_station_table"
           },
@@ -3351,9 +3366,9 @@
           "direct_meters" : null,
           "action_ids" : [24],
           "actions" : ["act"],
-          "base_default_next" : "tbl_main712",
+          "base_default_next" : "tbl_main720",
           "next_tables" : {
-            "act" : "tbl_main712"
+            "act" : "tbl_main720"
           },
           "default_entry" : {
             "action_id" : 24,
@@ -3374,9 +3389,9 @@
           "direct_meters" : null,
           "action_ids" : [25],
           "actions" : ["act_0"],
-          "base_default_next" : "tbl_main712",
+          "base_default_next" : "tbl_main720",
           "next_tables" : {
-            "act_0" : "tbl_main712"
+            "act_0" : "tbl_main720"
           },
           "default_entry" : {
             "action_id" : 25,
@@ -3386,11 +3401,11 @@
           }
         },
         {
-          "name" : "tbl_main712",
+          "name" : "tbl_main720",
           "id" : 8,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 712,
+            "line" : 720,
             "column" : 16,
             "source_fragment" : "hdr.ipv6.isValid() && my_station_table.apply().hit"
           },
@@ -3402,10 +3417,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [26],
-          "actions" : ["main712"],
+          "actions" : ["main720"],
           "base_default_next" : "node_16",
           "next_tables" : {
-            "main712" : "node_16"
+            "main720" : "node_16"
           },
           "default_entry" : {
             "action_id" : 26,
@@ -3415,11 +3430,11 @@
           }
         },
         {
-          "name" : "tbl_main712_0",
+          "name" : "tbl_main720_0",
           "id" : 9,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 712,
+            "line" : 720,
             "column" : 16,
             "source_fragment" : "hdr.ipv6.isValid() && my_station_table.apply().hit"
           },
@@ -3431,10 +3446,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [27],
-          "actions" : ["main712_0"],
+          "actions" : ["main720_0"],
           "base_default_next" : "node_16",
           "next_tables" : {
-            "main712_0" : "node_16"
+            "main720_0" : "node_16"
           },
           "default_entry" : {
             "action_id" : 27,
@@ -3448,7 +3463,7 @@
           "id" : 10,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 541,
+            "line" : 549,
             "column" : 10,
             "source_fragment" : "srv6_my_sid"
           },
@@ -3485,7 +3500,7 @@
           "id" : 11,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 717,
+            "line" : 725,
             "column" : 24,
             "source_fragment" : "srv6_pop()"
           },
@@ -3514,7 +3529,7 @@
           "id" : 12,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 597,
+            "line" : 605,
             "column" : 10,
             "source_fragment" : "srv6_transit"
           },
@@ -3552,7 +3567,7 @@
           "id" : 13,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 504,
+            "line" : 512,
             "column" : 10,
             "source_fragment" : "routing_v6_table"
           },
@@ -3584,7 +3599,7 @@
           "id" : 14,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 725,
+            "line" : 733,
             "column" : 46,
             "source_fragment" : "drop()"
           },
@@ -3613,7 +3628,7 @@
           "id" : 15,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 392,
+            "line" : 400,
             "column" : 10,
             "source_fragment" : "l2_exact_table"
           },
@@ -3650,7 +3665,7 @@
           "id" : 16,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 419,
+            "line" : 427,
             "column" : 10,
             "source_fragment" : "l2_ternary_table"
           },
@@ -3687,7 +3702,7 @@
           "id" : 17,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 648,
+            "line" : 656,
             "column" : 10,
             "source_fragment" : "acl_table"
           },
@@ -3770,7 +3785,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 496,
+            "line" : 504,
             "column" : 57,
             "source_fragment" : "ecmp_selector"
           },
@@ -3812,7 +3827,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 671,
+            "line" : 679,
             "column" : 12,
             "source_fragment" : "hdr.cpu_out.isValid()"
           },
@@ -3827,15 +3842,15 @@
               }
             }
           },
-          "true_next" : "tbl_main679",
-          "false_next" : "tbl_main684"
+          "true_next" : "tbl_main687",
+          "false_next" : "tbl_main692"
         },
         {
           "name" : "node_6",
           "id" : 1,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 686,
+            "line" : 694,
             "column" : 12,
             "source_fragment" : "hdr.icmpv6.isValid() && hdr.icmpv6.type == ICMP6_TYPE_NS"
           },
@@ -3878,7 +3893,7 @@
           "id" : 2,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 699,
+            "line" : 707,
             "column" : 12,
             "source_fragment" : "do_l3_l2"
           },
@@ -3901,7 +3916,7 @@
           "id" : 3,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 712,
+            "line" : 720,
             "column" : 16,
             "source_fragment" : "hdr.ipv6.isValid()"
           },
@@ -3917,7 +3932,7 @@
             }
           },
           "true_next" : "IngressPipeImpl.my_station_table",
-          "false_next" : "tbl_main712_0"
+          "false_next" : "tbl_main720_0"
         },
         {
           "name" : "node_16",
@@ -3941,7 +3956,7 @@
           "id" : 5,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 716,
+            "line" : 724,
             "column" : 24,
             "source_fragment" : "hdr.srv6h.isValid() && hdr.srv6h.segment_left == 0"
           },
@@ -3984,7 +3999,7 @@
           "id" : 6,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 725,
+            "line" : 733,
             "column" : 19,
             "source_fragment" : "hdr.ipv6.hop_limit == 0"
           },
@@ -4012,18 +4027,18 @@
       "id" : 1,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 742,
+        "line" : 750,
         "column" : 8,
         "source_fragment" : "EgressPipeImpl"
       },
       "init_table" : "node_29",
       "tables" : [
         {
-          "name" : "tbl_main756",
+          "name" : "tbl_main764",
           "id" : 18,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 756,
+            "line" : 764,
             "column" : 12,
             "source_fragment" : "hdr.cpu_in.setValid(); ..."
           },
@@ -4035,10 +4050,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [28],
-          "actions" : ["main756"],
+          "actions" : ["main764"],
           "base_default_next" : "node_31",
           "next_tables" : {
-            "main756" : "node_31"
+            "main764" : "node_31"
           },
           "default_entry" : {
             "action_id" : 28,
@@ -4048,11 +4063,11 @@
           }
         },
         {
-          "name" : "tbl_main767",
+          "name" : "tbl_main775",
           "id" : 19,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 767,
+            "line" : 775,
             "column" : 12,
             "source_fragment" : "mark_to_drop(standard_metadata)"
           },
@@ -4064,10 +4079,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [29],
-          "actions" : ["main767"],
+          "actions" : ["main775"],
           "base_default_next" : null,
           "next_tables" : {
-            "main767" : null
+            "main775" : null
           },
           "default_entry" : {
             "action_id" : 29,
@@ -4084,7 +4099,7 @@
           "id" : 7,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 747,
+            "line" : 755,
             "column" : 12,
             "source_fragment" : "standard_metadata.egress_port == 255"
           },
@@ -4102,7 +4117,7 @@
               }
             }
           },
-          "true_next" : "tbl_main756",
+          "true_next" : "tbl_main764",
           "false_next" : "node_31"
         },
         {
@@ -4110,7 +4125,7 @@
           "id" : 8,
           "source_info" : {
             "filename" : "main.p4",
-            "line" : 765,
+            "line" : 773,
             "column" : 12,
             "source_fragment" : "local_metadata.is_multicast == true && ..."
           },
@@ -4146,7 +4161,7 @@
             }
           },
           "false_next" : null,
-          "true_next" : "tbl_main767"
+          "true_next" : "tbl_main775"
         }
       ]
     }
@@ -4157,7 +4172,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "main.p4",
-        "line" : 780,
+        "line" : 788,
         "column" : 8,
         "source_fragment" : "update_checksum(hdr.ndp.isValid(), ..."
       },

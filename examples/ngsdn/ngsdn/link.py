@@ -11,6 +11,8 @@ import finsy as fy
 from . import netcfg
 from .log import LOG
 
+_MAGIC_PREFIX = 0x5F18
+
 
 class LinkEvent(str, enum.Enum):
     "Events for LinkManager class."
@@ -73,7 +75,7 @@ class LinkManager:
             payload = _encode_lldp(
                 station_mac, self.switch.name.encode(), port.name.encode()
             )
-            yield fy.P4PacketOut(payload, egress_port=port.id, _pad=0)
+            yield fy.P4PacketOut(payload, magic_val=_MAGIC_PREFIX, egress_port=port.id)
 
 
 _LLDP_DST = b"\x01\x80\xc2\x00\x00\x00"
