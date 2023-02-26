@@ -11,26 +11,26 @@ NGSDN_DIR = Path(__file__).parent.parent / "ngsdn"
 DEMONET = NGSDN_DIR / "net/run.py"
 
 
-async def test_ngsdn(demonet2, python):
+async def test_ngsdn(demonet, python):
     "Test the ngsdn/ngsdn example program."
 
     async with python("-m", "ngsdn").env(PYTHONPATH="..:ngsdn") as demo:
         await asyncio.sleep(2.0)
 
         # These are IPv6 pings.
-        await demonet2.send("h1a ping -c 1 h3")
-        await demonet2.send("h3 ping -c 1 h1a")
-        await demonet2.send("h1a ping -c 1 h3", expect=" 0% packet loss")
+        await demonet.send("h1a ping -c 1 h3")
+        await demonet.send("h3 ping -c 1 h1a")
+        await demonet.send("h1a ping -c 1 h3", expect=" 0% packet loss")
 
         demo.cancel()
 
 
-async def test_leaf2(demonet2):
+async def test_leaf2(demonet):
     "Test the packet log from leaf2."
-    await demonet2.send("sh cat /tmp/leaf2/stratum_bmv2.log")
+    await demonet.send("sh cat /tmp/leaf2/stratum_bmv2.log")
 
 
-async def test_read_tables(demonet2, caplog):
+async def test_read_tables(demonet, caplog):
     "Test the state of the tables after the demo finishes."
     caplog.set_level(logging.INFO, logger="finsy")
 

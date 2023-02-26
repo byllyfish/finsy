@@ -12,14 +12,14 @@ SIMPLE_DIR = Path(__file__).parent.parent / "simple"
 DEMONET = SIMPLE_DIR / "net/run.py"
 
 
-async def test_demo(demonet2, python):
+async def test_demo(demonet, python):
     "Test the simple/demo example program."
     await python(SIMPLE_DIR / "demo.py")
-    await demonet2.send("pingall", expect="(2/2 received)")
-    await demonet2.send("iperf", expect="Mbits/sec")
+    await demonet.send("pingall", expect="(2/2 received)")
+    await demonet.send("iperf", expect="Mbits/sec")
 
 
-async def test_read_tables(demonet2):
+async def test_read_tables(demonet):
     "Test the state of the tables after the demo finishes."
     expected_switch_states = {
         "127.0.0.1:50001": {
@@ -40,7 +40,7 @@ async def test_read_tables(demonet2):
         assert actual_state == expected_state
 
 
-async def test_too_many_entries(demonet2):
+async def test_too_many_entries(demonet):
     "Test sending 1025 entries to a table that only support 1024."
     entries = [
         +fy.P4TableEntry(
