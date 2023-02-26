@@ -9,17 +9,17 @@ from finsy import pbuf
 
 TUNNEL_DIR = Path(__file__).parent.parent / "tunnel"
 
-DEMONET = TUNNEL_DIR / "net/run.sh"
+DEMONET = TUNNEL_DIR / "net/run.py"
 
 
-async def test_demo(demonet, python):
+async def test_demo(demonet2, python):
     "Test the tunnel/demo1 example program."
     await python(TUNNEL_DIR / "demo1.py")
-    await demonet.send("h1 ping -c 3 h2", expect=" 0% packet loss")
-    await demonet.send("h2 ping -c 3 h1", expect=" 0% packet loss")
+    await demonet2.send("h1 ping -c 3 h2", expect=" 0% packet loss")
+    await demonet2.send("h2 ping -c 3 h1", expect=" 0% packet loss")
 
 
-async def test_read_tables(demonet):
+async def test_read_tables(demonet2):
     "Test the state of the tables after the demo finishes."
     expected_switch_states = {
         "127.0.0.1:50001": {

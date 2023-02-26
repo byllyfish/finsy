@@ -5,7 +5,7 @@ import testlib
 
 HELLO_DIR = Path(__file__).parent.parent / "hello"
 
-DEMONET = HELLO_DIR / "net/run.sh"
+DEMONET = HELLO_DIR / "net/run.py"
 
 
 async def test_demo0(python):
@@ -33,36 +33,36 @@ hello.p4 (version=1, arch=v1model)
     )
 
 
-async def test_demo1(demonet, python):
+async def test_demo1(demonet2, python):
     "Test the hello/demo1 example program."
 
     async with python(HELLO_DIR / "demo1.py") as demo1:
         await asyncio.sleep(0.25)
-        await demonet.send("pingall", expect="(6/6 received)")
+        await demonet2.send("pingall", expect="(6/6 received)")
         demo1.cancel()
 
 
-async def test_demo2(demonet, python):
+async def test_demo2(demonet2, python):
     "Test the hello/demo2 example program."
 
     async with python(HELLO_DIR / "demo2.py") as demo2:
         await asyncio.sleep(0.25)
-        await demonet.send("pingall")
-        await demonet.send("pingall", expect="(6/6 received)")
+        await demonet2.send("pingall")
+        await demonet2.send("pingall", expect="(6/6 received)")
         demo2.cancel()
 
 
-async def test_demo3(demonet, python):
+async def test_demo3(demonet2, python):
     "Test the hello/demo3 example program."
 
     async with python(HELLO_DIR / "demo3.py") as demo3:
         await asyncio.sleep(0.25)
-        await demonet.send("pingall")
-        await demonet.send("pingall", expect="(6/6 received)")
+        await demonet2.send("pingall")
+        await demonet2.send("pingall", expect="(6/6 received)")
         demo3.cancel()
 
 
-async def test_read_tables(demonet):
+async def test_read_tables(demonet2):
     "Read the state of the P4Runtime tables after running all the tests."
     expected_switch_states = {
         "127.0.0.1:50001": {

@@ -47,8 +47,8 @@ class Host(DemoItem):
     _: KW_ONLY
     kind: str = field(default="host", init=False)
     ifname: str = "eth0"
-    mac: str = ""
-    ipv4: str = ""
+    mac: str = "auto"
+    ipv4: str = "auto"
     ipv4_gw: str = ""
     ipv6: str = ""
     ipv6_gw: str = ""
@@ -336,6 +336,7 @@ def podman_create(
         "/root/demonet_topo.py",
         "--topo",
         "demonet",
+        "--mac",
         # "-v",
         # "debug",
     ).stderr(sh.INHERIT)

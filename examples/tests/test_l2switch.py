@@ -7,19 +7,19 @@ import finsy as fy
 
 L2SWITCH_DIR = Path(__file__).parent.parent / "l2_switch"
 
-DEMONET = L2SWITCH_DIR / "net/run.sh"
+DEMONET = L2SWITCH_DIR / "net/run.py"
 
 
-async def test_demo(demonet, python):
+async def test_demo(demonet2, python):
     "Test the l2_switch/demo example program."
 
     async with python(L2SWITCH_DIR / "demo.py") as demo:
         await asyncio.sleep(0.25)
-        await demonet.send("pingall", expect="(6/6 received)")
+        await demonet2.send("pingall", expect="(6/6 received)")
         demo.cancel()
 
 
-async def test_read_tables(demonet):
+async def test_read_tables(demonet2):
     "Test the state of the tables after the demo finishes."
 
     # FIXME: bmv2 switch doesn't return default entries?
