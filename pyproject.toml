@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "finsy"
-version = "0.12.0"
+version = "0.13.0"
 description = "P4Runtime Client Library"
 license = "Apache-2.0"
 authors = ["Bill Fisher <william.w.fisher@gmail.com>"]

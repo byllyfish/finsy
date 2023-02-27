@@ -1,5 +1,11 @@
 # Finsy Change Log
 
+## 0.13.0
+
+- Initial work on demonet test module which runs Mininet in a podman container (replacing bash script).
+- Update p4runtime protobuf definition to latest `Replica.{egress_port => port}` changes.
+- Update gNMI protobuf definitions from `0.8.0` to `0.9.0`.
+
 ## 0.12.0
 
 - Add convenience accessors to P4CounterEntry and P4DirectCounterEntry.
