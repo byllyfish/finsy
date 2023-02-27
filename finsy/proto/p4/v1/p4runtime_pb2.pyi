@@ -1054,26 +1054,32 @@ class Replica(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     EGRESS_PORT_FIELD_NUMBER: builtins.int
+    PORT_FIELD_NUMBER: builtins.int
     INSTANCE_FIELD_NUMBER: builtins.int
     egress_port: builtins.int
+    """Using uint32 as ports is deprecated, use port field instead."""
+    port: builtins.bytes
     instance: builtins.int
     def __init__(
         self,
         *,
         egress_port: builtins.int = ...,
+        port: builtins.bytes = ...,
         instance: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["egress_port", b"egress_port", "instance", b"instance"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["egress_port", b"egress_port", "port", b"port", "port_kind", b"port_kind"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["egress_port", b"egress_port", "instance", b"instance", "port", b"port", "port_kind", b"port_kind"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["port_kind", b"port_kind"]) -> typing_extensions.Literal["egress_port", "port"] | None: ...
 
 global___Replica = Replica
 
 @typing_extensions.final
 class MulticastGroupEntry(google.protobuf.message.Message):
-    """The (egress_port, instance) pair must be unique for each replica in a given
+    """The (port, instance) pair must be unique for each replica in a given
     multicast group entry. A packet may be multicast by setting the
     multicast_group field of PSA ingress output metadata to multicast_group_id
-    of a programmed multicast group entry. The egress_port and instance fields of
-    each replica's egress input metadata will be set to the respective values
+    of a programmed multicast group entry. The port and instance fields of each
+    replica's egress input metadata will be set to the respective values
     programmed in the multicast group entry.
     """
 
