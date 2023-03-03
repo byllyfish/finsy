@@ -47,9 +47,7 @@ class DemoHost(Host):
             self.cmd("ethtool --offload %s %s off" % (ifname, feature))
 
         # Set the MAC address.
-        mac = config["mac"]
-        if mac == "auto":
-            mac = _params.get("mac")
+        mac = config["assigned_mac"]
         if mac:
             intf.mac = mac
             intf.ifconfig("hw", "ether", mac)
@@ -65,9 +63,7 @@ class DemoHost(Host):
         self.cmd("ifconfig lo up")
 
         # Configure IPv4.
-        ipv4 = config["ipv4"]
-        if ipv4 == "auto":
-            ipv4 = _params.get("ip")
+        ipv4 = config["assigned_ipv4"]
         if ipv4:
             intf.setIP(ipv4)
 
@@ -81,7 +77,7 @@ class DemoHost(Host):
                 self.setARP(ip, mac)
 
         # Configure IPv6.
-        ipv6 = config["ipv6"]
+        ipv6 = config["assigned_ipv6"]
         if ipv6:
             self.cmd("ip -6 addr add %s dev %s" % (ipv6, ifname))
 

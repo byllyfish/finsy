@@ -6,12 +6,19 @@ import os
 import re
 import tempfile
 from dataclasses import KW_ONLY, asdict, dataclass, field
+from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
 from typing import Any, Sequence
 
+import pygraphviz as pgv
 import shellous
 from shellous import Command, sh
 from shellous.harvest import harvest_results
+
+from finsy import MACAddress
+
+IPV4_BASE = IPv4Network("10.0.0.0/8")
+IPV6_BASE = IPv6Network("fc00::/64")
 
 
 class DemoItem:
@@ -19,7 +26,7 @@ class DemoItem:
 
 
 @dataclass
-class CopyFile(DemoItem):
+class CopyFile:
     source: Path
     dest: str
 
@@ -56,6 +63,29 @@ class Host(DemoItem):
     static_arp: dict[str, str] = field(default_factory=dict)
     disable_offload: Sequence[str] = ("tx", "rx", "sg")
 
+    # These fields are "assigned" when configuration is initially processed.
+    assigned_switch_port: int = field(default=0, init=False)
+    assigned_mac: str = field(default="", init=False)
+    assigned_ipv4: str = field(default="", init=False)
+    assigned_ipv6: str = field(default="", init=False)
+
+    def init(self, host_id: int):
+        "Derive MAC and IP addresses when necessary."
+        if self.mac == "auto":
+            self.assigned_mac = str(MACAddress(host_id))
+        else:
+            self.assigned_mac = self.mac
+
+        if self.ipv4 == "auto":
+            self.assigned_ipv4 = f"{IPV4_BASE[host_id]}/{IPV4_BASE.prefixlen}"
+        else:
+            self.assigned_ipv4 = self.ipv4
+
+        if self.ipv6 == "auto":
+            self.assigned_ipv6 = f"{IPV6_BASE[host_id]}/{IPV6_BASE.prefixlen}"
+        else:
+            self.assigned_ipv6 = self.ipv6
+
 
 @dataclass
 class Link(DemoItem):
@@ -63,6 +93,8 @@ class Link(DemoItem):
     end: str
     _: KW_ONLY
     kind: str = field(default="link", init=False)
+    assigned_start_port: int = field(default=0, init=False)
+    assigned_end_port: int = field(default=0, init=False)
 
 
 @dataclass
@@ -167,6 +199,7 @@ class DemoNet:
         self,
         config: Sequence[DemoItem],
     ):
+        _configure(config)
         self._config = config
         self._runner = None
         self._prompt = None
@@ -333,7 +366,6 @@ def podman_create(
         "/root/demonet_topo.py",
         "--topo",
         "demonet",
-        "--mac",
         # "-v",
         # "debug",
     ).stderr(sh.INHERIT)
@@ -354,3 +386,124 @@ def podman_start(container: str) -> Command:
 
 def podman_rm(container: str) -> Command:
     return sh("podman", "rm", container).set(exit_codes={0, 1})
+
+
+def _create_graph(config: Sequence[DemoItem]):
+    "Create a pygraphviz Graph of the network."
+
+    graph_style = dict(
+        bgcolor="lightblue",
+        margin="0",
+        pad="0.25",
+    )
+    switch_style = dict(
+        shape="box",
+        fillcolor="green:white",
+        style="filled",
+        gradientangle=90,
+        width="0.1",
+        height="0.1",
+        margin="0.08,0.02",
+    )
+    host_style = dict(
+        shape="box",
+        width="0.01",
+        height="0.01",
+        margin="0.04,0.02",
+        fillcolor="yellow:white",
+        style="filled",
+        gradientangle=90,
+        fontsize="10",
+    )
+    link_style = dict(
+        penwidth="2.0",
+        fontcolor="darkgreen",
+        fontsize="10",
+    )
+
+    graph = pgv.AGraph(**graph_style)
+
+    for item in config:
+        match item:
+            case Switch():
+                graph.add_node(item.name, **switch_style)
+            case Host():
+                sublabels = [item.name, item.assigned_ipv4, item.assigned_ipv6]
+                host_label = "\n".join(x for x in sublabels if x)
+                graph.add_node(
+                    item.name,
+                    label=host_label,
+                    **host_style,
+                )
+                if item.switch:
+                    graph.add_edge(
+                        item.name,
+                        item.switch,
+                        headlabel=f"{item.assigned_switch_port}",
+                        **link_style,
+                    )
+            case Link():
+                graph.add_edge(
+                    item.start,
+                    item.end,
+                    headlabel=f"{item.assigned_end_port}",
+                    taillabel=f"{item.assigned_start_port}",
+                    **link_style,
+                )
+
+    return graph
+
+
+def draw(config: Sequence[DemoItem]):
+    "Draw the config as a graph."
+    _configure(config)
+    graph = _create_graph(config)
+    graph.layout()
+    graph.draw("test.png")
+
+
+def _configure(config: Sequence[DemoItem]):
+    """Scan the configuration and fill in necessary details.
+
+    This method modifies unset fields in the configuration. It is safe to do
+    this more than once; this is an idempotent operation.
+    """
+    switch_db = SwitchPortDB()
+    host_id = 1
+
+    for item in config:
+        match item:
+            case Switch():
+                switch_db.add_switch(item.name)
+            case Host():
+                item.init(host_id)
+                host_id += 1
+                if item.switch:
+                    item.assigned_switch_port = switch_db.next_port(item.switch)
+            case Link():
+                if item.start in switch_db:
+                    item.assigned_start_port = switch_db.next_port(item.start)
+                if item.end in switch_db:
+                    item.assigned_end_port = switch_db.next_port(item.end)
+
+
+class SwitchPortDB:
+    "Helper class to help track the next available switch port number."
+
+    _next_port: dict[str, int]
+
+    def __init__(self):
+        self._next_port = {}
+
+    def add_switch(self, name: str):
+        if name in self._next_port:
+            raise ValueError(f"duplicate switch named {name!r}")
+        self._next_port[name] = 1
+
+    def next_port(self, name: str) -> int:
+        result = self._next_port[name]
+        self._next_port[name] = result + 1
+        return result
+
+    def __contains__(self, name: str) -> bool:
+        return name in self._next_port
