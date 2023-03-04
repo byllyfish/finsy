@@ -2,6 +2,8 @@
 
 The "hello" example consists of three demo programs that use the same P4 program.
 
+The demo network looks like this picture. To start Mininet, type `./net/run.py`.
+
 ![Network Map](net/map.png)
 
 ## demo0.py

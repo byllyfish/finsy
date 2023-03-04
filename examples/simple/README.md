@@ -2,6 +2,8 @@
 
 The simple directory demonstrates the `simple_router.p4` example from [P4App](https://github.com/p4lang/p4app).
 
+The demo network looks like this picture. To start Mininet, type `./net/run.py`.
+
 ![Network Map](net/map.png)
 
 The P4Info.txt for the `simple_router.p4` program looks like this:

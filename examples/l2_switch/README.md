@@ -4,6 +4,8 @@ The l2_switch demo implements a controller for a simple Layer2 switch.
 This example uses the P4 program from ["p4runtime-go-client"](https://github.com/antoninbas/p4runtime-go-client), and implements a controller
 similar to that project's demo program.
 
+The demo network looks like this picture. To start Mininet, type `./net/run.py`.
+
 ![Network Map](net/map.png)
 
 The P4Info for l2_switch looks like this:
