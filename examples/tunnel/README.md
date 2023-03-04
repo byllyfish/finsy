@@ -2,6 +2,10 @@
 
 The tunnel directory demonstrates the `P4Runtime` example from the [P4 Tutorial](https://github.com/p4lang/tutorials/tree/master/exercises/p4runtime).
 
+The demo network looks like this picture. To start Mininet, type `./net/run.py`.
+
+![Network Map](net/map.png)
+
 The P4Info.txt for the `advanced_tunnel.p4` program looks like this:
 
 ```

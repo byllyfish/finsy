@@ -26,6 +26,7 @@ from .gnmiclient import GNMIClient, GNMISubscription, GNMIUpdate
 from .gnmipath import GNMIPath
 from .grpcutil import GRPCStatusCode
 from .log import LoggerAdapter
+from .macaddr import MACAddress
 from .p4client import P4Client, P4ClientError, P4Error
 from .p4entity import (
     P4ActionProfileGroup,
@@ -56,6 +57,7 @@ __all__ = [
     "current_controller",
     "Controller",
     "LoggerAdapter",
+    "MACAddress",
     "P4ActionProfileGroup",
     "P4ActionProfileMember",
     "P4Client",

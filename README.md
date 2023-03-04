@@ -4,9 +4,9 @@
 
 Finsy is a [P4Runtime](https://p4.org/p4-spec/p4runtime/main/P4Runtime-Spec.html) controller library written in Python using [asyncio](https://docs.python.org/3/library/asyncio.html). Finsy includes support for [gNMI](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md).
 
-## Requirements
+## Installation
 
-Finsy requires Python 3.10 or later.
+Finsy requires Python 3.10 or later. To install the latest version, type `"pip install finsy".`
 
 ## P4Runtime Scripts
 
