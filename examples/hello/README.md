@@ -2,6 +2,8 @@
 
 The "hello" example consists of three demo programs that use the same P4 program.
 
+![Network Map](net/map.png)
+
 ## demo0.py
 
 This demo program reads an existing P4Info file and prints out a description of its 

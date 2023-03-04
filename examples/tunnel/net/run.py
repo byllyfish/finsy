@@ -37,4 +37,4 @@ DEMONET = [
 ]
 
 if __name__ == "__main__":
-    dn.run(DEMONET)
+    dn.main(DEMONET)

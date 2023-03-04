@@ -2,6 +2,8 @@
 
 The gnmi demo programs demonstrate how to use Finsy's `GNMIClient` and `GNMIPath` classes.
 
+![Network Map](net/map.png)
+
 ## demo1.py
 
 The demo1 program prints out a list of interface names and their operational status.

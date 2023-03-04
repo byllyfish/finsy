@@ -2,6 +2,8 @@
 
 This demo provides an alternate P4Runtime implementation for the [ngsdn-tutorial](https://github.com/opennetworkinglab/ngsdn-tutorial).
 
+![Network Map](net/map.png)
+
 The P4Info file looks like this:
 
 ```
