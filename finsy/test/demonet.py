@@ -1,5 +1,6 @@
 """Implements a DemoNet class for running Mininet tests in a container."""
 
+import argparse
 import asyncio
 import json
 import os
@@ -313,15 +314,6 @@ class DemoNet:
         return sum(1 for item in self._config if isinstance(item, Host))
 
 
-def run(config: Sequence[DemoItem]):
-    "Create demo network and run it interactively."
-
-    async def _main():
-        await DemoNet(config)
-
-    asyncio.run(_main())
-
-
 def _json_default(obj):
     try:
         if isinstance(obj, Path):
@@ -454,12 +446,21 @@ def _create_graph(config: Sequence[DemoItem]):
     return graph
 
 
-def draw(config: Sequence[DemoItem]):
+def draw(config: Sequence[DemoItem], filename: str):
     "Draw the config as a graph."
     _configure(config)
     graph = _create_graph(config)
     graph.layout()
-    graph.draw("test.png")
+    graph.draw(filename)
+
+
+def run(config: Sequence[DemoItem]):
+    "Create demo network and run it interactively."
+
+    async def _main():
+        await DemoNet(config)
+
+    asyncio.run(_main())
 
 
 def _configure(config: Sequence[DemoItem]):
@@ -507,3 +508,19 @@ class SwitchPortDB:
 
     def __contains__(self, name: str) -> bool:
         return name in self._next_port
+
+
+def _parse_args():
+    "Create argument parser and parse arguments."
+    parser = argparse.ArgumentParser("demonet")
+    parser.add_argument("--draw", help="Draw network map into file.")
+    return parser.parse_args()
+
+
+def main(config: Sequence[DemoItem]):
+    "Main entry point for demonet."
+    args = _parse_args()
+    if args.draw:
+        draw(config, args.draw)
+    else:
+        run(config)
