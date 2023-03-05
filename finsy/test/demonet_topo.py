@@ -7,7 +7,9 @@ import json
 import os.path
 
 from mininet.node import Host
+from mininet.nodelib import LinuxBridge
 from mininet.topo import Topo
+from mininet.util import quietRun
 
 # Name of file to load topology from. The file should be located in the same
 # directory as this python file.
@@ -104,10 +106,16 @@ class DemoTopo(Topo):
         with open(json_file) as fp:
             json_config = json.load(fp)
 
+        needs_linux_bridge = False
+
         for config in json_config:
             kind = config["kind"]
             if kind == "switch":
-                self.addSwitch(config["name"], **config["params"])
+                if config["model"] == "linux":
+                    needs_linux_bridge = True
+                    self.addSwitch(config["name"], cls=LinuxBridge, **config["params"])
+                else:
+                    self.addSwitch(config["name"], **config["params"])
             elif kind == "host":
                 self.addHost(config["name"], cls=DemoHost, config=config)
                 if config["switch"]:
@@ -118,6 +126,11 @@ class DemoTopo(Topo):
                 pass  # ignore image specification
             else:
                 print("!!! DemoTopo is ignoring %r directive." % kind)
+
+        # Install bridge-utils if necessary.
+        if needs_linux_bridge:
+            quietRun("apt-get update", echo=True)
+            quietRun("apt-get install bridge-utils", echo=True)
 
 
 topos = {"demonet": DemoTopo}

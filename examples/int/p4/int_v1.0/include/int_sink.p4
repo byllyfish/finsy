@@ -31,7 +31,7 @@ control Int_sink_config(inout headers hdr, inout metadata meta, inout ingress_in
         meta.int_metadata.remove_int = 1;   // indicate that INT headers must be removed in egress
         meta.int_metadata.sink_reporting_port = (bit<16>)sink_reporting_port; 
 #ifdef BMV2
-        clone3<metadata>(CloneType.I2E, INT_REPORT_MIRROR_SESSION_ID, meta);
+        clone_preserving_field_list(CloneType.I2E, INT_REPORT_MIRROR_SESSION_ID, CLONE_EGRESS_FIELDSET);
 #elif TOFINO
         // To use mirror
         meta.mirror_md.mirror_type = 1;

@@ -45,6 +45,7 @@ class Switch(DemoItem):
     name: str
     _: KW_ONLY
     kind: str = field(default="switch", init=False)
+    model: str = ""
     params: dict[str, Any] = field(default_factory=dict)
 
 
@@ -94,6 +95,7 @@ class Link(DemoItem):
     end: str
     _: KW_ONLY
     kind: str = field(default="link", init=False)
+    style: str = ""
     assigned_start_port: int = field(default=0, init=False)
     assigned_end_port: int = field(default=0, init=False)
 
@@ -435,12 +437,16 @@ def _create_graph(config: Sequence[DemoItem]):
                         **link_style,
                     )
             case Link():
+                addl_style = {}
+                if item.style:
+                    addl_style.update(style=item.style)
                 graph.add_edge(
                     item.start,
                     item.end,
                     headlabel=f"{item.assigned_end_port}",
                     taillabel=f"{item.assigned_start_port}",
                     **link_style,
+                    **addl_style,
                 )
 
     return graph

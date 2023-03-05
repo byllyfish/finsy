@@ -29,6 +29,8 @@
 #define PKT_INSTANCE_TYPE_REPLICATION 5
 #define PKT_INSTANCE_TYPE_RESUBMIT 6
 
+#define CLONE_EGRESS_FIELDSET  1
+
 header ethernet_t {
     bit<48> dstAddr;
     bit<48> srcAddr;
@@ -161,11 +163,15 @@ header int_report_fixed_header_t {
 struct int_metadata_t {
     bit<1>  source;    // is INT source functionality enabled
     bit<1>  sink;        // is INT sink functionality enabled
+    @field_list(CLONE_EGRESS_FIELDSET)
     bit<32> switch_id;  // INT switch id is configured by network controller
     bit<16> insert_byte_cnt;  // counter of inserted INT bytes
     bit<8>  int_hdr_word_len;  // counter of inserted INT words
+    @field_list(CLONE_EGRESS_FIELDSET)
     bit<1>  remove_int;           // indicator that all INT headers and data must be removed at egress for the processed packet 
+    @field_list(CLONE_EGRESS_FIELDSET)
     bit<16> sink_reporting_port;    // on which port INT reports must be send to INT collector
+    @field_list(CLONE_EGRESS_FIELDSET)
     bit<64> ingress_tstamp;   // pass ingress timestamp from Ingress pipeline to Egress pipeline
     bit<16> ingress_port;  // pass ingress port from Ingress pipeline to Egress pipeline 
 }
