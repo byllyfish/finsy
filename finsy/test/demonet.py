@@ -293,8 +293,9 @@ class DemoNet:
 
     async def _setup(self):
         image = self._image()
-        host_count = self._host_count()
-        await podman_create("mininet", image.name, host_count)
+        switch_count = self._switch_count()
+
+        await podman_create("mininet", image.name, switch_count)
         await podman_copy(DEMONET_TOPO, "mininet", "/root/demonet_topo.py")
 
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as tfile:
@@ -320,9 +321,9 @@ class DemoNet:
             return Image("docker.io/opennetworking/p4mn")
         return images[0]
 
-    def _host_count(self) -> int:
-        "Return the number of hosts in the config."
-        return sum(1 for item in self._config if isinstance(item, Host))
+    def _switch_count(self) -> int:
+        "Return the number of switches in the config."
+        return sum(1 for item in self._config if isinstance(item, Switch))
 
 
 def _json_default(obj):
@@ -343,14 +344,14 @@ PUBLISH_BASE = 50000
 def podman_create(
     container: str,
     image_slug: str,
-    host_count: int,  # FIXME: should be switch_count!
+    switch_count: int,
 ) -> Command:
-    assert host_count > 0
+    assert switch_count > 0
 
-    if host_count == 1:
+    if switch_count == 1:
         publish = f"{PUBLISH_BASE + 1}"
     else:
-        publish = f"{PUBLISH_BASE + 1}-{PUBLISH_BASE+host_count}"
+        publish = f"{PUBLISH_BASE + 1}-{PUBLISH_BASE+switch_count}"
 
     debug = []
     if os.environ.get("DEMONET_DEBUG"):
