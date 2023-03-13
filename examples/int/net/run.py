@@ -2,11 +2,13 @@
 
 from finsy.test import demonet as dn
 
+SWITCH_PARAMS = {"loglevel": "trace"}
+
 DEMONET = [
     dn.Image("docker.io/opennetworking/p4mn"),
-    dn.Switch("s1"),
-    dn.Switch("s2"),
-    dn.Switch("s3"),
+    dn.Switch("s1", params=SWITCH_PARAMS),
+    dn.Switch("s2", params=SWITCH_PARAMS),
+    dn.Switch("s3", params=SWITCH_PARAMS),
     dn.Host(
         "h1",
         "s1",
@@ -26,8 +28,14 @@ DEMONET = [
     dn.Link("s1", "s3"),
     dn.Link("s2", "s3"),
     # INT collection network.
-    dn.Switch("br1", model="linux"),
-    dn.Host("intc", "br1", mac="00:00:00:00:09:09", ipv4="10.0.9.9/8"),
+    dn.Bridge(
+        "br1",
+        mac="00:00:00:00:09:09",
+        ipv4="10.0.9.9/8",
+        commands=[
+            "socat udp-recvfrom:6000,fork tcp:192.168.0.48:6000 &",
+        ],
+    ),
     dn.Link("s1", "br1", style="dotted"),
     dn.Link("s2", "br1", style="dotted"),
     dn.Link("s3", "br1", style="dotted"),

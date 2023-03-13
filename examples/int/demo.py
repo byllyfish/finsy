@@ -1,6 +1,8 @@
 import asyncio
+import logging
 from pathlib import Path
 
+from int_listen import int_listen
 from int_p4info import *
 
 import finsy as fy
@@ -41,17 +43,6 @@ S1 = [
         ins_cnt=8,
         ins_mask=0xFF00,
     ),
-    +tb_int_source__configure_source(
-        priority=1,
-        srcAddr="150.254.169.196",
-        dstAddr="195.113.172.46",
-        l4_src=0x11FF,
-        l4_dst=0x4268,
-        max_hop=4,
-        hop_metadata_len=6,
-        ins_cnt=4,
-        ins_mask=0xCC00,
-    ),
     +tb_int_sink__configure_sink(egress_spec=1, sink_reporting_port=4),
     +fy.P4CloneSessionEntry(1, replicas=(4,)),
     +tb_int_reporting__send_report(
@@ -62,7 +53,6 @@ S1 = [
         collector_port=INTC_PORT,
     ),
     +tb_int_transit__configure_transit(switch_id=1, l3_mtu=1500),
-    +tb_forward__send_to_port(priority=1, dstAddr="00:10:db:ff:10:02", port=2),
     +tb_forward__send_to_port(priority=10, dstAddr=H2_MAC, port=3),
     +tb_forward__send_to_port(priority=11, dstAddr=H1_MAC, port=1),
 ]
@@ -84,11 +74,6 @@ S2 = [
         priority=11,
         dstAddr=H1_MAC,
         port=2,
-    ),
-    +tb_forward__send_to_port(
-        priority=1,
-        dstAddr="00:10:db:ff:10:02",
-        port=5,
     ),
     +tb_forward__send_to_port(
         priority=10,
@@ -126,11 +111,6 @@ S3 = [
         dstAddr=H2_MAC,
         port=3,
     ),
-    +tb_forward__send_to_port(
-        priority=10,
-        dstAddr="26:82:e5:03:8f:6e",
-        port=5,
-    ),
 ]
 
 
@@ -153,10 +133,12 @@ async def main():
     ]
 
     controller = fy.Controller(switches)
-    await controller.run()
+    async with controller:
+        await int_listen(6000)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     try:
         asyncio.run(main())
     except KeyboardInterrupt:

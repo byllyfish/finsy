@@ -45,7 +45,6 @@ class Switch(DemoItem):
     name: str
     _: KW_ONLY
     kind: str = field(default="switch", init=False)
-    model: str = ""
     params: dict[str, Any] = field(default_factory=dict)
 
 
@@ -107,6 +106,16 @@ class Pod(DemoItem):
     kind: str = field(default="pod", init=False)
     images: Sequence[Image] = field(default_factory=list)
     publish: Sequence[int] = field(default_factory=list)
+
+
+@dataclass
+class Bridge(DemoItem):
+    name: str
+    _: KW_ONLY
+    kind: str = field(default="bridge", init=False)
+    mac: str = ""
+    ipv4: str = ""
+    commands: list[str] = field(default_factory=list)
 
 
 class Prompt:
@@ -334,7 +343,7 @@ PUBLISH_BASE = 50000
 def podman_create(
     container: str,
     image_slug: str,
-    host_count: int,
+    host_count: int,  # FIXME: should be switch_count!
 ) -> Command:
     assert host_count > 0
 
@@ -342,6 +351,10 @@ def podman_create(
         publish = f"{PUBLISH_BASE + 1}"
     else:
         publish = f"{PUBLISH_BASE + 1}-{PUBLISH_BASE+host_count}"
+
+    debug = []
+    if os.environ.get("DEMONET_DEBUG"):
+        debug = ["-v", "debug"]
 
     return sh(
         "podman",
@@ -360,8 +373,7 @@ def podman_create(
         "/root/demonet_topo.py",
         "--topo",
         "demonet",
-        # "-v",
-        # "debug",
+        *debug,
     ).stderr(sh.INHERIT)
 
 
@@ -419,7 +431,7 @@ def _create_graph(config: Sequence[DemoItem]):
 
     for item in config:
         match item:
-            case Switch():
+            case Switch() | Bridge():
                 graph.add_node(item.name, **switch_style)
             case Host():
                 sublabels = [item.name, item.assigned_ipv4, item.assigned_ipv6]

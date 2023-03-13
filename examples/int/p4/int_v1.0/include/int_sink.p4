@@ -78,6 +78,7 @@ control Int_sink(inout headers hdr, inout metadata meta, in egress_intrinsic_met
         if (hdr.udp.isValid()) {
             hdr.udp.len = hdr.udp.len - len_bytes;
         }
+        log_msg("remove_sink_header: len_bytes={}, ipv4.totalLen={}", {len_bytes, hdr.ipv4.totalLen});
 #elif TOFINO
         // For Tofino we need to pre-compute this in the parser
         // and skip check header validity to get it to compile

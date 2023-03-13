@@ -42,6 +42,8 @@ control ingress(inout headers hdr, inout metadata meta, inout standard_metadata_
 		if (!hdr.udp.isValid() && !hdr.tcp.isValid())
 			exit;
 
+		log_msg("ingress: ipv4.totalLen={}", {hdr.ipv4.totalLen});
+
 		// in case of INT source port add main INT headers
 		Int_source.apply(hdr, meta, ig_intr_md);
 
@@ -58,6 +60,8 @@ control ingress(inout headers hdr, inout metadata meta, inout standard_metadata_
 
 control egress(inout headers hdr, inout metadata meta, inout standard_metadata_t eg_intr_md) {
 	apply {
+		log_msg("egress: ipv4.totalLen={}", {hdr.ipv4.totalLen});
+
 		Int_transit.apply(hdr, meta, eg_intr_md);
 		// in case of the INT sink port remove INT headers
 		// when frame duplicate on the INT report port then reformat frame into INT report frame
