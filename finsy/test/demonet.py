@@ -421,6 +421,15 @@ def _create_graph(config: Sequence[DemoItem]):
         gradientangle=90,
         fontsize="10",
     )
+    bridge_style = dict(
+        shape="box",
+        width="0.01",
+        height="0.01",
+        margin="0.04,0.02",
+        fillcolor="white",
+        style="filled",
+        fontsize="10",
+    )
     link_style = dict(
         penwidth="2.0",
         fontcolor="darkgreen",
@@ -431,7 +440,7 @@ def _create_graph(config: Sequence[DemoItem]):
 
     for item in config:
         match item:
-            case Switch() | Bridge():
+            case Switch():
                 graph.add_node(item.name, **switch_style)
             case Host():
                 sublabels = [item.name, item.assigned_ipv4, item.assigned_ipv6]
@@ -448,15 +457,27 @@ def _create_graph(config: Sequence[DemoItem]):
                         headlabel=f"{item.assigned_switch_port}",
                         **link_style,
                     )
+            case Bridge():
+                sublabels = [item.name, item.ipv4]
+                bridge_label = "\n".join(x for x in sublabels if x)
+                graph.add_node(
+                    item.name,
+                    label=bridge_label,
+                    **bridge_style,
+                )
             case Link():
+                labels = {}
+                if item.assigned_end_port:
+                    labels["headlabel"] = str(item.assigned_end_port)
+                if item.assigned_start_port:
+                    labels["taillabel"] = str(item.assigned_start_port)
                 addl_style = {}
                 if item.style:
                     addl_style.update(style=item.style)
                 graph.add_edge(
                     item.start,
                     item.end,
-                    headlabel=f"{item.assigned_end_port}",
-                    taillabel=f"{item.assigned_start_port}",
+                    **labels,
                     **link_style,
                     **addl_style,
                 )
