@@ -7,7 +7,9 @@ import json
 import os.path
 
 from mininet.node import Host
+from mininet.nodelib import LinuxBridge
 from mininet.topo import Topo
+from mininet.util import quietRun
 
 # Name of file to load topology from. The file should be located in the same
 # directory as this python file.
@@ -93,6 +95,28 @@ class DemoHost(Host):
             intf.updateIP = updateIP
 
 
+class DemoBridge(LinuxBridge):
+    "Demo bridge."
+
+    def __init__(self, name, config, **kwargs):
+        super(DemoBridge, self).__init__(name, **kwargs)
+        self.config = config
+
+    def start(self, _controllers):
+        super(DemoBridge, self).start(_controllers)
+
+        mac = self.config["mac"]
+        if mac:
+            self.cmd("ifconfig %s hw ether %s" % (self.name, mac))
+
+        ipv4 = self.config["ipv4"]
+        if ipv4:
+            self.cmd("ifconfig %s %s up" % (self.name, ipv4))
+
+        for command in self.config["commands"]:
+            self.cmd(command)
+
+
 class DemoTopo(Topo):
     "Demo topology."
 
@@ -103,6 +127,8 @@ class DemoTopo(Topo):
         json_file = os.path.join(os.path.dirname(__name__), DEMONET_JSON)
         with open(json_file) as fp:
             json_config = json.load(fp)
+
+        need_bridge_utils = False
 
         for config in json_config:
             kind = config["kind"]
@@ -116,8 +142,16 @@ class DemoTopo(Topo):
                 self.addLink(config["start"], config["end"])
             elif kind == "image":
                 pass  # ignore image specification
+            elif kind == "bridge":
+                need_bridge_utils = True
+                self.addSwitch(config["name"], cls=DemoBridge, config=config)
             else:
                 print("!!! DemoTopo is ignoring %r directive." % kind)
+
+        # Install bridge-utils if necessary.
+        if need_bridge_utils:
+            quietRun("apt-get -y -qq update", echo=True)
+            quietRun("apt-get -y -qq install bridge-utils", echo=True)
 
 
 topos = {"demonet": DemoTopo}

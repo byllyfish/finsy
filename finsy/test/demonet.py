@@ -94,6 +94,7 @@ class Link(DemoItem):
     end: str
     _: KW_ONLY
     kind: str = field(default="link", init=False)
+    style: str = ""
     assigned_start_port: int = field(default=0, init=False)
     assigned_end_port: int = field(default=0, init=False)
 
@@ -105,6 +106,16 @@ class Pod(DemoItem):
     kind: str = field(default="pod", init=False)
     images: Sequence[Image] = field(default_factory=list)
     publish: Sequence[int] = field(default_factory=list)
+
+
+@dataclass
+class Bridge(DemoItem):
+    name: str
+    _: KW_ONLY
+    kind: str = field(default="bridge", init=False)
+    mac: str = ""
+    ipv4: str = ""
+    commands: list[str] = field(default_factory=list)
 
 
 class Prompt:
@@ -282,8 +293,9 @@ class DemoNet:
 
     async def _setup(self):
         image = self._image()
-        host_count = self._host_count()
-        await podman_create("mininet", image.name, host_count)
+        switch_count = self._switch_count()
+
+        await podman_create("mininet", image.name, switch_count)
         await podman_copy(DEMONET_TOPO, "mininet", "/root/demonet_topo.py")
 
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as tfile:
@@ -309,9 +321,9 @@ class DemoNet:
             return Image("docker.io/opennetworking/p4mn")
         return images[0]
 
-    def _host_count(self) -> int:
-        "Return the number of hosts in the config."
-        return sum(1 for item in self._config if isinstance(item, Host))
+    def _switch_count(self) -> int:
+        "Return the number of switches in the config."
+        return sum(1 for item in self._config if isinstance(item, Switch))
 
 
 def _json_default(obj):
@@ -332,14 +344,18 @@ PUBLISH_BASE = 50000
 def podman_create(
     container: str,
     image_slug: str,
-    host_count: int,
+    switch_count: int,
 ) -> Command:
-    assert host_count > 0
+    assert switch_count > 0
 
-    if host_count == 1:
+    if switch_count == 1:
         publish = f"{PUBLISH_BASE + 1}"
     else:
-        publish = f"{PUBLISH_BASE + 1}-{PUBLISH_BASE+host_count}"
+        publish = f"{PUBLISH_BASE + 1}-{PUBLISH_BASE+switch_count}"
+
+    debug = []
+    if os.environ.get("DEMONET_DEBUG"):
+        debug = ["-v", "debug"]
 
     return sh(
         "podman",
@@ -358,8 +374,7 @@ def podman_create(
         "/root/demonet_topo.py",
         "--topo",
         "demonet",
-        # "-v",
-        # "debug",
+        *debug,
     ).stderr(sh.INHERIT)
 
 
@@ -407,6 +422,15 @@ def _create_graph(config: Sequence[DemoItem]):
         gradientangle=90,
         fontsize="10",
     )
+    bridge_style = dict(
+        shape="box",
+        width="0.01",
+        height="0.01",
+        margin="0.04,0.02",
+        fillcolor="white",
+        style="filled",
+        fontsize="10",
+    )
     link_style = dict(
         penwidth="2.0",
         fontcolor="darkgreen",
@@ -434,13 +458,29 @@ def _create_graph(config: Sequence[DemoItem]):
                         headlabel=f"{item.assigned_switch_port}",
                         **link_style,
                     )
+            case Bridge():
+                sublabels = [item.name, item.ipv4]
+                bridge_label = "\n".join(x for x in sublabels if x)
+                graph.add_node(
+                    item.name,
+                    label=bridge_label,
+                    **bridge_style,
+                )
             case Link():
+                labels = {}
+                if item.assigned_end_port:
+                    labels["headlabel"] = str(item.assigned_end_port)
+                if item.assigned_start_port:
+                    labels["taillabel"] = str(item.assigned_start_port)
+                addl_style = {}
+                if item.style:
+                    addl_style.update(style=item.style)
                 graph.add_edge(
                     item.start,
                     item.end,
-                    headlabel=f"{item.assigned_end_port}",
-                    taillabel=f"{item.assigned_start_port}",
+                    **labels,
                     **link_style,
+                    **addl_style,
                 )
 
     return graph

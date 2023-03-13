@@ -86,6 +86,9 @@ class SwitchOptions:
     p4blob: Path | SupportsBytes | None = None
     "Path to P4Blob file, or an object that can provide the bytes value."
 
+    p4force: bool = False
+    "If true, always load the P4 program after initial handshake."
+
     device_id: int = 1
     "Default P4Runtime device ID."
 
@@ -866,13 +869,20 @@ class Switch:
             LOGGER.warning("Forwarding pipeline is not configured")
 
     async def _set_pipeline(self):
-        "Set up the pipeline."
+        """Set up the pipeline.
 
+        If `p4force` is false (the default), we first retrieve the cookie for
+        the current pipeline and see if it matches the new pipeline's cookie.
+        If the cookies match, we are done; there is no need to set the pipeline.
+
+        If `p4force` is true, we always load the new pipeline.
+        """
         cookie = -1
         try:
-            reply = await self._get_pipeline_config_request()
-            if reply.config.HasField("cookie"):
-                cookie = reply.config.cookie.cookie
+            if not self.options.p4force:
+                reply = await self._get_pipeline_config_request()
+                if reply.config.HasField("cookie"):
+                    cookie = reply.config.cookie.cookie
 
         except P4ClientError as ex:
             if not ex.is_pipeline_missing:
