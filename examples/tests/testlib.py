@@ -19,9 +19,13 @@ async def read_p4_tables(target: str, *, skip_const: bool = False) -> set[str]:
                     info = f"{entry.table_id} {entry.priority:#x}"
                 else:
                     info = entry.table_id
-                result.add(
-                    f"{info} {entry.match_str(wildcard='*')} {entry.action_str()}"
-                )
+
+                match_str = entry.match_str(wildcard="*")
+                if match_str:
+                    result.add(f"{info} {match_str} {entry.action_str()}")
+                else:
+                    # Table has no match fields.
+                    result.add(f"{info} {entry.action_str()}")
 
             # Read default entries for each table.
             for table in sw.p4info.tables:
