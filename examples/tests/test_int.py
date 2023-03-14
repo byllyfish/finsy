@@ -13,7 +13,7 @@ DEMONET = INT_DIR / "net/run.py"
 async def test_demo(demonet, python):
     "Test the int/demo example program."
 
-    async with python(INT_DIR / "demo.py") as demo:
+    async with python(INT_DIR / "demo") as demo:
         await asyncio.sleep(0.25)
         await demonet.send("h1 echo 'abc' | socat - udp:192.168.0.48:5555")
         await asyncio.sleep(1.0)

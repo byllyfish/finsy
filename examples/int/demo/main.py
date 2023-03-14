@@ -7,7 +7,7 @@ from int_p4info import *
 
 import finsy as fy
 
-P4SRC = Path(__file__).parent / "p4"
+P4SRC = Path(__file__).parent.parent / "p4"
 
 H1_MAC = "00:00:00:00:01:01"
 H2_MAC = "00:00:00:00:02:02"
@@ -135,11 +135,3 @@ async def main():
     controller = fy.Controller(switches)
     async with controller:
         await int_listen(6000)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        pass
