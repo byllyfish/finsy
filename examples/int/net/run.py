@@ -29,16 +29,16 @@ DEMONET = [
     dn.Link("s2", "s3"),
     # INT collection network.
     dn.Bridge(
-        "br1",
+        "int1",
         mac="00:00:00:00:09:09",
         ipv4="10.0.9.9/8",
         commands=[
-            "socat udp-recvfrom:6000,fork tcp:192.168.0.48:6000 &",
+            "socat udp-recvfrom:6000,fork tcp:$DEMONET_IP:6000 &",
         ],
     ),
-    dn.Link("s1", "br1", style="dotted"),
-    dn.Link("s2", "br1", style="dotted"),
-    dn.Link("s3", "br1", style="dotted"),
+    dn.Link("s1", "int1", style="dotted"),
+    dn.Link("s2", "int1", style="dotted"),
+    dn.Link("s3", "int1", style="dotted"),
 ]
 
 if __name__ == "__main__":

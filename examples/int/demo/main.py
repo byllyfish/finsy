@@ -1,5 +1,3 @@
-import asyncio
-import logging
 from pathlib import Path
 
 from int_listen import int_listen
@@ -12,12 +10,10 @@ P4SRC = Path(__file__).parent.parent / "p4"
 H1_MAC = "00:00:00:00:01:01"
 H2_MAC = "00:00:00:00:02:02"
 H3_MAC = "00:00:00:00:03:03"
-INTC_MAC = "00:00:00:00:09:09"
 
 H1_IP = "10.0.1.1"
 H2_IP = "10.0.2.2"
 H3_IP = "10.0.3.3"
-INTC_IP = "10.0.9.9"
 
 S1_MAC = "f6:00:00:00:00:01"
 S2_MAC = "f6:00:00:00:00:02"
@@ -27,6 +23,8 @@ S1_IP = "10.0.0.1"
 S2_IP = "10.0.0.2"
 S3_IP = "10.0.0.3"
 
+INTC_MAC = "00:00:00:00:09:09"
+INTC_IP = "10.0.9.9"
 INTC_PORT = 6000
 
 

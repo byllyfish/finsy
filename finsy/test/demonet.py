@@ -511,6 +511,7 @@ def _configure(config: Sequence[DemoItem]):
     """
     switch_db = SwitchPortDB()
     host_id = 1
+    demonet_ip = "192.168.0.48"  # FIXME: look this up...
 
     for item in config:
         match item:
@@ -526,6 +527,12 @@ def _configure(config: Sequence[DemoItem]):
                     item.assigned_start_port = switch_db.next_port(item.start)
                 if item.end in switch_db:
                     item.assigned_end_port = switch_db.next_port(item.end)
+
+        if hasattr(item, "commands"):
+            # Replace "$DEMONET_IP" in "commands".
+            item.commands = [
+                s.replace("$DEMONET_IP", demonet_ip) for s in item.commands
+            ]
 
 
 class SwitchPortDB:
