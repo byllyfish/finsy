@@ -113,6 +113,7 @@ S3 = [
 
 
 async def ready_handler(sw: fy.Switch):
+    await sw.delete_all()
     await sw.write(sw.options.configuration)
 
 
@@ -120,7 +121,7 @@ async def main():
     opts = fy.SwitchOptions(
         p4info=P4SRC / "int.p4info.txt",
         p4blob=P4SRC / "int.json",
-        p4force=True,
+        p4force=False,
         ready_handler=ready_handler,
     )
 
