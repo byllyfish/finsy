@@ -5,6 +5,7 @@ import asyncio
 import json
 import os
 import re
+import socket
 import tempfile
 from dataclasses import KW_ONLY, asdict, dataclass, field
 from ipaddress import IPv4Network, IPv6Network
@@ -511,7 +512,6 @@ def _configure(config: Sequence[DemoItem]):
     """
     switch_db = SwitchPortDB()
     host_id = 1
-    demonet_ip = "192.168.0.48"  # FIXME: look this up...
 
     for item in config:
         match item:
@@ -530,9 +530,7 @@ def _configure(config: Sequence[DemoItem]):
 
         if hasattr(item, "commands"):
             # Replace "$DEMONET_IP" in "commands".
-            item.commands = [
-                s.replace("$DEMONET_IP", demonet_ip) for s in item.commands
-            ]
+            item.commands = [s.replace("$DEMONET_IP", _LOCAL_IP) for s in item.commands]
 
 
 class SwitchPortDB:
@@ -571,3 +569,18 @@ def main(config: Sequence[DemoItem]):
         draw(config, args.draw)
     else:
         run(config)
+
+
+def _get_local_ipv4_address():
+    "Retrieve the local (routable) IPv4 address."
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        sock.settimeout(0)
+        sock.connect(("10.254.254.254", 1))
+        result = sock.getsockname()[0]
+    finally:
+        sock.close()
+    return result
+
+
+_LOCAL_IP = _get_local_ipv4_address()
