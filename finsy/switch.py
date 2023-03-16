@@ -500,6 +500,8 @@ class Switch:
         """Delete all entities if no parameter is passed. Otherwise, delete
         items that match `entities`.
 
+        This method does not attempt to delete entries in const tables.
+
         TODO: This method does not affect indirect counters or meters.
 
         TODO: ActionProfileGroup/Member, ValueSet.
@@ -930,7 +932,11 @@ class Switch:
         )
 
     async def _wildcard_delete(self, entities: Iterable[p4entity.P4EntityList]):
-        "Delete entities that match a wildcard read."
+        """Delete entities that match a wildcard read.
+
+        This method always skips over entries in const tables. It is an error
+        to attempt to delete those.
+        """
         assert self._p4client is not None
 
         request = p4r.ReadRequest(
@@ -938,9 +944,20 @@ class Switch:
             entities=p4entity.encode_entities(entities, self.p4info),
         )
 
+        # Compute set of all const table ID's (may be empty).
+        to_skip = {table.id for table in self.p4info.tables if table.is_const}
+
         async for reply in self._p4client.request_iter(request):
             if reply.entities:
-                await self.delete(reply.entities)
+                if to_skip:
+                    await self.delete(
+                        reply
+                        for reply in reply.entities
+                        if reply.HasField("table_entry")
+                        and reply.table_entry.table_id not in to_skip
+                    )
+                else:
+                    await self.delete(reply.entities)
 
     async def _write_request(
         self,
