@@ -4,9 +4,11 @@
 
 Finsy is a [P4Runtime](https://p4.org/p4-spec/p4runtime/main/P4Runtime-Spec.html) controller library written in Python using [asyncio](https://docs.python.org/3/library/asyncio.html). Finsy includes support for [gNMI](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md).
 
+Check out the [examples](https://github.com/byllyfish/finsy/tree/main/examples) directory for demo programs.
+
 ## Installation
 
-Finsy requires Python 3.10 or later. To install the latest version, type `"pip install finsy".`
+To install the latest version, type `pip install finsy`. Finsy requires Python 3.10 or later.
 
 ## P4Runtime Scripts
 
@@ -43,7 +45,8 @@ asyncio.run(main())
 
 ## P4Runtime Controller
 
-You can also write a P4Runtime controller that manages multiple switches independently.
+You can also write a P4Runtime controller that manages multiple switches independently. Your controller
+can react to events from the Switch by changing the contents of P4 tables.
 
 Each switch is managed by an async `ready_handler` function. Your `ready_handler` function can read or 
 update various P4Runtime entities in the switch. It can also create tasks to listen for 
