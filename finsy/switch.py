@@ -107,6 +107,10 @@ class SwitchOptions:
     ready_handler: Callable[["Switch"], Coroutine[Any, Any, None]] | None = None
     "Ready handler async function callback."
 
+    fail_fast: bool = False
+    """If true, log switch errors as CRITICAL and immediately abort when the
+    switch is running in a Controller."""
+
     configuration: Any = None
     "Store your app's configuration information here."
 
@@ -540,7 +544,7 @@ class Switch:
         assert self._p4client is None
         assert self._tasks is None
 
-        self._tasks = SwitchTasks()
+        self._tasks = SwitchTasks(self._options.fail_fast)
         self._p4client = P4Client(self._address, self._options.channel_credentials)
         self._switch_start()
 
@@ -636,7 +640,7 @@ class Switch:
         assert self._p4client is None
         assert self._tasks is None
 
-        self._tasks = SwitchTasks()
+        self._tasks = SwitchTasks(self._options.fail_fast)
         self._p4client = P4Client(
             self._address,
             self._options.channel_credentials,
@@ -1073,15 +1077,23 @@ class SwitchEmitter(pyee.EventEmitter):
         return ready
 
 
+class SwitchFailFastError(BaseException):
+    "This exception is raised when a Switch with `fail_fast=True` fails."
+
+
 class SwitchTasks:
     "Manage a set of related tasks."
 
     _tasks: set[asyncio.Task[Any]]
     _task_count: CountdownFuture
+    _fail_fast: bool
+    _fail_count: int
 
-    def __init__(self):
+    def __init__(self, fail_fast: bool):
         self._tasks = set()
         self._task_count = CountdownFuture()
+        self._fail_fast = fail_fast
+        self._fail_count = 0
 
     def create_task(
         self,
@@ -1120,7 +1132,10 @@ class SwitchTasks:
                 if getattr(ex, "code", None) == GRPCStatusCode.UNAVAILABLE:
                     LOGGER.debug("Switch task %r failed: UNAVAILABLE", done.get_name())
                 else:
-                    LOGGER.error("Switch task %r failed", done.get_name(), exc_info=ex)
+                    self._fail_count += 1
+                    LOGGER.critical(
+                        "Switch task %r failed", done.get_name(), exc_info=ex
+                    )
 
     def cancel_all(self):
         "Cancel all tasks."
@@ -1136,7 +1151,11 @@ class SwitchTasks:
 
     async def wait(self):
         "Wait for all tasks to finish."
-        await self._task_count.wait(self.cancel_all)
+        try:
+            await self._task_count.wait(self.cancel_all)
+        finally:
+            if self._fail_fast and self._fail_count > 0:
+                raise SwitchFailFastError()
 
 
 @asynccontextmanager
