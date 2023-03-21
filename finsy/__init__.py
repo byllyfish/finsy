@@ -51,10 +51,12 @@ from .p4entity import (
 )
 from .p4schema import P4ConfigAction, P4CounterUnit, P4Schema
 from .ports import SwitchPort, SwitchPortList
+from .runner import run
 from .switch import Switch, SwitchEvent, SwitchOptions
 
 __all__ = [
     "current_controller",
+    "run",
     "Controller",
     "LoggerAdapter",
     "MACAddress",

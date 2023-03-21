@@ -1,26 +1,17 @@
 import asyncio
-import logging
-import signal
 
-from finsy import GNMIClient, GNMIPath
+import finsy as fy
 
-_INTERFACE = GNMIPath("interfaces/interface[name=*]/state")
+_INTERFACE = fy.GNMIPath("interfaces/interface[name=*]/state")
 INTERFACE_ID = _INTERFACE / "id"
 INTERFACE_STATUS = _INTERFACE / "oper-status"
-INTERFACE_ENABLED = GNMIPath("interfaces/interface[name=*]/config/enabled")
+INTERFACE_ENABLED = fy.GNMIPath("interfaces/interface[name=*]/config/enabled")
 
 
 async def main():
     "Main program."
 
-    # Boilerplate to shutdown cleanly upon SIGTERM signal.
-    asyncio.get_running_loop().add_signal_handler(
-        signal.SIGTERM,
-        lambda task: task.cancel(),
-        asyncio.current_task(),
-    )
-
-    async with GNMIClient("127.0.0.1:50001") as client:
+    async with fy.GNMIClient("127.0.0.1:50001") as client:
         # Get list of interface names.
         ids = await client.get(INTERFACE_ID)
         names = [update.path["name"] for update in ids]
@@ -46,7 +37,7 @@ async def main():
 async def toggle_enabled(names: list[str]):
     "Repeatedly disable and enable interfaces using a separate GNMI client."
 
-    async with GNMIClient("127.0.0.1:50001") as client:
+    async with fy.GNMIClient("127.0.0.1:50001") as client:
         while True:
             await asyncio.sleep(1.0)
             updates = [(INTERFACE_ENABLED.set(name=name), False) for name in names]
@@ -58,8 +49,4 @@ async def toggle_enabled(names: list[str]):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, asyncio.CancelledError):
-        pass
+    fy.run(main())

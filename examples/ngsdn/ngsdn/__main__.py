@@ -1,9 +1,6 @@
-import asyncio
+from finsy import run
 
 from .main import main
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, asyncio.CancelledError):
-        pass
+    run(main())

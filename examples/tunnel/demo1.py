@@ -1,4 +1,3 @@
-import asyncio
 from pathlib import Path
 
 import finsy as fy
@@ -64,4 +63,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    fy.run(main())

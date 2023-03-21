@@ -17,7 +17,6 @@ With Finsy, you can write a Python script that reads/writes P4Runtime entities f
 Here is a complete example that retrieves the P4Info from a switch:
 
 ```python
-import asyncio
 import finsy as fy
 
 async def main():
@@ -25,13 +24,12 @@ async def main():
         # Print out a description of the switch's P4Info, if one is configured.
         print(sw1.p4info)
 
-asyncio.run(main())
+fy.run(main())
 ```
 
 Here is another example that prints out all non-default table entries.
 
 ```python
-import asyncio
 import finsy as fy
 
 async def main():
@@ -40,7 +38,7 @@ async def main():
         async for entry in sw1.read(fy.P4TableEntry()):
             print(entry)
 
-asyncio.run(main())
+fy.run(main())
 ```
 
 ## P4Runtime Controller
@@ -94,7 +92,7 @@ controller = fy.Controller([
     fy.Switch("sw3", "127.0.0.1:50003", options),
 ])
 
-asyncio.run(controller.run())
+fy.run(controller.run())
 ```
 
 Your `ready_handler` can spawn concurrent tasks with the `Switch.create_task` method. Tasks

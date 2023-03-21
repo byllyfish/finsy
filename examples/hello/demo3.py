@@ -8,9 +8,7 @@ connection to `sw1` using the `backup` role. The backup role is an additional
 read-only primary.
 """
 
-import asyncio
 import logging
-import signal
 from ipaddress import IPv4Address
 from pathlib import Path
 
@@ -85,14 +83,6 @@ class DemoRoleApp:
 
 async def main():
     "Main program."
-
-    # Boilerplate to shutdown cleanly upon SIGTERM signal.
-    asyncio.get_running_loop().add_signal_handler(
-        signal.SIGTERM,
-        lambda task: task.cancel(),
-        asyncio.current_task(),
-    )
-
     app = DemoRoleApp()
     switches = [
         fy.Switch("s1", "127.0.0.1:50001", app.options),
@@ -107,8 +97,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, asyncio.CancelledError):
-        pass
+    fy.run(main())
