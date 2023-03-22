@@ -1,5 +1,16 @@
 # Finsy Change Log
 
+## 0.14.0
+
+- Add the `fail_fast` option to SwitchOptions.
+- Add the `finsy.run` helper function to replace common boilerplate.
+- Fix a bug during P4Runtime handshake where a non-arbitration response from the switch caused an exception.
+- Fix a bug during PacketIn messages when there is no expected metadata in the P4Info schema.
+- Changed `delete_all` so it skips over entries in const tables.
+- Initial work on the inband network telemetry example.
+- The demonet test module now supports drawing an image of the network.
+- Update dependency versions.
+
 ## 0.13.0
 
 - Initial work on demonet test module which runs Mininet in a podman container (replacing bash script).
