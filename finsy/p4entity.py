@@ -1540,8 +1540,9 @@ class P4PacketIn:
         cpm = schema.controller_packet_metadata.get("packet_in")
         if cpm is None:
             # There is no controller metadata. Warn if message has any.
-            if packet.HasField("metadata"):
-                LOGGER.warning("unexpected metadata: %r", packet.metadata)
+            pktmeta = packet.metadata
+            if pktmeta:
+                LOGGER.warning("P4PacketIn unexpected metadata: %r", pktmeta)
             return cls(packet.payload, metadata={})
 
         return cls(
