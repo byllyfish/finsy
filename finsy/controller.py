@@ -21,7 +21,7 @@ from typing import Any, Iterable
 
 from finsy.futures import CountdownFuture, wait_for_cancel
 from finsy.log import LOGGER
-from finsy.switch import Switch, SwitchEvent
+from finsy.switch import Switch, SwitchEvent, SwitchFailFastError
 
 
 class Controller:
@@ -157,11 +157,17 @@ class Controller:
             if not done.cancelled():
                 ex = done.exception()
                 if ex is not None:
-                    LOGGER.error(
-                        "Controller task %r failed",
-                        done.get_name(),
-                        exc_info=ex,
-                    )
+                    if not isinstance(ex, SwitchFailFastError):
+                        # The `fail_fast` error has already been logged. If
+                        # it's any other error, log it. (There shouldn't be
+                        # any other error.)
+                        LOGGER.critical(
+                            "Controller task %r failed",
+                            done.get_name(),
+                            exc_info=ex,
+                        )
+                    # Shutdown the program cleanly due to switch failure.
+                    raise SystemExit(99)
 
         task.add_done_callback(_switch_done)
 

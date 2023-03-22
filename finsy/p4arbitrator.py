@@ -183,20 +183,23 @@ class Arbitrator:
         """Wait for MasterArbitrationUpdate response from switch.
 
         Return None if the response indicates the `election_id` is in use.
+
+        Log and ignore any other responses from the switch. Since this method
+        can wait indefinitely, the caller should put a timeout on this method.
         """
         assert switch._p4client is not None
 
         try:
-            # TODO: Maybe put a timeout on this receive?
-            response = await switch._p4client.receive()
+            while True:
+                response = await switch._p4client.receive()
+                if response.WhichOneof("update") == "arbitration":
+                    break
+                LOGGER.warning("Arbitrator ignored response: %r", response)
 
         except P4ClientError as ex:
             if ex.is_election_id_used:
                 return None
             raise
-
-        if response.WhichOneof("update") != "arbitration":
-            raise ValueError(f"Unexpected response: {response!r}")
 
         # TODO: Match arbitration response to request we sent?
 

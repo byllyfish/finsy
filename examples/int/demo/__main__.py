@@ -1,11 +1,6 @@
-import asyncio
-import logging
-
 from main import main
 
+from finsy import run
+
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, asyncio.CancelledError):
-        pass
+    run(main())

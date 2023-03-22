@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import random
-import signal
 from pathlib import Path
 
 import finsy as fy
@@ -95,18 +94,9 @@ async def _log_counters(switch: fy.Switch, name: str):
 
 async def main():
     "Main program."
-
-    # Boilerplate to shutdown cleanly upon SIGTERM signal.
-    asyncio.get_running_loop().add_signal_handler(
-        signal.SIGTERM,
-        lambda task: task.cancel(),
-        asyncio.current_task(),
-    )
-
     options = fy.SwitchOptions(
         p4info=P4SRC / "l2_switch.p4info.txt",
         p4blob=P4SRC / "l2_switch.json",
-        # force_pipeline=True,
         ready_handler=_ready_handler,
     )
 
@@ -121,11 +111,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(created).03f %(levelname)s %(name)s %(message)s",
-    )
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, asyncio.CancelledError):
-        pass
+    fy.run(main())

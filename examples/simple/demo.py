@@ -1,4 +1,3 @@
-import asyncio
 from pathlib import Path
 from typing import Any
 
@@ -76,4 +75,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    fy.run(main())

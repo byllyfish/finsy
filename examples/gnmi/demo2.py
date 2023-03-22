@@ -1,10 +1,6 @@
-import asyncio
-import logging
-import signal
+import finsy as fy
 
-from finsy import GNMIClient, GNMIPath
-
-_INTERFACE = GNMIPath("interfaces/interface[name=*]/state")
+_INTERFACE = fy.GNMIPath("interfaces/interface[name=*]/state")
 INTERFACE_ID = _INTERFACE / "id"
 INTERFACE_STATUS = _INTERFACE / "oper-status"
 
@@ -12,14 +8,7 @@ INTERFACE_STATUS = _INTERFACE / "oper-status"
 async def main():
     "Main program."
 
-    # Boilerplate to shutdown cleanly upon SIGTERM signal.
-    asyncio.get_running_loop().add_signal_handler(
-        signal.SIGTERM,
-        lambda task: task.cancel(),
-        asyncio.current_task(),
-    )
-
-    async with GNMIClient("127.0.0.1:50001") as client:
+    async with fy.GNMIClient("127.0.0.1:50001") as client:
         # Get list of interface names.
         ids = await client.get(INTERFACE_ID)
         names = [update.path["name"] for update in ids]
@@ -40,8 +29,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, asyncio.CancelledError):
-        pass
+    fy.run(main())
