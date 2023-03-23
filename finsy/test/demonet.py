@@ -12,12 +12,17 @@ from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
 from typing import Any, Sequence
 
-import pygraphviz as pgv
 import shellous
 from shellous import Command, sh
 from shellous.harvest import harvest_results
 
 from finsy import MACAddress
+
+try:
+    import pygraphviz as pgv
+except ImportError:
+    pgv = None
+
 
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
@@ -398,6 +403,7 @@ def podman_rm(container: str) -> Command:
 
 def _create_graph(config: Sequence[DemoItem]):
     "Create a pygraphviz Graph of the network."
+    assert pgv is not None, "pygraphviz is not installed."
 
     graph_style = dict(
         bgcolor="lightblue",
@@ -489,6 +495,8 @@ def _create_graph(config: Sequence[DemoItem]):
 
 def draw(config: Sequence[DemoItem], filename: str):
     "Draw the config as a graph."
+    if pgv is None:
+        raise RuntimeError("ERROR: pygraphviz is not installed.")
     _configure(config)
     graph = _create_graph(config)
     graph.layout()
