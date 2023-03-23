@@ -54,10 +54,8 @@ ignore = [
   "finsy/proto/**/*_pb2.py", 
   "finsy/proto/**/*_pb2.pyi", 
   "finsy/proto/**/*_pb2_grpc.py", 
-  "finsy/proto/**/*_pb2_grpc.pyi", 
-  "examples/ngsdn/net/topo-v6.py",
-  "examples/simple/net/simple_topo.py",
-  "examples/tunnel/net/tunnel_topo.py",
+  "finsy/proto/**/*_pb2_grpc.pyi",
+  "finsy/test/demonet_topo.py",
   "examples/tests/*.py"
 ]
 strict = [
@@ -71,10 +69,10 @@ strict = [
 ]
 useLibraryCodeForTypes = true
 
-# Enable additional warnings for things not enabled by `strict`.
+# Enable warnings not enabled by `strict`.
 reportUninitializedInstanceVariable = "warning"
 reportCallInDefaultInitializer = "warning"
-# reportUnnecessaryTypeIgnoreComment = "warning"
+reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']

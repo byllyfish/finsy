@@ -18,7 +18,7 @@
 
 import asyncio
 from dataclasses import dataclass
-from typing import Any, AsyncIterator, Iterator, Sequence, TypeAlias
+from typing import Any, AsyncIterator, Iterator, Sequence, TypeAlias, cast
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 
@@ -110,7 +110,7 @@ def gnmi_update(
             val = gnmi.TypedValue(string_val=value)
         case bytes():
             val = gnmi.TypedValue(bytes_val=value)
-        case _:
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
             raise TypeError(f"unexpected type: {type(value).__name__}")
 
     return gnmi.Update(path=path.path, val=val)
@@ -237,7 +237,10 @@ class GNMIClient:
 
         self._log_msg(request)
         try:
-            reply: gnmi.GetResponse = await self._stub.Get(request)
+            reply = cast(
+                gnmi.GetResponse,
+                await self._stub.Get(request),
+            )
         except grpc.RpcError as ex:
             raise GNMIClientError(ex) from None
 
@@ -296,7 +299,10 @@ class GNMIClient:
 
         self._log_msg(request)
         try:
-            reply: gnmi.CapabilityResponse = await self._stub.Capabilities(request)
+            reply = cast(
+                gnmi.CapabilityResponse,
+                await self._stub.Capabilities(request),
+            )
         except grpc.RpcError as ex:
             raise GNMIClientError(ex) from None
 
@@ -344,7 +350,10 @@ class GNMIClient:
 
         self._log_msg(request)
         try:
-            reply: gnmi.SetResponse = await self._stub.Set(request)
+            reply = cast(
+                gnmi.SetResponse,
+                await self._stub.Set(request),
+            )
         except grpc.RpcError as ex:
             raise GNMIClientError(ex) from None
 
@@ -462,10 +471,12 @@ class GNMISubscription:
         assert self._stream is None
         assert self._client._stub is not None
 
-        s: _StreamTypeAlias = self._client._stub.Subscribe(wait_for_ready=True)  # type: ignore
-        self._stream = s
-        request = gnmi.SubscribeRequest(subscribe=self._sublist)
+        self._stream = cast(
+            _StreamTypeAlias,
+            self._client._stub.Subscribe(wait_for_ready=True),  # type: ignore
+        )
 
+        request = gnmi.SubscribeRequest(subscribe=self._sublist)
         self._client._log_msg(request)
         try:
             await self._stream.write(request)
@@ -476,8 +487,11 @@ class GNMISubscription:
         assert self._stream is not None
 
         while True:
-            msg = await self._stream.read()
-            if msg == GRPC_EOF:
+            msg = cast(
+                gnmi.SubscribeResponse,
+                await self._stream.read(),  # type: ignore
+            )
+            if msg is GRPC_EOF:
                 LOGGER.warning("gNMI _read: unexpected EOF")
                 return
 

@@ -16,7 +16,7 @@
 
 import enum
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Sequence, cast
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 from typing_extensions import Self
@@ -25,7 +25,9 @@ from finsy.log import LOGGER
 from finsy.proto import rpc_code
 
 # `grpc.aio.EOF` is not typed.
-GRPC_EOF: object = grpc.aio.EOF  # pyright: ignore[reportUnknownMemberType]
+GRPC_EOF: object = cast(
+    object, grpc.aio.EOF  # pyright: ignore[reportUnknownMemberType]
+)
 
 
 class _EnumBase(enum.IntEnum):
