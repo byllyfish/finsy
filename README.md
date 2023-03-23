@@ -102,3 +102,35 @@ If the switch disconnects or its role changes to backup, the task running your `
 (and any tasks it spawned) will be cancelled and the `ready_handler` will begin again.
 
 For more examples, see the [examples](https://github.com/byllyfish/finsy/tree/main/examples) directory.
+
+## Development and Testing
+
+Finsy requires a newer version of Python than is available on many systems. I recommend using
+[pyenv](https://github.com/pyenv/pyenv) and [poetry](https://python-poetry.org/) to maintain your 
+development environment. You may use `pip` instead of `poetry` if you prefer.
+
+To set up your development environment for Finsy using Python 3.11.2:
+
+```
+git clone https://github.com/byllyfish/finsy.git
+cd finsy
+pyenv shell 3.11.2
+python -m venv .venv
+.venv/bin/activate
+poetry update
+```
+
+If you are not using `poetry`, replace `poetry update` with `pip install -r ci/requirements-dev.txt`.
+
+To run the unit tests:
+
+```
+pytest
+```
+
+To run the example tests, run `pytest` from inside the `examples` directory. You need to make sure that `finsy` module is available in the PYTHONPATH. These tests require [podman](https://podman.io/).
+
+```
+cd examples
+PYTHONPATH=.. pytest
+```
