@@ -114,6 +114,7 @@ To set up your development environment for Finsy using Python 3.11.2:
 ```
 git clone https://github.com/byllyfish/finsy.git
 cd finsy
+pyenv install 3.11.2
 pyenv shell 3.11.2
 python -m venv .venv
 .venv/bin/activate
