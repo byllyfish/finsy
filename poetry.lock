@@ -818,6 +818,18 @@ testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8 (<5)", "flake8-202
 testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
+name = "shellous"
+version = "0.22.0"
+description = "Async Processes and Pipelines"
+category = "dev"
+optional = false
+python-versions = ">=3.9,<4.0"
+files = [
+    {file = "shellous-0.22.0-py3-none-any.whl", hash = "sha256:b7f7a2af5a177e0677659c06f24aa2b7f91f36eae9bfee0e2b3045bddbc3a954"},
+    {file = "shellous-0.22.0.tar.gz", hash = "sha256:d184344d717687c2190ce35c74a6fccad8ddcf89ec17b3a1d5cf890785407904"},
+]
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -941,4 +953,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "373e41ec4138799d2dbd5ec0aeca4b2df075dc251205947cd9820f5c83154832"
+content-hash = "a4bb67e701d6d8aec44461cdd51b09f7fa7e0692bae2b78635b35f6d637ab725"
