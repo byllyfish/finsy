@@ -52,6 +52,7 @@ class Switch(DemoItem):
     _: KW_ONLY
     kind: str = field(default="switch", init=False)
     params: dict[str, Any] = field(default_factory=dict)
+    commands: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -69,6 +70,7 @@ class Host(DemoItem):
     ipv6_linklocal: bool = False
     static_arp: dict[str, str] = field(default_factory=dict)
     disable_offload: Sequence[str] = ("tx", "rx", "sg")
+    commands: list[str] = field(default_factory=list)
 
     # These fields are "assigned" when configuration is initially processed.
     assigned_switch_port: int = field(default=0, init=False)
@@ -101,6 +103,7 @@ class Link(DemoItem):
     _: KW_ONLY
     kind: str = field(default="link", init=False)
     style: str = ""
+    commands: list[str] = field(default_factory=list)
     assigned_start_port: int = field(default=0, init=False)
     assigned_end_port: int = field(default=0, init=False)
 
@@ -156,6 +159,7 @@ class Prompt:
             raise asyncio.CancelledError()
 
         # Clean up the output to remove the prompt, then return as string.
+        assert isinstance(buf, bytes)
         buf = buf.replace(b"\r\n", b"\n")
         if buf.endswith(self.prompt_bytes):
             promptlen = len(self.prompt_bytes)
@@ -240,7 +244,9 @@ class DemoNet:
         return self
 
     async def __aexit__(self, *exc):
+        assert self._runner is not None
         await self._read_exit()
+
         try:
             await self._runner.__aexit__(*exc)
             self._prompt = None
@@ -253,6 +259,7 @@ class DemoNet:
 
     async def _read_welcome(self):
         "Collect welcome message from Mininet."
+        assert self._prompt is not None
         welcome = await self._prompt.send()
         if welcome.startswith("Error:"):
             raise RuntimeError(welcome)
@@ -268,6 +275,7 @@ class DemoNet:
 
     async def _read_exit(self):
         "Exit and collect exit message from Mininet."
+        assert self._prompt is not None
         print(await self._prompt.send("exit"))
 
     async def _interact(self):
@@ -285,6 +293,7 @@ class DemoNet:
         return sh("podman", "exec", "-it", "mininet", "mnexec", "-a", pid, *args)
 
     async def send(self, cmdline, *, expect=""):
+        assert self._prompt is not None
         result = await self._prompt.send(cmdline)
         print(result)
         if expect:
@@ -308,9 +317,10 @@ class DemoNet:
             json.dump(self._config, tfile, default=_json_default)
 
         try:
-            await podman_copy(tfile.name, "mininet", "/root/demonet_topo.json")
+            temp = Path(tfile.name)
+            await podman_copy(temp, "mininet", "/root/demonet_topo.json")
         finally:
-            os.unlink(tfile.name)
+            temp.unlink()
 
     async def _teardown(self):
         pass
@@ -384,7 +394,7 @@ def podman_create(
     ).stderr(sh.INHERIT)
 
 
-def podman_copy(src_path: Path, container: str, dest_path: Path) -> Command:
+def podman_copy(src_path: Path, container: str, dest_path: str) -> Command:
     return sh(
         "podman",
         "cp",
@@ -536,7 +546,7 @@ def _configure(config: Sequence[DemoItem]):
                 if item.end in switch_db:
                     item.assigned_end_port = switch_db.next_port(item.end)
 
-        if hasattr(item, "commands"):
+        if isinstance(item, (Switch, Host, Link, Bridge)):
             # Replace "$DEMONET_IP" in "commands".
             item.commands = [s.replace("$DEMONET_IP", _LOCAL_IP) for s in item.commands]
 
