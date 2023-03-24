@@ -14,14 +14,14 @@ def tb_activate_source__activate_source(*, ingress_port: int):
 def tb_int_source__configure_source(
     *,
     priority: int,
-    srcAddr,
-    dstAddr,
-    l4_src,
-    l4_dst,
-    max_hop,
-    hop_metadata_len,
-    ins_cnt,
-    ins_mask,
+    srcAddr: str,
+    dstAddr: str,
+    l4_src: int | str,
+    l4_dst: int | str,
+    max_hop: int,
+    hop_metadata_len: int,
+    ins_cnt: int,
+    ins_mask: int,
 ):
     return fy.P4TableEntry(
         "tb_int_source",
@@ -42,7 +42,11 @@ def tb_int_source__configure_source(
     )
 
 
-def tb_int_sink__configure_sink(*, egress_spec: int, sink_reporting_port: int):
+def tb_int_sink__configure_sink(
+    *,
+    egress_spec: int,
+    sink_reporting_port: int,
+):
     return fy.P4TableEntry(
         "tb_int_sink",
         match=fy.P4TableMatch(egress_spec=egress_spec),
@@ -55,11 +59,11 @@ def tb_int_sink__configure_sink(*, egress_spec: int, sink_reporting_port: int):
 
 def tb_int_reporting__send_report(
     *,
-    dp_mac,
-    dp_ip,
-    collector_mac,
-    collector_ip,
-    collector_port,
+    dp_mac: str,
+    dp_ip: str,
+    collector_mac: str,
+    collector_ip: str,
+    collector_port: int,
 ):
     return fy.P4TableEntry(
         "tb_int_reporting",
@@ -74,7 +78,11 @@ def tb_int_reporting__send_report(
     )
 
 
-def tb_int_transit__configure_transit(*, switch_id, l3_mtu):
+def tb_int_transit__configure_transit(
+    *,
+    switch_id: int,
+    l3_mtu: int,
+):
     return fy.P4TableEntry(
         "tb_int_transit",
         action=fy.P4TableAction(
@@ -85,7 +93,12 @@ def tb_int_transit__configure_transit(*, switch_id, l3_mtu):
     )
 
 
-def tb_forward__send_to_port(*, priority, dstAddr, port):
+def tb_forward__send_to_port(
+    *,
+    priority: int,
+    dstAddr: str,
+    port: int,
+):
     return fy.P4TableEntry(
         "tb_forward",
         priority=priority,
@@ -94,7 +107,12 @@ def tb_forward__send_to_port(*, priority, dstAddr, port):
     )
 
 
-def tb_forward__send_to_cpu(*, priority, dstAddr, port):
+def tb_forward__send_to_cpu(
+    *,
+    priority: int,
+    dstAddr: str,
+    port: int,
+):
     return fy.P4TableEntry(
         "tb_forward",
         priority=priority,
