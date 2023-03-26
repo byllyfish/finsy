@@ -10,19 +10,20 @@ import tempfile
 from dataclasses import KW_ONLY, asdict, dataclass, field
 from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
+from types import TracebackType
 from typing import Any, Sequence
 
-import shellous
-from shellous import Command, sh
-from shellous.harvest import harvest_results
+from shellous import Command, Runner, sh  # pyright: ignore[reportMissingTypeStubs]
+from shellous.harvest import harvest_results  # pyright: ignore[reportMissingTypeStubs]
 
 from finsy import MACAddress
 
 try:
-    import pygraphviz as pgv
+    import pygraphviz as pgv  # pyright: ignore[reportMissingTypeStubs]
 except ImportError:
     pgv = None
 
+# pyright: reportUnknownMemberType=false
 
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
@@ -130,7 +131,10 @@ class Bridge(DemoItem):
 class Prompt:
     "Utility class to help with an interactive prompt."
 
-    def __init__(self, runner, prompt: str):
+    runner: Runner
+    prompt_bytes: bytes
+
+    def __init__(self, runner: Runner, prompt: str):
         self.runner = runner
         self.prompt_bytes = prompt.encode("utf-8")
 
@@ -142,6 +146,7 @@ class Prompt:
     ) -> str:
         "Write some input text to stdin, then await the response."
         assert self.runner.returncode is None
+        assert self.runner.stdin is not None
 
         stdin = self.runner.stdin
         stdout = self.runner.stdout
@@ -213,7 +218,7 @@ class DemoNet:
     """
 
     _config: Sequence[DemoItem]
-    _runner: shellous.Runner | None
+    _runner: Runner | None
     _prompt: Prompt | None
     _pids: dict[str, int]
 
@@ -243,12 +248,17 @@ class DemoNet:
 
         return self
 
-    async def __aexit__(self, *exc):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_tb: TracebackType | None,
+    ):
         assert self._runner is not None
         await self._read_exit()
 
         try:
-            await self._runner.__aexit__(*exc)
+            await self._runner.__aexit__(exc_type, exc_value, exc_tb)
             self._prompt = None
             self._runner = None
         finally:
@@ -288,11 +298,11 @@ class DemoNet:
             await self._cleanup()
             raise
 
-    def mnexec(self, host, *args):
+    def mnexec(self, host: str, *args: str):
         pid = self._pids[host]
         return sh("podman", "exec", "-it", "mininet", "mnexec", "-a", pid, *args)
 
-    async def send(self, cmdline, *, expect=""):
+    async def send(self, cmdline: str, *, expect: str = ""):
         assert self._prompt is not None
         result = await self._prompt.send(cmdline)
         print(result)
@@ -303,7 +313,7 @@ class DemoNet:
     async def pingall(self):
         return await self.send("pingall")
 
-    async def ifconfig(self, host):
+    async def ifconfig(self, host: str):
         return await self.send(f"{host} ifconfig")
 
     async def _setup(self):
@@ -342,11 +352,11 @@ class DemoNet:
         return sum(1 for item in self._config if isinstance(item, Switch))
 
 
-def _json_default(obj):
+def _json_default(obj: object):
     try:
         if isinstance(obj, Path):
             return str(obj)
-        return asdict(obj)
+        return asdict(obj)  # pyright: ignore[reportGeneralTypeIssues]
     except TypeError as ex:
         raise ValueError(
             f"DemoNet can't serialize {type(obj).__name__!r}: {obj!r}"
@@ -499,6 +509,8 @@ def _create_graph(config: Sequence[DemoItem]):
                     **link_style,
                     **addl_style,
                 )
+            case _:
+                pass
 
     return graph
 
@@ -545,6 +557,8 @@ def _configure(config: Sequence[DemoItem]):
                     item.assigned_start_port = switch_db.next_port(item.start)
                 if item.end in switch_db:
                     item.assigned_end_port = switch_db.next_port(item.end)
+            case _:
+                pass
 
         if isinstance(item, (Switch, Host, Link, Bridge)):
             # Replace "$DEMONET_IP" in "commands".

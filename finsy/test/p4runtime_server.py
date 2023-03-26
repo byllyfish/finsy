@@ -2,19 +2,25 @@ import argparse
 import asyncio
 import contextlib
 import logging
-from typing import AsyncIterator
+from typing import Any, AsyncIterator, Coroutine, TypeVar
 
-import grpc
+import grpc  # pyright: ignore[reportMissingTypeStubs]
 
 from finsy.futures import wait_for_cancel
+from finsy.grpcutil import GRPC_EOF
 from finsy.log import LOGGER
 from finsy.proto import p4r, p4r_grpc
 
+# FIXME: This module is not strictly typed yet.
+# pyright: reportUnknownMemberType=false, reportIncompatibleMethodOverride=false
 
-class _TaskSet(set[asyncio.Task]):
+_T = TypeVar("_T")
+
+
+class _TaskSet(set[asyncio.Task[_T]]):
     "Keep fire-and-forget Tasks alive while task is running."
 
-    def create_task(self, coro):
+    def create_task(self, coro: Coroutine[Any, Any, _T]) -> asyncio.Task[_T]:
         task = asyncio.create_task(coro)
         self.add(task)
         task.add_done_callback(self.discard)
@@ -26,6 +32,8 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
     _listen_addr: str
     _api_version: str
+    _tasks: _TaskSet[Any]
+    _stream_queue: asyncio.Queue[p4r.StreamMessageResponse]
 
     def __init__(self, listen_addr: str, api_version: str = "1.3.0"):
         "Initialize P4Runtime server."
@@ -69,8 +77,10 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
     async def StreamChannel(
         self,
-        _request_iter,
-        context: grpc.aio.ServicerContext,
+        _request_iter: AsyncIterator[p4r.StreamMessageRequest],
+        context: grpc.aio.ServicerContext[
+            p4r.StreamMessageRequest, p4r.StreamMessageResponse
+        ],
     ):
         "Handle StreamChannel."
 
@@ -106,14 +116,16 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
                 request = await self._stream_context.read()
             except Exception as ex:
                 LOGGER.debug("_stream_read ex=%r", ex)
-                request = grpc.aio.EOF
+                request = GRPC_EOF
 
-            if request == grpc.aio.EOF:
+            if request is GRPC_EOF:
                 LOGGER.debug("_stream_read EOF")
                 assert self._stream_closed is not None
                 self._stream_closed.set()
                 self._stream_context = None
                 return
+
+            assert isinstance(request, p4r.StreamMessageRequest)
 
             match request.WhichOneof("update"):
                 case "arbitration":
@@ -136,7 +148,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         await asyncio.sleep(0.5)
         self._send_test_packet()
 
-    def _send(self, response):
+    def _send(self, response: p4r.StreamMessageResponse):
         self._stream_queue.put_nowait(response)
 
     def _send_test_packet(self):
@@ -146,14 +158,19 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     async def Capabilities(
         self,
         request: p4r.CapabilitiesRequest,
-        context: grpc.aio.ServicerContext,
+        context: grpc.aio.ServicerContext[
+            p4r.CapabilitiesRequest, p4r.CapabilitiesResponse
+        ],
     ) -> p4r.CapabilitiesResponse:
         return p4r.CapabilitiesResponse(p4runtime_api_version=self._api_version)
 
     async def GetForwardingPipelineConfig(
         self,
         request: p4r.GetForwardingPipelineConfigRequest,
-        context: grpc.aio.ServicerContext,
+        context: grpc.aio.ServicerContext[
+            p4r.GetForwardingPipelineConfigRequest,
+            p4r.GetForwardingPipelineConfigResponse,
+        ],
     ) -> p4r.GetForwardingPipelineConfigResponse:
         return p4r.GetForwardingPipelineConfigResponse(
             config=p4r.ForwardingPipelineConfig()
@@ -162,14 +179,17 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     async def SetForwardingPipelineConfig(
         self,
         request: p4r.SetForwardingPipelineConfigRequest,
-        context: grpc.aio.ServicerContext,
+        context: grpc.aio.ServicerContext[
+            p4r.SetForwardingPipelineConfigRequest,
+            p4r.SetForwardingPipelineConfigResponse,
+        ],
     ) -> p4r.SetForwardingPipelineConfigResponse:
         return p4r.SetForwardingPipelineConfigResponse()
 
     async def Read(
         self,
         request: p4r.ReadRequest,
-        context: grpc.aio.ServicerContext,
+        context: grpc.aio.ServicerContext[p4r.ReadRequest, p4r.ReadResponse],
     ) -> AsyncIterator[p4r.ReadResponse]:
         # TODO: fix response
         yield p4r.ReadResponse()
@@ -177,7 +197,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     async def Write(
         self,
         request: p4r.WriteRequest,
-        context: grpc.aio.ServicerContext,
+        context: grpc.aio.ServicerContext[p4r.WriteRequest, p4r.WriteResponse],
     ) -> p4r.WriteResponse:
         return p4r.WriteResponse()
 

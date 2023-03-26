@@ -60,7 +60,7 @@ ignore = [
 ]
 strict = [
   "examples/**/*.py", 
-  "finsy/*.py",
+  "finsy/**/*.py",
   "tests/test_p4data.py",
   "tests/test_p4entity.py",
   "tests/test_p4values.py",

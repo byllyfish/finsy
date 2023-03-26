@@ -337,7 +337,7 @@ class P4Client:
                 p4r.StreamMessageResponse,
                 await self._stream.read(),  # type: ignore
             )
-            if msg == GRPC_EOF:
+            if msg is GRPC_EOF:
                 # Treat EOF as a protocol violation.
                 raise RuntimeError("P4Client.receive got EOF!")
 
