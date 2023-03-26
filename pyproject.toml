@@ -36,8 +36,6 @@ pyright = "^1.1.293"
 pytest-cov = "^4.0.0"
 pylint = "^2.16.1"
 shellous = "^0.22.0"
-
-[tool.poetry.group.example.dependencies]
 prometheus-client = "^0.16.0"
 
 [build-system]
