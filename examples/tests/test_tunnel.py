@@ -1,11 +1,6 @@
-import asyncio
 from pathlib import Path
 
-import pytest
 import testlib
-
-import finsy as fy
-from finsy import pbuf
 
 TUNNEL_DIR = Path(__file__).parent.parent / "tunnel"
 

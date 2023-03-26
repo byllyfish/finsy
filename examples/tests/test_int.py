@@ -3,8 +3,6 @@ from pathlib import Path
 
 import testlib
 
-import finsy as fy
-
 INT_DIR = Path(__file__).parent.parent / "int"
 
 DEMONET = INT_DIR / "net/run.py"

@@ -477,8 +477,7 @@ def decode_ternary(
             value = decode_exact(data, bitwidth, hint)
             if prefix == bitwidth:
                 return value
-            else:
-                return f"{value}/{prefix}"
+            return f"{value}/{prefix}"
         else:
             tup = (
                 decode_exact(data, bitwidth, hint),
