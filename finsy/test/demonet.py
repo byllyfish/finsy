@@ -19,7 +19,7 @@ from shellous.harvest import harvest_results  # pyright: ignore[reportMissingTyp
 from finsy import MACAddress
 
 try:
-    import pygraphviz as pgv  # pyright: ignore[reportMissingTypeStubs]
+    import pygraphviz as pgv  # type: ignore
 except ImportError:
     pgv = None
 
