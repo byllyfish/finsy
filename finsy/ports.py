@@ -124,14 +124,11 @@ class SwitchPortList:
 
     def _update(self, update: GNMIUpdate, switch: "_sw.Switch | None"):
         path = update.path
-        name = path["name"]
-
-        match path.last:
-            case _ifOperStatus.last:
-                status = OperStatus(update.value)
-                self._update_port(name, status, switch)
-            case _:
-                LOGGER.warning(f"PortList: unknown gNMI path: {path}")
+        if path.last == _ifOperStatus.last:
+            status = OperStatus(update.value)
+            self._update_port(path["name"], status, switch)
+        else:
+            LOGGER.warning(f"PortList: unknown gNMI path: {path}")
 
     def _update_port(self, name: str, status: OperStatus, switch: "_sw.Switch | None"):
         port = self._ports[name]

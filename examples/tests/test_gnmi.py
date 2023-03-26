@@ -1,8 +1,6 @@
 import asyncio
 from pathlib import Path
 
-from finsy.test import demonet as dn
-
 GNMI_DIR = Path(__file__).parent.parent / "gnmi"
 
 DEMONET = GNMI_DIR / "net/run.py"

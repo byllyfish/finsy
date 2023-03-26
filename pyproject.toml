@@ -36,8 +36,6 @@ pyright = "^1.1.293"
 pytest-cov = "^4.0.0"
 pylint = "^2.16.1"
 shellous = "^0.22.0"
-
-[tool.poetry.group.example.dependencies]
 prometheus-client = "^0.16.0"
 
 [build-system]
@@ -54,15 +52,13 @@ ignore = [
   "finsy/proto/**/*_pb2.py", 
   "finsy/proto/**/*_pb2.pyi", 
   "finsy/proto/**/*_pb2_grpc.py", 
-  "finsy/proto/**/*_pb2_grpc.pyi", 
-  "examples/ngsdn/net/topo-v6.py",
-  "examples/simple/net/simple_topo.py",
-  "examples/tunnel/net/tunnel_topo.py",
+  "finsy/proto/**/*_pb2_grpc.pyi",
+  "finsy/test/demonet_topo.py",
   "examples/tests/*.py"
 ]
 strict = [
   "examples/**/*.py", 
-  "finsy/*.py",
+  "finsy/**/*.py",
   "tests/test_p4data.py",
   "tests/test_p4entity.py",
   "tests/test_p4values.py",
@@ -71,10 +67,10 @@ strict = [
 ]
 useLibraryCodeForTypes = true
 
-# Enable additional warnings for things not enabled by `strict`.
+# Enable warnings not enabled by `strict`.
 reportUninitializedInstanceVariable = "warning"
 reportCallInDefaultInitializer = "warning"
-# reportUnnecessaryTypeIgnoreComment = "warning"
+reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']

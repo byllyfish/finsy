@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pytest
 from shellous import sh
-from shellous.harvest import harvest_results
 
 from finsy.test import demonet as dn
 

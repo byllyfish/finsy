@@ -18,10 +18,12 @@ import asyncio
 import contextlib
 from typing import AsyncIterator
 
-import grpc
+import grpc  # pyright: ignore[reportMissingTypeStubs]
 
 from finsy import pbuf
 from finsy.proto import gnmi, gnmi_grpc
+
+# pyright: reportIncompatibleMethodOverride=false
 
 
 class GNMIServer(gnmi_grpc.gNMIServicer):
@@ -60,7 +62,7 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
     async def Get(
         self,
         request: gnmi.GetRequest,
-        context: grpc.aio.ServicerContext,
+        context: grpc.aio.ServicerContext[gnmi.GetRequest, gnmi.GetResponse],
     ) -> gnmi.GetResponse:
         "Handle gNMI GetRequest."
 
@@ -73,7 +75,7 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
     async def Set(
         self,
         request: gnmi.SetRequest,
-        context: grpc.aio.ServicerContext,
+        context: grpc.aio.ServicerContext[gnmi.SetRequest, gnmi.SetResponse],
     ) -> gnmi.SetResponse:
         "Handle the set request."
 
@@ -102,7 +104,9 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
     async def Capabilities(
         self,
         request: gnmi.CapabilityRequest,
-        context: grpc.aio.ServicerContext,
+        context: grpc.aio.ServicerContext[
+            gnmi.CapabilityRequest, gnmi.CapabilityResponse
+        ],
     ) -> gnmi.CapabilityResponse:
         "Handle the capability request."
 
@@ -111,7 +115,9 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
     async def Subscribe(
         self,
         request_iterator: AsyncIterator[gnmi.SubscribeRequest],
-        context: grpc.aio.ServicerContext,
+        _context: grpc.aio.ServicerContext[
+            gnmi.SubscribeRequest, gnmi.SubscribeResponse
+        ],
     ) -> AsyncIterator[gnmi.SubscribeResponse]:
         "Handle the subscribe request."
 
@@ -132,6 +138,10 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
                             for reply in _GNMI_SUBSCRIBE_RESPONSES_UPDATES:
                                 yield pbuf.from_text(reply, gnmi.SubscribeResponse)
                     await asyncio.sleep(5.0)
+                case "poll":  # not supported
+                    raise RuntimeError("not supported")
+                case _:
+                    pass
 
 
 # Copy and pasted from Stratum responses (minor editing).

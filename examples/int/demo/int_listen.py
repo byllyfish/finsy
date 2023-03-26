@@ -1,6 +1,6 @@
 import asyncio
 
-from int_report import parse_msg
+from int_report import Header, parse_msg
 
 
 async def _handle_tcp(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
@@ -27,7 +27,7 @@ async def _handle_tcp(reader: asyncio.StreamReader, writer: asyncio.StreamWriter
         print(f"closed connection from {addr!r}")
 
 
-def _handle_msg(msg):
+def _handle_msg(msg: Header):
     print(msg)
 
 

@@ -333,8 +333,8 @@ class P4EntityMap(Generic[_T]):
         If `split_suffix` is True and alias == name, then also index entry by
         the last portion of the alias.
         """
-        ident: int = entity.id  # type: ignore[attr-defined]
-        name: str = entity.name  # type: ignore[attr-defined]
+        ident = cast(int, entity.id)  # type: ignore[attr-defined]
+        name = cast(str, entity.name)  # type: ignore[attr-defined]
 
         if ident in self._by_id:
             raise ValueError(f"id already exists: {ident!r}")
@@ -343,7 +343,7 @@ class P4EntityMap(Generic[_T]):
         self._add_name(name, entity)
 
         if hasattr(entity, "alias"):
-            alias: str = entity.alias  # type: ignore[attr-defined]
+            alias = cast(str, entity.alias)  # type: ignore[attr-defined]
             if name != alias:
                 self._add_name(alias, entity)
             elif split_suffix and "." in alias:
@@ -1770,7 +1770,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
                 return value
             case P4NewTypeKind.ORIGINAL_TYPE:
                 raise NotImplementedError()
-            case other:
+            case other:  # pyright: ignore[reportUnnecessaryComparison]
                 raise ValueError(f"unexpected kind: {other!r}")
 
     def decode_bytes(self, data: bytes) -> Any:
@@ -1781,7 +1781,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
                 return data.decode()
             case P4NewTypeKind.ORIGINAL_TYPE:
                 raise NotImplementedError()
-            case other:
+            case other:  # pyright: ignore[reportUnnecessaryComparison]
                 raise ValueError(f"unexpected kind: {other!r}")
 
     def encode_data(self, value: Any) -> p4d.P4Data:
@@ -1790,7 +1790,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
                 return self.original_type.encode_data(value)
             case P4NewTypeKind.SDN_BITWIDTH | P4NewTypeKind.SDN_STRING:
                 return p4d.P4Data(bitstring=self.encode_bytes(value))
-            case other:
+            case other:  # pyright: ignore[reportUnnecessaryComparison]
                 raise ValueError(f"unexpected kind: {other!r}")
 
     def decode_data(self, data: p4d.P4Data) -> Any:
@@ -1800,7 +1800,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
             case P4NewTypeKind.SDN_BITWIDTH | P4NewTypeKind.SDN_STRING:
                 assert data.HasField("bitstring")
                 return self.decode_bytes(data.bitstring)
-            case other:
+            case other:  # pyright: ignore[reportUnnecessaryComparison]
                 raise ValueError(f"unexpected kind: {other!r}")
 
     def __repr__(self) -> str:
@@ -1811,7 +1811,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
                 result = f"P4NewType(sdn_string, uri={self.translated_uri!r}"
             case P4NewTypeKind.SDN_BITWIDTH:
                 result = f"P4NewType(sdn_bitwidth={self.translated_bitwidth!r}, uri={self.translated_uri!r}"
-            case other:
+            case other:  # pyright: ignore[reportUnnecessaryComparison]
                 raise ValueError(f"unexpected kind: {other!r}")
         return f"{result}, type_name={self.type_name!r})"
 

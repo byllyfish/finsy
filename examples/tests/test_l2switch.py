@@ -3,8 +3,6 @@ from pathlib import Path
 
 import testlib
 
-import finsy as fy
-
 L2SWITCH_DIR = Path(__file__).parent.parent / "l2_switch"
 
 DEMONET = L2SWITCH_DIR / "net/run.py"

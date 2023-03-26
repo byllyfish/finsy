@@ -6,4 +6,3 @@ html/
 .ipynb_checkpoints/
 .coverage
 dist/
-typings/

@@ -16,7 +16,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import Any, AsyncIterator, Callable, Sequence, TypeAlias, overload
+from typing import Any, AsyncIterator, Callable, Sequence, TypeAlias, cast, overload
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 
@@ -316,8 +316,10 @@ class P4Client:
         assert self._stub is not None
 
         if not self._stream or self._stream.done():
-            s: _P4StreamTypeAlias = self._stub.StreamChannel(wait_for_ready=self._wait_for_ready)  # type: ignore
-            self._stream = s
+            self._stream = cast(
+                _P4StreamTypeAlias,
+                self._stub.StreamChannel(wait_for_ready=self._wait_for_ready),  # type: ignore
+            )
 
         self._log_msg(msg)
 
@@ -331,8 +333,11 @@ class P4Client:
         assert self._stream is not None
 
         try:
-            msg = await self._stream.read()
-            if msg == GRPC_EOF:
+            msg = cast(
+                p4r.StreamMessageResponse,
+                await self._stream.read(),  # type: ignore
+            )
+            if msg is GRPC_EOF:
                 # Treat EOF as a protocol violation.
                 raise RuntimeError("P4Client.receive got EOF!")
 

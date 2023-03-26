@@ -37,9 +37,8 @@ _MT = TypeVar("_MT", bound=PBMessage)
 
 def from_any(any_obj: PBAny, msg_class: type[_MT]) -> _MT:
     "Unpack a protobuf `any_pb2.Any` message, or raise an exception."
-
     obj = msg_class()
-    if not any_obj.Unpack(obj):  # pyright: ignore[reportUnknownMemberType]
+    if not any_obj.Unpack(obj):
         raise ValueError(f"Not a {msg_class.__name__}: {any_obj!r}")
     return obj
 
@@ -190,7 +189,6 @@ _ANNOTATE_REGEX = re.compile(r'([a-z]+_id|value|mask): (\d+|"[^"]+")\n', re.MULT
 
 def log_annotate(text: str, schema: "_fy.P4Schema") -> str:
     "Annotate table_id, action_id, etc. in log messages."
-
     action_id = 0
     table_id = 0
 

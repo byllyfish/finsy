@@ -118,10 +118,10 @@ pyenv install 3.11.2
 pyenv shell 3.11.2
 python -m venv .venv
 .venv/bin/activate
-poetry update
+poetry install
 ```
 
-If you are not using `poetry`, replace `poetry update` with `pip install -r ci/requirements-dev.txt`.
+If you are not using `poetry`, replace `poetry install` with `pip install -r ci/requirements-dev.txt`.
 
 To run the unit tests:
 
@@ -129,9 +129,15 @@ To run the unit tests:
 pytest
 ```
 
-To run the example tests, run `pytest` from inside the `examples` directory. You need to make sure that `finsy` module is available in the PYTHONPATH. These tests require [podman](https://podman.io/).
+To run the example tests, run `pytest` from inside the `examples` directory. These tests require [podman](https://podman.io/).
 
 ```
 cd examples
+pytest
+```
+
+If you used pip, you need to make sure that the `finsy` module is available in the PYTHONPATH when running from the examples directory.
+
+```
 PYTHONPATH=.. pytest
 ```

@@ -10,19 +10,20 @@ import tempfile
 from dataclasses import KW_ONLY, asdict, dataclass, field
 from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
+from types import TracebackType
 from typing import Any, Sequence
 
-import shellous
-from shellous import Command, sh
-from shellous.harvest import harvest_results
+from shellous import Command, Runner, sh  # pyright: ignore[reportMissingTypeStubs]
+from shellous.harvest import harvest_results  # pyright: ignore[reportMissingTypeStubs]
 
 from finsy import MACAddress
 
 try:
-    import pygraphviz as pgv
+    import pygraphviz as pgv  # type: ignore
 except ImportError:
     pgv = None
 
+# pyright: reportUnknownMemberType=false
 
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
@@ -52,6 +53,7 @@ class Switch(DemoItem):
     _: KW_ONLY
     kind: str = field(default="switch", init=False)
     params: dict[str, Any] = field(default_factory=dict)
+    commands: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -69,6 +71,7 @@ class Host(DemoItem):
     ipv6_linklocal: bool = False
     static_arp: dict[str, str] = field(default_factory=dict)
     disable_offload: Sequence[str] = ("tx", "rx", "sg")
+    commands: list[str] = field(default_factory=list)
 
     # These fields are "assigned" when configuration is initially processed.
     assigned_switch_port: int = field(default=0, init=False)
@@ -101,6 +104,7 @@ class Link(DemoItem):
     _: KW_ONLY
     kind: str = field(default="link", init=False)
     style: str = ""
+    commands: list[str] = field(default_factory=list)
     assigned_start_port: int = field(default=0, init=False)
     assigned_end_port: int = field(default=0, init=False)
 
@@ -127,7 +131,10 @@ class Bridge(DemoItem):
 class Prompt:
     "Utility class to help with an interactive prompt."
 
-    def __init__(self, runner, prompt: str):
+    runner: Runner
+    prompt_bytes: bytes
+
+    def __init__(self, runner: Runner, prompt: str):
         self.runner = runner
         self.prompt_bytes = prompt.encode("utf-8")
 
@@ -139,6 +146,7 @@ class Prompt:
     ) -> str:
         "Write some input text to stdin, then await the response."
         assert self.runner.returncode is None
+        assert self.runner.stdin is not None
 
         stdin = self.runner.stdin
         stdout = self.runner.stdout
@@ -156,6 +164,7 @@ class Prompt:
             raise asyncio.CancelledError()
 
         # Clean up the output to remove the prompt, then return as string.
+        assert isinstance(buf, bytes)
         buf = buf.replace(b"\r\n", b"\n")
         if buf.endswith(self.prompt_bytes):
             promptlen = len(self.prompt_bytes)
@@ -209,7 +218,7 @@ class DemoNet:
     """
 
     _config: Sequence[DemoItem]
-    _runner: shellous.Runner | None
+    _runner: Runner | None
     _prompt: Prompt | None
     _pids: dict[str, int]
 
@@ -239,10 +248,17 @@ class DemoNet:
 
         return self
 
-    async def __aexit__(self, *exc):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_tb: TracebackType | None,
+    ):
+        assert self._runner is not None
         await self._read_exit()
+
         try:
-            await self._runner.__aexit__(*exc)
+            await self._runner.__aexit__(exc_type, exc_value, exc_tb)
             self._prompt = None
             self._runner = None
         finally:
@@ -253,6 +269,7 @@ class DemoNet:
 
     async def _read_welcome(self):
         "Collect welcome message from Mininet."
+        assert self._prompt is not None
         welcome = await self._prompt.send()
         if welcome.startswith("Error:"):
             raise RuntimeError(welcome)
@@ -268,6 +285,7 @@ class DemoNet:
 
     async def _read_exit(self):
         "Exit and collect exit message from Mininet."
+        assert self._prompt is not None
         print(await self._prompt.send("exit"))
 
     async def _interact(self):
@@ -280,11 +298,12 @@ class DemoNet:
             await self._cleanup()
             raise
 
-    def mnexec(self, host, *args):
+    def mnexec(self, host: str, *args: str):
         pid = self._pids[host]
         return sh("podman", "exec", "-it", "mininet", "mnexec", "-a", pid, *args)
 
-    async def send(self, cmdline, *, expect=""):
+    async def send(self, cmdline: str, *, expect: str = ""):
+        assert self._prompt is not None
         result = await self._prompt.send(cmdline)
         print(result)
         if expect:
@@ -294,7 +313,7 @@ class DemoNet:
     async def pingall(self):
         return await self.send("pingall")
 
-    async def ifconfig(self, host):
+    async def ifconfig(self, host: str):
         return await self.send(f"{host} ifconfig")
 
     async def _setup(self):
@@ -308,9 +327,10 @@ class DemoNet:
             json.dump(self._config, tfile, default=_json_default)
 
         try:
-            await podman_copy(tfile.name, "mininet", "/root/demonet_topo.json")
+            temp = Path(tfile.name)
+            await podman_copy(temp, "mininet", "/root/demonet_topo.json")
         finally:
-            os.unlink(tfile.name)
+            temp.unlink()
 
     async def _teardown(self):
         pass
@@ -332,11 +352,11 @@ class DemoNet:
         return sum(1 for item in self._config if isinstance(item, Switch))
 
 
-def _json_default(obj):
+def _json_default(obj: object):
     try:
         if isinstance(obj, Path):
             return str(obj)
-        return asdict(obj)
+        return asdict(obj)  # pyright: ignore[reportGeneralTypeIssues]
     except TypeError as ex:
         raise ValueError(
             f"DemoNet can't serialize {type(obj).__name__!r}: {obj!r}"
@@ -384,7 +404,7 @@ def podman_create(
     ).stderr(sh.INHERIT)
 
 
-def podman_copy(src_path: Path, container: str, dest_path: Path) -> Command:
+def podman_copy(src_path: Path, container: str, dest_path: str) -> Command:
     return sh(
         "podman",
         "cp",
@@ -489,6 +509,8 @@ def _create_graph(config: Sequence[DemoItem]):
                     **link_style,
                     **addl_style,
                 )
+            case _:
+                pass
 
     return graph
 
@@ -535,8 +557,10 @@ def _configure(config: Sequence[DemoItem]):
                     item.assigned_start_port = switch_db.next_port(item.start)
                 if item.end in switch_db:
                     item.assigned_end_port = switch_db.next_port(item.end)
+            case _:
+                pass
 
-        if hasattr(item, "commands"):
+        if isinstance(item, (Switch, Host, Link, Bridge)):
             # Replace "$DEMONET_IP" in "commands".
             item.commands = [s.replace("$DEMONET_IP", _LOCAL_IP) for s in item.commands]
 

@@ -4,8 +4,6 @@ from pathlib import Path
 
 import testlib
 
-from finsy.test import demonet as dn
-
 NGSDN_DIR = Path(__file__).parent.parent / "ngsdn"
 
 DEMONET = NGSDN_DIR / "net/run.py"
