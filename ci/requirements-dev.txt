@@ -1,4 +1,4 @@
-# Poetry (version 1.4.1) export at Sun Apr  2 21:04:41 MST 2023
+# Poetry (version 1.4.1) export at Sun Apr  2 21:32:07 MST 2023
 astroid==2.15.1 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:89860bda98fe2bbd1f5d262229be7629d778ce280de68d95d4a73d1f592ad268 \
     --hash=sha256:af4e0aff46e2868218502789898269ed95b663fba49e65d91c1e09c966266c34
@@ -339,9 +339,9 @@ pytest==7.2.2 ; python_version >= "3.10" and python_version < "4.0" \
 setuptools==67.6.1 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:257de92a9d50a60b8e22abfcbb771571fde0dbf3ec234463212027a4eeecbe9a \
     --hash=sha256:e728ca814a823bf7bf60162daf9db95b93d532948c4c0bea762ce62f60189078
-shellous==0.22.0 ; python_version >= "3.10" and python_version < "4.0" \
-    --hash=sha256:b7f7a2af5a177e0677659c06f24aa2b7f91f36eae9bfee0e2b3045bddbc3a954 \
-    --hash=sha256:d184344d717687c2190ce35c74a6fccad8ddcf89ec17b3a1d5cf890785407904
+shellous==0.23.0 ; python_version >= "3.10" and python_version < "4.0" \
+    --hash=sha256:423a6b072da789c827b4c26cba5e2679e8dafbfbf9629ea18dfdee3940870b30 \
+    --hash=sha256:5b313f1456ad66119293541b52cbd7af61b091c84b5b037750d6b2b910e1da6c
 tomli==2.0.1 ; python_version >= "3.10" and python_full_version <= "3.11.0a6" \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
     --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f
