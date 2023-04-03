@@ -147,6 +147,8 @@ class Prompt:
         "Write some input text to stdin, then await the response."
         assert self.runner.returncode is None
         assert self.runner.stdin is not None
+        assert self.runner.stdout is not None
+        assert self.runner.stderr is None
 
         stdin = self.runner.stdin
         stdout = self.runner.stdout
@@ -235,7 +237,8 @@ class DemoNet:
     async def __aenter__(self):
         try:
             await self._setup()
-            self._runner = podman_start("mininet").run()
+            cmd = podman_start("mininet")
+            self._runner = cmd.stdout(sh.CAPTURE).run()
             await self._runner.__aenter__()
             self._prompt = Prompt(self._runner, "mininet> ")
 
