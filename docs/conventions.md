@@ -4,8 +4,8 @@ This document describes the code conventions used in the Finsy project.
 
 ## Use pathlib for file system paths.
 
-Whenever a file sytem path is passed to an API, this project uses the builtin `Path` class. It does
-not support passing a file path as a string. `Path` is easier to use, so just use it: 
+Whenever a file sytem path is passed to an API, this project uses the builtin `Path` class. Finsy does
+not support passing a file path as a string.
 
 ```python
 from pathlib import Path
@@ -63,7 +63,7 @@ module aliases.
 
 Finsy plays with the `sys.path` to import the protobuf classes. This will confuse pyright or
 other static type checkers. To make VSCode work, I've had luck with adding a config for pyright
-to my `pyproject.toml` file.
+to my `pyproject.toml` file. 
 
 ```toml
 [tool.pyright]
@@ -72,3 +72,6 @@ to my `pyproject.toml` file.
 root = ".venv/lib/python3.10/site-packages/finsy"
 extraPaths = [".venv/lib/python3.10/site-packages/finsy/proto"]
 ```
+
+When developing finsy itself, there are options in the provided `.vscode/settings.json` file
+that tell VSCode where to look.
