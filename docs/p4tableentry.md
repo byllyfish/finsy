@@ -161,8 +161,8 @@ table_entry {
 }
 ```
 
-Note: The l2_exact_table does not support timeouts, so the P4Runtime server will return an
-INVALID_ARGUMENT error. Use `time_since_last_hit=0` to obtain this information when it is available.
+Note: The l2_exact_table does not actually support timeouts, so the P4Runtime server will return an
+INVALID_ARGUMENT error.
 
 ## Writing Entries
 
