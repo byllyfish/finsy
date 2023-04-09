@@ -194,15 +194,13 @@ class Controller:
         "Retrieve switch by name, or return None if not found."
         return self._switches.get(name)
 
+    @staticmethod
+    def current() -> "Controller":
+        "Return the current Controller object."
+        result = _CONTROLLER.get()
+        if result is None:
+            raise RuntimeError("controller does not exist")
+        return result
+
 
 _CONTROLLER: ContextVar[Controller | None] = ContextVar("_CONTROLLER", default=None)
-
-
-def current_controller() -> Controller:
-    "Return the current Controller object."
-
-    result = _CONTROLLER.get()
-    if result is None:
-        raise RuntimeError("controller does not exist")
-
-    return result

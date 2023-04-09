@@ -18,12 +18,12 @@ def configured_devices(netcfg: dict[str, Any]) -> Iterator[tuple[str, str, int]]
 
 def spine_switches() -> list[fy.Switch]:
     "Return list of spine switches."
-    return [sw for sw in fy.current_controller() if is_spine(sw)]
+    return [sw for sw in fy.Controller.current() if is_spine(sw)]
 
 
 def leaf_switches() -> list[fy.Switch]:
     "Return list of leaf switches."
-    return [sw for sw in fy.current_controller() if not is_spine(sw)]
+    return [sw for sw in fy.Controller.current() if not is_spine(sw)]
 
 
 def is_spine(switch: fy.Switch) -> bool:

@@ -54,7 +54,9 @@ When you write P4Runtime updates to the switch, you use a unary operator (+, -, 
 INSERT (+), DELETE (-) or MODIFY (\~).
 
 ```python
-async def ready_handler(sw):
+import finsy as fy
+
+async def ready_handler(sw: fy.Switch):
     await sw.delete_all()
     await sw.write(
         [
