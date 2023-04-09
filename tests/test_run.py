@@ -4,7 +4,11 @@ import logging
 import pytest
 
 import finsy as fy
+from finsy.log import get_setting
 from finsy.test.p4runtime_server import P4RuntimeServer
+
+# Don't run certain tests under code coverage.
+NO_BENCHMARK = get_setting("FINSY_TEST_NO_BENCHMARK")
 
 
 def test_run():
@@ -16,6 +20,7 @@ def test_run():
     fy.run(_main())
 
 
+@pytest.mark.skipif(NO_BENCHMARK, reason="FINSY_TEST_NO_BENCHMARK")
 def test_run_failfast(unused_tcp_target, caplog):
     "Test the finsy.run() function with a fail_fast switch."
     caplog.set_level(logging.CRITICAL, logger="finsy")
