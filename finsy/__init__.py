@@ -21,7 +21,7 @@ import sys
 if sys.version_info < (3, 10):  # pragma: no cover
     raise RuntimeError("Requires Python 3.10+.")
 
-from .controller import Controller, current_controller
+from .controller import Controller
 from .gnmiclient import GNMIClient, GNMISubscription, GNMIUpdate
 from .gnmipath import GNMIPath
 from .grpcutil import GRPCStatusCode
@@ -55,7 +55,6 @@ from .runner import run
 from .switch import Switch, SwitchEvent, SwitchOptions
 
 __all__ = [
-    "current_controller",
     "run",
     "Controller",
     "LoggerAdapter",

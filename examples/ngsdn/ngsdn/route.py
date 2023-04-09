@@ -102,7 +102,7 @@ class RouteManager:
         ]
 
     def _link_stations(self):
-        controller = fy.current_controller()
+        controller = fy.Controller.current()
         links = [
             (event.local_port, controller[event.remote_switch])
             for event in self.switch.manager["link"].links.values()
@@ -121,7 +121,7 @@ class RouteManager:
         "Handle the LINK_READY event."
         assert switch is self.switch
 
-        controller = fy.current_controller()
+        controller = fy.Controller.current()
         sw = controller[event.remote_switch]
 
         await self.switch.write(
