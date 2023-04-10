@@ -19,6 +19,7 @@ class RouteManager:
                 self._srv6_sid_entry(),
                 self._routes(),
                 self._link_stations(),
+                self._ndp_replies(),
             ]
         )
 
@@ -52,7 +53,7 @@ class RouteManager:
         if netcfg.is_spine(self.switch):
             return self._spine_routes()
         else:
-            return self._leaf_routes() + self._ndp_replies()
+            return [self._leaf_routes(), self._internal_routes()]
 
     def _spine_routes(self):
         return [
@@ -80,7 +81,7 @@ class RouteManager:
             for spine in netcfg.spine_switches()
         ]
 
-        result = [
+        return [
             +fy.P4TableEntry(
                 "routing_v6_table",
                 match=fy.P4TableMatch(dst_addr=net),
@@ -89,8 +90,9 @@ class RouteManager:
             for net in other_networks
         ]
 
-        # Add SRv6 internal routes.
-        return result + [
+    def _internal_routes(self):
+        "Add SRv6 internal routes."
+        return [
             +fy.P4TableEntry(
                 "routing_v6_table",
                 match=fy.P4TableMatch(dst_addr=netcfg.get_sid(spine)),
