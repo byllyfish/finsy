@@ -723,6 +723,21 @@ def test_action_profile_group2():
     assert entry == P4ActionProfileGroup.decode(msg, schema)
 
 
+def test_action_profile_member():
+    "Test P4Member class."
+    member1 = P4Member(1, weight=2)
+    msg = member1.encode()
+
+    assert pbuf.to_dict(msg) == {"member_id": 1, "weight": 2}
+    assert member1 == P4Member.decode(msg)
+
+    member2 = P4Member(member_id=2, weight=(4, 3))
+    msg = member2.encode()
+
+    assert pbuf.to_dict(msg) == {"member_id": 2, "watch_port": "Aw==", "weight": 4}
+    assert member2 == P4Member.decode(msg)
+
+
 def test_meter_entry1():
     "Test P4MeterEntry class."
 

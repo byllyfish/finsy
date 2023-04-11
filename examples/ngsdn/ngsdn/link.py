@@ -4,8 +4,6 @@ import random
 import struct
 from dataclasses import dataclass
 
-from macaddress import MAC
-
 import finsy as fy
 
 from . import netcfg
@@ -81,8 +79,8 @@ class LinkManager:
 _LLDP_DST = b"\x01\x80\xc2\x00\x00\x00"
 
 
-def _encode_lldp(station_mac: MAC, chassis_id: bytes, port_id: bytes):
-    result = b"".join(
+def _encode_lldp(station_mac: fy.MACAddress, chassis_id: bytes, port_id: bytes):
+    return b"".join(
         [
             struct.pack("!6s6sH", _LLDP_DST, bytes(station_mac), 0x88CC),
             _encode_tlv(1, chassis_id),
@@ -91,12 +89,6 @@ def _encode_lldp(station_mac: MAC, chassis_id: bytes, port_id: bytes):
             _encode_tlv(0, b""),
         ]
     )
-
-    # If LLDP is less than 60 bytes, pad it with zeros. (?)
-    # if len(result) < 60:
-    #    result += b"\x00" * (60 - len(result))
-
-    return result
 
 
 def _encode_tlv(tag: int, value: bytes):

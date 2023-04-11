@@ -1041,12 +1041,13 @@ class P4ActionProfileMember(_P4Writable):
         )
 
 
-@dataclass(kw_only=True)
+@dataclass
 class P4Member:
     "Represents an ActionProfileGroup Member."
 
     member_id: int
-    weight: P4Weight | None
+    _: KW_ONLY
+    weight: P4Weight
 
     def encode(self) -> p4r.ActionProfileGroup.Member:
         "Encode P4Member as protobuf."
@@ -1056,7 +1057,7 @@ class P4Member:
                 watch_port = None
             case (int(weight), int(watch)):
                 watch_port = encode_watch_port(watch)
-            case other:
+            case other:  # pyright: ignore[reportUnnecessaryComparison]
                 raise ValueError(f"unexpected weight: {other!r}")
 
         member = p4r.ActionProfileGroup.Member(
