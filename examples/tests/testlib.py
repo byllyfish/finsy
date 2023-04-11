@@ -45,12 +45,18 @@ async def read_p4_tables(target: str, *, skip_const: bool = False) -> set[str]:
                     result.add(f"{entry.table_id} {entry.action_str()}")
 
             # Read action profiles. Ignore an INVALID_ARGUMENT error that is
-            # raised because the selector programming mode is using one shots.
+            # raised when the selector programming mode is using one shots.
             try:
-                async for entry in sw.read(
-                    [fy.P4ActionProfileMember(), fy.P4ActionProfileGroup()]
-                ):
-                    result.add(str(entry))
+                async for entry in sw.read(fy.P4ActionProfileGroup()):
+                    result.add(
+                        f"${entry.action_profile_id} group_id={entry.group_id:#x} max_size={entry.max_size:#x} {entry.action_str()}"
+                    )
+
+                async for entry in sw.read(fy.P4ActionProfileMember()):
+                    result.add(
+                        f"${entry.action_profile_id}[{entry.member_id:#x}] {entry.action_str()}"
+                    )
+
             except fy.P4ClientError as ex:
                 if ex.code != fy.GRPCStatusCode.INVALID_ARGUMENT:
                     raise

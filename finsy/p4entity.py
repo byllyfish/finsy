@@ -1040,6 +1040,15 @@ class P4ActionProfileMember(_P4Writable):
             action=action,
         )
 
+    def action_str(self) -> str:
+        "Return string representation of action."
+        if not self.action:
+            return ""
+        schema = P4Schema.current()
+        profile = schema.action_profiles[self.action_profile_id]
+        table = schema.tables[profile.table_names[0]]
+        return self.action.format_str(table)
+
 
 @dataclass
 class P4Member:
@@ -1137,6 +1146,15 @@ class P4ActionProfileGroup(_P4Writable):
             group_id=entry.group_id,
             max_size=entry.max_size,
             members=members,
+        )
+
+    def action_str(self) -> str:
+        "Return string representation of the weighted members."
+        if not self.members:
+            return ""
+
+        return " ".join(
+            [f"{member.weight}*[{member.member_id:#x}]" for member in self.members]
         )
 
 
