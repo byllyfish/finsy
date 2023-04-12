@@ -418,10 +418,9 @@ class P4TableAction:
 
         return cls(action.alias, **args)
 
-    def format_str(self, table: P4Table) -> str:
+    def format_str(self, schema: P4Schema | P4Table) -> str:
         """Format the table action as a human-readable string."""
-
-        aps = table.actions[self.name].params
+        aps = schema.actions[self.name].params
         args = [
             f"{key}={aps[key].format_param(value)}" for key, value in self.args.items()
         ]
@@ -1045,9 +1044,7 @@ class P4ActionProfileMember(_P4Writable):
         if not self.action:
             return ""
         schema = P4Schema.current()
-        profile = schema.action_profiles[self.action_profile_id]
-        table = schema.tables[profile.table_names[0]]
-        return self.action.format_str(table)
+        return self.action.format_str(schema)
 
 
 @dataclass
