@@ -4,8 +4,6 @@ from ipaddress import IPv6Address, IPv6Interface, IPv6Network
 from typing import Any, Iterator
 from urllib.parse import parse_qs, urlparse
 
-from macaddress import MAC
-
 import finsy as fy
 
 
@@ -31,9 +29,9 @@ def is_spine(switch: fy.Switch) -> bool:
     return _fabric_config(switch)["isSpine"]
 
 
-def get_station_mac(switch: fy.Switch) -> MAC:
+def get_station_mac(switch: fy.Switch) -> fy.MACAddress:
     "Return the switch's station mac."
-    return MAC(_fabric_config(switch)["myStationMac"])
+    return fy.MACAddress(_fabric_config(switch)["myStationMac"])
 
 
 def get_sid(switch: fy.Switch) -> IPv6Address:

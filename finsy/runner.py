@@ -22,7 +22,10 @@ from typing import Any, Coroutine
 
 async def _finsy_main(coro: Coroutine[Any, Any, None]):
     # Activate logging.
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(created).03f %(levelname)s %(name)s %(message)s",
+    )
 
     # Boilerplate to shutdown cleanly upon SIGTERM signal.
     asyncio.get_running_loop().add_signal_handler(

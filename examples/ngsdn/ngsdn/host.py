@@ -1,12 +1,11 @@
 import asyncio
+import os
 import struct
 from dataclasses import dataclass, field
 from ipaddress import IPv4Address, IPv6Address
 
-from macaddress import MAC
-
 import finsy as fy
-from finsy import Switch
+from finsy import MACAddress, Switch
 
 from . import netcfg
 from .log import LOG
@@ -20,7 +19,7 @@ class PROTO:
 
 @dataclass(slots=True)
 class L2Host:
-    mac: MAC
+    mac: MACAddress
     port: int
     addrs: set[IPv4Address | IPv6Address] = field(default_factory=set)
 
@@ -47,7 +46,7 @@ class HostAddIP(HostEvent):
     addr: IPv4Address | IPv6Address
 
 
-class HostManager:
+class HostManagerOneShot:
     """The HostManager tracks the hosts discovered on each switch port."""
 
     MULTICAST_GROUP_ID = 99
@@ -55,7 +54,7 @@ class HostManager:
     CONTROLLER_PORT = 255
 
     switch: Switch
-    hosts: dict[MAC, L2Host]
+    hosts: dict[MACAddress, L2Host]
     events: asyncio.Queue[HostEvent]
 
     def __init__(self, switch: Switch):
@@ -120,12 +119,15 @@ class HostManager:
             match event:
                 case HostAdd(host, addr):
                     await self.switch.write(
-                        [self._l2learn(host), self._l3learn(host, addr)]
+                        [
+                            self._l2learn(host),
+                            await self._l3learn(host, addr),
+                        ]
                     )
                 case HostMove(host, _):
                     pass
                 case HostAddIP(host, addr):
-                    await self.switch.write(self._l3learn(host, addr))
+                    await self.switch.write(await self._l3learn(host, addr))
                 case _:
                     pass
 
@@ -138,7 +140,7 @@ class HostManager:
             ),
         ]
 
-    def _l3learn(
+    async def _l3learn(
         self,
         host: L2Host,
         addr: IPv4Address | IPv6Address,
@@ -206,14 +208,60 @@ class HostManager:
         ]
 
 
-def _parse_host_packet(data: bytes) -> tuple[MAC, IPv4Address | IPv6Address]:
+def _parse_host_packet(data: bytes) -> tuple[MACAddress, IPv4Address | IPv6Address]:
     eth_src, eth_type = struct.unpack_from("!6x6sH", data)
     match eth_type:
         case PROTO.ETH_ARP:
             (ipv4,) = struct.unpack_from("!8x6x4s", data[14:])
-            return (MAC(eth_src), IPv4Address(ipv4))
+            return (MACAddress(eth_src), IPv4Address(ipv4))
         case PROTO.ETH_IPV6:
             (ipv6,) = struct.unpack_from("!8x16s", data[14:])
-            return (MAC(eth_src), IPv6Address(ipv6))
+            return (MACAddress(eth_src), IPv6Address(ipv6))
         case _:
             raise ValueError(f"unknown eth_type: {eth_type!r}")
+
+
+class HostManagerActionProfile(HostManagerOneShot):
+    _macs: dict[MACAddress, int] | None = None
+    _id: int = 2**16 + 1
+
+    def _get_next_id(self):
+        result = self._id
+        self._id += 1
+        return result
+
+    async def _l3learn(
+        self,
+        host: L2Host,
+        addr: IPv4Address | IPv6Address,
+    ) -> list[fy.P4TableEntry]:
+        if not isinstance(addr, IPv6Address):
+            return []
+
+        if self._macs is None:
+            self._macs = {}
+
+        member_id = self._macs.get(host.mac)
+        if member_id is None:
+            member_id = self._get_next_id()
+            member = fy.P4ActionProfileMember(
+                "ecmp_selector",
+                member_id=member_id,
+                action=fy.P4TableAction("set_next_hop", dmac=host.mac),
+            )
+            self._macs[host.mac] = member_id
+            await self.switch.write([+member])
+
+        return [
+            +fy.P4TableEntry(
+                "routing_v6_table",
+                match=fy.P4TableMatch(dst_addr=(addr, 128)),
+                action=fy.P4IndirectAction(member_id=member_id),
+            )
+        ]
+
+
+if os.environ.get("NGSDN_USE_ACTIONPROFILE"):
+    HostManager = HostManagerActionProfile
+else:
+    HostManager = HostManagerOneShot

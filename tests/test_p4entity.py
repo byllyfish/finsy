@@ -684,6 +684,20 @@ def test_action_profile_member2():
     assert entry == P4ActionProfileMember.decode(msg, schema)
 
 
+def test_action_profile_member_actionstr():
+    "Test the P4ActionProfileMember action_str method."
+    schema = P4Schema(_P4INFO_TEST_DIR / "fabric.p4.p4info.txt")
+    entry = P4ActionProfileMember(
+        action_profile_id="hashed_selector",
+        member_id=2,
+        action=P4TableAction("pop_vlan"),
+    )
+    with schema:
+        assert entry.action_profile_id == "hashed_selector"
+        assert entry.member_id == 2
+        assert entry.action_str() == "pop_vlan()"
+
+
 def test_action_profile_group1():
     "Test P4ActionProfileGroup class."
 
@@ -721,6 +735,41 @@ def test_action_profile_group2():
         }
     }
     assert entry == P4ActionProfileGroup.decode(msg, schema)
+
+
+def test_action_profile_group_actionstr():
+    "Test the P4ActionProfileGroup action_str method."
+    schema = P4Schema(_P4INFO_TEST_DIR / "fabric.p4.p4info.txt")
+    entry = P4ActionProfileGroup(
+        action_profile_id="hashed_selector",
+        group_id=2,
+        max_size=3,
+        members=[
+            P4Member(member_id=1, weight=(3, 0xABC)),
+            P4Member(member_id=2, weight=4),
+        ],
+    )
+
+    with schema:
+        assert entry.action_profile_id == "hashed_selector"
+        assert entry.group_id == 2
+        assert entry.max_size == 3
+        assert entry.action_str() == "(3, 2748)*[0x1] 4*[0x2]"
+
+
+def test_member():
+    "Test P4Member class."
+    member1 = P4Member(1, weight=2)
+    msg = member1.encode()
+
+    assert pbuf.to_dict(msg) == {"member_id": 1, "weight": 2}
+    assert member1 == P4Member.decode(msg)
+
+    member2 = P4Member(member_id=2, weight=(4, 3))
+    msg = member2.encode()
+
+    assert pbuf.to_dict(msg) == {"member_id": 2, "watch_port": "Aw==", "weight": 4}
+    assert member2 == P4Member.decode(msg)
 
 
 def test_meter_entry1():

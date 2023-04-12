@@ -418,10 +418,9 @@ class P4TableAction:
 
         return cls(action.alias, **args)
 
-    def format_str(self, table: P4Table) -> str:
+    def format_str(self, schema: P4Schema | P4Table) -> str:
         """Format the table action as a human-readable string."""
-
-        aps = table.actions[self.name].params
+        aps = schema.actions[self.name].params
         args = [
             f"{key}={aps[key].format_param(value)}" for key, value in self.args.items()
         ]
@@ -1040,13 +1039,21 @@ class P4ActionProfileMember(_P4Writable):
             action=action,
         )
 
+    def action_str(self) -> str:
+        "Return string representation of action."
+        if not self.action:
+            return ""
+        schema = P4Schema.current()
+        return self.action.format_str(schema)
 
-@dataclass(kw_only=True)
+
+@dataclass
 class P4Member:
     "Represents an ActionProfileGroup Member."
 
     member_id: int
-    weight: P4Weight | None
+    _: KW_ONLY
+    weight: P4Weight
 
     def encode(self) -> p4r.ActionProfileGroup.Member:
         "Encode P4Member as protobuf."
@@ -1056,7 +1063,7 @@ class P4Member:
                 watch_port = None
             case (int(weight), int(watch)):
                 watch_port = encode_watch_port(watch)
-            case other:
+            case other:  # pyright: ignore[reportUnnecessaryComparison]
                 raise ValueError(f"unexpected weight: {other!r}")
 
         member = p4r.ActionProfileGroup.Member(
@@ -1136,6 +1143,15 @@ class P4ActionProfileGroup(_P4Writable):
             group_id=entry.group_id,
             max_size=entry.max_size,
             members=members,
+        )
+
+    def action_str(self) -> str:
+        "Return string representation of the weighted members."
+        if not self.members:
+            return ""
+
+        return " ".join(
+            [f"{member.weight}*[{member.member_id:#x}]" for member in self.members]
         )
 
 
