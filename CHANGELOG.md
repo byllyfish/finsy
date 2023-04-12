@@ -1,5 +1,12 @@
 # Finsy Change Log
 
+## 0.15.0
+
+- Rename `current_controller()` function to `Controller.current()`.
+- Fix `P4Member` API used by `P4ActionProfileGroup` class.
+- Add a version of the ngsdn example that uses action profiles instead of "one-shots".
+- Many pyright and pylint fixes.
+
 ## 0.14.0
 
 - Add the `fail_fast` option to SwitchOptions.
