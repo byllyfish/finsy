@@ -507,6 +507,43 @@ def test_table_entry_str_display():
         assert entry.action_str()
 
 
+def test_table_entry_action_id():
+    "Test P4TableEntry entity with an action_id (no parameters)."
+    entry = P4TableEntry(
+        "ipv4_lpm",
+        # 'ipv4_forward' normally requires two parameters: dstAddr and port.
+        action=P4TableAction("ipv4_forward"),
+    )
+    msg = entry.encode(_SCHEMA)
+    assert pbuf.to_dict(msg) == {
+        "table_entry": {
+            "action": {"action": {"action_id": 28792405}},
+            "table_id": 37375156,
+        },
+    }
+
+
+def test_table_update_action_id():
+    "Test P4TableEntry update with an action_id (no parameters)."
+    entry = +P4TableEntry(
+        "ipv4_lpm",
+        # 'ipv4_forward' normally requires two parameters: dstAddr and port.
+        action=P4TableAction("ipv4_forward"),
+    )
+    msg = entry.encode_update(_SCHEMA)
+
+    # Encode the message, but the P4Runtime server will not accept this.
+    assert pbuf.to_dict(msg) == {
+        "type": "INSERT",
+        "entity": {
+            "table_entry": {
+                "table_id": 37375156,
+                "action": {"action": {"action_id": 28792405}},
+            }
+        },
+    }
+
+
 def test_decode_entity1():
     "Test decode_entity function."
 

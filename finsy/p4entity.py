@@ -379,8 +379,10 @@ class P4TableAction:
         except ValueError as ex:
             raise ValueError(f"{action.alias!r}: {ex}") from ex
 
-        # Check for missing action parameters.
-        if len(params) != len(aps):
+        # Check for missing action parameters. We always accept an action with
+        # no parameters.
+        param_count = len(params)
+        if param_count > 0 and param_count != len(aps):
             self._fail_missing_params(action)
 
         return p4r.Action(action_id=action.id, params=params)
