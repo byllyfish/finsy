@@ -1,6 +1,10 @@
 {
+  "name": "finsy-dev",
+  // https://github.com/devcontainers/images/tree/main/src/base-ubuntu
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
   "features": {
-    "docker-in-docker": {}
-  }
+    // https://github.com/devcontainers/features/tree/main/src/docker-in-docker
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": ".devcontainer/post-install.sh"
 }
