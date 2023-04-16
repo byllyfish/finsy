@@ -28,6 +28,9 @@ except ImportError:
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
 
+# Allow an environment variable to override podman command (e.g. to use docker).
+PODMAN = os.environ.get("FINSY_PODMAN", "podman")
+
 
 class DemoItem:
     "Marker superclass for all Demo configuration directives."
@@ -303,7 +306,7 @@ class DemoNet:
 
     def mnexec(self, host: str, *args: str):
         pid = self._pids[host]
-        return sh("podman", "exec", "-it", "mininet", "mnexec", "-a", pid, *args)
+        return sh(PODMAN, "exec", "-it", "mininet", "mnexec", "-a", pid, *args)
 
     async def send(self, cmdline: str, *, expect: str = ""):
         assert self._prompt is not None
@@ -387,7 +390,7 @@ def podman_create(
         debug = ["-v", "debug"]
 
     return sh(
-        "podman",
+        PODMAN,
         "create",
         "--privileged",
         "--rm",
@@ -409,7 +412,7 @@ def podman_create(
 
 def podman_copy(src_path: Path, container: str, dest_path: str) -> Command:
     return sh(
-        "podman",
+        PODMAN,
         "cp",
         src_path,
         f"{container}:{dest_path}",
@@ -417,11 +420,11 @@ def podman_copy(src_path: Path, container: str, dest_path: str) -> Command:
 
 
 def podman_start(container: str) -> Command:
-    return sh("podman", "start", "-ai", container).set(pty=True)
+    return sh(PODMAN, "start", "-ai", container).set(pty=True)
 
 
 def podman_rm(container: str) -> Command:
-    return sh("podman", "rm", container).set(exit_codes={0, 1})
+    return sh(PODMAN, "rm", container).set(exit_codes={0, 1})
 
 
 def _create_graph(config: Sequence[DemoItem]):
