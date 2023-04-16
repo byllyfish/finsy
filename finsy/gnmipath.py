@@ -142,12 +142,12 @@ class GNMIPath:
                 return _retrieve_key(name, self.path)
             case (int(idx), str(k)):
                 result = self.path.elem[idx].key.get(k)
-                if result is None:  # pyright: ignore[reportUnnecessaryComparison] bogus
+                if result is None:
                     raise KeyError(k)
                 return result
             case (str(name), str(k)):
                 result = self.path.elem[_find_index(name, self.path)].key.get(k)
-                if result is None:  # pyright: ignore[reportUnnecessaryComparison] bogus
+                if result is None:
                     raise KeyError(k)
                 return result
             case slice() as s:
@@ -259,7 +259,7 @@ def _retrieve_key(key: str, path: gnmi.Path) -> str:
     "Retrieve keyed value from first element that has that key."
     for elem in path.elem:
         val = elem.key.get(key)
-        if val is not None:  # pyright: ignore[reportUnnecessaryComparison] bogus
+        if val is not None:
             return val
     raise KeyError(key)
 
