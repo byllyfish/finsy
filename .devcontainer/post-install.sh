@@ -2,10 +2,11 @@
 
 set -ex
 
-# Install poetry.
+echo "Install poetry."
 python3 .devcontainer/install-poetry.py
 
-# Install all dependencies.
+echo "Install project dependencies."
+poetry config virtualenvs.in-project true
 poetry install
 
 echo "Done."

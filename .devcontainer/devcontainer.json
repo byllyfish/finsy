@@ -11,6 +11,9 @@
   "customizations": {
     // Configure properties specific to VS Code.
     "vscode": {
+      // "settings": {
+      //   "python.defaultInterpreterPath": "/usr/bin/python3"
+      // },
       "extensions": [
         "ms-python.python"
       ]
