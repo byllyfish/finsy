@@ -18,6 +18,7 @@ Here's the initial setup:
 >>> from finsy import P4Schema, P4TableEntry, P4TableMatch, P4TableAction, P4IndirectAction
 >>> from pathlib import Path
 >>> p4info = P4Schema(Path('examples/ngsdn/ngsdn/p4/main.p4info.txt'))
+
 ``` 
 
 To review the schema from the ngsdn example, type `print(p4info)`.
@@ -52,11 +53,12 @@ For more on the P4TableEntry, type `help(P4TableEntry)`.
 
 ### All entries in all tables (except for default entries).
 
-```python
+```pycon
 >>> entry = P4TableEntry()
 >>> entry.encode(p4info)
 table_entry {
 }
+
 ```
 
 ### All entries in `l2_exact_table` (except for the default entry).
@@ -67,6 +69,7 @@ table_entry {
 table_entry {
   table_id: 34391805
 }
+
 ```
 
 ### The default entry in `l2_exact_table`.
@@ -78,6 +81,7 @@ table_entry {
   table_id: 34391805
   is_default_action: true
 }
+
 ```
 
 ### The entry in `l2_exact_table` with dst_addr '00:00:00:00:00:01'.
@@ -97,6 +101,7 @@ table_entry {
     }
   }
 }
+
 ```
 
 ### All entries in `l2_ternary_table` with priority 11.
@@ -108,6 +113,7 @@ table_entry {
   table_id: 48908925
   priority: 11
 }
+
 ```
 
 ### All entries in `l2_ternary_table` with metadata b'abc'.
@@ -119,6 +125,7 @@ table_entry {
   table_id: 48908925
   metadata: "abc"
 }
+
 ```
 
 ### All entries in `acl_table` with the `drop` action.
@@ -134,6 +141,7 @@ table_entry {
     }
   }
 }
+
 ```
 
 ### All entries from `l2_exact_table` including counter data.
@@ -147,6 +155,7 @@ table_entry {
   counter_data {
   }
 }
+
 ```
 
 ### All entries from `l2_exact_table` including the `time_since_last_hit` information.
@@ -159,6 +168,7 @@ table_entry {
   time_since_last_hit {
   }
 }
+
 ```
 
 Note: The l2_exact_table does not actually support timeouts, so the P4Runtime server will return an
@@ -199,6 +209,7 @@ entity {
     }
   }
 }
+
 ```
 
 ### Remove entry from `l2_exact_table`.
@@ -221,6 +232,7 @@ entity {
     }
   }
 }
+
 ```
 
 ### Modify default entry for `acl_table`.
@@ -244,6 +256,7 @@ entity {
     is_default_action: true
   }
 }
+
 ```
 
 ### Add entry to indirect table `routing_v6_table` using a "one-shot" selector.
@@ -253,13 +266,13 @@ actions have weights `1` and `2`.
 
 ```pycon
 >>> entry = +P4TableEntry(
-  'routing_v6_table',
-  match=P4TableMatch(dst_addr='2000:1234::/64'),
-  action=P4IndirectAction([
-    1 * P4TableAction('set_next_hop', dmac='00:00:00:00:00:01'),
-    2 * P4TableAction('set_next_hop', dmac='00:00:00:00:00:02'),
-  ]),
-)
+...   'routing_v6_table',
+...   match=P4TableMatch(dst_addr='2000:1234::/64'),
+...   action=P4IndirectAction([
+...     1 * P4TableAction('set_next_hop', dmac='00:00:00:00:00:01'),
+...     2 * P4TableAction('set_next_hop', dmac='00:00:00:00:00:02'),
+...   ]),
+... )
 >>> entry.encode_update(p4info)
 type: INSERT
 entity {
@@ -298,6 +311,7 @@ entity {
     }
   }
 }
+
 ```
 
 ### Add entry to indirect table `routing_v6_table` using a "one-shot" selector with watch ports.
@@ -306,13 +320,13 @@ The action weights are specified using a 2-tuple `(weight, port)`.
 
 ```
 >>> entry = +P4TableEntry(
-  'routing_v6_table',
-  match=P4TableMatch(dst_addr='2000:1234::/64'),
-  action=P4IndirectAction([
-    (1, 1) * P4TableAction('set_next_hop', dmac='00:00:00:00:00:01'),
-    (1, 2) * P4TableAction('set_next_hop', dmac='00:00:00:00:00:02'),
-  ]),
-)
+...   'routing_v6_table',
+...   match=P4TableMatch(dst_addr='2000:1234::/64'),
+...   action=P4IndirectAction([
+...     (1, 1) * P4TableAction('set_next_hop', dmac='00:00:00:00:00:01'),
+...     (1, 2) * P4TableAction('set_next_hop', dmac='00:00:00:00:00:02'),
+...   ]),
+... )
 >>> entry.encode_update(p4info)
 type: INSERT
 entity {
@@ -353,6 +367,7 @@ entity {
     }
   }
 }
+
 ```
 
 ### Add entry to indirect table `routing_v6_table` using a "one-shot" selector (automatic promotion)
@@ -361,10 +376,10 @@ A P4TableAction will be automatically promoted to a P4IndirectAction when applie
 
 ```pycon
 >>> entry = +P4TableEntry(
-  'routing_v6_table',
-  match=P4TableMatch(dst_addr='2000:1234::/64'),
-  action=P4TableAction('set_next_hop', dmac='00:00:00:00:00:01'),
-)
+...   'routing_v6_table',
+...   match=P4TableMatch(dst_addr='2000:1234::/64'),
+...   action=P4TableAction('set_next_hop', dmac='00:00:00:00:00:01'),
+... )
 >>> entry.encode_update(p4info)
 type: INSERT
 entity {
@@ -393,16 +408,17 @@ entity {
     }
   }
 }
+
 ```
 
 ### Add entry to indirect table `routing_v6_table` using an existing ActionProfileGroup.
 
 ```pycon
 >>> entry = +P4TableEntry(
-  'routing_v6_table',
-  match=P4TableMatch(dst_addr='2000:1234::/64'),
-  action=P4IndirectAction(group_id=1234),
-)
+...   'routing_v6_table',
+...   match=P4TableMatch(dst_addr='2000:1234::/64'),
+...   action=P4IndirectAction(group_id=1234),
+... )
 >>> entry.encode_update(p4info)
 type: INSERT
 entity {
@@ -420,16 +436,17 @@ entity {
     }
   }
 }
+
 ```
 
 ### Add entry to indirect table `routing_v6_table` using an existing ActionProfileMember.
 
 ```pycon
 >>> entry = +P4TableEntry(
-  'routing_v6_table',
-  match=P4TableMatch(dst_addr='2000:1234::/64'),
-  action=P4IndirectAction(member_id=9876),
-)
+...   'routing_v6_table',
+...   match=P4TableMatch(dst_addr='2000:1234::/64'),
+...   action=P4IndirectAction(member_id=9876),
+... )
 >>> entry.encode_update(p4info)
 type: INSERT
 entity {
@@ -447,4 +464,5 @@ entity {
     }
   }
 }
+
 ```
