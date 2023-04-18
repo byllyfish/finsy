@@ -1,6 +1,7 @@
-# P4TableEntry
+# Table Entries
 
-This document describes how to use the P4TableEntry classes to construct P4Runtime `TableEntry` messages.
+This document describes how to use the P4TableEntry classes to construct 
+P4Runtime `TableEntry` messages. (§ 9.1)
 
 Classes used:
 
@@ -23,12 +24,12 @@ Here's the initial setup:
 
 To review the schema from the ngsdn example, type `print(p4info)`.
 
-## P4TableEntry
+# P4TableEntry
 
-The P4TableEntry class stores a human-readable version of P4Runtime TableEntry. 
+The P4TableEntry class stores a human-readable version of a P4Runtime TableEntry. 
 
-The constructor has one positional parameter (table_id). The rest are keyword-only parameters. All parameters
-are optional.
+The constructor has one positional parameter (table_id). The rest are keyword-only parameters.
+All parameters are optional.
 
 ```python
 P4TableEntry(
@@ -48,6 +49,10 @@ P4TableEntry(
 ```
 
 For more on the P4TableEntry, type `help(P4TableEntry)`.
+
+Finsy handles encoding and decoding of P4TableEntry automatically when you use the
+`Switch.read` and `Switch.write` methods. The following examples manually encode
+entries using the `P4Schema` to show the exact protobuf result.
 
 ## Reading Entries
 

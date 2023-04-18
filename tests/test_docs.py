@@ -5,7 +5,7 @@ import pytest
 
 DOCS = Path(__file__).parent.parent / "docs"
 
-DOC_FILES = [DOCS / "p4tableentry.md"]
+DOC_FILES = [DOCS / "table_entry.md", DOCS / "replication_entry.md"]
 
 
 @pytest.mark.parametrize("path", DOC_FILES)
