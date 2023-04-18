@@ -195,3 +195,77 @@ packet_replication_engine_entry {
 
 ```
 
+## Writing Entries
+
+### Insert clone session entry to replicate a packet to ports 1, 2, and 3.
+
+```pycon
+>>> entry = +P4CloneSessionEntry(
+...   1, 
+...   class_of_service=2, 
+...   packet_length_bytes=64,
+...   replicas=[1, 2, 3]
+... )
+>>> entry.encode_update(p4info)
+type: INSERT
+entity {
+  packet_replication_engine_entry {
+    clone_session_entry {
+      session_id: 1
+      replicas {
+        egress_port: 1
+      }
+      replicas {
+        egress_port: 2
+      }
+      replicas {
+        egress_port: 3
+      }
+      class_of_service: 2
+      packet_length_bytes: 64
+    }
+  }
+}
+
+```
+
+### Delete clone session entry with id=6.
+
+```pycon
+>>> entry = -P4CloneSessionEntry(6)
+>>> entry.encode_update(p4info)
+type: DELETE
+entity {
+  packet_replication_engine_entry {
+    clone_session_entry {
+      session_id: 6
+    }
+  }
+}
+
+```
+
+### Modify clone session entry 2 to replicate packet twice to egress port 3.
+
+```pycon
+>>> entry = ~P4CloneSessionEntry(2, packet_length_bytes=96, replicas=[(3, 1), (3, 2)])
+>>> entry.encode_update(p4info)
+type: MODIFY
+entity {
+  packet_replication_engine_entry {
+    clone_session_entry {
+      session_id: 2
+      replicas {
+        egress_port: 3
+        instance: 1
+      }
+      replicas {
+        egress_port: 3
+        instance: 2
+      }
+      packet_length_bytes: 96
+    }
+  }
+}
+
+```
