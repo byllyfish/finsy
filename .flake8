@@ -1,9 +1,0 @@
-[flake8]
-max-line-length = 100
-max-complexity = 10
-exclude = .git,__pycache__,.venv,.*_cache,*_pb2.py,*pb2_grpc.py
-per-file-ignores =
-    # module level import not at top of file
-    finsy/proto/__init__.py: E402
-    # line too long
-    finsy/test/gnmi_server.py: E501

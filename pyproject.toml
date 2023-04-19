@@ -37,6 +37,7 @@ pytest-cov = "^4.0.0"
 pylint = "^2.16.1"
 shellous = "^0.23.0"
 prometheus-client = "^0.16.0"
+ruff = "^0.0.261"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -107,3 +108,13 @@ allowed-redefined-builtins = ["format"]
 [tool.mypy]
 disallow_untyped_defs = true
 exclude = [ ".+_pb2.py", ".+_pb2_grpc.py" ]
+
+[tool.ruff]
+exclude = [ "*_pb2.{py,pyi}", "*pb2_grpc.{py,pyi}" ]
+line-length = 120
+
+[tool.ruff.per-file-ignores]
+"finsy/proto/__init__.py" = ["E402"]
+"examples/int/demo/main.py" = ["F403", "F405"]
+"examples/tests/*.py" = ["E501"]  # line too long
+".devcontainer/install-poetry.py" = ["E501"]

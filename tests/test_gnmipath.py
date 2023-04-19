@@ -164,6 +164,7 @@ def test_path_getitem():
     with pytest.raises(IndexError):
         path1[3]
 
+    # Using a tuple[str, int] for the key is not supported.
     with pytest.raises(TypeError, match="invalid key type"):
         path1["interface", 3]  # type: ignore
 
