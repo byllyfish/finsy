@@ -10,7 +10,6 @@ DEMONET = HELLO_DIR / "net/run.py"
 
 async def test_demo0(python):
     "Test the hello/demo0 example program."
-
     result = await python(
         HELLO_DIR / "demo0.py",
         HELLO_DIR / "p4/hello.p4info.txt",
@@ -35,7 +34,6 @@ hello.p4 (version=1, arch=v1model)
 
 async def test_demo1(demonet, python):
     "Test the hello/demo1 example program."
-
     async with python(HELLO_DIR / "demo1.py") as demo1:
         await asyncio.sleep(0.25)
         await demonet.send("pingall", expect="(6/6 received)")
@@ -44,7 +42,6 @@ async def test_demo1(demonet, python):
 
 async def test_demo2(demonet, python):
     "Test the hello/demo2 example program."
-
     async with python(HELLO_DIR / "demo2.py") as demo2:
         await asyncio.sleep(0.25)
         await demonet.send("pingall")
@@ -54,7 +51,6 @@ async def test_demo2(demonet, python):
 
 async def test_demo3(demonet, python):
     "Test the hello/demo3 example program."
-
     async with python(HELLO_DIR / "demo3.py") as demo3:
         await asyncio.sleep(0.25)
         await demonet.send("pingall")

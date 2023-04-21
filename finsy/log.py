@@ -40,7 +40,6 @@ else:
 
 def _get_current_task_name(shorten: bool = False) -> str:
     "Return the name of the current task (or '' if there is none.)"
-
     try:
         # current_task() will raise a RuntimeError if there is no running
         # event loop. It can also return None if there's a running event

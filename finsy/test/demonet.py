@@ -180,7 +180,6 @@ class Prompt:
 
 async def _read_until(stream: asyncio.StreamReader, sep: bytes) -> bytes:
     "Read all data until separator."
-
     # Most reads can complete without buffering.
     try:
         return await stream.readuntil(sep)

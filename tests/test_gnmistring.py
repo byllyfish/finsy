@@ -417,7 +417,6 @@ def test_canonical_paths(value, expected):
 
 def test_unicode_roundtrip():
     "Test how Unicode characters are handled in parse/to_str."
-
     # Produce a long unicode escaped string:
     #  r"\x00\x01\x02\x03...\\u0101\\u0102\\u0103"
     # This string also tests input with \t, \n, \r escapes.
@@ -439,7 +438,6 @@ def test_unicode_roundtrip():
 
 def test_to_str():
     "Test how `to_str` escapes control and Unicode characters (in name)."
-
     value = "".join(chr(i) for i in range(260))
     path = pbuf.from_dict(
         {
@@ -460,7 +458,6 @@ def test_to_str():
 
 def test_to_str_for_key():
     "Test how `to_str` escapes control and Unicode characters (in key)."
-
     value = "".join(chr(i) for i in range(260))
     path = pbuf.from_dict(
         {
@@ -484,7 +481,6 @@ def test_to_str_for_key():
 
 def test_to_str_for_val():
     "Test how `to_str` escapes control and Unicode characters (in val)."
-
     value = "".join(chr(i) for i in range(260))
     path = pbuf.from_dict(
         {
@@ -508,6 +504,5 @@ def test_to_str_for_val():
 
 def test_duplicate_key():
     "Test parsing a path with a duplicate key."
-
     with pytest.raises(ValueError, match="parse failed: duplicate key 'x'"):
         parse("a[x=1][x=2]")

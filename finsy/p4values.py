@@ -31,7 +31,6 @@ class DecodeFormat(enum.Flag):
 
 def p4r_minimum_string_size(bitwidth: int) -> int:
     "P4Runtime `minimum_string_size` function (P4R-Spec section 8.4)"
-
     if bitwidth <= 0:
         raise ValueError(f"invalid bitwidth: {bitwidth}")
     return (bitwidth + 7) // 8
@@ -46,13 +45,11 @@ def p4r_truncate(value: bytes, signed: bool = False) -> bytes:
 
 def all_ones(bitwidth: int) -> int:
     "Return integer value with `bitwidth` 1's."
-
     return (1 << bitwidth) - 1
 
 
 def mask_to_prefix(value: int, bitwidth: int) -> int:
     "Convert mask bits to prefix count. Return -1 if mask is discontiguous."
-
     mask = ~value & all_ones(bitwidth)  # complement the bits
     if (mask & (mask + 1)) != 0:
         return -1  # discontiguous
@@ -61,7 +58,6 @@ def mask_to_prefix(value: int, bitwidth: int) -> int:
 
 def _invalid_err(kind: str, bitwidth: int, value: Any) -> ValueError:
     "Construct formatted ValueError message."
-
     # Replace "exact" with empty string. Otherwise, prepend a space.
     if kind == "exact":
         kind = ""
@@ -197,7 +193,6 @@ def decode_exact(
     format: DecodeFormat = DecodeFormat.DEFAULT,
 ) -> _ExactReturn:
     """Decode a P4R value into an integer or address."""
-
     if bitwidth == 0:
         # If bitwidth is 0, data is interpreted as `SdnString`.
         return data.decode()
@@ -220,7 +215,6 @@ def decode_exact(
 
 def format_exact(value: _ExactValue, bitwidth: int, format: DecodeFormat) -> str:
     "Format a value as a string."
-
     data = encode_exact(value, bitwidth)
     result = decode_exact(data, bitwidth, format | DecodeFormat.STRING)
     assert isinstance(result, str)
@@ -284,7 +278,6 @@ _LPMReturn = str | IPv4Network | IPv6Network | tuple[int | MACAddress, int]
 
 def _parse_lpm_prefix(value: str, bitwidth: int) -> int:
     "Parse LPM prefix."
-
     if bitwidth == 32 and "." in value:
         return mask_to_prefix(int(IPv4Address(value)), 32)
     if bitwidth == 128 and ":" in value:
@@ -296,7 +289,6 @@ def _parse_lpm_prefix(value: str, bitwidth: int) -> int:
 
 def _parse_lpm_str(value: str, bitwidth: int) -> tuple[bytes, int]:
     "Parse value in slash notation."
-
     if "/" not in value:
         return (encode_exact(value, bitwidth), bitwidth)
 
@@ -350,7 +342,6 @@ def decode_lpm(
     format: DecodeFormat = DecodeFormat.DEFAULT,
 ) -> _LPMReturn:
     "Decode a P4R Value into an integer or address."
-
     value = decode_exact(data, bitwidth, format)
 
     match value:
@@ -368,7 +359,6 @@ def decode_lpm(
 
 def format_lpm(value: _LPMValue, bitwidth: int, format: DecodeFormat) -> str:
     "Format a value as a string."
-
     data = encode_lpm(value, bitwidth)
     result = decode_lpm(data[0], data[1], bitwidth, format | DecodeFormat.STRING)
     assert isinstance(result, str)
@@ -426,7 +416,6 @@ _TernaryReturn = tuple[_ExactReturn, _ExactReturn] | _ExactReturn
 
 def _parse_ternary_str(value: str, bitwidth: int) -> tuple[bytes, bytes]:
     "Parse value in slash or slash-amp notation."
-
     if "/&" not in value:
         data, prefix = _parse_lpm_str(value, bitwidth)
         mask = all_ones(prefix) << (bitwidth - prefix)
@@ -468,7 +457,6 @@ def decode_ternary(
     hint: DecodeFormat = DecodeFormat.DEFAULT,
 ) -> _TernaryReturn:
     "Decode a P4R Ternary value."
-
     if hint & DecodeFormat.STRING:
         # When decoding to string, check if mask can be represented
         # using LPM syntax or if the mask is all ones.
@@ -490,7 +478,6 @@ def decode_ternary(
 
 def format_ternary(value: _TernaryValue, bitwidth: int, format: DecodeFormat) -> str:
     "Format a value as a string."
-
     data = encode_ternary(value, bitwidth)
     result = decode_ternary(data[0], data[1], bitwidth, format | DecodeFormat.STRING)
     assert isinstance(result, str)
@@ -548,7 +535,6 @@ def decode_range(
     hint: DecodeFormat = DecodeFormat.DEFAULT,
 ) -> _RangeReturn:
     "Decode a P4R Range value."
-
     result = (decode_exact(low, bitwidth, hint), decode_exact(high, bitwidth, hint))
 
     match result[0]:
@@ -560,7 +546,6 @@ def decode_range(
 
 def format_range(value: _RangeValue, bitwidth: int, format: DecodeFormat) -> str:
     "Format a value as a string."
-
     data = encode_range(value, bitwidth)
     result = decode_range(data[0], data[1], bitwidth, format | DecodeFormat.STRING)
     assert isinstance(result, str)

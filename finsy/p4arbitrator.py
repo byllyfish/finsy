@@ -58,7 +58,6 @@ class Arbitrator:
 
     async def handshake(self, switch: "_sw.Switch", *, conflict: bool = False):
         """Perform the P4Runtime client arbitration handshake."""
-
         assert not self.is_primary
 
         if conflict:
@@ -85,7 +84,6 @@ class Arbitrator:
 
     async def update(self, switch: "_sw.Switch", msg: p4r.MasterArbitrationUpdate):
         "Called with subsequent arbitration update responses."
-
         status_code = P4RpcStatus.from_status(msg.status).code
         new_primary_id = U128.decode(msg.election_id)
 
@@ -120,14 +118,12 @@ class Arbitrator:
 
     def reset(self):
         "Called when client stream disconnects."
-
         self.election_id = self.initial_election_id
         self.is_primary = False
         self.primary_id = _NOT_ASSIGNED
 
     def complete_request(self, msg: pbuf.PBMessage):
         "Complete request with role/election_id information."
-
         if isinstance(msg, p4r.ReadRequest):
             if self.role is not None:
                 msg.role = self.role.name
@@ -143,7 +139,6 @@ class Arbitrator:
 
     async def _arbitration_request(self, switch: "_sw.Switch"):
         "Send a MasterArbitrationUpdate request and wait for the response."
-
         for _ in range(5):
             await self._send(switch)
 
@@ -157,7 +152,6 @@ class Arbitrator:
 
     async def _request_primary(self, switch: "_sw.Switch"):
         "Send a request to become the new primary."
-
         self.election_id = self.primary_id
         await self._send(switch)
 
@@ -207,7 +201,6 @@ class Arbitrator:
 
     def _check_invariant(self):
         "Check the Arbitrator's invariant."
-
         if self.is_primary:
             # When we're the primary, election_id must equal primary_id.
             if self.election_id != self.primary_id:

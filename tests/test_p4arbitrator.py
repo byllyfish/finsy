@@ -12,7 +12,6 @@ _DEVICE_ID = 1
 
 def _mock_switch(receive_returns):
     "Return a Mock object representing a Switch with a mocked client."
-
     replies = [
         p4r.StreamMessageResponse(
             arbitration=p4r.MasterArbitrationUpdate(
@@ -36,7 +35,6 @@ def _mock_switch(receive_returns):
 
 async def test_arbitrator_handshake_primary():
     "Test the Arbitrator class handshake method."
-
     arbitrator = Arbitrator(100)
 
     assert not arbitrator.is_primary
@@ -54,7 +52,6 @@ async def test_arbitrator_handshake_primary():
 
 async def test_arbitrator_handshake_invalid1():
     "Test the Arbitrator class handshake method with an invalid response."
-
     arbitrator = Arbitrator(100)
 
     assert not arbitrator.is_primary
@@ -70,7 +67,6 @@ async def test_arbitrator_handshake_invalid1():
 
 async def test_arbitrator_handshake_invalid2():
     "Test the Arbitrator class handshake method with an invalid response."
-
     arbitrator = Arbitrator(100)
 
     assert not arbitrator.is_primary
@@ -86,7 +82,6 @@ async def test_arbitrator_handshake_invalid2():
 
 async def test_arbitrator_handshake_missing_primary():
     "Test the Arbitrator class handshake method with a missing primary."
-
     arbitrator = Arbitrator(100)
 
     assert not arbitrator.is_primary
@@ -111,7 +106,6 @@ async def test_arbitrator_handshake_missing_primary():
 
 def test_complete_request():
     "Test the arbitrator's `complete_request` method."
-
     arbitrator = Arbitrator(100)
 
     for msg_type in (p4r.SetForwardingPipelineConfigRequest, p4r.WriteRequest):
@@ -123,7 +117,6 @@ def test_complete_request():
 async def test_update_become_backup():
     """Test the arbitrator's `update` method with an ALREADY_EXISTS message
     when we are primary controller."""
-
     switch = _mock_switch([(100, GRPCStatusCode.OK)])
 
     # Perform initial handshake and become primary.
@@ -160,7 +153,6 @@ async def test_update_become_backup():
 async def test_update_become_primary():
     """Test the arbitrator's `update` method with a NOT_FOUND message
     when we are backup controller."""
-
     switch = _mock_switch([(101, GRPCStatusCode.ALREADY_EXISTS)])
 
     # Perform initial handshake and become backup.

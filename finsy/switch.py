@@ -620,7 +620,6 @@ class Switch:
 
     async def _handle_stream_message(self, msg: p4r.StreamMessageResponse):
         "Handle a P4Runtime StreamMessageResponse."
-
         match msg.WhichOneof("update"):
             case "packet":
                 self._stream_packet_message(msg)
@@ -840,7 +839,6 @@ class Switch:
 
     async def _ready(self):
         "Prepare the pipeline."
-
         if self.p4info.is_authoritative and self.is_primary:
             await self._set_pipeline()
         else:
@@ -1071,7 +1069,6 @@ class SwitchEmitter(pyee.EventEmitter):
 
     def event_future(self, event: SwitchEvent):
         "Future to wait for a specific event."
-
         ready = asyncio.get_running_loop().create_future()
         self.once(event, lambda _: ready.set_result(None))  # type: ignore
         return ready
@@ -1161,7 +1158,6 @@ class SwitchTasks:
 @asynccontextmanager
 async def _throttle_failure():
     "Used to throttle retries, if the switch's lifecycle fails too quickly."
-
     start_time = time.monotonic()
     yield
     end_time = time.monotonic()

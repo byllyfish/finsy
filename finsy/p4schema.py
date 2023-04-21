@@ -404,7 +404,6 @@ class _P4Defs:
 
     def __init__(self, p4info: p4i.P4Info):
         "Initialize P4Info elements."
-
         self.tables = P4EntityMap("P4Table")
         self.actions = P4EntityMap("P4Action")
         self.action_profiles = P4EntityMap("P4ActionProfile")
@@ -526,7 +525,6 @@ class P4Schema(_ReprMixin):
 
     def get_pipeline_config(self) -> p4r.ForwardingPipelineConfig:
         """The forwarding pipeline configuration."""
-
         return p4r.ForwardingPipelineConfig(
             p4info=self.p4info,
             p4_device_config=self.p4blob,
@@ -654,7 +652,6 @@ _P4SCHEMA_CTXT: ContextVar[P4Schema | None] = ContextVar("_P4SCHEMA_CTXT", defau
 
 def _sort_map(value: Mapping[Any, Any]):
     "Sort items in protobuf map in alphabetic order."
-
     return sorted(value.items())
 
 
@@ -730,7 +727,6 @@ class P4Annotation(NamedTuple):
 
 def _parse_annotations(pbuf: Any) -> list[P4Annotation]:
     """Return list of annotations in the protobuf message."""
-
     # If pbuf doesn't have an "annotations" property, try pbuf's "preamble".
     if not hasattr(pbuf, "annotations"):
         pbuf = pbuf.preamble
@@ -1112,7 +1108,6 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
 
     def encode_field(self, value: Any) -> p4r.FieldMatch | None:
         "Encode value as protobuf type."
-
         match self.match_type:
             case P4MatchType.EXACT:
                 data = p4values.encode_exact(value, self._bitwidth)
@@ -1186,7 +1181,6 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
 
     def format_field(self, value: Any) -> str:
         "Format field value as string."
-
         format = self._format | p4values.DecodeFormat.STRING
         match self.match_type:
             case P4MatchType.EXACT:
@@ -1460,7 +1454,6 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
 
     def decode_header(self, header: p4d.P4Header) -> dict[str, Any]:
         "Decode P4 header."
-
         # TODO: Handle valid but memberless header?
         if not header.is_valid:
             if header.bitstrings:
@@ -2084,7 +2077,6 @@ class P4SchemaDescription:
 
     def _describe_preamble(self) -> str:
         "Describe preamble."
-
         sch = self._schema
         name = sch.name
         if not name:
@@ -2096,14 +2088,12 @@ class P4SchemaDescription:
 
     def _describe_match_type(self, match_type: P4MatchType | str):
         "Return a string describing the match type."
-
         if isinstance(match_type, str):
             return f"[{match_type}]"
         return self.MATCH_TYPES[match_type]
 
     def _describe_table(self, table: P4Table) -> str:
         "Describe P4Table."
-
         # Table header
         const = self.CONST if table.is_const else ""
         line = f"{self.TABLE} {table.alias}[{table.size}]{const}"
@@ -2151,12 +2141,10 @@ class P4SchemaDescription:
 
     def _describe_profile_brief(self, profile: P4ActionProfile) -> str:
         "Describe P4ActionProfile briefly when linked to table."
-
         return f"{self.PROFILE} {profile.alias}[{profile.size}]"
 
     def _describe_profile(self, profile: P4ActionProfile) -> str:
         "Describe P4ActionProfile."
-
         opts = list[str]()
         if profile.with_selector:
             opts.append("type=selector")

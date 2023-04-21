@@ -41,7 +41,6 @@ class _Example:
 
 def test_entity_map():
     "Test P4EntityMap helper class."
-
     example = _Example(1, "example.one", "one")
 
     entities = P4EntityMap("entry_type")
@@ -96,7 +95,6 @@ def test_entity_map_duplicate():
 
 def test_p4schema():
     "Test P4Schema."
-
     schema = P4Schema(P4INFO_TEST_DIR / "basic.p4.p4info.txt", b"abc")
 
     assert schema.p4info is not None
@@ -230,7 +228,6 @@ def _make_bitstring(bitwidth) -> p4t.P4BitstringLikeTypeSpec:
 
 def test_p4bitstype():
     "Test P4BitsType."
-
     bits = P4BitsType(_make_bitstring(8))
     assert bits.bitwidth == 8
     assert not bits.signed and not bits.varbit
@@ -257,7 +254,6 @@ def test_p4bitstype():
 
 def test_p4booltype():
     "Test P4BoolType."
-
     bool_type = P4BoolType(p4t.P4BoolType())
     assert bool_type.type_name == "bool"
 
@@ -272,7 +268,6 @@ def test_p4booltype():
 
 def _make_header_spec(*fields: str) -> p4t.P4HeaderTypeSpec:
     "Define a new P4HeaderTypeSpec."
-
     return p4t.P4HeaderTypeSpec(
         members=[
             p4t.P4HeaderTypeSpec.Member(name=field, type_spec=_make_bitstring(8))
@@ -283,7 +278,6 @@ def _make_header_spec(*fields: str) -> p4t.P4HeaderTypeSpec:
 
 def _make_header_union_spec(*headers: str) -> p4t.P4HeaderUnionTypeSpec:
     "Define a new P4HeaderUnionTypeSpec."
-
     return p4t.P4HeaderUnionTypeSpec(
         members=[
             p4t.P4HeaderUnionTypeSpec.Member(
@@ -297,7 +291,6 @@ def _make_header_union_spec(*headers: str) -> p4t.P4HeaderUnionTypeSpec:
 
 def test_p4headertype():
     "Test P4HeaderType."
-
     header_spec = _make_header_spec("a")
     header = P4HeaderType("HH", header_spec)
     assert header.type_name == "HH"
@@ -328,7 +321,6 @@ def test_p4headertype():
 
 def test_p4headeruniontype():
     "Test P4HeaderUnionType."
-
     headerA = _make_header_spec("a")
     headerB = _make_header_spec("b")
 
@@ -369,7 +361,6 @@ def test_p4headeruniontype():
 
 def test_p4headerstacktype():
     "Test P4HeaderStackType."
-
     headerA = _make_header_spec("a")
     stack_spec = p4t.P4HeaderStackTypeSpec(
         header=p4t.P4NamedType(name="A"),
@@ -398,7 +389,6 @@ def test_p4headerstacktype():
 
 def test_p4headerunionstacktype():
     "Test P4HeaderUnionStackType."
-
     headerA = _make_header_spec("a")
     headerB = _make_header_spec("b")
     unionU = _make_header_union_spec("A", "B")
@@ -439,7 +429,6 @@ def test_p4headerunionstacktype():
 
 def test_p4structtype():
     "Test P4StructType."
-
     bits_t = p4t.P4DataTypeSpec(bitstring=_make_bitstring(8))
     header_t = p4t.P4DataTypeSpec(header=p4t.P4NamedType(name="H"))
 
@@ -477,7 +466,6 @@ def test_p4structtype():
 
 def test_p4tupletype():
     "Test P4TupleType."
-
     bits_t = p4t.P4DataTypeSpec(bitstring=_make_bitstring(8))
     header_t = p4t.P4DataTypeSpec(header=p4t.P4NamedType(name="H"))
     tuple_spec = p4t.P4TupleTypeSpec(members=[bits_t, header_t])
@@ -511,7 +499,6 @@ def test_p4tupletype():
 
 def test_p4newtype_sdnstring():
     "Test P4NewType."
-
     newtype_spec = p4t.P4NewTypeSpec(
         translated_type=p4t.P4NewTypeTranslation(
             uri="abc",
@@ -538,7 +525,6 @@ def test_p4newtype_sdnstring():
 
 def test_p4newtype_sdnbitwidth():
     "Test P4NewType."
-
     newtype_spec = p4t.P4NewTypeSpec(
         translated_type=p4t.P4NewTypeTranslation(
             uri="abc",
@@ -563,7 +549,6 @@ def test_p4newtype_sdnbitwidth():
 
 def test_p4newtype_original_type():
     "Test P4NewType."
-
     bits_t = p4t.P4DataTypeSpec(bitstring=_make_bitstring(8))
     newtype_spec = p4t.P4NewTypeSpec(original_type=bits_t)
 
@@ -729,7 +714,6 @@ def test_p4matchfield_optional():
 
 def test_parse_type_spec_tuple():
     "Test the `parse_type_spec` function with a tuple."
-
     bits_t = p4t.P4DataTypeSpec(bitstring=_make_bitstring(8))
     tuple_spec = p4t.P4TupleTypeSpec(members=[bits_t, bits_t])
 
@@ -742,7 +726,6 @@ def test_parse_type_spec_tuple():
 
 def test_p4actionparam():
     "Test P4ActionParam."
-
     p4param = p4i.Action.Param(id=1, name="xyz", bitwidth=16)
     param = P4ActionParam(p4param)
     # Skipping param._finish_init(...)

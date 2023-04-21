@@ -58,7 +58,6 @@ def test_to_dict():
 
 def test_from_any():
     "Test the `from_any` function."
-
     any_obj = pbuf.PBAny()
     any_obj.Pack(_P4INFO)
 
@@ -76,7 +75,6 @@ def test_from_any():
 
 def test_log_annotate():
     "Test the log_annotate() function (with invalid input)."
-
     schema = P4Schema(P4INFO_TEST_DIR / "basic.p4.p4info.txt")
 
     # digest_id doesn't exist

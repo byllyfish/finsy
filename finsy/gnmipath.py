@@ -208,7 +208,6 @@ class GNMIPath:
 
     def _slice(self, start: int | None, stop: int | None, step: int | None) -> Self:
         "Return specified slice of GNMIPath."
-
         if start is None:
             start = 0
 

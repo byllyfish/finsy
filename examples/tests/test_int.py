@@ -10,7 +10,6 @@ DEMONET = INT_DIR / "net/run.py"
 
 async def test_demo(demonet, python):
     "Test the int/demo example program."
-
     async with python(INT_DIR / "demo") as demo:
         await asyncio.sleep(0.25)
         await demonet.send("h1 echo 'abc' | socat - udp:192.168.0.48:5555")
@@ -20,7 +19,6 @@ async def test_demo(demonet, python):
 
 async def test_read_tables(demonet):
     "Test the state of the tables after the demo finishes."
-
     expected_switch_states = {
         "127.0.0.1:50001": {
             "tb_activate_source ingress_port=0x1 activate_source()",

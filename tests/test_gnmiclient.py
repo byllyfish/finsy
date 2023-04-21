@@ -118,7 +118,6 @@ async def _get_interfaces(gnmi_client: GNMIClient):
 
 def test_gnmi_update():
     "Test the internal `gnmi_update` function."
-
     examples = [
         (True, {"bool_val": True}),
         (False, {"bool_val": False}),

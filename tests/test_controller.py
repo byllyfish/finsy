@@ -9,7 +9,6 @@ from finsy import Controller, Switch
 
 async def test_controller_run_empty():
     "Test the empty Finsy Controller class using the run() method."
-
     controller = Controller([])
     assert len(controller) == 0
     assert controller.get("sw1") is None
@@ -29,7 +28,6 @@ async def test_controller_run_empty():
 
 async def test_controller_ctxt_empty():
     "Test the empty Finsy Controller class using the context manager."
-
     controller = Controller([])
     assert len(controller) == 0
 
@@ -50,7 +48,6 @@ async def test_controller_ctxt_empty():
 
 async def test_controller_ctxt(p4rt_server_target: str):
     "Test Finsy Controller class."
-
     N = 2
     NAMES = {"sw0", "sw1"}
 

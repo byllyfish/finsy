@@ -297,7 +297,6 @@ class P4Client:
 
     async def close(self) -> None:
         "Close the client channel."
-
         if self._channel is not None:
             LOGGER.debug("P4Client: close channel %r", self._address)
 

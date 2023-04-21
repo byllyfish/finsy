@@ -115,7 +115,6 @@ def grpc_channel(
     client_type: str = "GRPC",
 ) -> grpc.aio.Channel:
     "Create a GRPC AIO channel."
-
     args = options.args() if options else None
 
     if credentials is None:
