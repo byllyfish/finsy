@@ -740,7 +740,7 @@ class P4Annotation(NamedTuple):
     name: str
     "Name of the annotation."
 
-    body: str | tuple[Any, ...] | dict[str, Any]
+    body: str | list[str | int | bool] | dict[str, str | int | bool]
     "Body of the annotation."
 
 
@@ -755,21 +755,56 @@ def _parse_annotations(pbuf: Any) -> list[P4Annotation]:
 
     # Scan unstructured annotations.
     for annotation in pbuf.annotations:
-        name, body = _parse_unstructured_annotation(annotation)
-        result.append(P4Annotation(name, body))
+        result.append(_parse_unstructured_annotation(annotation))
 
-    # TODO: parse structured annotations...
+    # Scan structured annotations.
+    for annotation in pbuf.structured_annotations:
+        result.append(_parse_structured_annotation(annotation))
+
     return result
 
 
 _UNSTRUCTURED_ANNOTATION_REGEX = re.compile(r"@(\w+)(?:\((.*)\))?", re.DOTALL)
 
 
-def _parse_unstructured_annotation(annotation: str) -> tuple[str, str]:
+def _parse_unstructured_annotation(annotation: str) -> P4Annotation:
     m = _UNSTRUCTURED_ANNOTATION_REGEX.fullmatch(annotation)
     if not m:
         raise ValueError(f"Unsupported annotation: {annotation!r}")
-    return (m[1], m[2])
+    return P4Annotation(m[1], m[2])
+
+
+def _parse_structured_annotation(annotation: p4t.StructuredAnnotation) -> P4Annotation:
+    match annotation.WhichOneof("body"):
+        case "expression_list":
+            body = _parse_expressions(annotation.expression_list.expressions)
+        case "kv_pair_list":
+            body = _parse_kvpairs(annotation.kv_pair_list.kv_pairs)
+        case None:
+            body = []  # empty expression list
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
+            raise ValueError(f"unsupported structured annotation: {annotation!r}")
+    return P4Annotation(annotation.name, body)
+
+
+def _parse_expressions(expressions: Sequence[p4t.Expression]):
+    return [_parse_expression(ex) for ex in expressions]
+
+
+def _parse_kvpairs(kvpairs: Sequence[p4t.KeyValuePair]):
+    return {kv.key: _parse_expression(kv.value) for kv in kvpairs}
+
+
+def _parse_expression(expression: p4t.Expression):
+    match expression.WhichOneof("value"):
+        case "string_value":
+            return expression.string_value
+        case "int64_value":
+            return expression.int64_value
+        case "bool_value":
+            return expression.bool_value
+        case None:
+            return ""  # no value? default to ""
 
 
 class P4Table(_P4TopLevel[p4i.Table]):

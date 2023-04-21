@@ -1,0 +1,108 @@
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 23754841
+    name: "MyIngress.a1"
+    alias: "a1"
+    structured_annotations {
+      name: "Empty"
+    }
+  }
+}
+actions {
+  preamble {
+    id: 24829050
+    name: "MyIngress.a2"
+    alias: "a2"
+    structured_annotations {
+      name: "MixedList"
+      expression_list {
+        expressions {
+          int64_value: 1
+        }
+        expressions {
+          string_value: "hello"
+        }
+        expressions {
+          bool_value: true
+        }
+        expressions {
+          bool_value: false
+        }
+        expressions {
+          int64_value: 11
+        }
+      }
+    }
+  }
+}
+actions {
+  preamble {
+    id: 29110526
+    name: "MyIngress.a3"
+    alias: "a3"
+    structured_annotations {
+      name: "MixedKV"
+      kv_pair_list {
+        kv_pairs {
+          key: "label"
+          value {
+            string_value: "text"
+          }
+        }
+        kv_pairs {
+          key: "my_bool"
+          value {
+            bool_value: true
+          }
+        }
+        kv_pairs {
+          key: "int_val"
+          value {
+            int64_value: 6
+          }
+        }
+      }
+    }
+  }
+}
+actions {
+  preamble {
+    id: 30878518
+    name: "MyIngress.a4"
+    alias: "a4"
+    structured_annotations {
+      name: "SingleList"
+      expression_list {
+        expressions {
+          string_value: "abc"
+        }
+      }
+    }
+  }
+}
+actions {
+  preamble {
+    id: 16879499
+    name: "MyIngress.a5"
+    alias: "a5"
+    structured_annotations {
+      name: "SingleKV"
+      kv_pair_list {
+        kv_pairs {
+          key: "abc"
+          value {
+            string_value: "def"
+          }
+        }
+      }
+    }
+  }
+}
