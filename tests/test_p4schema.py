@@ -578,8 +578,8 @@ def test_p4newtype_original_type():
     assert newtype.decode_data(data) == 128
 
     assert (
-        repr(newtype)
-        == "P4NewType(original_type=P4BitsType(annotations=[], bitwidth=8, signed=False, type_name='u8', varbit=False), type_name='some_name')"
+        repr(newtype) == "P4NewType(original_type=P4BitsType(annotations=[],"
+        " bitwidth=8, signed=False, type_name='u8', varbit=False), type_name='some_name')"
     )
 
 

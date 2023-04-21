@@ -116,5 +116,8 @@ line-length = 120
 [tool.ruff.per-file-ignores]
 "finsy/proto/__init__.py" = ["E402"]
 "examples/int/demo/main.py" = ["F403", "F405"]
-"examples/tests/*.py" = ["E501"]  # line too long
+# Line too long (E501)
+"examples/tests/*.py" = ["E501"]
 ".devcontainer/install-poetry.py" = ["E501"]
+"finsy/test/gnmi_server.py" = ["E501"]
+"tests/test_gnmistring.py" = ["E501"]
