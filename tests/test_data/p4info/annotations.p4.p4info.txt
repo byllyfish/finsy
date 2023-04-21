@@ -106,3 +106,75 @@ actions {
     }
   }
 }
+actions {
+  preamble {
+    id: 24175209
+    name: "MyIngress.a6"
+    alias: "a6"
+    structured_annotations {
+      name: "SingleKV"
+      kv_pair_list {
+        kv_pairs {
+          key: "abc"
+          value {
+          }
+        }
+      }
+    }
+  }
+}
+actions {
+  preamble {
+    id: 28722932
+    name: "MyIngress.a7"
+    alias: "a7"
+    annotations: "@Unstructured(\"123\")"
+    annotations: "@Unstructured(\"456\")"
+    structured_annotations {
+      name: "Empty"
+    }
+    structured_annotations {
+      name: "MixedList"
+      expression_list {
+        expressions {
+          int64_value: 1
+        }
+        expressions {
+          string_value: "hello"
+        }
+        expressions {
+          bool_value: true
+        }
+        expressions {
+          bool_value: false
+        }
+        expressions {
+          int64_value: 11
+        }
+      }
+    }
+    structured_annotations {
+      name: "MixedKV"
+      kv_pair_list {
+        kv_pairs {
+          key: "label"
+          value {
+            string_value: "text"
+          }
+        }
+        kv_pairs {
+          key: "my_bool"
+          value {
+            bool_value: true
+          }
+        }
+        kv_pairs {
+          key: "int_val"
+          value {
+            int64_value: 6
+          }
+        }
+      }
+    }
+  }
+}
