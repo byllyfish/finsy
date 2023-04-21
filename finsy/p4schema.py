@@ -449,21 +449,13 @@ class _P4Defs:
                 obj._finish_init(self)
 
 
-def _load_p4info(data: p4i.P4Info | Path | None) -> tuple[p4i.P4Info | None, _P4Defs]:
-    "Load P4Info from cache if possible."
-
-    # FIXME: Actually implement a cache!?!
-
-    if data is None:
-        return None, _EMPTY_P4DEFS
-
-    if isinstance(data, Path):
-        p4info = pbuf_util.from_text(data.read_text(), p4i.P4Info)
-    else:
-        p4info = data
-
-    assert isinstance(p4info, p4i.P4Info)
-    return p4info, _P4Defs(p4info)
+def _blob_bytes(blob: Path | bytes | SupportsBytes | None) -> bytes:
+    "Convert a Blob of binary data to bytes."
+    if not blob:
+        return b""
+    if isinstance(blob, Path):
+        return blob.read_bytes()
+    return bytes(blob)
 
 
 class P4Schema(_ReprMixin):
@@ -485,11 +477,11 @@ class P4Schema(_ReprMixin):
         p4blob: Path | bytes | SupportsBytes | None = None,
     ):
         "Parse P4Info information."
-
-        self._p4info, self._p4defs = _load_p4info(p4info)
         self._p4blob = p4blob
-        if self._p4info is not None:
-            self._update_cookie()
+        self._p4info, self._p4defs, self._p4cookie = P4SchemaCache.load_p4info(
+            p4info,
+            self._p4blob,
+        )
 
     @property
     def exists(self) -> bool:
@@ -510,8 +502,10 @@ class P4Schema(_ReprMixin):
 
     def set_p4info(self, p4info: p4i.P4Info):
         "Set P4Info using value returned from switch."
-        self._p4info, self._p4defs = _load_p4info(p4info)
-        self._update_cookie()
+        self._p4info, self._p4defs, self._p4cookie = P4SchemaCache.load_p4info(
+            p4info,
+            self._p4blob,
+        )
 
     def has_p4info(self, p4info: p4i.P4Info) -> bool:
         "Return true if the current P4Info equals the given P4Info."
@@ -522,11 +516,7 @@ class P4Schema(_ReprMixin):
     @property
     def p4blob(self) -> bytes:
         "P4Blob value a.k.a p4_device_config."
-        if not self._p4blob:
-            return b""
-        if isinstance(self._p4blob, Path):
-            return self._p4blob.read_bytes()
-        return bytes(self._p4blob)
+        return _blob_bytes(self._p4blob)
 
     @property
     def p4cookie(self) -> int:
@@ -1970,6 +1960,47 @@ def _has_address_format_annotation(annotations: list[P4Annotation]):
     return False
 
 
+class P4SchemaCache:
+    """Stores P4Defs so there will be a single object representing the same
+    P4Info value."""
+
+    EMPTY_P4DEFS = _P4Defs(p4i.P4Info())
+
+    @staticmethod
+    def load_p4info(
+        p4info_ptr: p4i.P4Info | Path | None,
+        p4blob_ptr: Path | bytes | SupportsBytes | None,
+    ) -> tuple[p4i.P4Info | None, _P4Defs, int]:
+        """Load P4Info from cache if possible.
+
+        Returns 3-tuple of (P4Info, _P4Defs, p4cookie).
+        """
+        if p4info_ptr is None:
+            return None, P4SchemaCache.EMPTY_P4DEFS, 0
+
+        if isinstance(p4info_ptr, Path):
+            p4info = pbuf_util.from_text(p4info_ptr.read_text(), p4i.P4Info)
+        else:
+            p4info = p4info_ptr
+
+        assert isinstance(p4info, p4i.P4Info)
+        p4info_key = p4info.SerializeToString(True)
+        cookie = P4SchemaCache.compute_cookie(p4info_key, p4blob_ptr)
+
+        return p4info, _P4Defs(p4info), cookie
+
+    @staticmethod
+    def compute_cookie(
+        p4info_key: bytes,
+        p4blob_ptr: Path | bytes | SupportsBytes | None,
+    ) -> int:
+        hasher = hashlib.sha256()
+        hasher.update(p4info_key)
+        hasher.update(_blob_bytes(p4blob_ptr))
+        digest = hasher.digest()
+        return int.from_bytes(digest[0:8], "big")
+
+
 class P4SchemaDescription:
     "Helper class to produce text description of a P4Schema."
 
@@ -2160,6 +2191,3 @@ class P4SchemaDescription:
         "Describe P4Register."
         line = f"{self.REGISTER} {register.alias}[{register.size}]: {self._describe_typespec(register.type_spec)}"
         return line
-
-
-_EMPTY_P4DEFS = _P4Defs(p4i.P4Info())
