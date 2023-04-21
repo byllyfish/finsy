@@ -19,6 +19,7 @@
 import hashlib
 import inspect
 import re
+import weakref
 from contextvars import ContextVar
 from pathlib import Path
 from typing import (
@@ -644,13 +645,6 @@ class P4Schema(_ReprMixin):
         if self._p4info is None:
             return "<P4Info: No pipeline configured>"
         return str(P4SchemaDescription(self))
-
-    def _update_cookie(self):
-        hasher = hashlib.sha256()
-        hasher.update(self.p4info.SerializeToString(deterministic=True))
-        hasher.update(self.p4blob)
-        digest = hasher.digest()
-        self._p4cookie = int.from_bytes(digest[0:8], "big")
 
 
 # Context var that stores the current context for convenience. Returned by
@@ -1966,6 +1960,12 @@ class P4SchemaCache:
 
     EMPTY_P4DEFS = _P4Defs(p4i.P4Info())
 
+    _cache: weakref.WeakValueDictionary[bytes, _P4Defs]
+
+    def __init__(self):
+        "Initialize cache as empty."
+        self._cache = weakref.WeakValueDictionary()
+
     @staticmethod
     def load_p4info(
         p4info_ptr: p4i.P4Info | Path | None,
@@ -1985,20 +1985,60 @@ class P4SchemaCache:
 
         assert isinstance(p4info, p4i.P4Info)
         p4info_key = p4info.SerializeToString(True)
-        cookie = P4SchemaCache.compute_cookie(p4info_key, p4blob_ptr)
+        cookie = P4SchemaCache.compute_cookie(p4info_key, _blob_bytes(p4blob_ptr))
 
-        return p4info, _P4Defs(p4info), cookie
+        cache = P4SchemaCache.current()
+        if cache is None:
+            # No sharing when there isn't an existing P4SchemaCache.
+            defs = _P4Defs(p4info)
+        else:
+            # Lookup existing defs or add a new one if necessary.
+            defs = cache.lookup(p4info_key, p4info)
+
+        return p4info, defs, cookie
 
     @staticmethod
     def compute_cookie(
         p4info_key: bytes,
-        p4blob_ptr: Path | bytes | SupportsBytes | None,
+        p4blob_val: bytes,
     ) -> int:
+        "Compute the P4Runtime cookie value for the given P4Info/P4Blob."
         hasher = hashlib.sha256()
         hasher.update(p4info_key)
-        hasher.update(_blob_bytes(p4blob_ptr))
+        hasher.update(p4blob_val)
         digest = hasher.digest()
         return int.from_bytes(digest[0:8], "big")
+
+    def lookup(self, key: bytes, p4info: p4i.P4Info) -> _P4Defs:
+        "Lookup a cached P4Defs object for the given P4Info file."
+        defs = self._cache.get(key)
+        if defs is None:
+            defs = _P4Defs(p4info)
+            self._cache[key] = defs
+        return defs
+
+    @staticmethod
+    def current() -> "P4SchemaCache | None":
+        "Return the current cache object."
+        return _P4CACHE_CTXT.get()
+
+    def __enter__(self) -> "P4SchemaCache":
+        if _P4CACHE_CTXT.get() is not None:
+            raise RuntimeError("Do not stack P4SchemaCache context managers")
+        _P4CACHE_CTXT.set(self)
+        return self
+
+    def __exit__(self, *_args: Any):
+        _P4CACHE_CTXT.set(None)
+
+    def __len__(self):
+        return len(self._cache)
+
+
+# Used by `P4SchemaCache.current()`.
+_P4CACHE_CTXT: ContextVar[P4SchemaCache | None] = ContextVar(
+    "_P4CACHE_CTXT", default=None
+)
 
 
 class P4SchemaDescription:
