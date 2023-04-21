@@ -32,7 +32,7 @@ P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
 
 @dataclass
 class _Example:
-    "Dummy entity used to testing P4EntityMap."
+    "Dummy entity used to test P4EntityMap."
     id: int
     name: str
     alias: str
