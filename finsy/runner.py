@@ -19,6 +19,8 @@ import logging
 import signal
 from typing import Any, Coroutine
 
+from finsy.p4schema import P4SchemaCache
+
 
 async def _finsy_main(coro: Coroutine[Any, Any, None]):
     # Activate logging.
@@ -34,7 +36,9 @@ async def _finsy_main(coro: Coroutine[Any, Any, None]):
         asyncio.current_task(),
     )
 
-    await coro
+    # Enable caching of P4Info definitions.
+    with P4SchemaCache():
+        await coro
 
 
 def run(coro: Coroutine[Any, Any, None]):
