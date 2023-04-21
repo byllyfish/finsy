@@ -39,7 +39,7 @@ async def test_switch2(p4rt_server_target: str):
     )
 
     sw1 = Switch("sw1", p4rt_server_target, options)
-    sw1.ee.add_listener(SwitchEvent.CHANNEL_UP, _read)  # FIXME: incorrect!
+    sw1.ee.add_listener(SwitchEvent.CHANNEL_READY, _read)
 
     with pytest.raises(asyncio.TimeoutError):
         await asyncio.wait_for(sw1.run(), 2.0)

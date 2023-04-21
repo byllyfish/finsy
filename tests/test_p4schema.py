@@ -20,6 +20,7 @@ from finsy.p4schema import (
     P4MatchType,
     P4NewType,
     P4Schema,
+    P4SchemaCache,
     P4StructType,
     P4TupleType,
     P4TypeInfo,
@@ -750,3 +751,27 @@ def test_p4actionparam():
     assert pbuf.to_dict(data) == {"param_id": 1, "value": "BAA="}
     assert param.decode_param(data) == 1024
     assert param.format_param(1024) == "0x400"
+
+
+def test_p4schemacache():
+    "Test P4SchemaCache."
+    p4info = Path(P4INFO_TEST_DIR, "basic.p4.p4info.txt")
+
+    # Without cache: All p4defs should be different objects.
+    schemas = [P4Schema(p4info) for _ in range(10)]
+    for schema in schemas[1:]:
+        assert schema._p4defs is not schemas[0]._p4defs
+        assert schema._p4cookie == schemas[0]._p4cookie
+
+    # With cache: All p4defs should be the same object.
+    with P4SchemaCache() as cache:
+        schemas = [P4Schema(p4info) for _ in range(10)]
+        for schema in schemas[1:]:
+            assert schema._p4defs is schemas[0]._p4defs
+            assert schema._p4cookie == schemas[0]._p4cookie
+
+    # Test weak ref implementation forgets references...
+    assert len(cache) == 1
+    del schema
+    del schemas
+    assert len(cache) == 0
