@@ -265,7 +265,7 @@ def _retrieve_key(key: str, path: gnmi.Path) -> str:
 
 def _to_tuple(elem: gnmi.PathElem) -> tuple[str, ...]:
     "Return a tuple of element name and values (does not include key names)."
-    return (elem.name,) + tuple(sorted(elem.key.values()))
+    return (elem.name, *sorted(elem.key.values()))
 
 
 def _copy_path(path: gnmi.Path) -> gnmi.Path:

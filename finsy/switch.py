@@ -512,7 +512,8 @@ class Switch:
         """
         if entities:
             # Delete just the matching entities and return.
-            return await self._wildcard_delete(entities)
+            await self._wildcard_delete(entities)
+            return
 
         # Start by deleting everything that matches these wildcards.
         await self._wildcard_delete(

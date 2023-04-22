@@ -466,12 +466,12 @@ def decode_ternary(
             if prefix == bitwidth:
                 return value
             return f"{value}/{prefix}"
-        else:
-            tup = (
-                decode_exact(data, bitwidth, hint),
-                decode_exact(mask, bitwidth, hint),
-            )
-            return f"{tup[0]}/&{tup[1]}"
+
+        tup = (
+            decode_exact(data, bitwidth, hint),
+            decode_exact(mask, bitwidth, hint),
+        )
+        return f"{tup[0]}/&{tup[1]}"
 
     return (decode_exact(data, bitwidth, hint), decode_exact(mask, bitwidth, hint))
 

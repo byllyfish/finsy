@@ -2212,10 +2212,8 @@ class P4SchemaDescription:
 
     def _describe_counter(self, counter: P4Counter):
         "Describe P4Counter."
-        line = f"{self.COUNTER} {counter.alias}[{counter.size}]: {counter.unit.name.lower()}\n"
-        return line
+        return f"{self.COUNTER} {counter.alias}[{counter.size}]: {counter.unit.name.lower()}\n"
 
     def _describe_register(self, register: P4Register):
         "Describe P4Register."
-        line = f"{self.REGISTER} {register.alias}[{register.size}]: {self._describe_typespec(register.type_spec)}"
-        return line
+        return f"{self.REGISTER} {register.alias}[{register.size}]: {self._describe_typespec(register.type_spec)}"

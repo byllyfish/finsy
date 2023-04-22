@@ -26,7 +26,7 @@ async def main():
             print(f"initial: {update.path['name']} is {update.value}")
 
         # Run a background task to toggle the interface status.
-        asyncio.create_task(toggle_enabled(names))
+        _task = asyncio.create_task(toggle_enabled(names))
 
         # Listen for status updates.
         async for update in sub.updates():
