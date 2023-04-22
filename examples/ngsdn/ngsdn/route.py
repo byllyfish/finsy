@@ -60,8 +60,7 @@ class RouteManagerOneShot:
     def _routes(self):
         if netcfg.is_spine(self.switch):
             return self._spine_routes()
-        else:
-            return [self._leaf_routes(), self._internal_routes()]
+        return [self._leaf_routes(), self._internal_routes()]
 
     def _spine_routes(self):
         return [

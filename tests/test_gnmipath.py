@@ -171,7 +171,6 @@ def test_path_getitem():
 
 def test_path_slice():
     "Test __getitem__ with slice."
-
     path1 = GNMIPath("interfaces/interface[a=A][b=B]/state")
 
     path2 = path1[:]
@@ -189,7 +188,6 @@ def test_path_slice():
 
 def test_hash():
     "Test hash operation on GNMIPath."
-
     path1 = GNMIPath("a")
     path2 = GNMIPath("a", origin="b")
     path3 = GNMIPath("a")
@@ -206,7 +204,6 @@ def test_hash():
 
 def test_truediv():
     "Test path append operator (/)."
-
     path1 = GNMIPath("a")
     path2 = GNMIPath("b[x=1]")
     path3 = path1 / path2
@@ -218,7 +215,6 @@ def test_truediv():
 
 def test_rtruediv():
     "Test path prepend operator (/)."
-
     path1 = GNMIPath("b[x=1]")
     path2 = "a" / path1
     assert path2 == GNMIPath("a/b[x=1]")
@@ -229,7 +225,6 @@ def test_rtruediv():
 
 def test_contains():
     "Test path `in` operator."
-
     path1 = GNMIPath("a/b/c")
     assert "b" in path1
     assert "z" not in path1
@@ -237,7 +232,6 @@ def test_contains():
 
 def test_truediv_origin():
     "Test path append operator (/) with origin."
-
     path1 = GNMIPath("a", origin="ao", target="at")
     path2 = GNMIPath("b", origin="bo", target="bt")
 

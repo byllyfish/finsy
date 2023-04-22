@@ -34,14 +34,12 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
 
     def __init__(self, listen_addr: str):
         "Initialize gNMI server."
-
         self._listen_addr = listen_addr
         self._server = None
 
     @contextlib.asynccontextmanager
     async def run(self):
         "Run server inside an async context manager."
-
         self._server = self._create_server()
         try:
             await self._server.start()
@@ -53,7 +51,6 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
 
     def _create_server(self) -> grpc.aio.Server:
         "Create AIO server."
-
         server = grpc.aio.server()
         gnmi_grpc.add_gNMIServicer_to_server(self, server)  # type: ignore
         server.add_insecure_port(self._listen_addr)
@@ -65,7 +62,6 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
         context: grpc.aio.ServicerContext[gnmi.GetRequest, gnmi.GetResponse],
     ) -> gnmi.GetResponse:
         "Handle gNMI GetRequest."
-
         if len(request.path) == 1:
             if not request.path[0].elem and request.type == gnmi.GetRequest.CONFIG:
                 return pbuf.from_text(_GNMI_CONFIG_STRATUM, gnmi.GetResponse)
@@ -78,7 +74,6 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
         context: grpc.aio.ServicerContext[gnmi.SetRequest, gnmi.SetResponse],
     ) -> gnmi.SetResponse:
         "Handle the set request."
-
         # TODO: Does not actually do anything.
         results = (
             [
@@ -109,7 +104,6 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
         ],
     ) -> gnmi.CapabilityResponse:
         "Handle the capability request."
-
         return pbuf.from_text(_GNMI_CAPABILITIES, gnmi.CapabilityResponse)
 
     async def Subscribe(
@@ -120,7 +114,6 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
         ],
     ) -> AsyncIterator[gnmi.SubscribeResponse]:
         "Handle the subscribe request."
-
         async for msg in request_iterator:
             match msg.WhichOneof("request"):
                 case "subscribe":

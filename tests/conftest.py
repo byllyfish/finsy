@@ -21,7 +21,6 @@ def unused_tcp_target(unused_tcp_port):
 @pytest.fixture
 async def gnmi_server_target(unused_tcp_target):
     "Fixture to provide a gNMI server for testing."
-
     if TEST_GNMI_TARGET.lower() == "skip":
         pytest.skip("FINSY_TEST_GNMI_TARGET=skip")
 
@@ -37,7 +36,6 @@ async def gnmi_server_target(unused_tcp_target):
 @pytest.fixture
 async def gnmi_client(gnmi_server_target):
     "Fixture to test GNMI at a pre-specified target."
-
     async with GNMIClient(gnmi_server_target) as client:
         yield client
 
@@ -45,7 +43,6 @@ async def gnmi_client(gnmi_server_target):
 @pytest.fixture
 async def p4rt_server_target(unused_tcp_target):
     "Fixture to provide a P4Runtime server for testing."
-
     if TEST_P4RUNTIME_TARGET.lower() == "skip":
         pytest.skip("FINSY_TEST_P4RUNTIME_TARGET=skip")
 

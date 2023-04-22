@@ -16,7 +16,6 @@ NO_BENCHMARK = get_setting("FINSY_TEST_NO_BENCHMARK")
 @pytest.mark.skipif(NO_BENCHMARK, reason="FINSY_TEST_NO_BENCHMARK")
 async def test_benchmark_table_entry1(p4rt_server_target):
     "Test writing table entries using P4TableEntry."
-
     opts = SwitchOptions(p4info=P4INFO_TEST_DIR / "basic.p4.p4info.txt")
 
     async with Switch("sw1", p4rt_server_target, opts) as sw:

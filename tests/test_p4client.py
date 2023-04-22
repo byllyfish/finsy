@@ -7,7 +7,6 @@ from finsy.proto import U128, p4r, rpc_status
 
 async def test_client(p4rt_server_target):
     "Test P4Client."
-
     client = P4Client(p4rt_server_target)
     async with client:
         await client.send(
@@ -26,7 +25,6 @@ async def test_client(p4rt_server_target):
 
 def test_client_error():
     "Test P4ClientError exception class."
-
     status = rpc_status.Status(
         code=GRPCStatusCode.UNKNOWN,
         message="inner message",

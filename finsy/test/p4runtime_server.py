@@ -37,7 +37,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
     def __init__(self, listen_addr: str, api_version: str = "1.3.0"):
         "Initialize P4Runtime server."
-
         LOGGER.debug("P4RuntimeServer: init server: %s", listen_addr)
         self._listen_addr = listen_addr
         self._api_version = api_version
@@ -53,7 +52,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     @contextlib.asynccontextmanager
     async def run(self):
         "Run server inside an async context manager."
-
         self._server = self._create_server()
         try:
             await self._server.start()
@@ -67,7 +65,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
     def _create_server(self) -> grpc.aio.Server:
         "Create AIO server."
-
         server = grpc.aio.server()
         p4r_grpc.add_P4RuntimeServicer_to_server(
             self, server  # pyright: ignore[reportGeneralTypeIssues]
@@ -83,7 +80,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         ],
     ):
         "Handle StreamChannel."
-
         # If another stream RPC is already open, return an error.
         if self._stream_context is not None:
             LOGGER.warning(
@@ -204,7 +200,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
 
 def _parse_args():
     "Parse command line arguments."
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--port",

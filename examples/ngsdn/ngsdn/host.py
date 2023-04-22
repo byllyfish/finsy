@@ -64,7 +64,6 @@ class HostManagerOneShot:
 
     async def run(self):
         "Listen for ARP/NDP packets and learn the host/port/address mappings."
-
         assert self.events.empty()
         self.hosts.clear()
 

@@ -7,7 +7,6 @@ INTERFACE_STATUS = _INTERFACE / "oper-status"
 
 async def main():
     "Main program."
-
     async with fy.GNMIClient("127.0.0.1:50001") as client:
         # Get list of interface names.
         ids = await client.get(INTERFACE_ID)

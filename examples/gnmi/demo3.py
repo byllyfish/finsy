@@ -10,7 +10,6 @@ INTERFACE_ENABLED = fy.GNMIPath("interfaces/interface[name=*]/config/enabled")
 
 async def main():
     "Main program."
-
     async with fy.GNMIClient("127.0.0.1:50001") as client:
         # Get list of interface names.
         ids = await client.get(INTERFACE_ID)
@@ -27,7 +26,7 @@ async def main():
             print(f"initial: {update.path['name']} is {update.value}")
 
         # Run a background task to toggle the interface status.
-        asyncio.create_task(toggle_enabled(names))
+        _task = asyncio.create_task(toggle_enabled(names))
 
         # Listen for status updates.
         async for update in sub.updates():
@@ -36,7 +35,6 @@ async def main():
 
 async def toggle_enabled(names: list[str]):
     "Repeatedly disable and enable interfaces using a separate GNMI client."
-
     async with fy.GNMIClient("127.0.0.1:50001") as client:
         while True:
             await asyncio.sleep(1.0)

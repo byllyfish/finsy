@@ -4,7 +4,6 @@ import logging
 import pytest
 
 import finsy as fy
-from finsy.log import get_setting
 from finsy.test.p4runtime_server import P4RuntimeServer
 
 

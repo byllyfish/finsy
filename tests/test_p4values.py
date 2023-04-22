@@ -13,7 +13,6 @@ ADDR_STR = DecodeFormat.ADDRESS | DecodeFormat.STRING
 
 def test_minimum_string_size():
     "Test the p4r_minimum_string_size function."
-
     for val, result in [(1, 1), (7, 1), (8, 1), (9, 2), (16, 2), (32, 4)]:
         assert p4values.p4r_minimum_string_size(val) == result
 
@@ -24,14 +23,12 @@ def test_minimum_string_size():
 
 def test_all_ones():
     "Test the all_ones function."
-
     for val, result in [(0, 0), (1, 1), (2, 3), (8, 0xFF), (9, 0x1FF)]:
         assert p4values.all_ones(val) == result
 
 
 def test_mask_to_prefix():
     "Test the mask_to_prefix function."
-
     data = [
         (0x0F, 4, 4),
         (0x0E, 4, 3),
@@ -50,7 +47,6 @@ def test_mask_to_prefix():
 
 def test_encode_exact_int():
     "Test the encode_exact function."
-
     data = [
         # Ints
         (0, 32, b"\x00"),
@@ -78,7 +74,6 @@ def test_encode_exact_int():
 
 def test_encode_exact_fail():
     "Test the encode_exact function."
-
     data = [
         ("", 48),
         ("256", 8),
@@ -101,7 +96,6 @@ def test_encode_exact_fail():
 
 def test_encode_exact_ipv4():
     "Test the encode_exact function with IPv4 addresses."
-
     data = [
         ("10.0.0.1", b"\x0A\x00\x00\x01"),
         ("0.0.0.1", b"\x01"),
@@ -116,7 +110,6 @@ def test_encode_exact_ipv4():
 
 def test_encode_exact_ipv6():
     "Test the encode_exact function with IPv6 addresses."
-
     _IPV6 = b"\x20" + b"\x00" * 14 + b"\x01"
     data = [
         ("2000::1", _IPV6),
@@ -132,7 +125,6 @@ def test_encode_exact_ipv6():
 
 def test_encode_exact_mac():
     "Test the encode_exact function with MAC addresses."
-
     _MAC = b"\x01\x00\x00\x00\x00\x01"
 
     data = [
@@ -149,7 +141,6 @@ def test_encode_exact_mac():
 
 def test_encode_exact_to_spec():
     "Test the encode_exact function against values used in the P4R spec."
-
     # Examples from table 4.
     data = [
         (0x63, 8, b"\x63"),
@@ -164,7 +155,6 @@ def test_encode_exact_to_spec():
 
 def test_encode_exact_sdnstring():
     "Test the encode_exact function with a bitwidth of zero."
-
     data = [
         ("abc", b"abc"),
         ("x", b"x"),
@@ -177,7 +167,6 @@ def test_encode_exact_sdnstring():
 
 def test_decode_exact_int():
     "Test the decode_exact function with 31-bit integer values."
-
     data = [
         (b"\x00", 0),
         (b"\x00\x00\x00\x00", 0),
@@ -201,7 +190,6 @@ def test_decode_exact_int():
 
 def test_decode_exact_mac():
     "Test the decode_exact function with MAC address values."
-
     data = [
         (b"\x00", "00-00-00-00-00-00"),
         (b"\x00\x00\x00", "00-00-00-00-00-00"),
@@ -222,7 +210,6 @@ def test_decode_exact_mac():
 
 def test_decode_exact_ipv4():
     "Test the decode_exact function with 32-bit IPv4 address values."
-
     data = [
         (b"\x00", "0.0.0.0"),
         (b"\x00\x00\x00", "0.0.0.0"),
@@ -243,7 +230,6 @@ def test_decode_exact_ipv4():
 
 def test_decode_exact_ipv6():
     "Test the decode_exact function with 128-bit IPv6 address values."
-
     data = [
         (b"\x20" + b"\x00" * 14 + b"\x01", "2000::1"),
         (b"\x01", "::1"),
@@ -261,7 +247,6 @@ def test_decode_exact_ipv6():
 
 def test_decode_exact_fail():
     "Test that the decode_exact function fails with improper input."
-
     data = [
         (b"", 8),
         (b"\x01\x00", 8),
@@ -274,7 +259,6 @@ def test_decode_exact_fail():
 
 def test_decode_exact_sdnstring():
     "Test the decode_exact function with a bitwidth=0."
-
     data = [
         ("abc", b"abc"),
         ("x", b"x"),
@@ -287,7 +271,6 @@ def test_decode_exact_sdnstring():
 
 def test_encode_lpm_exact():
     "Test the encode_lpm function."
-
     data = [
         (1, 32, (b"\x01", 32)),
         ((0x80, 7), 8, (b"\x80", 7)),
@@ -304,7 +287,6 @@ def test_encode_lpm_exact():
 
 def test_encode_lpm_ipv4():
     "Test the encode_lpm function."
-
     data = [
         ("192.168.1.1", (b"\xc0\xa8\x01\x01", 32)),
         (IP("192.168.1.1"), (b"\xc0\xa8\x01\x01", 32)),
@@ -324,7 +306,6 @@ def test_encode_lpm_ipv4():
 
 def test_encode_lpm_ipv6():
     "Test the encode_lpm function."
-
     _IPV6 = b"\x20" + b"\x00" * 14 + b"\x01"
     _IPP6 = b"\x20" + b"\x00" * 15
     data = [
@@ -345,7 +326,6 @@ def test_encode_lpm_ipv6():
 
 def test_encode_lpm_mac():
     "Test the encode_lpm function."
-
     data = [
         ("0e:00:00:00:00:01", (b"\x0e\x00\x00\x00\x00\x01", 48)),
         (MAC("0e:00:00:00:00:01"), (b"\x0e\x00\x00\x00\x00\x01", 48)),
@@ -360,7 +340,6 @@ def test_encode_lpm_mac():
 
 def test_encode_lpm_fail():
     "Test the encode_lpm function."
-
     data = [
         (IPv4Network("10.0.0.0/8"), 16),
         ((1, 2, 3), 32),
@@ -381,7 +360,6 @@ def test_encode_lpm_fail():
 
 def test_decode_lpm_int():
     "Test the decode_lpm function."
-
     data = [
         # All bitwidth's are 33.
         (b"\x00", 32, 33, (0, 32)),
@@ -411,7 +389,6 @@ def test_decode_lpm_int():
 
 def test_decode_lpm_ipv4():
     "Test the decode_lpm function."
-
     data = [
         (b"\xc0\xa8\x01\x00", 24, IPv4Network("192.168.1.0/24"), "192.168.1.0/24"),
         (b"\xc0\xa8\x01\x01", 32, IPv4Network("192.168.1.1/32"), "192.168.1.1"),
@@ -428,7 +405,6 @@ def test_decode_lpm_ipv4():
 
 def test_decode_lpm_ipv6():
     "Test the decode_lpm function."
-
     _IPV6 = b"\x20" + b"\x00" * 14 + b"\x01"
     _IPP6 = b"\x20" + b"\x00" * 15
     data = [
@@ -447,7 +423,6 @@ def test_decode_lpm_ipv6():
 
 def test_encode_ternary_int():
     "Test the encode_ternary function."
-
     data = [
         (0, 8, (b"\x00", b"\xff")),
         (3, 4, (b"\x03", b"\x0f")),
@@ -465,7 +440,6 @@ def test_encode_ternary_int():
 
 def test_encode_ternary_ipv4():
     "Test the encode_ternary function."
-
     data = [
         ("192.168.1.1", (b"\xc0\xa8\x01\x01", b"\xff\xff\xff\xff")),
         (IP("192.168.1.1"), (b"\xc0\xa8\x01\x01", b"\xff\xff\xff\xff")),
@@ -483,7 +457,6 @@ def test_encode_ternary_ipv4():
 
 def test_encode_ternary_ipv6():
     "Test the encode_ternary function."
-
     data = [
         (
             "2000::1",
@@ -528,7 +501,6 @@ def test_encode_ternary_ipv6():
 
 def test_encode_ternary_fail():
     "Test the encode_ternary function."
-
     data = [
         (1 + 2j, 32),
         ("abc", 0),  # SdnString not supported
@@ -541,7 +513,6 @@ def test_encode_ternary_fail():
 
 def test_decode_ternary_int():
     "Test the decode_ternary function."
-
     data = [
         (b"\x00", b"\xff", 8, (0, 0xFF), "0x0"),
         (b"\x03", b"\x0f", 4, (3, 0x0F), "0x3"),
@@ -572,7 +543,6 @@ def test_decode_ternary_int():
 
 def test_decode_ternary_ipv4():
     "Test the decode_ternary function."
-
     data = [
         (b"\x01", b"\x01", (IP("0.0.0.1"), IP("0.0.0.1")), "0.0.0.1/&0.0.0.1"),
         (
@@ -596,7 +566,6 @@ def test_decode_ternary_ipv4():
 
 def test_decode_ternary_ipv6():
     "Test the decode_ternary function."
-
     data = [
         (
             b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
@@ -615,7 +584,6 @@ def test_decode_ternary_ipv6():
 
 def test_encode_range_int():
     "Test the encode_range function."
-
     data = [
         ((1, 2), 32, (b"\x01", b"\x02")),
         ("1...2", 32, (b"\x01", b"\x02")),
@@ -627,7 +595,6 @@ def test_encode_range_int():
 
 def test_encode_range_ipv4():
     "Test the encode_range function."
-
     data = [
         ((IP("1.2.3.4"), IP("1.2.3.5")), (b"\x01\x02\x03\x04", b"\x01\x02\x03\x05")),
         (("1.2.3.4", "1.2.3.5"), (b"\x01\x02\x03\x04", b"\x01\x02\x03\x05")),
@@ -640,7 +607,6 @@ def test_encode_range_ipv4():
 
 def test_encode_range_ipv6():
     "Test the encode_range function."
-
     data = [
         (
             (IP("2000::1"), IP("2000::2")),
@@ -671,7 +637,6 @@ def test_encode_range_ipv6():
 
 def test_encode_range_fail():
     "Test the encode_range function."
-
     data = [
         (1 + 2j, 32),
         ("abc", 0),  # SdnString not supported
@@ -684,7 +649,6 @@ def test_encode_range_fail():
 
 def test_decode_range_int():
     "Test the decode_range function."
-
     data = [(b"\x01", b"\x02", 32, (1, 2))]
 
     def _to_str(value: tuple[Any, Any]):
@@ -699,7 +663,6 @@ def test_decode_range_int():
 
 def test_decode_range_ipv4():
     "Test the decode_range function."
-
     data = [
         (b"\x01\x02\x03\x04", b"\x01\x02\x03\x05", (IP("1.2.3.4"), IP("1.2.3.5"))),
     ]
@@ -714,7 +677,6 @@ def test_decode_range_ipv4():
 
 def test_decode_range_ipv6():
     "Test the decode_range function."
-
     data = [
         (
             b"\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01",

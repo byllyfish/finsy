@@ -11,7 +11,6 @@ DEMONET = NGSDN_DIR / "net/run.py"
 
 async def test_ngsdn_oneshot(demonet, python):
     "Test the ngsdn/ngsdn example program."
-
     async with python("-m", "ngsdn").env(PYTHONPATH="..:ngsdn") as demo:
         await asyncio.sleep(2.0)
 
@@ -140,7 +139,6 @@ async def test_read_tables_oneshot(demonet, caplog):
 
 async def test_ngsdn_actionprofile(demonet, python):
     "Test the ngsdn/ngsdn example program using Action Profiles."
-
     async with python("-m", "ngsdn").env(
         PYTHONPATH="..:ngsdn",
         NGSDN_USE_ACTIONPROFILE=1,

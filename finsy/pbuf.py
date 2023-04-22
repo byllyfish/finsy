@@ -77,12 +77,11 @@ def to_text(
     "Convert protobuf message to text format."
     assert isinstance(msg, PBMessage)
     formatter = _message_formatter if custom_format else None
-    result = text_format.MessageToString(
+    return text_format.MessageToString(
         msg,
         as_one_line=as_one_line,
         message_formatter=formatter,
     )
-    return result
 
 
 def to_json(msg: PBMessage) -> str:

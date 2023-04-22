@@ -7,7 +7,6 @@ from finsy.futures import CountdownFuture, wait_for_cancel
 
 async def test_wait_for_cancel():
     "Test the wait_for_cancel() function."
-
     task = asyncio.create_task(wait_for_cancel())
     await asyncio.sleep(0.1)
     task.cancel()
@@ -18,7 +17,6 @@ async def test_wait_for_cancel():
 
 async def test_countdown_future():
     "Test a CountdownFuture already counted down."
-
     called = False
 
     def _on_cancel():
@@ -38,7 +36,6 @@ async def test_countdown_future():
 
 async def test_countdown_future_wait():
     "Test a CountdownFuture that waits."
-
     called = False
 
     def _on_cancel():
@@ -68,7 +65,6 @@ async def test_countdown_future_wait():
 
 async def test_countdown_future_multiple_cancel():
     "Test a CountdownFuture with multiple cancels."
-
     future = CountdownFuture()
     future.increment()
     future.increment()

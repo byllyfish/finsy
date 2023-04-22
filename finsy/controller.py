@@ -61,7 +61,6 @@ class Controller:
 
     def stop(self):
         "Stop the controller if it is running."
-
         if self.control_task is not None:
             self.control_task.cancel()
 

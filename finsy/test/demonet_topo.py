@@ -32,7 +32,6 @@ class DemoHost(Host):
         This subclass does NOT invoke the superclass method. Instead, we
         configure everything here and then bring the default interface UP.
         """
-
         # Bring the default interface down.
         intf = self.defaultIntf()
         intf.ifconfig("down")

@@ -13,7 +13,6 @@ UINT128_VALUES = {
 
 def test_uint128():
     "Test the Uint128 conversion function."
-
     for value, expected in UINT128_VALUES.items():
         result = U128.encode(value)
         assert (result.high, result.low) == expected
@@ -27,7 +26,6 @@ def test_uint128():
 
 def test_uint128_to_int():
     "Test the Uint128 backward conversion function `int`."
-
     for value in UINT128_VALUES.keys():
         result = U128.encode(value)
         assert U128.decode(result) == value

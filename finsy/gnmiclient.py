@@ -79,7 +79,6 @@ class GNMIUpdate:
 
     def __repr__(self):
         "Override repr to strip newline from end of `TypedValue`."
-
         value = repr(self.typed_value).rstrip()
         return f"GNMIUpdate(timestamp={self.timestamp!r}, path={self.path!r}, typed_value=`{value}`)"
 
@@ -92,7 +91,6 @@ def gnmi_update(
     value: GNMISetValueType,
 ) -> gnmi.Update:
     "Construct a `gnmi.Update` message from path and value."
-
     match value:
         case gnmi.TypedValue():
             val = value
@@ -522,7 +520,6 @@ class GNMISubscription:
 
 def _read_updates(notification: gnmi.Notification) -> Iterator[GNMIUpdate]:
     "Generator to retrieve all updates from a notification."
-
     for update in notification.update:
         yield GNMIUpdate(
             timestamp=notification.timestamp,

@@ -110,11 +110,27 @@ disallow_untyped_defs = true
 exclude = [ ".+_pb2.py", ".+_pb2_grpc.py" ]
 
 [tool.ruff]
-exclude = [ "*_pb2.{py,pyi}", "*pb2_grpc.{py,pyi}" ]
+select = ["E", "F", "D202", "PTH", "RET", "RUF", "W"]
+ignore = [
+  "S101",   # Use of `assert` detected
+  "EM101",  # Exception must not use a string literal, assign to variable first
+  "EM102",  # Exception must not use an f-string literal, assign to variable first
+]
+exclude = [
+  "*_pb2.{py,pyi}", 
+  "*pb2_grpc.{py,pyi}", 
+  "typings/*.pyi", 
+  "*/install-poetry.py",
+  "*/demonet_topo.py",
+]
 line-length = 120
 
 [tool.ruff.per-file-ignores]
 "finsy/proto/__init__.py" = ["E402"]
 "examples/int/demo/main.py" = ["F403", "F405"]
-"examples/tests/*.py" = ["E501"]  # line too long
+
+# Line too long (E501)
+"examples/tests/*.py" = ["E501"]
 ".devcontainer/install-poetry.py" = ["E501"]
+"finsy/test/gnmi_server.py" = ["E501"]
+"tests/test_gnmistring.py" = ["E501"]

@@ -143,7 +143,7 @@ def _elem_str(elem: gnmi.PathElem) -> str:
         for key, val in sorted(elem.key.items())
     ]
 
-    return "".join([name] + keyvals)
+    return "".join([name, *keyvals])
 
 
 _REPLACE_ESCAPES = re.compile(rb"\\x[0-9a-fA-F]{2}|\\t")

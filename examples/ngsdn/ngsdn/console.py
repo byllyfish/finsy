@@ -12,7 +12,6 @@ from .log import LOG
 
 async def run_console(controller: fy.Controller):
     "Run the REPL for the console."
-
     print("Welcome to the ngsdn demo console.")
 
     async for cmd in _read_prompt("ngsdn>"):
@@ -21,7 +20,6 @@ async def run_console(controller: fy.Controller):
 
 async def _run_command(controller: fy.Controller, cmd: list[str]):
     "Run a single command."
-
     if cmd[0] in _COMMANDS:
         try:
             func = _COMMANDS[cmd[0]]
@@ -35,7 +33,6 @@ async def _run_command(controller: fy.Controller, cmd: list[str]):
 
 async def _help(_controller: fy.Controller, args: list[str]):
     "Display list of commands."
-
     for cmd, func in _COMMANDS.items():
         doc = func.__doc__ or ""
         print(f"{cmd:<14} - {doc.strip()}")
@@ -43,7 +40,6 @@ async def _help(_controller: fy.Controller, args: list[str]):
 
 async def _devices(controller: fy.Controller, args: list[str]):
     "Display list of switches."
-
     for switch in controller:
         status = "UP" if switch.is_up else "DOWN"
         primary = "PRIMARY" if switch.is_primary else "BACKUP"
@@ -52,7 +48,6 @@ async def _devices(controller: fy.Controller, args: list[str]):
 
 async def _p4info(controller: fy.Controller, args: list[str]):
     "Display the P4Info for a switch."
-
     match args:
         case [device_name]:
             pass
@@ -68,7 +63,6 @@ async def _p4info(controller: fy.Controller, args: list[str]):
 
 async def _table(controller: fy.Controller, args: list[str]):
     "Display the contents of a P4 table."
-
     match args:
         case [device_name, table_name]:
             entities = [
@@ -89,7 +83,6 @@ async def _table(controller: fy.Controller, args: list[str]):
 
 async def _srv6_insert(controller: fy.Controller, args: list[str]):
     "Insert source route entry into srv6_transit table."
-
     match args:
         case [device_name, s1, s2, s3]:
             entry = fy.P4TableEntry(
@@ -120,7 +113,6 @@ async def _srv6_insert(controller: fy.Controller, args: list[str]):
 
 async def _srv6_clear(controller: fy.Controller, args: list[str]):
     "Clear all entries in srv6_transit table."
-
     match args:
         case [device]:
             switch = controller[device]
@@ -145,7 +137,6 @@ async def _read_prompt(prompt: str) -> AsyncIterator[list[str]]:
 
     FIXME: For output, we use `print` which may block the event loop.
     """
-
     reader = asyncio.StreamReader()
     await asyncio.get_running_loop().connect_read_pipe(
         lambda: asyncio.StreamReaderProtocol(reader),

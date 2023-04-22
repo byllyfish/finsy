@@ -17,7 +17,6 @@ P4BLOB = P4SRC_DIR / "main.json"
 
 async def _ready_handler(sw: Switch):
     "The ready_handler is the entry point for finsy controlling a switch."
-
     # Ignore switch is this is a backup.
     if not sw.is_primary:
         return
@@ -34,7 +33,6 @@ async def _ready_handler(sw: Switch):
 
 def load_netcfg(config: Path) -> Iterator[Switch]:
     "Return iterator of switches configured using `netcfg` object."
-
     cfg = json.loads(config.read_bytes())
 
     options = SwitchOptions(

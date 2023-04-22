@@ -74,7 +74,6 @@ def decodable(key: str):
 
 def decode_entity(msg: p4r.Entity, schema: P4Schema) -> Any:
     "Decode a P4Runtime Entity to the Python class registered in _DECODER."
-
     key = msg.WhichOneof("entity")
     if key is None:
         raise ValueError("missing entity")
@@ -90,7 +89,6 @@ def decode_entity(msg: p4r.Entity, schema: P4Schema) -> Any:
 
 def decode_stream(msg: p4r.StreamMessageResponse, schema: P4Schema) -> Any:
     "Decode a StreamMessageResponse to the class registered in _DECODER."
-
     key = msg.WhichOneof("update")
     if key is None:
         raise ValueError("missing update")
@@ -122,7 +120,6 @@ def _encode_entity(
     schema: P4Schema,
 ) -> p4r.Entity:
     "Encode an entity, if necessary."
-
     if isinstance(value, p4r.Entity):
         return value
 
@@ -133,7 +130,6 @@ def encode_entities(
     values: Iterable[P4EntityList], schema: P4Schema
 ) -> list[p4r.Entity]:
     """Convert list of python objects to list of P4Runtime Entities."""
-
     return [_encode_entity(val, schema) for val in flatten(values)]
 
 
@@ -142,7 +138,6 @@ def _encode_update(
     schema: P4Schema,
 ) -> p4r.Update | p4r.StreamMessageRequest:
     "Encode an Update or outgoing message request, if necessary."
-
     if isinstance(value, (p4r.Update, p4r.StreamMessageRequest)):
         return value
 
@@ -154,7 +149,6 @@ def encode_updates(
     schema: P4Schema,
 ) -> list[p4r.Update | p4r.StreamMessageRequest]:
     """Convert list of python objects to P4Runtime Updates or request messages."""
-
     if not isinstance(values, collections.abc.Iterable):
         return [_encode_update(values, schema)]
 
@@ -216,7 +210,6 @@ P4WeightedAction = tuple[P4Weight, "P4TableAction"]
 
 def encode_replica(value: _ReplicaType) -> p4r.Replica:
     "Convert python representation to Replica."
-
     if isinstance(value, int):
         egress_port, instance = value, 0
     else:
@@ -228,19 +221,16 @@ def encode_replica(value: _ReplicaType) -> p4r.Replica:
 
 def decode_replica(replica: p4r.Replica) -> _ReplicaCanonType:
     "Convert Replica to python representation."
-
     return (replica.egress_port, replica.instance)
 
 
 def encode_watch_port(watch_port: int) -> bytes:
     "Encode watch_port into protobuf message."
-
     return p4values.encode_exact(watch_port, 32)
 
 
 def decode_watch_port(watch_port: bytes) -> int:
     "Decode watch_port from protobuf message."
-
     return int(p4values.decode_exact(watch_port, 32))
 
 
@@ -331,7 +321,6 @@ class P4TableAction:
         If the table is indirect, promote the action to a "one-shot" indirect
         action.
         """
-
         try:
             action = table.actions[self.name]
         except Exception as ex:
@@ -353,7 +342,6 @@ class P4TableAction:
 
     def _fail_missing_params(self, action: P4ActionRef | P4Action) -> NoReturn:
         "Report missing parameters."
-
         seen = {param.name for param in action.params}
         for name in self.args:
             param = action.params[name]
@@ -363,14 +351,12 @@ class P4TableAction:
 
     def encode_action(self, schema: P4Schema | P4Table) -> p4r.Action:
         "Encode Action data as protobuf."
-
         # TODO: Make sure that action is normal `Action`.
         action = schema.actions[self.name]
         return self._encode_action(action)
 
     def _encode_action(self, action: P4ActionRef | P4Action) -> p4r.Action:
         "Helper to encode an action."
-
         aps = action.params
         try:
             params = [
@@ -392,7 +378,6 @@ class P4TableAction:
         cls, msg: p4r.TableAction, table: P4Table
     ) -> Self | "P4IndirectAction":
         "Decode protobuf to TableAction data."
-
         match msg.WhichOneof("type"):
             case "action":
                 return cls.decode_action(msg.action, table)
@@ -410,7 +395,6 @@ class P4TableAction:
     @classmethod
     def decode_action(cls, msg: p4r.Action, parent: P4Schema | P4Table) -> Self:
         "Decode protobuf to Action data."
-
         action = parent.actions[msg.action_id]
         args = {}
         for param in msg.params:
@@ -515,7 +499,6 @@ class P4IndirectAction:
 
     def format_str(self, table: P4Table) -> str:
         """Format the indirect table action as a human-readable string."""
-
         if self.action_set is not None:
             weighted_actions = [
                 f"{weight}*{action.format_str(table)}"
@@ -530,7 +513,6 @@ class P4IndirectAction:
 
     def __repr__(self):
         "Customize representation to make it more concise."
-
         if self.action_set is not None:
             return f"P4IndirectAction(action_set={self.action_set!r})"
         if self.member_id is not None:
@@ -626,12 +608,10 @@ class P4TableEntry(_P4Writable):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode TableEntry data as protobuf."
-
         return p4r.Entity(table_entry=self.encode_entry(schema))
 
     def encode_entry(self, schema: P4Schema) -> p4r.TableEntry:
         "Encode TableEntry data as protobuf."
-
         if not self.table_id:
             return self._encode_empty()
 
@@ -685,7 +665,6 @@ class P4TableEntry(_P4Writable):
 
     def _encode_empty(self) -> p4r.TableEntry:
         "Encode an empty wildcard request."
-
         if self.counter_data is not None:
             counter_data = self.counter_data.encode()
         else:
@@ -707,13 +686,11 @@ class P4TableEntry(_P4Writable):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to TableEntry data."
-
         return cls.decode_entry(msg.table_entry, schema)
 
     @classmethod
     def decode_entry(cls, entry: p4r.TableEntry, schema: P4Schema) -> Self:
         "Decode protobuf to TableEntry data."
-
         if entry.table_id == 0:
             return cls("")
 
@@ -818,7 +795,6 @@ class P4RegisterEntry(_P4ModifyOnly):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode RegisterEntry data as protobuf."
-
         if not self.register_id:
             return p4r.Entity(register_entry=p4r.RegisterEntry())
 
@@ -844,7 +820,6 @@ class P4RegisterEntry(_P4ModifyOnly):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to RegisterEntry data."
-
         entry = msg.register_entry
         if entry.register_id == 0:
             return cls()
@@ -879,7 +854,6 @@ class P4MulticastGroupEntry(_P4Writable):
 
     def encode(self, _schema: P4Schema) -> p4r.Entity:
         "Encode MulticastGroupEntry data as protobuf."
-
         entry = p4r.MulticastGroupEntry(
             multicast_group_id=self.multicast_group_id,
             replicas=[encode_replica(replica) for replica in self.replicas],
@@ -893,7 +867,6 @@ class P4MulticastGroupEntry(_P4Writable):
     @classmethod
     def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
         "Decode protobuf to MulticastGroupEntry data."
-
         entry = msg.packet_replication_engine_entry.multicast_group_entry
         return cls(
             multicast_group_id=entry.multicast_group_id,
@@ -914,7 +887,6 @@ class P4CloneSessionEntry(_P4Writable):
 
     def encode(self, _schema: P4Schema) -> p4r.Entity:
         "Encode CloneSessionEntry data as protobuf."
-
         entry = p4r.CloneSessionEntry(
             session_id=self.session_id,
             class_of_service=self.class_of_service,
@@ -930,7 +902,6 @@ class P4CloneSessionEntry(_P4Writable):
     @classmethod
     def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
         "Decode protobuf to CloneSessionEntry data."
-
         entry = msg.packet_replication_engine_entry.clone_session_entry
         return cls(
             session_id=entry.session_id,
@@ -953,7 +924,6 @@ class P4DigestEntry(_P4Writable):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode DigestEntry data as protobuf."
-
         if not self.digest_id:
             return p4r.Entity(digest_entry=p4r.DigestEntry())
 
@@ -974,7 +944,6 @@ class P4DigestEntry(_P4Writable):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to DigestEntry data."
-
         entry = msg.digest_entry
         if entry.digest_id == 0:
             return cls()
@@ -1002,7 +971,6 @@ class P4ActionProfileMember(_P4Writable):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4ActionProfileMember as protobuf."
-
         if not self.action_profile_id:
             return p4r.Entity(action_profile_member=p4r.ActionProfileMember())
 
@@ -1023,7 +991,6 @@ class P4ActionProfileMember(_P4Writable):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to ActionProfileMember data."
-
         entry = msg.action_profile_member
         if entry.action_profile_id == 0:
             return cls()
@@ -1059,7 +1026,6 @@ class P4Member:
 
     def encode(self) -> p4r.ActionProfileGroup.Member:
         "Encode P4Member as protobuf."
-
         match self.weight:
             case int(weight):
                 watch_port = None
@@ -1080,7 +1046,6 @@ class P4Member:
     @classmethod
     def decode(cls, msg: p4r.ActionProfileGroup.Member) -> Self:
         "Decode protobuf to P4Member."
-
         match msg.WhichOneof("watch_kind"):
             case "watch_port":
                 weight = (msg.weight, decode_watch_port(msg.watch_port))
@@ -1106,7 +1071,6 @@ class P4ActionProfileGroup(_P4Writable):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4ActionProfileGroup as protobuf."
-
         if not self.action_profile_id:
             return p4r.Entity(action_profile_group=p4r.ActionProfileGroup())
 
@@ -1128,7 +1092,6 @@ class P4ActionProfileGroup(_P4Writable):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to ActionProfileGroup data."
-
         entry = msg.action_profile_group
         if entry.action_profile_id == 0:
             return cls()
@@ -1170,7 +1133,6 @@ class P4MeterEntry(_P4ModifyOnly):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4MeterEntry to protobuf."
-
         if not self.meter_id:
             return p4r.Entity(meter_entry=p4r.MeterEntry())
 
@@ -1202,7 +1164,6 @@ class P4MeterEntry(_P4ModifyOnly):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to P4MeterEntry."
-
         entry = msg.meter_entry
         if not entry.meter_id:
             return cls()
@@ -1243,7 +1204,6 @@ class P4DirectMeterEntry(_P4ModifyOnly):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4DirectMeterEntry as protobuf."
-
         if self.table_entry is not None:
             table_entry = self.table_entry.encode_entry(schema)
         else:
@@ -1269,7 +1229,6 @@ class P4DirectMeterEntry(_P4ModifyOnly):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to P4DirectMeterEntry."
-
         entry = msg.direct_meter_entry
 
         if entry.HasField("table_entry"):
@@ -1320,7 +1279,6 @@ class P4CounterEntry(_P4ModifyOnly):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4CounterEntry as protobuf."
-
         if not self.counter_id:
             return p4r.Entity(counter_entry=p4r.CounterEntry())
 
@@ -1346,7 +1304,6 @@ class P4CounterEntry(_P4ModifyOnly):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to P4CounterEntry."
-
         entry = msg.counter_entry
         if not entry.counter_id:
             return cls()
@@ -1399,7 +1356,6 @@ class P4DirectCounterEntry(_P4ModifyOnly):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4DirectCounterEntry as protobuf."
-
         if self.table_entry is None:
             # Use `counter_id` to construct a `P4TableEntry` with the proper
             # table name.
@@ -1425,7 +1381,6 @@ class P4DirectCounterEntry(_P4ModifyOnly):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to P4DirectCounterEntry."
-
         entry = msg.direct_counter_entry
 
         if entry.HasField("table_entry"):
@@ -1514,7 +1469,6 @@ class P4ValueSetEntry(_P4ModifyOnly):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode P4ValueSetEntry as protobuf."
-
         value_set = schema.value_sets[self.value_set_id]
         members = [
             p4r.ValueSetMember(match=member.encode(value_set))
@@ -1530,7 +1484,6 @@ class P4ValueSetEntry(_P4ModifyOnly):
     @classmethod
     def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to P4ValueSetEntry."
-
         entry = msg.value_set_entry
         value_set = schema.value_sets[entry.value_set_id]
 
@@ -1553,7 +1506,6 @@ class P4PacketIn:
     @classmethod
     def decode(cls, msg: p4r.StreamMessageResponse, schema: P4Schema) -> Self:
         "Decode protobuf to PacketIn data."
-
         packet = msg.packet
         cpm = schema.controller_packet_metadata.get("packet_in")
         if cpm is None:
@@ -1570,12 +1522,10 @@ class P4PacketIn:
 
     def __getitem__(self, key: str):
         "Retrieve metadata value."
-
         return self.metadata[key]
 
     def __repr__(self):
         "Return friendlier hexadecimal description of packet."
-
         if self.metadata:
             return f"P4PacketIn(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
         return f"P4PacketIn(payload=h'{self.payload.hex()}')"
@@ -1595,7 +1545,6 @@ class P4PacketOut:
 
     def encode_update(self, schema: P4Schema) -> p4r.StreamMessageRequest:
         "Encode PacketOut data as protobuf."
-
         cpm = schema.controller_packet_metadata["packet_out"]
         return p4r.StreamMessageRequest(
             packet=p4r.PacketOut(
@@ -1606,12 +1555,10 @@ class P4PacketOut:
 
     def __getitem__(self, key: str):
         "Retrieve metadata value."
-
         return self.metadata[key]
 
     def __repr__(self):
         "Return friendlier hexadecimal description of packet."
-
         if self.metadata:
             return f"P4PacketOut(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
         return f"P4PacketOut(payload=h'{self.payload.hex()}')"
@@ -1631,7 +1578,6 @@ class P4DigestList:
     @classmethod
     def decode(cls, msg: p4r.StreamMessageResponse, schema: P4Schema) -> Self:
         "Decode protobuf to DigestList data."
-
         digest_list = msg.digest
         digest = schema.digests[digest_list.digest_id]
 
@@ -1690,7 +1636,6 @@ class P4IdleTimeoutNotification:
     @classmethod
     def decode(cls, msg: p4r.StreamMessageResponse, schema: P4Schema) -> Self:
         "Decode protobuf to IdleTimeoutNotification data."
-
         notification = msg.idle_timeout_notification
         table_entry = [
             P4TableEntry.decode_entry(entry, schema)

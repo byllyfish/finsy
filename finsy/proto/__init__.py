@@ -73,7 +73,6 @@ class U128:
     @staticmethod
     def encode(value: int) -> p4r.Uint128:
         "Create a Uint128 object from an integer."
-
         if value < 0:
             raise ValueError(f"invalid argument: {value!r}")
         return p4r.Uint128(high=value >> 64, low=value & 0xFFFFFFFFFFFFFFFF)
@@ -81,5 +80,4 @@ class U128:
     @staticmethod
     def decode(value: p4r.Uint128) -> int:
         "Convert a Uint128 object to an integer."
-
         return (value.high << 64) | value.low

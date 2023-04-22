@@ -46,7 +46,6 @@ _SCHEMA = P4Schema(_P4INFO_TEST_DIR / "basic.p4.p4info.txt")
 
 def test_flatten():
     "Test the flatten method."
-
     assert list(flatten([])) == []
     assert list(flatten([None])) == [None]
     assert list(flatten([1, [2, [3]]])) == [1, 2, 3]
@@ -57,7 +56,6 @@ def test_flatten():
 
 def test_replica1():
     "Test encode_replica and decode_replica functions."
-
     msg = encode_replica(1)
     assert pbuf.to_dict(msg) == {"egress_port": 1}
     assert decode_replica(msg) == (1, 0)
@@ -65,7 +63,6 @@ def test_replica1():
 
 def test_replica2():
     "Test encode_replica and decode_replica functions"
-
     msg = encode_replica((1, 2))
     assert pbuf.to_dict(msg) == {"egress_port": 1, "instance": 2}
     assert decode_replica(msg) == (1, 2)
@@ -73,7 +70,6 @@ def test_replica2():
 
 def test_table_match1():
     "Test TableMatch class."
-
     match = P4TableMatch(dstAddr=(167772160, 24))
     table = _SCHEMA.tables["ipv4_lpm"]
     msgs = match.encode(table)
@@ -90,7 +86,6 @@ def test_table_match1():
 
 def test_table_match2():
     "Test TableMatch class."
-
     match = P4TableMatch(x=1)
     table = _SCHEMA.tables["ipv4_lpm"]
     with pytest.raises(ValueError, match="no match field named 'x'"):
@@ -99,7 +94,6 @@ def test_table_match2():
 
 def test_table_match3():
     "Test TableMatch class with missing field."
-
     match = P4TableMatch()
     table = _SCHEMA.tables["ipv4_lpm"]
     msgs = match.encode(table)
@@ -110,7 +104,6 @@ def test_table_match3():
 
 def test_table_match4():
     "Test TableMatch class with scalar LPM type."
-
     match = P4TableMatch(dstAddr=1)
     table = _SCHEMA.tables["ipv4_lpm"]
     msgs = match.encode(table)
@@ -126,7 +119,6 @@ def test_table_match4():
 
 def test_table_match5():
     "Test TableMatch class with sdn_string new type field."
-
     schema = P4Schema(_P4INFO_TEST_DIR / "sai_unioned.p4info.txt")
     table = schema.tables["mirror_port_to_pre_session_table"]
 
@@ -144,7 +136,6 @@ def test_table_match5():
 
 def test_table_action1():
     "Test TableAction class."
-
     action = P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=1)
     table = _SCHEMA.tables["ipv4_lpm"]
     msg = action.encode_table_action(table)
@@ -164,7 +155,6 @@ def test_table_action1():
 
 def test_table_action2():
     "Test TableAction class with missing argument."
-
     action = P4TableAction("ipv4_forward", port=1)  # missing 'dstAddr'
     table = _SCHEMA.tables["ipv4_lpm"]
 
@@ -174,7 +164,6 @@ def test_table_action2():
 
 def test_table_action3():
     "Test TableAction class with incorrect argument name."
-
     action = P4TableAction("ipv4_forward", dstAddr=0x0A000001, prt=1)
     table = _SCHEMA.tables["ipv4_lpm"]
 
@@ -184,7 +173,6 @@ def test_table_action3():
 
 def test_table_action4():
     "Test TableAction class with extra argument name."
-
     action = P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=1, extra=0)
     table = _SCHEMA.tables["ipv4_lpm"]
 
@@ -194,7 +182,6 @@ def test_table_action4():
 
 def test_indirect_action1():
     "Test P4IndirectAction class."
-
     action = P4IndirectAction(
         action_set=[
             (1, P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=1)),
@@ -247,7 +234,6 @@ def test_indirect_action1():
 
 def test_indirect_action2():
     "Test P4IndirectAction class."
-
     action = P4IndirectAction(group_id=123)
     table = _SCHEMA.tables["ipv4_lpm"]
 
@@ -262,7 +248,6 @@ def test_indirect_action2():
 
 def test_indirect_action3():
     "Test P4IndirectAction class."
-
     action = P4IndirectAction(member_id=345)
     table = _SCHEMA.tables["ipv4_lpm"]
 
@@ -277,7 +262,6 @@ def test_indirect_action3():
 
 def test_indirect_action4():
     "Test P4IndirectAction class."
-
     action = P4IndirectAction(
         action_set=[
             ((1, 1), P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=1)),
@@ -307,8 +291,8 @@ def test_indirect_action4():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert (
-        repr(action)
-        == "P4IndirectAction(action_set=[((1, 1), P4TableAction(name='ipv4_forward', args={'dstAddr': 167772161, 'port': 1}))])"
+        repr(action) == "P4IndirectAction(action_set=[((1, 1), P4TableAction("
+        "name='ipv4_forward', args={'dstAddr': 167772161, 'port': 1}))])"
     )
     assert (
         action.format_str(table) == "(1, 1)*ipv4_forward(dstAddr=0xa000001, port=0x1)"
@@ -317,7 +301,6 @@ def test_indirect_action4():
 
 def test_weighted_action():
     "Test P4WeightedAction constructed using * operator."
-
     action = P4TableAction("xyz", a=1)
 
     assert 2 * action == (2, action)
@@ -331,7 +314,6 @@ def test_weighted_action():
 
 def test_table_entry1():
     "Test TableEntry class."
-
     entry = P4TableEntry()
     msg = entry.encode(_SCHEMA)
 
@@ -341,7 +323,6 @@ def test_table_entry1():
 
 def test_table_entry2():
     "Test TableEntry class."
-
     entry = P4TableEntry("ipv4_lpm")
     msg = entry.encode(_SCHEMA)
 
@@ -351,7 +332,6 @@ def test_table_entry2():
 
 def test_table_entry3():
     "Test TableEntry class."
-
     entry = P4TableEntry(
         "ipv4_lpm",
         match=P4TableMatch(dstAddr=(167772160, 24)),
@@ -384,7 +364,6 @@ def test_table_entry3():
 
 def test_table_entry4():
     "Test TableEntry class."
-
     ctr_data = P4CounterData(byte_count=5, packet_count=6)
     entry = P4TableEntry(
         "ipv4_lpm",
@@ -424,7 +403,6 @@ def test_table_entry4():
 
 def test_table_entry_indirect():
     "Test TableEntry class with table action auto-promoted to one-shot."
-
     schema = P4Schema(_P4INFO_TEST_DIR / "sai_unioned.p4info.txt")
     entry = P4TableEntry(
         "wcmp_group_table",
@@ -466,7 +444,6 @@ def test_table_entry_indirect():
 
 def test_table_entry_match_dict():
     "Test TableEntry match_dict method."
-
     entry1 = P4TableEntry("ipv4_lpm")
     assert entry1.match_dict(_SCHEMA, wildcard="*") == {"dstAddr": "*"}
 
@@ -476,7 +453,6 @@ def test_table_entry_match_dict():
 
 def test_table_entry_accessor():
     "Test P4TableEntry accessor for match fields."
-
     entry1 = P4TableEntry("ipv4_lpm", match=P4TableMatch(dstAddr=1))
     assert entry1["dstAddr"] == 1
 
@@ -490,7 +466,6 @@ def test_table_entry_accessor():
 
 def test_table_entry_str_display():
     "Test P4TableEntry match_str and action_str methods."
-
     entry = P4TableEntry(
         "ipv4_lpm",
         match=P4TableMatch(dstAddr=1),
@@ -546,7 +521,6 @@ def test_table_update_action_id():
 
 def test_decode_entity1():
     "Test decode_entity function."
-
     entity = p4r.Entity()
     with pytest.raises(ValueError, match="missing entity"):
         decode_entity(entity, _SCHEMA)
@@ -554,7 +528,6 @@ def test_decode_entity1():
 
 def test_decode_entity2():
     "Test decode_entity function."
-
     entity = P4TableEntry().encode(_SCHEMA)
     entry = decode_entity(entity, _SCHEMA)
     assert entry == P4TableEntry()
@@ -562,7 +535,6 @@ def test_decode_entity2():
 
 def test_decode_entity3():
     "Test decode_entity function."
-
     entity = P4MulticastGroupEntry().encode(_SCHEMA)
     entry = decode_entity(entity, _SCHEMA)
     assert entry == P4MulticastGroupEntry()
@@ -570,7 +542,6 @@ def test_decode_entity3():
 
 def test_decode_entity4():
     "Test decode_entity function."
-
     entity = p4r.Entity(
         packet_replication_engine_entry=p4r.PacketReplicationEngineEntry()
     )
@@ -580,7 +551,6 @@ def test_decode_entity4():
 
 def test_decode_stream1():
     "Test decode_stream function."
-
     msg = p4r.StreamMessageResponse()
     with pytest.raises(ValueError, match="missing update"):
         decode_stream(msg, _SCHEMA)
@@ -588,7 +558,6 @@ def test_decode_stream1():
 
 def test_decode_stream2():
     "Test decode_stream function."
-
     msg = pbuf.from_text(
         r"""
         packet {
@@ -603,7 +572,6 @@ def test_decode_stream2():
 
 def test_encode_entities1():
     "Test encode_entities function."
-
     entity = P4TableEntry().encode(_SCHEMA)
     msgs1 = encode_entities([entity], _SCHEMA)
     msgs2 = encode_entities([P4TableEntry()], _SCHEMA)
@@ -612,7 +580,6 @@ def test_encode_entities1():
 
 def test_encode_updates1():
     "Test encode_updates with P4TableEntry."
-
     entry1 = P4TableEntry("ipv4_lpm")
     entry2 = P4TableEntry("ipv4_lpm")
     entry3 = P4TableEntry("ipv4_lpm")
@@ -630,7 +597,6 @@ def test_encode_updates1():
 
 def test_encode_updates2():
     "Test encode_updates with P4TableEntry."
-
     entry1 = P4RegisterEntry("counter_bloom_filter", index=1, data=1)
     entry2 = P4RegisterEntry("counter_bloom_filter", index=2, data=2)
     entry3 = P4RegisterEntry("counter_bloom_filter", index=3, data=3)
@@ -672,14 +638,12 @@ def test_encode_updates2():
 
 def test_encode_updates3():
     "Test encode_updates with already encoded p4r updates."
-
     result = encode_updates([p4r.Update(), p4r.StreamMessageRequest()], _SCHEMA)
     assert result == [p4r.Update(), p4r.StreamMessageRequest()]
 
 
 def test_encode_updates4():
     "Test encode_updates with a single non-iterable argument."
-
     entry = P4TableEntry("ipv4_lpm")
     result = encode_updates(+entry, _SCHEMA)
     assert [pbuf.to_dict(msg) for msg in result] == [
@@ -692,7 +656,6 @@ def test_encode_updates4():
 
 def test_action_profile_member1():
     "Test P4ActionProfileMember class."
-
     entry = P4ActionProfileMember()
     msg = entry.encode(_SCHEMA)
 
@@ -702,7 +665,6 @@ def test_action_profile_member1():
 
 def test_action_profile_member2():
     "Test P4ActionProfileMember class."
-
     schema = P4Schema(_P4INFO_TEST_DIR / "fabric.p4.p4info.txt")
     entry = P4ActionProfileMember(
         action_profile_id="hashed_selector",
@@ -737,7 +699,6 @@ def test_action_profile_member_actionstr():
 
 def test_action_profile_group1():
     "Test P4ActionProfileGroup class."
-
     entry = P4ActionProfileGroup()
     msg = entry.encode(_SCHEMA)
 
@@ -747,7 +708,6 @@ def test_action_profile_group1():
 
 def test_action_profile_group2():
     "Test P4ActionProfileGroup class."
-
     schema = P4Schema(_P4INFO_TEST_DIR / "fabric.p4.p4info.txt")
     entry = P4ActionProfileGroup(
         action_profile_id="hashed_selector",
@@ -811,7 +771,6 @@ def test_member():
 
 def test_meter_entry1():
     "Test P4MeterEntry class."
-
     entry = P4MeterEntry()
     msg = entry.encode(_SCHEMA)
 
@@ -821,7 +780,6 @@ def test_meter_entry1():
 
 def test_meter_entry2():
     "Test P4MeterEntry class."
-
     entry = P4MeterEntry(
         meter_id="other_meter",
         index=2,
@@ -851,7 +809,6 @@ def test_meter_entry2():
 
 def test_direct_meter_entry1():
     "Test P4MeterEntry class."
-
     entry = P4DirectMeterEntry()
     msg = entry.encode(_SCHEMA)
 
@@ -861,7 +818,6 @@ def test_direct_meter_entry1():
 
 def test_direct_meter_entry2():
     "Test P4MeterEntry class."
-
     entry = P4DirectMeterEntry(
         table_entry=P4TableEntry(
             "ipv4_lpm",
@@ -907,7 +863,6 @@ def test_direct_meter_entry2():
 
 def test_counter_entry1():
     "Test P4CounterEntry class."
-
     entry = P4CounterEntry()
     msg = entry.encode(_SCHEMA)
 
@@ -917,7 +872,6 @@ def test_counter_entry1():
 
 def test_counter_entry2():
     "Test P4CounterEntry class."
-
     entry = P4CounterEntry(
         "other_counter",
         index=2,
@@ -940,7 +894,6 @@ def test_counter_entry2():
 
 def test_direct_counter_entry1():
     "Test P4CounterEntry class."
-
     entry = P4DirectCounterEntry()
     assert entry.table_id == ""
 
@@ -953,7 +906,6 @@ def test_direct_counter_entry1():
 
 def test_direct_counter_entry2():
     "Test P4CounterEntry class."
-
     table_entry = P4TableEntry(
         "ipv4_lpm",
         match=P4TableMatch(dstAddr=(167772160, 24)),
@@ -995,7 +947,6 @@ def test_direct_counter_entry2():
 
 def test_direct_counter_entry3():
     "Test P4CounterEntry class."
-
     entry = P4DirectCounterEntry("ipv4_counter")
     assert entry.counter_id == "ipv4_counter"
     assert entry.table_entry is None
@@ -1018,7 +969,6 @@ def test_direct_counter_entry3():
 
 def test_register_entry0():
     "Test P4RegisterEntry class."
-
     entry = P4RegisterEntry()
     msg = entry.encode(_SCHEMA)
 
@@ -1028,7 +978,6 @@ def test_register_entry0():
 
 def test_register_entry1():
     "Test P4RegisterEntry class."
-
     entry = P4RegisterEntry("counter_bloom_filter", index=1, data=1)
     msg = entry.encode(_SCHEMA)
 
@@ -1044,7 +993,6 @@ def test_register_entry1():
 
 def test_register_entry2():
     "Test RegisterEntry class with no Index."
-
     entry = P4RegisterEntry("counter_bloom_filter", data=1)
     msg = entry.encode(_SCHEMA)
 
@@ -1059,7 +1007,6 @@ def test_register_entry2():
 
 def test_multicast_group_entry1():
     "Test P4MulticastEntry."
-
     entry = P4MulticastGroupEntry()
     msg = entry.encode(_SCHEMA)
 
@@ -1073,7 +1020,6 @@ def test_multicast_group_entry1():
 
 def test_clone_session_entry1():
     "Test P4CloneSessionEntry."
-
     entry = P4CloneSessionEntry()
     msg = entry.encode(_SCHEMA)
 
@@ -1087,7 +1033,6 @@ def test_clone_session_entry1():
 
 def test_digest_entry1():
     "Test P4DigestEntry class."
-
     entry = P4DigestEntry()
     msg = entry.encode(_SCHEMA)
 
@@ -1097,7 +1042,6 @@ def test_digest_entry1():
 
 def test_digest_entry2():
     "Test P4DigestEntry class."
-
     schema = P4Schema(_P4INFO_TEST_DIR / "layer2.p4.p4info.txt")
     entry = P4DigestEntry(
         "Digest_t",
@@ -1122,7 +1066,6 @@ def test_digest_entry2():
 
 def test_packet_out1():
     "Test P4PacketOut class."
-
     entry = P4PacketOut(b"abc", egress_port=1, _pad=0)
     msg = entry.encode_update(_SCHEMA)
 
@@ -1145,7 +1088,6 @@ def test_packet_out1():
 
 def test_packet_out2():
     "Test P4PacketOut class with missing argument name."
-
     entry = P4PacketOut(b"abc", egress_port=1)
 
     with pytest.raises(ValueError, match="missing parameter '_pad'"):
@@ -1154,7 +1096,6 @@ def test_packet_out2():
 
 def test_packet_out3():
     "Test P4PacketOut class with wrong argument name."
-
     entry = P4PacketOut(b"abc", ingress_port=1, _pad=0)
 
     with pytest.raises(ValueError, match="missing parameter 'egress_port'"):
@@ -1163,7 +1104,6 @@ def test_packet_out3():
 
 def test_packet_out4():
     "Test P4PacketOut class with extra argument name."
-
     entry = P4PacketOut(b"abc", egress_port=1, _pad=0, extra=1)
 
     with pytest.raises(ValueError, match="extra parameters {'extra'}"):
@@ -1172,7 +1112,6 @@ def test_packet_out4():
 
 def test_packet_in1():
     "Test P4PacketIn class with no metadata."
-
     data = pbuf.from_text(
         r"""
         packet {
@@ -1191,7 +1130,6 @@ def test_packet_in1():
 
 def test_packet_in2():
     "Test P4PacketIn class with metadata."
-
     data = pbuf.from_text(
         r"""
         packet {
@@ -1216,7 +1154,6 @@ def test_packet_in2():
 
 def test_digest_list1():
     "Test P4DigestList."
-
     digest_list = P4DigestList(
         "digest_name",
         list_id=1,
@@ -1235,7 +1172,6 @@ def test_digest_list1():
 
 def test_digest_list2():
     "Test P4DigestList."
-
     schema = P4Schema(_P4INFO_TEST_DIR / "layer2.p4.p4info.txt")
     msg = pbuf.from_text(
         r"""
@@ -1254,7 +1190,6 @@ def test_digest_list2():
 
 def test_idle_timeout_notification1():
     "Test P4IdleTimeoutNotification."
-
     data = pbuf.from_dict(
         {
             "idle_timeout_notification": {
@@ -1290,7 +1225,6 @@ def test_idle_timeout_notification1():
 
 def test_digest_list_ack1():
     "Test P4DigestListAck."
-
     schema = P4Schema(_P4INFO_TEST_DIR / "layer2.p4.p4info.txt")
     ack = P4DigestListAck("Digest_t", 1)
     msg = ack.encode_update(schema)
@@ -1308,7 +1242,6 @@ def test_digest_list_ack1():
 
 def test_value_set_entry1():
     "Test P4ValueSetEntry."
-
     entry = P4ValueSetEntry(
         "pvs",
         members=[
