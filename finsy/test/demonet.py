@@ -240,7 +240,7 @@ class DemoNet:
         try:
             await self._setup()
             cmd = podman_start("mininet")
-            self._runner = cmd.stdout(sh.CAPTURE).run()
+            self._runner = cmd.stdout(sh.CAPTURE)._run_()
             await self._runner.__aenter__()
             self._prompt = Prompt(self._runner, "mininet> ")
 
@@ -376,7 +376,7 @@ def podman_create(
     container: str,
     image_slug: str,
     switch_count: int,
-) -> Command:
+) -> Command[str]:
     assert switch_count > 0
 
     if switch_count == 1:
@@ -409,7 +409,7 @@ def podman_create(
     ).stderr(sh.INHERIT)
 
 
-def podman_copy(src_path: Path, container: str, dest_path: str) -> Command:
+def podman_copy(src_path: Path, container: str, dest_path: str) -> Command[str]:
     return sh(
         PODMAN,
         "cp",
@@ -418,11 +418,11 @@ def podman_copy(src_path: Path, container: str, dest_path: str) -> Command:
     )
 
 
-def podman_start(container: str) -> Command:
+def podman_start(container: str) -> Command[str]:
     return sh(PODMAN, "start", "-ai", container).set(pty=True)
 
 
-def podman_rm(container: str) -> Command:
+def podman_rm(container: str) -> Command[str]:
     return sh(PODMAN, "rm", container).set(exit_codes={0, 1})
 
 
