@@ -739,6 +739,7 @@ def test_p4actionparam():
 def test_p4schemacache():
     "Test P4SchemaCache."
     p4info = Path(P4INFO_TEST_DIR, "basic.p4.p4info.txt")
+    schema = None
 
     # Without cache: All p4defs should be different objects.
     schemas = [P4Schema(p4info) for _ in range(10)]

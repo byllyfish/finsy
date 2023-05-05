@@ -152,7 +152,7 @@ class GNMIPath:
                 return result
             case slice() as s:
                 return self._slice(s.start, s.stop, s.step)
-            case other:
+            case other:  # pyright: ignore[reportUnnecessaryComparison]
                 raise TypeError(f"invalid key type: {other!r}")
 
     def __eq__(self, rhs: Self) -> bool:
