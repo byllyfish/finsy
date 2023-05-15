@@ -13,8 +13,8 @@ from pathlib import Path
 from types import TracebackType
 from typing import Any, Sequence
 
-from shellous import Command, Runner, sh  # pyright: ignore[reportMissingTypeStubs]
-from shellous.harvest import harvest_results  # pyright: ignore[reportMissingTypeStubs]
+from shellous import Command, Runner, sh
+from shellous.harvest import harvest_results
 
 from finsy import MACAddress
 
@@ -240,7 +240,7 @@ class DemoNet:
         try:
             await self._setup()
             cmd = podman_start("mininet")
-            self._runner = cmd.stdout(sh.CAPTURE)._run_()
+            self._runner = Runner(cmd.stdout(sh.CAPTURE))
             await self._runner.__aenter__()
             self._prompt = Prompt(self._runner, "mininet> ")
 

@@ -826,14 +826,14 @@ testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (
 
 [[package]]
 name = "shellous"
-version = "0.24.0"
+version = "0.25.0"
 description = "Async Processes and Pipelines"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "shellous-0.24.0-py3-none-any.whl", hash = "sha256:74ddafbb6f878f0d42ee53395a00c7081cb58bf3f604c1231cfe2bcb6f0f8754"},
-    {file = "shellous-0.24.0.tar.gz", hash = "sha256:4273644863b5abc652d00b5f76aa7342c911a42bdbaa80e5a7023b09f6dc3f17"},
+    {file = "shellous-0.25.0-py3-none-any.whl", hash = "sha256:6ce31a252bf1a1f251923466669d97e6d3fd95824806b1c8ed9f056d69c93486"},
+    {file = "shellous-0.25.0.tar.gz", hash = "sha256:8f3adc75b9ea44db1da28446a52dde29d7a8e05d17f57c6ffe05592c1959f31b"},
 ]
 
 [[package]]
@@ -960,4 +960,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "bd25cec49c594239d1f75e11dae1851b31eb9bcfd4d1234a9de4a47d22f14ad6"
+content-hash = "ce0760042c6aa48bcaae91d14301daa5efd614791db551a44c4b4f96848b043d"
