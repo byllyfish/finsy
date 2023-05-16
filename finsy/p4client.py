@@ -16,7 +16,16 @@
 
 import re
 from dataclasses import dataclass
-from typing import Any, AsyncIterator, Callable, Sequence, TypeAlias, cast, overload
+from typing import (
+    Any,
+    AsyncIterator,
+    Callable,
+    Self,
+    Sequence,
+    TypeAlias,
+    cast,
+    overload,
+)
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 
@@ -258,11 +267,11 @@ class P4Client:
         "Return the GRPC channel object, or None if the channel is not open."
         return self._channel
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         await self.open()
         return self
 
-    async def __aexit__(self, *args: Any):
+    async def __aexit__(self, *args: Any) -> bool | None:
         await self.close()
 
     async def open(

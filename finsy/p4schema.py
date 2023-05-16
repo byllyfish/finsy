@@ -500,7 +500,7 @@ class P4Schema(_ReprMixin):
             raise ValueError("No P4Info configured.")
         return self._p4info
 
-    def set_p4info(self, p4info: p4i.P4Info):
+    def set_p4info(self, p4info: p4i.P4Info) -> None:
         "Set P4Info using value returned from switch."
         self._p4info, self._p4defs, self._p4cookie = P4SchemaCache.load_p4info(
             p4info,
@@ -636,10 +636,10 @@ class P4Schema(_ReprMixin):
         _P4SCHEMA_CTXT.set(self)
         return self
 
-    def __exit__(self, *_args: Any):
+    def __exit__(self, *_args: Any) -> bool | None:
         _P4SCHEMA_CTXT.set(None)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self._p4info is None:
             return "<P4Info: No pipeline configured>"
         return str(P4SchemaDescription(self))
@@ -939,7 +939,7 @@ class P4ActionParam(_P4AnnoMixin, _P4DocMixin, _P4NamedMixin[p4i.Action.Param]):
             value=p4values.encode_exact(value, self._bitwidth),
         )
 
-    def decode_param(self, param: p4r.Action.Param):
+    def decode_param(self, param: p4r.Action.Param) -> p4values._ExactReturn:
         "Decode protobuf `param`."
         return p4values.decode_exact(param.value, self._bitwidth, self._format)
 
@@ -1148,7 +1148,14 @@ class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
             case other:
                 raise ValueError(f"Unsupported match_type: {other!r}")
 
-    def decode_field(self, field: p4r.FieldMatch):
+    def decode_field(
+        self, field: p4r.FieldMatch
+    ) -> (
+        p4values._ExactReturn
+        | p4values._LPMReturn
+        | p4values._TernaryReturn
+        | p4values._RangeReturn
+    ):
         "Decode protobuf FieldMatch value."
         # TODO: check field type against self.match_type? Check id?
         match field.WhichOneof("field_match_type"):
@@ -2021,10 +2028,10 @@ class P4SchemaCache:
         _P4CACHE_CTXT.set(self)
         return self
 
-    def __exit__(self, *_args: Any):
+    def __exit__(self, *_args: Any) -> bool | None:
         _P4CACHE_CTXT.set(None)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._cache)
 
 

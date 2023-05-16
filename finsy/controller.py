@@ -17,7 +17,7 @@
 import asyncio
 from contextvars import ContextVar
 from types import TracebackType
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator, Self
 
 from finsy.futures import CountdownFuture, wait_for_cancel
 from finsy.log import LOGGER
@@ -54,17 +54,17 @@ class Controller:
         "True if Controller is running."
         return self.control_task is not None
 
-    async def run(self):
+    async def run(self) -> None:
         "Run the controller."
         async with self:
             await wait_for_cancel()
 
-    def stop(self):
+    def stop(self) -> None:
         "Stop the controller if it is running."
         if self.control_task is not None:
             self.control_task.cancel()
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         "Run the controller as a context manager (see also run())."
         assert not self.running, "Controller.__aenter__ is not re-entrant"
         assert self._task_count.value() == 0
@@ -90,7 +90,7 @@ class Controller:
         _exc_type: type[BaseException] | None,
         _exc_val: BaseException | None,
         _exc_tb: TracebackType | None,
-    ):
+    ) -> bool | None:
         "Run the controller as a context manager (see also run())."
         assert self.running
 
@@ -177,15 +177,15 @@ class Controller:
         if switch.control_task is not None:
             switch.control_task.cancel()
 
-    def __len__(self):
+    def __len__(self) -> int:
         "Return switch count."
         return len(self._switches)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Switch]:
         "Iterate over switches."
         return iter(self._switches.values())
 
-    def __getitem__(self, name: str):
+    def __getitem__(self, name: str) -> Switch:
         "Retrieve switch by name."
         return self._switches[name]
 

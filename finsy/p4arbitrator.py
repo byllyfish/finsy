@@ -56,7 +56,7 @@ class Arbitrator:
             return ""
         return self.role.name
 
-    async def handshake(self, switch: "_sw.Switch", *, conflict: bool = False):
+    async def handshake(self, switch: "_sw.Switch", *, conflict: bool = False) -> None:
         """Perform the P4Runtime client arbitration handshake."""
         assert not self.is_primary
 
@@ -82,7 +82,11 @@ class Arbitrator:
         self.is_primary = status.code == GRPCStatusCode.OK
         self._check_invariant()
 
-    async def update(self, switch: "_sw.Switch", msg: p4r.MasterArbitrationUpdate):
+    async def update(
+        self,
+        switch: "_sw.Switch",
+        msg: p4r.MasterArbitrationUpdate,
+    ) -> None:
         "Called with subsequent arbitration update responses."
         status_code = P4RpcStatus.from_status(msg.status).code
         new_primary_id = U128.decode(msg.election_id)
@@ -116,13 +120,13 @@ class Arbitrator:
             case other:
                 raise ValueError(f"Unexpected status: {other!r}")
 
-    def reset(self):
+    def reset(self) -> None:
         "Called when client stream disconnects."
         self.election_id = self.initial_election_id
         self.is_primary = False
         self.primary_id = _NOT_ASSIGNED
 
-    def complete_request(self, msg: pbuf.PBMessage):
+    def complete_request(self, msg: pbuf.PBMessage) -> None:
         "Complete request with role/election_id information."
         if isinstance(msg, p4r.ReadRequest):
             if self.role is not None:

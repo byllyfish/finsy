@@ -79,7 +79,7 @@ class LoggerAdapter(_BaseLoggerAdapter):
         task_name = _get_current_task_name()
         return f"[{task_name}] {msg}", kwargs
 
-    def info(self, msg: Any, *args: Any, **kwargs: Any):
+    def info(self, msg: Any, *args: Any, **kwargs: Any) -> None:
         """INFO level uses a concise task name represention for readability."""
         if self.logger.isEnabledFor(logging.INFO):
             task_name = _get_current_task_name(True)

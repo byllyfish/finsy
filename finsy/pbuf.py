@@ -138,7 +138,7 @@ def log_msg(
     schema: "_fy.P4Schema | None",
     *,
     level: int = logging.DEBUG,
-):
+) -> None:
     """Log a sent/received client message.
 
     Format:
