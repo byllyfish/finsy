@@ -16,18 +16,10 @@
 
 import re
 from dataclasses import dataclass
-from typing import (
-    Any,
-    AsyncIterator,
-    Callable,
-    Self,
-    Sequence,
-    TypeAlias,
-    cast,
-    overload,
-)
+from typing import Any, AsyncIterator, Callable, Sequence, TypeAlias, cast, overload
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
+from typing_extensions import Self
 
 from finsy import pbuf
 from finsy.grpcutil import GRPC_EOF, GRPCOptions, GRPCStatusCode, grpc_channel

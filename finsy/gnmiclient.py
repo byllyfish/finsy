@@ -18,9 +18,10 @@
 
 import asyncio
 from dataclasses import dataclass
-from typing import Any, AsyncIterator, Iterator, Self, Sequence, TypeAlias, cast
+from typing import Any, AsyncIterator, Iterator, Sequence, TypeAlias, cast
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
+from typing_extensions import Self
 
 from finsy import pbuf
 from finsy.gnmipath import GNMIPath

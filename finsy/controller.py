@@ -17,7 +17,9 @@
 import asyncio
 from contextvars import ContextVar
 from types import TracebackType
-from typing import Any, Iterable, Iterator, Self
+from typing import Any, Iterable, Iterator
+
+from typing_extensions import Self
 
 from finsy.futures import CountdownFuture, wait_for_cancel
 from finsy.log import LOGGER
