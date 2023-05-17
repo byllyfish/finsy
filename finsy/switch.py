@@ -213,7 +213,7 @@ class Switch:
         return self._options
 
     @options.setter
-    def options(self, opts: SwitchOptions):
+    def options(self, opts: SwitchOptions) -> None:
         "Set switch options to a new value."
         if self._p4client is not None:
             raise RuntimeError("Cannot change switch options while client is open.")

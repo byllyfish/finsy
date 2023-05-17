@@ -1313,7 +1313,7 @@ class P4DirectMeter(_P4TopLevel[p4i.DirectMeter]):
     "Represents DirectMeter in schema."
 
     @property
-    def unit(self):
+    def unit(self) -> P4MeterUnit:
         return P4MeterUnit(self.pbuf.spec.unit)
 
     @property
@@ -1924,7 +1924,7 @@ class P4ValueSet(_P4TopLevel[p4i.ValueSet]):
             field._finish_init(defs)
 
     @property
-    def match(self):
+    def match(self) -> P4EntityMap[P4MatchField]:
         return self._match
 
     @property
