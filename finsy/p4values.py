@@ -18,7 +18,7 @@ import enum
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 from typing import Any, SupportsInt
 
-from macaddress import MAC as MACAddress
+from finsy.macaddr import MACAddress
 
 
 class DecodeFormat(enum.Flag):
