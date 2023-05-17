@@ -30,6 +30,7 @@ jobs:
       run: |
         ruff check --exit-zero .
         pylint --fail-under 9.0 finsy
+        pyright || echo "Errors ignored for now."
     - name: Run Tests
       run: |
         pytest
@@ -42,6 +43,6 @@ jobs:
       run: |
         black --check .
         isort --check .
-    - name: Strict Lint Check
+    - name: Type Check
       run: |
-        pyright || echo "Errors ignored for now."
+        pyright --ignoreexternal --verifytypes finsy || echo "Not yet 100%."
