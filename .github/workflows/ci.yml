@@ -45,4 +45,4 @@ jobs:
         isort --check .
     - name: Type Check
       run: |
-        pyright --ignoreexternal --verifytypes finsy || echo "Not yet 100%."
+        PYTHONPATH=. pyright --ignoreexternal --verifytypes finsy || echo "Not yet 100%."
