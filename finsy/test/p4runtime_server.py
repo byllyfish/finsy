@@ -46,7 +46,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         self._stream_closed = None
         self._stream_queue = asyncio.Queue()
 
-    def __del__(self):
+    def __del__(self) -> None:
         LOGGER.debug("P4RuntimeServer: destroy server: %s", self._listen_addr)
 
     @contextlib.asynccontextmanager
@@ -78,7 +78,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         context: grpc.aio.ServicerContext[
             p4r.StreamMessageRequest, p4r.StreamMessageResponse
         ],
-    ):
+    ) -> None:
         "Handle StreamChannel."
         # If another stream RPC is already open, return an error.
         if self._stream_context is not None:
@@ -210,7 +210,7 @@ def _parse_args():
     return parser.parse_args()
 
 
-async def main():
+async def _main():
     args = _parse_args()
     logging.basicConfig(level=logging.DEBUG)
 
@@ -220,4 +220,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(_main())

@@ -11,10 +11,11 @@ from dataclasses import KW_ONLY, asdict, dataclass, field
 from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
 from types import TracebackType
-from typing import Any, Sequence
+from typing import Any, Generator, Sequence
 
 from shellous import Command, Runner, sh
 from shellous.harvest import harvest_results
+from typing_extensions import Self
 
 from finsy import MACAddress
 
@@ -82,7 +83,7 @@ class Host(DemoItem):
     assigned_ipv4: str = field(default="", init=False)
     assigned_ipv6: str = field(default="", init=False)
 
-    def init(self, host_id: int):
+    def init(self, host_id: int) -> None:
         "Derive MAC and IP addresses when necessary."
         if self.mac == "auto":
             self.assigned_mac = str(MACAddress(host_id))
@@ -236,7 +237,7 @@ class DemoNet:
         self._prompt = None
         self._pids = {}
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         try:
             await self._setup()
             cmd = podman_start("mininet")
@@ -258,7 +259,7 @@ class DemoNet:
         exc_type: type[BaseException] | None,
         exc_value: BaseException | None,
         exc_tb: TracebackType | None,
-    ):
+    ) -> bool | None:
         assert self._runner is not None
         await self._read_exit()
 
@@ -269,7 +270,7 @@ class DemoNet:
         finally:
             await self._teardown()
 
-    def __await__(self):
+    def __await__(self) -> Generator[None, None, None]:
         return self._interact().__await__()
 
     async def _read_welcome(self):
@@ -303,11 +304,11 @@ class DemoNet:
             await self._cleanup()
             raise
 
-    def mnexec(self, host: str, *args: str):
+    def mnexec(self, host: str, *args: str) -> Command[str]:
         pid = self._pids[host]
         return sh(PODMAN, "exec", "-it", "mininet", "mnexec", "-a", pid, *args)
 
-    async def send(self, cmdline: str, *, expect: str = ""):
+    async def send(self, cmdline: str, *, expect: str = "") -> str:
         assert self._prompt is not None
         result = await self._prompt.send(cmdline)
         print(result)
@@ -315,10 +316,10 @@ class DemoNet:
             assert expect in result
         return result
 
-    async def pingall(self):
+    async def pingall(self) -> str:
         return await self.send("pingall")
 
-    async def ifconfig(self, host: str):
+    async def ifconfig(self, host: str) -> str:
         return await self.send(f"{host} ifconfig")
 
     async def _setup(self):
@@ -520,7 +521,7 @@ def _create_graph(config: Sequence[DemoItem]):
     return graph
 
 
-def draw(config: Sequence[DemoItem], filename: str):
+def draw(config: Sequence[DemoItem], filename: str) -> None:
     "Draw the config as a graph."
     if pgv is None:
         raise RuntimeError("ERROR: pygraphviz is not installed.")
@@ -530,7 +531,7 @@ def draw(config: Sequence[DemoItem], filename: str):
     graph.draw(filename)
 
 
-def run(config: Sequence[DemoItem]):
+def run(config: Sequence[DemoItem]) -> None:
     "Create demo network and run it interactively."
 
     async def _main():
@@ -578,7 +579,7 @@ class SwitchPortDB:
     def __init__(self):
         self._next_port = {}
 
-    def add_switch(self, name: str):
+    def add_switch(self, name: str) -> None:
         if name in self._next_port:
             raise ValueError(f"duplicate switch named {name!r}")
         self._next_port[name] = 1
@@ -599,7 +600,7 @@ def _parse_args():
     return parser.parse_args()
 
 
-def main(config: Sequence[DemoItem]):
+def main(config: Sequence[DemoItem]) -> None:
     "Main entry point for demonet."
     args = _parse_args()
     if args.draw:
