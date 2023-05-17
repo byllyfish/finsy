@@ -114,7 +114,7 @@ class SwitchOptions:
     configuration: Any = None
     "Store your app's configuration information here."
 
-    def __call__(self, **kwds: Any):
+    def __call__(self, **kwds: Any) -> Self:
         return dataclasses.replace(self, **kwds)
 
 
@@ -399,7 +399,7 @@ class Switch:
         *,
         strict: bool = True,
         warn_only: bool = False,
-    ):
+    ) -> None:
         """Write updates and stream messages to the switch.
 
         If `strict` is False, MODIFY and DELETE operations will NOT raise an
@@ -433,7 +433,7 @@ class Switch:
         entities: Iterable[p4entity.P4EntityList],
         *,
         warn_only: bool = False,
-    ):
+    ) -> None:
         """Insert the specified entities.
 
         If `warn_only` is True, errors will be logged as warnings instead of
@@ -455,7 +455,7 @@ class Switch:
         *,
         strict: bool = True,
         warn_only: bool = False,
-    ):
+    ) -> None:
         """Modify the specified entities.
 
         If `strict` is False, NOT_FOUND errors will be ignored.
@@ -479,7 +479,7 @@ class Switch:
         *,
         strict: bool = True,
         warn_only: bool = False,
-    ):
+    ) -> None:
         """Delete the specified entities.
 
         If `strict` is False, NOT_FOUND errors will be ignored.
@@ -500,7 +500,7 @@ class Switch:
     async def delete_all(
         self,
         entities: Iterable[p4entity.P4EntityList] = (),
-    ):
+    ) -> None:
         """Delete all entities if no parameter is passed. Otherwise, delete
         items that match `entities`.
 
@@ -540,7 +540,7 @@ class Switch:
         if digest_entries:
             await self.delete(digest_entries, strict=False)
 
-    async def run(self):
+    async def run(self) -> None:
         "Run the switch's lifecycle repeatedly."
         assert self._p4client is None
         assert self._tasks is None
@@ -635,7 +635,7 @@ class Switch:
             case other:
                 LOGGER.error("_handle_stream_message: unknown update %r", other)
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         "Similar to run() but provides a one-time context manager interface."
         assert self._p4client is None
         assert self._tasks is None
@@ -673,7 +673,7 @@ class Switch:
         _exc_type: type[BaseException] | None,
         _exc_val: BaseException | None,
         _exc_tb: TracebackType | None,
-    ) -> None:
+    ) -> bool | None:
         "Similar to run() but provides a one-time context manager interface."
         assert self._p4client is not None
         assert self._tasks is not None
@@ -1029,7 +1029,7 @@ class Switch:
             await self._gnmi_client.close()
             self._gnmi_client = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         "Return string representation of switch."
         return f"Switch(name={self._name!r}, address={self._address!r})"
 
@@ -1068,7 +1068,7 @@ class SwitchEmitter(pyee.EventEmitter):
             if asyncio.iscoroutine(coro):
                 self._switch.create_task(coro)
 
-    def event_future(self, event: SwitchEvent):
+    def event_future(self, event: SwitchEvent) -> asyncio.Future[Any]:
         "Future to wait for a specific event."
         ready = asyncio.get_running_loop().create_future()
         self.once(event, lambda _: ready.set_result(None))  # type: ignore
@@ -1135,19 +1135,19 @@ class SwitchTasks:
                         "Switch task %r failed", done.get_name(), exc_info=ex
                     )
 
-    def cancel_all(self):
+    def cancel_all(self) -> None:
         "Cancel all tasks."
         for task in self._tasks:
             if not task.done():
                 task.cancel()
 
-    def cancel_primary(self):
+    def cancel_primary(self) -> None:
         "Cancel all non-background tasks."
         for task in self._tasks:
             if not task.done() and not task.get_name().endswith("&"):
                 task.cancel()
 
-    async def wait(self):
+    async def wait(self) -> None:
         "Wait for all tasks to finish."
         try:
             await self._task_count.wait(self.cancel_all)

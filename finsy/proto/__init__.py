@@ -49,7 +49,7 @@ import sys
 if "p4.v1.p4runtime_pb2" in sys.modules:  # pragma: no cover
     raise RuntimeError("p4runtime_pb2 already imported?")
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(__file__))  # noqa: PTH120
 
 from gnmi1 import gnmi_ext_pb2 as gnmi_ext
 from gnmi1 import gnmi_pb2 as gnmi

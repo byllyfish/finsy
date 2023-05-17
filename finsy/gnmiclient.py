@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from typing import Any, AsyncIterator, Iterator, Sequence, TypeAlias, cast
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
+from typing_extensions import Self
 
 from finsy import pbuf
 from finsy.gnmipath import GNMIPath
@@ -77,7 +78,7 @@ class GNMIUpdate:
             raise ValueError("typed_value is not set")
         return getattr(self.typed_value, attr)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         "Override repr to strip newline from end of `TypedValue`."
         value = repr(self.typed_value).rstrip()
         return f"GNMIUpdate(timestamp={self.timestamp!r}, path={self.path!r}, typed_value=`{value}`)"
@@ -168,11 +169,11 @@ class GNMIClient:
         self._address = address
         self._credentials = credentials
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         await self.open()
         return self
 
-    async def __aexit__(self, *_args: Any):
+    async def __aexit__(self, *_args: Any) -> bool | None:
         await self.close()
 
     async def open(
@@ -395,7 +396,7 @@ class GNMISubscription:
         if prefix is not None:
             self._sublist.prefix.CopyFrom(prefix.path)
 
-    def once(self, *paths: GNMIPath):
+    def once(self, *paths: GNMIPath) -> None:
         "Subscribe in `ONCE` mode to given paths."
         self._sublist.mode = gnmi.SubscriptionList.Mode.ONCE
 
@@ -403,7 +404,7 @@ class GNMISubscription:
             sub = gnmi.Subscription(path=path.path)
             self._sublist.subscription.append(sub)
 
-    def on_change(self, *paths: GNMIPath):
+    def on_change(self, *paths: GNMIPath) -> None:
         "Subscribe in `ON_CHANGE` mode to given paths."
         assert self._sublist.mode == gnmi.SubscriptionList.Mode.STREAM
 
@@ -420,7 +421,7 @@ class GNMISubscription:
         sample_interval: int,
         suppress_redundant: bool = False,
         heartbeat_interval: int = 0,
-    ):
+    ) -> None:
         "Subscribe in `SAMPLE` mode to given paths."
         assert self._sublist.mode == gnmi.SubscriptionList.Mode.STREAM
 
@@ -459,7 +460,7 @@ class GNMISubscription:
         except grpc.RpcError as ex:
             raise GNMIClientError(ex) from None
 
-    def cancel(self):
+    def cancel(self) -> None:
         "Cancel the subscription."
         if self._stream is not None:
             self._stream.cancel()

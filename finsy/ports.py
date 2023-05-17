@@ -16,6 +16,7 @@
 
 import enum
 from dataclasses import dataclass
+from typing import Iterator
 
 import finsy.switch as _sw  # circular import
 from finsy.gnmiclient import GNMIClient, GNMIPath, GNMISubscription, GNMIUpdate
@@ -61,19 +62,19 @@ class SwitchPortList:
     def __init__(self):
         self._ports = {}
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> SwitchPort:
         "Retrieve interface by ID."
         return self._ports[key]
 
-    def __len__(self):
+    def __len__(self) -> int:
         "Return number of switch ports."
         return len(self._ports)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[SwitchPort]:
         "Iterate over switch ports."
         return iter(self._ports.values())
 
-    async def subscribe(self, client: GNMIClient):
+    async def subscribe(self, client: GNMIClient) -> None:
         """Obtain the initial list of ports and subscribe to switch port status
         updates using GNMI."""
         assert self._subscription is None
@@ -81,14 +82,14 @@ class SwitchPortList:
         self._ports = await self._get_ports(client)
         self._subscription = await self._get_subscription(client)
 
-    async def listen(self, switch: "_sw.Switch | None" = None):
+    async def listen(self, switch: "_sw.Switch | None" = None) -> None:
         "Listen for switch port updates."
         assert self._subscription is not None
 
         async for update in self._subscription.updates():
             self._update(update, switch)
 
-    def close(self):
+    def close(self) -> None:
         "Close the switch port subscription."
         if self._subscription is not None:
             self._subscription.cancel()
@@ -109,7 +110,7 @@ class SwitchPortList:
 
         return ports
 
-    async def _get_subscription(self, client: GNMIClient):
+    async def _get_subscription(self, client: GNMIClient) -> GNMISubscription:
         sub = client.subscribe()
 
         # Subscribe to change notifications.

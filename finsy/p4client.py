@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from typing import Any, AsyncIterator, Callable, Sequence, TypeAlias, cast, overload
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
+from typing_extensions import Self
 
 from finsy import pbuf
 from finsy.grpcutil import GRPC_EOF, GRPCOptions, GRPCStatusCode, grpc_channel
@@ -258,11 +259,11 @@ class P4Client:
         "Return the GRPC channel object, or None if the channel is not open."
         return self._channel
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         await self.open()
         return self
 
-    async def __aexit__(self, *args: Any):
+    async def __aexit__(self, *args: Any) -> bool | None:
         await self.close()
 
     async def open(

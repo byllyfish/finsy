@@ -3,9 +3,9 @@ from ipaddress import ip_address as IP
 from typing import Any
 
 import pytest
-from macaddress import MAC
 
 from finsy import p4values
+from finsy.macaddr import MACAddress
 from finsy.p4values import DecodeFormat
 
 ADDR_STR = DecodeFormat.ADDRESS | DecodeFormat.STRING
@@ -86,7 +86,7 @@ def test_encode_exact_fail():
         ("0.0.0.1", 8),
         (IP("0.0.0.1"), 8),
         (IP("::1"), 32),
-        (MAC("0e-00-00-00-00-01"), 32),
+        (MACAddress("0e-00-00-00-00-01"), 32),
     ]
 
     for value, bitwidth in data:
@@ -132,7 +132,7 @@ def test_encode_exact_mac():
         ("01:00:00:00:00:01", _MAC),
         ("00-00-00-00-00-01", b"\x01"),
         (" 01-00-00-00-00-01 ", _MAC),  # ignore spaces
-        (MAC("01-00-00-00-00-01"), _MAC),
+        (MACAddress("01-00-00-00-00-01"), _MAC),
     ]
 
     for value, result in data:
@@ -191,21 +191,25 @@ def test_decode_exact_int():
 def test_decode_exact_mac():
     "Test the decode_exact function with MAC address values."
     data = [
-        (b"\x00", "00-00-00-00-00-00"),
-        (b"\x00\x00\x00", "00-00-00-00-00-00"),
-        (b"\x01", "00-00-00-00-00-01"),
-        (b"\xFF", "00-00-00-00-00-FF"),
-        (b"\x00\xFF", "00-00-00-00-00-FF"),
-        (b"\x01\x00", "00-00-00-00-01-00"),
+        (b"\x00", "00:00:00:00:00:00"),
+        (b"\x00\x00\x00", "00:00:00:00:00:00"),
+        (b"\x01", "00:00:00:00:00:01"),
+        (b"\xFF", "00:00:00:00:00:FF"),
+        (b"\x00\xFF", "00:00:00:00:00:FF"),
+        (b"\x01\x00", "00:00:00:00:01:00"),
     ]
 
     for value, result in data:
-        assert p4values.decode_exact(value, 48, DecodeFormat.ADDRESS) == MAC(result)
+        assert p4values.decode_exact(value, 48, DecodeFormat.ADDRESS) == MACAddress(
+            result
+        )
         assert p4values.decode_exact(value, 48, ADDR_STR) == result
 
     for value, result in data:
         assert p4values.encode_exact(result, 48) == p4values.p4r_truncate(value)
-        assert p4values.encode_exact(MAC(result), 48) == p4values.p4r_truncate(value)
+        assert p4values.encode_exact(MACAddress(result), 48) == p4values.p4r_truncate(
+            value
+        )
 
 
 def test_decode_exact_ipv4():
@@ -328,7 +332,7 @@ def test_encode_lpm_mac():
     "Test the encode_lpm function."
     data = [
         ("0e:00:00:00:00:01", (b"\x0e\x00\x00\x00\x00\x01", 48)),
-        (MAC("0e:00:00:00:00:01"), (b"\x0e\x00\x00\x00\x00\x01", 48)),
+        (MACAddress("0e:00:00:00:00:01"), (b"\x0e\x00\x00\x00\x00\x01", 48)),
         ("0e:00:00:00:00:01/24", (b"\x0e\x00\x00\x00\x00\x00", 24)),
         (" 0e:00:00:00:00:01/24 ", (b"\x0e\x00\x00\x00\x00\x00", 24)),  # ignore spaces
         ("0e:00:00:00:00:01/ff:ff:ff:00:00:00", (b"\x0e\x00\x00\x00\x00\x00", 24)),
@@ -349,7 +353,7 @@ def test_encode_lpm_fail():
         ("127.0.0.1", 8),
         (IP("127.0.0.1"), 8),
         (IP("::1"), 32),
-        (MAC("0e:00:00:00:00:01"), 32),
+        (MACAddress("0e:00:00:00:00:01"), 32),
         ("abc", 0),  # SdnString not supported
     ]
 

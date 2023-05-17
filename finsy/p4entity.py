@@ -16,7 +16,16 @@
 
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
-from typing import Any, Iterable, Iterator, NoReturn, Protocol, Sequence, TypeVar
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    NoReturn,
+    Protocol,
+    Sequence,
+    TypeVar,
+)
 
 from typing_extensions import Self
 
@@ -61,7 +70,7 @@ _DECODER: dict[str, _SupportsDecode] = {}
 _D = TypeVar("_D", bound=_SupportsDecode)
 
 
-def decodable(key: str):
+def decodable(key: str) -> Callable[[_D], _D]:
     "Class decorator to specify the class used to decode P4Runtime messages."
 
     def _decorate(cls: _D) -> _D:
@@ -168,15 +177,15 @@ class _P4Writable(P4Entity):
 
     _update_type: P4UpdateType = P4UpdateType.UNSPECIFIED
 
-    def __pos__(self):
+    def __pos__(self) -> Self:
         self._update_type = P4UpdateType.INSERT
         return self
 
-    def __neg__(self):
+    def __neg__(self) -> Self:
         self._update_type = P4UpdateType.DELETE
         return self
 
-    def __invert__(self):
+    def __invert__(self) -> Self:
         self._update_type = P4UpdateType.MODIFY
         return self
 
@@ -190,7 +199,7 @@ class _P4Writable(P4Entity):
 class _P4ModifyOnly(P4Entity):
     "Abstract base class for entities that only support modify (no insert/delete)."
 
-    def __invert__(self):
+    def __invert__(self) -> Self:
         return self
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
@@ -511,7 +520,7 @@ class P4IndirectAction:
 
         return f"__indirect(group_id={self.group_id:#x})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         "Customize representation to make it more concise."
         if self.action_set is not None:
             return f"P4IndirectAction(action_set={self.action_set!r})"
@@ -1520,11 +1529,11 @@ class P4PacketIn:
             metadata=cpm.decode(packet.metadata),
         )
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Any:
         "Retrieve metadata value."
         return self.metadata[key]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         "Return friendlier hexadecimal description of packet."
         if self.metadata:
             return f"P4PacketIn(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
@@ -1553,11 +1562,11 @@ class P4PacketOut:
             )
         )
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Any:
         "Retrieve metadata value."
         return self.metadata[key]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         "Return friendlier hexadecimal description of packet."
         if self.metadata:
             return f"P4PacketOut(metadata={self.metadata!r}, payload=h'{self.payload.hex()}')"
@@ -1589,15 +1598,15 @@ class P4DigestList:
             data=[type_spec.decode_data(item) for item in digest_list.data],
         )
 
-    def __len__(self):
+    def __len__(self) -> int:
         "Return number of values in digest list."
         return len(self.data)
 
-    def __getitem__(self, key: int):
+    def __getitem__(self, key: int) -> _DataValueType:
         "Retrieve value at given index from digest list."
         return self.data[key]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[_DataValueType]:
         "Iterate over values in digest list."
         return iter(self.data)
 

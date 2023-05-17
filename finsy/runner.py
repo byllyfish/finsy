@@ -41,7 +41,7 @@ async def _finsy_main(coro: Coroutine[Any, Any, None]):
         await coro
 
 
-def run(coro: Coroutine[Any, Any, None]):
+def run(coro: Coroutine[Any, Any, None]) -> None:
     "Helper API that provides the boilerplate for `asyncio.run`."
     try:
         asyncio.run(_finsy_main(coro))
