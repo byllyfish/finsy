@@ -16,6 +16,7 @@
 
 import enum
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Sequence, cast
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
@@ -92,7 +93,7 @@ class GRPCOptions:
     max_metadata_size: int | None = None
     max_reconnect_backoff_ms: int | None = None
 
-    def args(self) -> Sequence[tuple[str, int]]:
+    def to_native(self) -> Sequence[tuple[str, int]]:
         "Return GRPC options in form suitable for grpc API."
         results: list[tuple[str, int]] = []
 
@@ -107,15 +108,45 @@ class GRPCOptions:
         return results
 
 
+@dataclass
+class GRPCCredentials:
+    "GRPC channel credentials."
+
+    cacert: Path | bytes | None
+    cert: Path | bytes | None
+    key: Path | bytes | None
+
+    def to_native(self) -> grpc.ChannelCredentials:
+        "Create grpc-native SSL credentials object."
+        if isinstance(self.cacert, Path):
+            root_certificates = self.cacert.read_bytes()
+        else:
+            root_certificates = self.cacert
+
+        if isinstance(self.cert, Path):
+            certificate_chain = self.cert.read_bytes()
+        else:
+            certificate_chain = self.cert
+
+        if isinstance(self.key, Path):
+            private_key = self.key.read_bytes()
+        else:
+            private_key = self.key
+
+        return grpc.ssl_channel_credentials(  # pyright: ignore[reportUnknownMemberType]
+            root_certificates, private_key, certificate_chain
+        )
+
+
 def grpc_channel(
     address: str,
     *,
-    credentials: grpc.ChannelCredentials | None = None,
+    credentials: GRPCCredentials | None = None,
     options: GRPCOptions | None = None,
     client_type: str = "GRPC",
 ) -> grpc.aio.Channel:
     "Create a GRPC AIO channel."
-    args = options.args() if options else None
+    args = options.to_native() if options else None
 
     if credentials is None:
         LOGGER.debug("%s: create INSECURE channel %r", client_type, address)
@@ -127,7 +158,7 @@ def grpc_channel(
         LOGGER.debug("%s: create secure channel %r", client_type, address)
         channel = grpc.aio.secure_channel(
             address,
-            credentials=credentials,
+            credentials=credentials.to_native(),
             options=args,
         )
 
