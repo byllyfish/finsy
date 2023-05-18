@@ -1,3 +1,5 @@
+import asyncio
+
 import grpc
 import pytest
 
@@ -35,6 +37,18 @@ async def test_wrong_tls_client_vs_tls_server(p4rt_secure_server):
     async with client:
         with pytest.raises(P4ClientError, match="Ssl handshake failed:"):
             await _check_arbitration_request(client)
+
+
+async def test_wrong_tls_client_vs_tls_server_wait_for_ready(p4rt_secure_server):
+    "Test P4Client using TLS."
+    client = P4Client(p4rt_secure_server[0], CLIENT2_CREDS, wait_for_ready=True)
+    async with client:
+        # FIXME: When using wait_for_ready, we need to check for failure. GRPC
+        # does not surface TLS errors or alerts. Problems will be logged to
+        # stderr, but that might be obscured. The Timeout here is needed
+        # because GRPC will just keep going...
+        with pytest.raises(asyncio.TimeoutError):
+            await asyncio.wait_for(_check_arbitration_request(client), 2.0)
 
 
 async def test_insecure_client_vs_tls_server(p4rt_secure_server):
