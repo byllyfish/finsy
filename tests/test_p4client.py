@@ -3,8 +3,16 @@ import pytest
 
 from finsy import GRPCStatusCode, P4Client, P4ClientError, P4Error, pbuf
 from finsy.proto import U128, p4r, rpc_status
+from finsy.test.p4runtime_server import P4RuntimeServer
 
-from .test_certs import CLIENT1_CREDS, CLIENT2_CREDS
+from .test_certs import (
+    CLIENT1_CREDS,
+    CLIENT2_CREDS,
+    CLIENT3_CREDS_XCLIENT,
+    CLIENT4_CREDS_XSERVER,
+    SERVER3_CREDS_XCLIENT,
+    SERVER4_CREDS_XSERVER,
+)
 
 
 async def test_insecure_client_vs_insecure_server(p4rt_server_target):
@@ -44,6 +52,28 @@ async def test_tls_client_vs_insecure_server(p4rt_server_target):
         with pytest.raises(
             P4ClientError, match="Ssl handshake failed:.*:WRONG_VERSION_NUMBER"
         ):
+            await _check_arbitration_request(client)
+
+
+async def test_expired_tls_client_vs_tls_server(unused_tcp_target):
+    "Test P4Client using TLS."
+    server = P4RuntimeServer(unused_tcp_target, credentials=SERVER3_CREDS_XCLIENT)
+    async with server.run():
+        client = P4Client(
+            unused_tcp_target, CLIENT3_CREDS_XCLIENT, wait_for_ready=False
+        )
+        async with client:
+            await _check_arbitration_request(client)
+
+
+async def test_tls_client_vs_expired_tls_server(unused_tcp_target):
+    "Test P4Client using TLS."
+    server = P4RuntimeServer(unused_tcp_target, credentials=SERVER4_CREDS_XSERVER)
+    async with server.run():
+        client = P4Client(
+            unused_tcp_target, CLIENT4_CREDS_XSERVER, wait_for_ready=False
+        )
+        async with client:
             await _check_arbitration_request(client)
 
 
