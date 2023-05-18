@@ -1,52 +1,56 @@
 #!/bin/bash
 #
-# Script to make client/server TLS certificates.
+# Script to make client/server TLS certificates for testing.
 # 
 # Usage:  ./make_certs.sh <id>
 
+# shellcheck disable=SC2086
+
 set -eu
 
-ID="${1-}"
+ID="${1-}"  # ID is optional
 
-PASSWORD=password
-PREFIX="/C=US/ST=AZ/L=Phoenix/O=Test/OU=Test"
+PREFIX="/C=US/ST=AZ/L=Phoenix/O=Finsy/OU=Test"
 KEY_SIZE=4096
-CERT_DAYS=3650
+SER_NUM=01
 
+CA_CERT_DAYS=3650
 CA_KEY="ca$ID.key"
 CA_CRT="ca$ID.crt"
 
+SERVER_CERT_DAYS=3650
 SERVER_KEY="server$ID.key"
 SERVER_CRT="server$ID.crt"
-SERVER_CSR="_server.csr"
+SERVER_CSR="_server$ID.csr"
 
+CLIENT_CERT_DAYS=3650
 CLIENT_KEY="client$ID.key"
 CLIENT_CRT="client$ID.crt"
-CLIENT_CSR="_client.csr"
+CLIENT_CSR="_client$ID.csr"
 
-# Generate CA
-openssl genrsa -passout pass:$PASSWORD -des3 -out $CA_KEY $KEY_SIZE
-openssl req -passin pass:$PASSWORD -new -x509 -days $CERT_DAYS -key $CA_KEY -out $CA_CRT \
-  -subj "$PREFIX/CN=root"
+echo
+echo "*** Generate CA ***"
+openssl genrsa -out $CA_KEY $KEY_SIZE
+openssl req -new -x509 -days $CA_CERT_DAYS -key $CA_KEY -out $CA_CRT -subj "$PREFIX/CN=root"
 
-# Generate server certificate and key
-openssl genrsa -passout pass:$PASSWORD -des3 -out $SERVER_KEY $KEY_SIZE
-openssl req -passin pass:$PASSWORD -new -key $SERVER_KEY -out $SERVER_CSR \
-  -subj "$PREFIX/CN=localhost"
-openssl x509 -req -passin pass:$PASSWORD \
+echo
+echo "*** Generate server certificate and key ***"
+openssl genrsa -out $SERVER_KEY $KEY_SIZE
+openssl req -new -key $SERVER_KEY -out $SERVER_CSR -subj "$PREFIX/CN=localhost"
+openssl x509 -req \
   -extfile <(printf "subjectAltName=DNS:localhost,IP:127.0.0.1") \
-  -days $CERT_DAYS -in $SERVER_CSR -CA $CA_CRT -CAkey $CA_KEY -set_serial 01 -out $SERVER_CRT
+  -days $SERVER_CERT_DAYS -in $SERVER_CSR -CA $CA_CRT -CAkey $CA_KEY -set_serial $SER_NUM -out $SERVER_CRT
 
-# Generate client certificate and key
-openssl genrsa -passout pass:$PASSWORD -des3 -out $CLIENT_KEY $KEY_SIZE
-openssl req -passin pass:$PASSWORD -new -key $CLIENT_KEY -out $CLIENT_CSR -subj "$PREFIX/CN=client"
-openssl x509 -passin pass:$PASSWORD -req -days $CERT_DAYS -in $CLIENT_CSR -CA $CA_CRT -CAkey $CA_KEY -set_serial 01 -out $CLIENT_CRT
-
-# Remove passphrase from both keys.
-openssl rsa -passin pass:$PASSWORD -in $SERVER_KEY -out $SERVER_KEY
-openssl rsa -passin pass:$PASSWORD -in $CLIENT_KEY -out $CLIENT_KEY
+echo
+echo "*** Generate client certificate and key ***"
+openssl genrsa -out $CLIENT_KEY $KEY_SIZE
+openssl req -new -key $CLIENT_KEY -out $CLIENT_CSR -subj "$PREFIX/CN=client"
+openssl x509 -req -days $CLIENT_CERT_DAYS -in $CLIENT_CSR -CA $CA_CRT -CAkey $CA_KEY -set_serial $SER_NUM -out $CLIENT_CRT
 
 # Remove unneeded files.
 rm "$CA_KEY" "$SERVER_CSR" "$CLIENT_CSR"
 
-echo "Done."
+echo
+echo "*** Done ***"
+
+exit 0
