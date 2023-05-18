@@ -24,7 +24,7 @@ if sys.version_info < (3, 10):  # pragma: no cover
 from .controller import Controller
 from .gnmiclient import GNMIClient, GNMISubscription, GNMIUpdate
 from .gnmipath import GNMIPath
-from .grpcutil import GRPCCredentials, GRPCStatusCode
+from .grpcutil import GRPCCredentialsTLS, GRPCStatusCode
 from .log import LoggerAdapter
 from .macaddr import MACAddress
 from .p4client import P4Client, P4ClientError, P4Error
@@ -95,6 +95,6 @@ __all__ = [
     "GNMIPath",
     "GNMISubscription",
     "GNMIUpdate",
-    "GRPCCredentials",
+    "GRPCCredentialsTLS",
     "GRPCStatusCode",
 ]

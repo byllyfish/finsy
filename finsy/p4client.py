@@ -24,7 +24,7 @@ from typing_extensions import Self
 from finsy import pbuf
 from finsy.grpcutil import (
     GRPC_EOF,
-    GRPCCredentials,
+    GRPCCredentialsTLS,
     GRPCOptions,
     GRPCStatusCode,
     grpc_channel,
@@ -239,7 +239,7 @@ class P4Client:
     "Implements a P4Runtime client."
 
     _address: str
-    _credentials: GRPCCredentials | None
+    _credentials: GRPCCredentialsTLS | None
     _wait_for_ready: bool
     _channel: grpc.aio.Channel | None = None
     _stub: p4r_grpc.P4RuntimeStub | None = None
@@ -252,7 +252,7 @@ class P4Client:
     def __init__(
         self,
         address: str,
-        credentials: GRPCCredentials | None = None,
+        credentials: GRPCCredentialsTLS | None = None,
         *,
         wait_for_ready: bool = True,
     ) -> None:

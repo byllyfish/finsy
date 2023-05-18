@@ -108,40 +108,51 @@ class GRPCOptions:
         return results
 
 
-@dataclass
-class GRPCCredentials:
-    "GRPC channel credentials."
+@dataclass(kw_only=True)
+class GRPCCredentialsTLS:
+    "GRPC channel credentials for Transport Layer Security (TLS)."
 
     cacert: Path | bytes | None
     cert: Path | bytes | None
-    key: Path | bytes | None
+    private_key: Path | bytes | None
 
-    def to_native(self) -> grpc.ChannelCredentials:
-        "Create grpc-native SSL credentials object."
-        if isinstance(self.cacert, Path):
-            root_certificates = self.cacert.read_bytes()
-        else:
-            root_certificates = self.cacert
-
-        if isinstance(self.cert, Path):
-            certificate_chain = self.cert.read_bytes()
-        else:
-            certificate_chain = self.cert
-
-        if isinstance(self.key, Path):
-            private_key = self.key.read_bytes()
-        else:
-            private_key = self.key
+    def to_client_credentials(self) -> grpc.ChannelCredentials:
+        "Create native SSL client credentials object."
+        root_certificates = _coerce_tls_path(self.cacert)
+        certificate_chain = _coerce_tls_path(self.cert)
+        private_key = _coerce_tls_path(self.private_key)
 
         return grpc.ssl_channel_credentials(  # pyright: ignore[reportUnknownMemberType]
-            root_certificates, private_key, certificate_chain
+            root_certificates=root_certificates,
+            private_key=private_key,
+            certificate_chain=certificate_chain,
         )
+
+    def to_server_credentials(self) -> grpc.ServerCredentials:
+        "Create native SSL server credentials object."
+        root_certificates = _coerce_tls_path(self.cacert)
+        certificate_chain = _coerce_tls_path(self.cert)
+        private_key = _coerce_tls_path(self.private_key)
+
+        return grpc.ssl_server_credentials(  # pyright: ignore[reportUnknownMemberType]
+            private_key_certificate_chain_pairs=[(private_key, certificate_chain)],
+            root_certificates=root_certificates,
+            require_client_auth=True,
+        )
+
+
+def _coerce_tls_path(value: Path | bytes | None) -> bytes | None:
+    "Convert Path to bytes."
+    if isinstance(value, Path):
+        return value.read_bytes()
+    assert value is None or isinstance(value, bytes)
+    return value
 
 
 def grpc_channel(
     address: str,
     *,
-    credentials: GRPCCredentials | None = None,
+    credentials: GRPCCredentialsTLS | None = None,
     options: GRPCOptions | None = None,
     client_type: str = "GRPC",
 ) -> grpc.aio.Channel:
@@ -158,7 +169,7 @@ def grpc_channel(
         LOGGER.debug("%s: create secure channel %r", client_type, address)
         channel = grpc.aio.secure_channel(
             address,
-            credentials=credentials.to_native(),
+            credentials=credentials.to_client_credentials(),
             options=args,
         )
 

@@ -43,7 +43,7 @@ from typing_extensions import Self
 from finsy import p4entity, pbuf
 from finsy.futures import CountdownFuture
 from finsy.gnmiclient import GNMIClient, GNMIClientError
-from finsy.grpcutil import GRPCCredentials, GRPCStatusCode
+from finsy.grpcutil import GRPCCredentialsTLS, GRPCStatusCode
 from finsy.log import LOGGER
 from finsy.p4arbitrator import Arbitrator
 from finsy.p4client import P4Client, P4ClientError
@@ -94,7 +94,7 @@ class SwitchOptions:
     initial_election_id: int = 10
     "Initial P4Runtime election ID."
 
-    channel_credentials: GRPCCredentials | None = None
+    channel_credentials: GRPCCredentialsTLS | None = None
     "P4Runtime channel credentials. Used for TLS support."
 
     role_name: str = ""

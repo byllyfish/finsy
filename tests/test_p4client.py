@@ -1,26 +1,66 @@
 import grpc
+import pytest
 
-from finsy import GRPCStatusCode, P4Client, P4ClientError, pbuf
-from finsy.p4client import P4Error
+from finsy import GRPCStatusCode, P4Client, P4ClientError, P4Error, pbuf
 from finsy.proto import U128, p4r, rpc_status
 
+from .test_certs import CLIENT1_CREDS, CLIENT2_CREDS
 
-async def test_client(p4rt_server_target):
-    "Test P4Client."
-    client = P4Client(p4rt_server_target)
+
+async def test_insecure_client_vs_insecure_server(p4rt_server_target):
+    "Test insecure P4Client."
+    client = P4Client(p4rt_server_target, wait_for_ready=False)
     async with client:
-        await client.send(
-            p4r.StreamMessageRequest(
-                arbitration=p4r.MasterArbitrationUpdate(
-                    device_id=1,
-                    election_id=U128.encode(1),
-                )
+        await _check_arbitration_request(client)
+
+
+async def test_tls_client_vs_tls_server(p4rt_secure_server):
+    "Test P4Client using TLS."
+    client = P4Client(*p4rt_secure_server, wait_for_ready=False)
+    async with client:
+        await _check_arbitration_request(client)
+
+
+async def test_wrong_tls_client_vs_tls_server(p4rt_secure_server):
+    "Test P4Client using TLS."
+    client = P4Client(p4rt_secure_server[0], CLIENT2_CREDS, wait_for_ready=False)
+    async with client:
+        with pytest.raises(P4ClientError, match="Ssl handshake failed:"):
+            await _check_arbitration_request(client)
+
+
+async def test_insecure_client_vs_tls_server(p4rt_secure_server):
+    "Test P4Client."
+    client = P4Client(p4rt_secure_server[0], wait_for_ready=False)
+    async with client:
+        with pytest.raises(P4ClientError, match="UNAVAILABLE:.*:Socket closed"):
+            await _check_arbitration_request(client)
+
+
+async def test_tls_client_vs_insecure_server(p4rt_server_target):
+    "Test P4Client."
+    client = P4Client(p4rt_server_target, CLIENT1_CREDS, wait_for_ready=False)
+    async with client:
+        with pytest.raises(
+            P4ClientError, match="Ssl handshake failed:.*:WRONG_VERSION_NUMBER"
+        ):
+            await _check_arbitration_request(client)
+
+
+async def _check_arbitration_request(client: P4Client):
+    "Send an arbitration request and check the arbitration reply."
+    await client.send(
+        p4r.StreamMessageRequest(
+            arbitration=p4r.MasterArbitrationUpdate(
+                device_id=1,
+                election_id=U128.encode(1),
             )
         )
-        reply = await client.receive()
-        assert pbuf.to_dict(reply) == {
-            "arbitration": {"device_id": "1", "election_id": {"low": "1"}}
-        }
+    )
+    reply = await client.receive()
+    assert pbuf.to_dict(reply) == {
+        "arbitration": {"device_id": "1", "election_id": {"low": "1"}}
+    }
 
 
 def test_client_error():
