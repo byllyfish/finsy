@@ -33,7 +33,7 @@ async def test_insecure_client_vs_tls_server(p4rt_secure_server):
     "Test P4Client."
     client = P4Client(p4rt_secure_server[0], wait_for_ready=False)
     async with client:
-        with pytest.raises(P4ClientError, match="UNAVAILABLE:.*:Socket closed"):
+        with pytest.raises(P4ClientError, match="UNAVAILABLE:.*: Socket closed"):
             await _check_arbitration_request(client)
 
 
