@@ -9,12 +9,15 @@ from finsy.test.p4runtime_server import P4RuntimeServer
 
 from .test_certs import (
     CLIENT1_CREDS,
+    CLIENT1_MISCONFIG_CREDS,
     CLIENT1_MISSING_CREDS,
     CLIENT2_CREDS,
     CLIENT3_CREDS_XCLIENT,
     CLIENT4_CREDS_XSERVER,
+    CLIENT5_CREDS,
     SERVER3_CREDS_XCLIENT,
     SERVER4_CREDS_XSERVER,
+    SERVER5_CREDS_NO_IP,
 )
 
 
@@ -26,14 +29,14 @@ async def test_insecure_client_vs_insecure_server(p4rt_server_target):
 
 
 async def test_tls_client_vs_tls_server(p4rt_secure_server):
-    "Test P4Client using TLS."
+    "Test TLS P4Client."
     client = P4Client(*p4rt_secure_server, wait_for_ready=False)
     async with client:
         await _check_arbitration_request(client)
 
 
 async def test_wrong_tls_client_vs_tls_server(p4rt_secure_server):
-    "Test P4Client using TLS."
+    "Test TLS P4Client using the wrong certificate for a server."
     client = P4Client(p4rt_secure_server[0], CLIENT2_CREDS, wait_for_ready=False)
     async with client:
         with pytest.raises(P4ClientError, match="Ssl handshake failed:"):
@@ -41,7 +44,7 @@ async def test_wrong_tls_client_vs_tls_server(p4rt_secure_server):
 
 
 async def test_wrong_tls_client_vs_tls_server_wait_for_ready(p4rt_secure_server):
-    "Test P4Client using TLS."
+    "Test TLS P4Client using wrong certificate for a server (wait_for_ready)."
     client = P4Client(p4rt_secure_server[0], CLIENT2_CREDS, wait_for_ready=True)
     async with client:
         # FIXME: When using wait_for_ready, we need to check for failure. GRPC
@@ -53,7 +56,7 @@ async def test_wrong_tls_client_vs_tls_server_wait_for_ready(p4rt_secure_server)
 
 
 async def test_insecure_client_vs_tls_server(p4rt_secure_server):
-    "Test P4Client."
+    "Test insecure P4Client against a TLS server."
     client = P4Client(p4rt_secure_server[0], wait_for_ready=False)
     async with client:
         with pytest.raises(P4ClientError, match="UNAVAILABLE:.*: Socket closed"):
@@ -61,7 +64,7 @@ async def test_insecure_client_vs_tls_server(p4rt_secure_server):
 
 
 async def test_tls_client_vs_insecure_server(p4rt_server_target):
-    "Test P4Client."
+    "Test TLS P4Client against an insecure server."
     client = P4Client(p4rt_server_target, CLIENT1_CREDS, wait_for_ready=False)
     async with client:
         with pytest.raises(
@@ -71,7 +74,7 @@ async def test_tls_client_vs_insecure_server(p4rt_server_target):
 
 
 async def test_expired_tls_client_vs_tls_server(unused_tcp_target):
-    "Test P4Client using TLS."
+    "Test TLS P4Client with an expired client certificate."
     server = P4RuntimeServer(unused_tcp_target, credentials=SERVER3_CREDS_XCLIENT)
     async with server.run():
         client = P4Client(
@@ -83,7 +86,7 @@ async def test_expired_tls_client_vs_tls_server(unused_tcp_target):
 
 
 async def test_tls_client_vs_expired_tls_server(unused_tcp_target):
-    "Test P4Client using TLS."
+    "Test TLS P4Client against a server with an expired certificate."
     server = P4RuntimeServer(unused_tcp_target, credentials=SERVER4_CREDS_XSERVER)
     async with server.run():
         client = P4Client(
@@ -97,13 +100,40 @@ async def test_tls_client_vs_expired_tls_server(unused_tcp_target):
 
 
 async def test_tls_client_vs_tls_server_missing_client_cert(p4rt_secure_server):
-    "Test P4Client using TLS."
+    "Test TLS P4Client with a missing client certificate."
     client = P4Client(
         p4rt_secure_server[0], CLIENT1_MISSING_CREDS, wait_for_ready=False
     )
     async with client:
         with pytest.raises(P4ClientError, match="UNAVAILABLE:.*: Socket closed"):
             await _check_arbitration_request(client)
+
+
+async def test_tls_client_using_misconfigured_key(p4rt_secure_server):
+    "Test TLS client using misconfigured certificate/private key pair."
+    client = P4Client(
+        p4rt_secure_server[0], CLIENT1_MISCONFIG_CREDS, wait_for_ready=False
+    )
+    async with client:
+        with pytest.raises(
+            P4ClientError,
+            match="code=GRPCStatusCode.UNAVAILABLE message='empty address list: '",
+        ):
+            await _check_arbitration_request(client)
+
+
+async def test_tls_client_using_wrong_name(unused_tcp_port):
+    "Test TLS client using ::1 loopback address (certs only configured for IPv4)."
+    target = f"127.0.0.1:{unused_tcp_port}"
+    server = P4RuntimeServer(target, credentials=SERVER5_CREDS_NO_IP)
+    async with server.run():
+        client = P4Client(target, CLIENT5_CREDS, wait_for_ready=False)
+        async with client:
+            with pytest.raises(
+                P4ClientError,
+                match="Peer name 127.0.0.1 is not in peer certificate",
+            ):
+                await _check_arbitration_request(client)
 
 
 async def _check_arbitration_request(client: P4Client):

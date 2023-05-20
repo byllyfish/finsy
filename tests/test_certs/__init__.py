@@ -25,6 +25,12 @@ CLIENT1_MISSING_CREDS = fy.GRPCCredentialsTLS(
     private_key=None,
 )
 
+CLIENT1_MISCONFIG_CREDS = fy.GRPCCredentialsTLS(
+    cacert=_THIS_DIR / "mtls1/ca.crt",
+    cert=_THIS_DIR / "mtls1/client.crt",
+    private_key=_THIS_DIR / "mtls2/client.key",  # wrong key for cert!
+)
+
 SERVER2_CREDS = fy.GRPCCredentialsTLS(
     cacert=_THIS_DIR / "mtls2/ca.crt",
     cert=_THIS_DIR / "mtls2/server.crt",
@@ -61,4 +67,18 @@ CLIENT4_CREDS_XSERVER = fy.GRPCCredentialsTLS(
     cacert=_THIS_DIR / "mtls4_expired_server/ca.crt",
     cert=_THIS_DIR / "mtls4_expired_server/client.crt",
     private_key=_THIS_DIR / "mtls4_expired_server/client.key",
+)
+
+# No IP in SAN
+
+SERVER5_CREDS_NO_IP = fy.GRPCCredentialsTLS(
+    cacert=_THIS_DIR / "mtls5_no_ip/ca.crt",
+    cert=_THIS_DIR / "mtls5_no_ip/server.crt",
+    private_key=_THIS_DIR / "mtls5_no_ip/server.key",
+)
+
+CLIENT5_CREDS = fy.GRPCCredentialsTLS(
+    cacert=_THIS_DIR / "mtls5_no_ip/ca.crt",
+    cert=_THIS_DIR / "mtls5_no_ip/client.crt",
+    private_key=_THIS_DIR / "mtls5_no_ip/client.key",
 )
