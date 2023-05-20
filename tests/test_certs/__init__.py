@@ -19,6 +19,12 @@ CLIENT1_CREDS = fy.GRPCCredentialsTLS(
     private_key=_THIS_DIR / "mtls1/client.key",
 )
 
+CLIENT1_MISSING_CREDS = fy.GRPCCredentialsTLS(
+    cacert=_THIS_DIR / "mtls1/ca.crt",
+    cert=None,
+    private_key=None,
+)
+
 SERVER2_CREDS = fy.GRPCCredentialsTLS(
     cacert=_THIS_DIR / "mtls2/ca.crt",
     cert=_THIS_DIR / "mtls2/server.crt",

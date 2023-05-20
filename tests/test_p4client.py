@@ -9,6 +9,7 @@ from finsy.test.p4runtime_server import P4RuntimeServer
 
 from .test_certs import (
     CLIENT1_CREDS,
+    CLIENT1_MISSING_CREDS,
     CLIENT2_CREDS,
     CLIENT3_CREDS_XCLIENT,
     CLIENT4_CREDS_XSERVER,
@@ -77,7 +78,8 @@ async def test_expired_tls_client_vs_tls_server(unused_tcp_target):
             unused_tcp_target, CLIENT3_CREDS_XCLIENT, wait_for_ready=False
         )
         async with client:
-            await _check_arbitration_request(client)
+            with pytest.raises(P4ClientError, match="UNAVAILABLE:.*: Socket closed"):
+                await _check_arbitration_request(client)
 
 
 async def test_tls_client_vs_expired_tls_server(unused_tcp_target):
@@ -88,6 +90,19 @@ async def test_tls_client_vs_expired_tls_server(unused_tcp_target):
             unused_tcp_target, CLIENT4_CREDS_XSERVER, wait_for_ready=False
         )
         async with client:
+            with pytest.raises(
+                P4ClientError, match="Ssl handshake failed:.*:CERTIFICATE_VERIFY_FAILED"
+            ):
+                await _check_arbitration_request(client)
+
+
+async def test_tls_client_vs_tls_server_missing_client_cert(p4rt_secure_server):
+    "Test P4Client using TLS."
+    client = P4Client(
+        p4rt_secure_server[0], CLIENT1_MISSING_CREDS, wait_for_ready=False
+    )
+    async with client:
+        with pytest.raises(P4ClientError, match="UNAVAILABLE:.*: Socket closed"):
             await _check_arbitration_request(client)
 
 
