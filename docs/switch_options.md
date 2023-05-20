@@ -10,7 +10,7 @@ SwitchOptions(
     p4force: bool = False,
     device_id: int = 1, 
     initial_election_id: int = 10, 
-    channel_credentials: GRPCCredentials | None = None, 
+    channel_credentials: GRPCCredentialsTLS | None = None, 
     role_name: str = "",
     role_config: pbuf.PBMessage | None = None,
     ready_handler: Optional[Callable[[ForwardRef('Switch')], Coroutine[Any, Any, NoneType]]] = None,
