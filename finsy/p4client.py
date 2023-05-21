@@ -22,7 +22,13 @@ import grpc  # pyright: ignore[reportMissingTypeStubs]
 from typing_extensions import Self
 
 from finsy import pbuf
-from finsy.grpcutil import GRPC_EOF, GRPCOptions, GRPCStatusCode, grpc_channel
+from finsy.grpcutil import (
+    GRPC_EOF,
+    GRPCCredentialsTLS,
+    GRPCOptions,
+    GRPCStatusCode,
+    grpc_channel,
+)
 from finsy.log import LOGGER
 from finsy.p4schema import P4Schema
 from finsy.proto import p4r, p4r_grpc, rpc_code, rpc_status
@@ -233,7 +239,7 @@ class P4Client:
     "Implements a P4Runtime client."
 
     _address: str
-    _credentials: grpc.ChannelCredentials | None
+    _credentials: GRPCCredentialsTLS | None
     _wait_for_ready: bool
     _channel: grpc.aio.Channel | None = None
     _stub: p4r_grpc.P4RuntimeStub | None = None
@@ -246,7 +252,7 @@ class P4Client:
     def __init__(
         self,
         address: str,
-        credentials: grpc.ChannelCredentials | None = None,
+        credentials: GRPCCredentialsTLS | None = None,
         *,
         wait_for_ready: bool = True,
     ) -> None:

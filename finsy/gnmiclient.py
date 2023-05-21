@@ -25,7 +25,7 @@ from typing_extensions import Self
 
 from finsy import pbuf
 from finsy.gnmipath import GNMIPath
-from finsy.grpcutil import GRPC_EOF, GRPCStatusCode, grpc_channel
+from finsy.grpcutil import GRPC_EOF, GRPCCredentialsTLS, GRPCStatusCode, grpc_channel
 from finsy.log import LOGGER
 from finsy.proto import gnmi, gnmi_grpc
 
@@ -156,7 +156,7 @@ class GNMIClient:
     """
 
     _address: str
-    _credentials: grpc.ChannelCredentials | None
+    _credentials: GRPCCredentialsTLS | None
     _channel: grpc.aio.Channel | None = None
     _stub: gnmi_grpc.gNMIStub | None = None
     _channel_reused: bool = False
@@ -164,7 +164,7 @@ class GNMIClient:
     def __init__(
         self,
         address: str,
-        credentials: grpc.ChannelCredentials | None = None,
+        credentials: GRPCCredentialsTLS | None = None,
     ):
         self._address = address
         self._credentials = credentials

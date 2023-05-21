@@ -16,6 +16,7 @@
 
 import enum
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Sequence, cast
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
@@ -92,7 +93,7 @@ class GRPCOptions:
     max_metadata_size: int | None = None
     max_reconnect_backoff_ms: int | None = None
 
-    def args(self) -> Sequence[tuple[str, int]]:
+    def to_native(self) -> Sequence[tuple[str, int]]:
         "Return GRPC options in form suitable for grpc API."
         results: list[tuple[str, int]] = []
 
@@ -107,15 +108,56 @@ class GRPCOptions:
         return results
 
 
+@dataclass(kw_only=True)
+class GRPCCredentialsTLS:
+    "GRPC channel credentials for Transport Layer Security (TLS)."
+
+    cacert: Path | bytes | None
+    cert: Path | bytes | None
+    private_key: Path | bytes | None
+
+    def to_client_credentials(self) -> grpc.ChannelCredentials:
+        "Create native SSL client credentials object."
+        root_certificates = _coerce_tls_path(self.cacert)
+        certificate_chain = _coerce_tls_path(self.cert)
+        private_key = _coerce_tls_path(self.private_key)
+
+        return grpc.ssl_channel_credentials(  # pyright: ignore[reportUnknownMemberType]
+            root_certificates=root_certificates,
+            private_key=private_key,
+            certificate_chain=certificate_chain,
+        )
+
+    def to_server_credentials(self) -> grpc.ServerCredentials:
+        "Create native SSL server credentials object."
+        root_certificates = _coerce_tls_path(self.cacert)
+        certificate_chain = _coerce_tls_path(self.cert)
+        private_key = _coerce_tls_path(self.private_key)
+
+        return grpc.ssl_server_credentials(  # pyright: ignore[reportUnknownMemberType]
+            private_key_certificate_chain_pairs=[(private_key, certificate_chain)],
+            root_certificates=root_certificates,
+            require_client_auth=True,
+        )
+
+
+def _coerce_tls_path(value: Path | bytes | None) -> bytes | None:
+    "Convert Path to bytes."
+    if isinstance(value, Path):
+        return value.read_bytes()
+    assert value is None or isinstance(value, bytes)
+    return value
+
+
 def grpc_channel(
     address: str,
     *,
-    credentials: grpc.ChannelCredentials | None = None,
+    credentials: GRPCCredentialsTLS | None = None,
     options: GRPCOptions | None = None,
     client_type: str = "GRPC",
 ) -> grpc.aio.Channel:
     "Create a GRPC AIO channel."
-    args = options.args() if options else None
+    args = options.to_native() if options else None
 
     if credentials is None:
         LOGGER.debug("%s: create INSECURE channel %r", client_type, address)
@@ -127,7 +169,7 @@ def grpc_channel(
         LOGGER.debug("%s: create secure channel %r", client_type, address)
         channel = grpc.aio.secure_channel(
             address,
-            credentials=credentials,
+            credentials=credentials.to_client_credentials(),
             options=args,
         )
 

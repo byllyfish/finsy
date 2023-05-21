@@ -6,6 +6,8 @@ from finsy.gnmiclient import GNMIClient
 from finsy.test.gnmi_server import GNMIServer
 from finsy.test.p4runtime_server import P4RuntimeServer
 
+from .test_certs import CLIENT1_CREDS, SERVER1_CREDS
+
 # Set environment variable to "skip" to skip tests that rely on GRPC servers.
 
 TEST_GNMI_TARGET = os.environ.get("FINSY_TEST_GNMI_TARGET", "")
@@ -53,3 +55,11 @@ async def p4rt_server_target(unused_tcp_target):
         server = P4RuntimeServer(target)
         async with server.run():
             yield target
+
+
+@pytest.fixture
+async def p4rt_secure_server(unused_tcp_target):
+    "Fixture to provide a P4Runtime server for testing."
+    server = P4RuntimeServer(unused_tcp_target, credentials=SERVER1_CREDS)
+    async with server.run():
+        yield (unused_tcp_target, CLIENT1_CREDS)

@@ -7,7 +7,7 @@ from typing import Any, AsyncIterator, Coroutine, TypeVar
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 
 from finsy.futures import wait_for_cancel
-from finsy.grpcutil import GRPC_EOF
+from finsy.grpcutil import GRPC_EOF, GRPCCredentialsTLS
 from finsy.log import LOGGER
 from finsy.proto import p4r, p4r_grpc
 
@@ -34,8 +34,14 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     _api_version: str
     _tasks: _TaskSet[Any]
     _stream_queue: asyncio.Queue[p4r.StreamMessageResponse]
+    _credentials: GRPCCredentialsTLS | None
 
-    def __init__(self, listen_addr: str, api_version: str = "1.3.0"):
+    def __init__(
+        self,
+        listen_addr: str,
+        api_version: str = "1.3.0",
+        credentials: GRPCCredentialsTLS | None = None,
+    ):
         "Initialize P4Runtime server."
         LOGGER.debug("P4RuntimeServer: init server: %s", listen_addr)
         self._listen_addr = listen_addr
@@ -45,6 +51,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         self._stream_context = None
         self._stream_closed = None
         self._stream_queue = asyncio.Queue()
+        self._credentials = credentials
 
     def __del__(self) -> None:
         LOGGER.debug("P4RuntimeServer: destroy server: %s", self._listen_addr)
@@ -69,7 +76,17 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         p4r_grpc.add_P4RuntimeServicer_to_server(
             self, server  # pyright: ignore[reportGeneralTypeIssues]
         )
-        server.add_insecure_port(self._listen_addr)
+        if self._credentials is None:
+            LOGGER.debug(
+                "P4RuntimeServer: create insecure server: %s", self._listen_addr
+            )
+            server.add_insecure_port(self._listen_addr)
+        else:
+            LOGGER.debug("P4RuntimeServer: create secure server: %s", self._listen_addr)
+            server.add_secure_port(
+                self._listen_addr,
+                self._credentials.to_server_credentials(),
+            )
         return server
 
     async def StreamChannel(

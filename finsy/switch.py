@@ -37,14 +37,13 @@ from typing import (
     overload,
 )
 
-import grpc  # pyright: ignore[reportMissingTypeStubs]
 import pyee
 from typing_extensions import Self
 
 from finsy import p4entity, pbuf
 from finsy.futures import CountdownFuture
 from finsy.gnmiclient import GNMIClient, GNMIClientError
-from finsy.grpcutil import GRPCStatusCode
+from finsy.grpcutil import GRPCCredentialsTLS, GRPCStatusCode
 from finsy.log import LOGGER
 from finsy.p4arbitrator import Arbitrator
 from finsy.p4client import P4Client, P4ClientError
@@ -95,7 +94,7 @@ class SwitchOptions:
     initial_election_id: int = 10
     "Initial P4Runtime election ID."
 
-    channel_credentials: grpc.ChannelCredentials | None = None
+    channel_credentials: GRPCCredentialsTLS | None = None
     "P4Runtime channel credentials. Used for TLS support."
 
     role_name: str = ""
@@ -214,7 +213,7 @@ class Switch:
         return self._options
 
     @options.setter
-    def options(self, opts: SwitchOptions):
+    def options(self, opts: SwitchOptions) -> None:
         "Set switch options to a new value."
         if self._p4client is not None:
             raise RuntimeError("Cannot change switch options while client is open.")
