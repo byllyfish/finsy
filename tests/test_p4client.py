@@ -15,6 +15,7 @@ from .test_certs import (
     CLIENT3_CREDS_XCLIENT,
     CLIENT4_CREDS_XSERVER,
     CLIENT5_CREDS,
+    SERVER1_CREDS,
     SERVER3_CREDS_XCLIENT,
     SERVER4_CREDS_XSERVER,
     SERVER5_CREDS_NO_IP,
@@ -134,6 +135,13 @@ async def test_tls_client_using_wrong_name(unused_tcp_port):
                 match="Peer name 127.0.0.1 is not in peer certificate",
             ):
                 await _check_arbitration_request(client)
+
+
+async def test_tls_client_using_server_cert(p4rt_secure_server):
+    "Test TLS client using a server certificate."
+    client = P4Client(p4rt_secure_server[0], SERVER1_CREDS, wait_for_ready=False)
+    async with client:
+        await _check_arbitration_request(client)  # FIXME: should fail!
 
 
 async def _check_arbitration_request(client: P4Client):
