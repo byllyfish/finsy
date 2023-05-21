@@ -2109,10 +2109,10 @@ class P4SchemaDescription:
         line += "\n"
 
         # Table fields
-        line += "   "
-        for field in table.match_fields:
-            match_type = self._describe_match_type(field.match_type)
-            line += f"{field.alias}{match_type}{field.bitwidth} "
+        line += "   " + " ".join(
+            f"{fld.alias}{self._describe_match_type(fld.match_type)}{fld.bitwidth}"
+            for fld in table.match_fields
+        )
         line += "\n"
 
         # Table actions
@@ -2181,9 +2181,9 @@ class P4SchemaDescription:
 
     def _describe_packet_metadata(self, metadata: P4ControllerPacketMetadata):
         "Describe P4ControllerPacketMetadata."
-        line = f"{self.PACKET_METADATA} {metadata.alias}\n   "
-        for mdata in metadata.metadata:
-            line += f"{mdata.name}:{mdata.bitwidth} "
+        line = f"{self.PACKET_METADATA} {metadata.alias}\n   " + " ".join(
+            f"{mdata.name}:{mdata.bitwidth}" for mdata in metadata.metadata
+        )
         line += "\n"
 
         return line
