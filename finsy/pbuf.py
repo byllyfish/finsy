@@ -229,8 +229,11 @@ def log_annotate(text: str, schema: "_fy.P4Schema") -> str:
     return _ANNOTATE_REGEX.sub(_replace, text)
 
 
+_DBLQUOTE = ord('"')
+
+
 def _decode_escaped_value(value: bytes) -> str:
     "Decode an octal-escaped string enclosed in double-quotes."
-    if not (value[0] == value[-1] == ord('"')):
+    if not value[0] == value[-1] == _DBLQUOTE:
         raise ValueError("unexpected value?")
     return value[1:-1].decode("unicode-escape").encode("latin1").hex()

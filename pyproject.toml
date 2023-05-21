@@ -94,13 +94,21 @@ good-names = ["i", "j", "k", "v", "ex", "Run", "_", "m", "s", "ee", "up", "id", 
 
 [tool.pylint.design]
 max-attributes = 15
+min-public-methods = 0
 max-public-methods = 25
+max-branches = 15
+max-returns = 10
 
 [tool.pylint.format]
 max-module-lines = 2500
+max-line-length = 120
 
 [tool.pylint."messages control"]
-disable = ["wrong-import-position", "cyclic-import", "protected-access", "too-few-public-methods"]
+disable = [
+  "wrong-import-position",
+  "cyclic-import",
+  "protected-access",
+]
 
 [tool.pylint.variables]
 allowed-redefined-builtins = ["format"]
