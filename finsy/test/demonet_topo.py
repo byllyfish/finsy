@@ -3,6 +3,9 @@
 For compatibility, this file MUST support BOTH Python 2.7 and Python 3+.
 """
 
+# pylint: disable=import-error,super-with-arguments,consider-using-f-string
+# pylint: disable=invalid-name,unspecified-encoding
+
 import json
 import os.path
 
@@ -102,6 +105,7 @@ class DemoBridge(LinuxBridge):
         self.config = config
 
     def start(self, _controllers):
+        "Start Linux bridge."
         super(DemoBridge, self).start(_controllers)
 
         mac = self.config["mac"]
@@ -124,8 +128,8 @@ class DemoTopo(Topo):
         super(DemoTopo, self).__init__(*args, **kwargs)
 
         json_file = os.path.join(os.path.dirname(__name__), DEMONET_JSON)
-        with open(json_file) as fp:
-            json_config = json.load(fp)
+        with open(json_file) as text:
+            json_config = json.load(text)
 
         need_bridge_utils = False
 
