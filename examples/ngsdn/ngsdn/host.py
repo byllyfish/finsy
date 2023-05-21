@@ -222,12 +222,11 @@ def _parse_host_packet(data: bytes) -> tuple[MACAddress, IPv4Address | IPv6Addre
 
 class HostManagerActionProfile(HostManagerOneShot):
     _macs: dict[MACAddress, int] | None = None
-    _id: int = 2**16 + 1
+    _id: int = 2**16
 
     def _get_next_id(self):
-        result = self._id
         self._id += 1
-        return result
+        return self._id
 
     async def _l3learn(
         self,
