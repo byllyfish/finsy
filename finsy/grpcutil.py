@@ -17,7 +17,7 @@
 import enum
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence, cast
+from typing import cast
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 from typing_extensions import Self
@@ -82,8 +82,12 @@ class GRPCArg(str, enum.Enum):
     https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
     """
 
-    MAX_METADATA_SIZE = "grpc.max_metadata_size"
-    MAX_RECONNECT_BACKOFF_MS = "grpc.max_reconnect_backoff_ms"
+    MAX_METADATA_SIZE = "grpc.max_metadata_size"  # int
+    MAX_RECONNECT_BACKOFF_MS = "grpc.max_reconnect_backoff_ms"  # int
+    SSL_TARGET_NAME_OVERRIDE_ARG = "grpc.ssl_target_name_override"  # str
+
+
+GRPCChannelArgumentType = list[tuple[str, int | str]]
 
 
 @dataclass
@@ -93,18 +97,16 @@ class GRPCOptions:
     max_metadata_size: int | None = None
     max_reconnect_backoff_ms: int | None = None
 
-    def to_native(self) -> Sequence[tuple[str, int]]:
+    def to_native(self) -> GRPCChannelArgumentType:
         "Return GRPC options in form suitable for grpc API."
-        results: list[tuple[str, int]] = []
+        results: GRPCChannelArgumentType = []
 
         if self.max_metadata_size is not None:
             results.append((GRPCArg.MAX_METADATA_SIZE, self.max_metadata_size))
-
         if self.max_reconnect_backoff_ms is not None:
             results.append(
                 (GRPCArg.MAX_RECONNECT_BACKOFF_MS, self.max_reconnect_backoff_ms)
             )
-
         return results
 
 
@@ -115,6 +117,7 @@ class GRPCCredentialsTLS:
     cacert: Path | bytes | None
     cert: Path | bytes | None
     private_key: Path | bytes | None
+    target_name_override: str = ""
 
     def to_client_credentials(self) -> grpc.ChannelCredentials:
         "Create native SSL client credentials object."
@@ -157,16 +160,19 @@ def grpc_channel(
     client_type: str = "GRPC",
 ) -> grpc.aio.Channel:
     "Create a GRPC AIO channel."
-    args = options.to_native() if options else None
-
     if credentials is None:
         LOGGER.debug("%s: create INSECURE channel %r", client_type, address)
         channel = grpc.aio.insecure_channel(
             address,
-            options=args,
+            options=options.to_native() if options else None,
         )
     else:
         LOGGER.debug("%s: create secure channel %r", client_type, address)
+        args: GRPCChannelArgumentType = options.to_native() if options else []
+        if credentials.target_name_override:
+            args.append(
+                (GRPCArg.SSL_TARGET_NAME_OVERRIDE_ARG, credentials.target_name_override)
+            )
         channel = grpc.aio.secure_channel(
             address,
             credentials=credentials.to_client_credentials(),

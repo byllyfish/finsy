@@ -1,4 +1,5 @@
 import asyncio
+import dataclasses
 
 import grpc
 import pytest
@@ -135,6 +136,18 @@ async def test_tls_client_using_wrong_name(unused_tcp_port):
                 match="Peer name 127.0.0.1 is not in peer certificate",
             ):
                 await _check_arbitration_request(client)
+
+
+async def test_tls_client_target_name_override(unused_tcp_port):
+    "Test TLS client using ::1 loopback address with target name override."
+    target = f"127.0.0.1:{unused_tcp_port}"
+    server = P4RuntimeServer(target, credentials=SERVER5_CREDS_NO_IP)
+    async with server.run():
+        creds = dataclasses.replace(CLIENT5_CREDS)
+        creds.target_name_override = "localhost"
+        client = P4Client(target, creds, wait_for_ready=False)
+        async with client:
+            await _check_arbitration_request(client)
 
 
 async def test_tls_client_using_server_cert(p4rt_secure_server):
