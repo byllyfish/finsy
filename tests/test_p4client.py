@@ -141,7 +141,8 @@ async def test_tls_client_using_server_cert(p4rt_secure_server):
     "Test TLS client using a server certificate."
     client = P4Client(p4rt_secure_server[0], SERVER1_CREDS, wait_for_ready=False)
     async with client:
-        await _check_arbitration_request(client)  # FIXME: should fail!
+        with pytest.raises(P4ClientError, match="UNAVAILABLE:.*: Socket closed"):
+            await _check_arbitration_request(client)
 
 
 async def _check_arbitration_request(client: P4Client):
