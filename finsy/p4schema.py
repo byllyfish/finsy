@@ -1314,10 +1314,12 @@ class P4DirectMeter(_P4TopLevel[p4i.DirectMeter]):
 
     @property
     def unit(self) -> P4MeterUnit:
+        "Direct meter unit."
         return P4MeterUnit(self.pbuf.spec.unit)
 
     @property
     def direct_table_id(self) -> int:
+        "Meter's direct table ID."
         return self.pbuf.direct_table_id
 
 
@@ -1326,10 +1328,12 @@ class P4Counter(_P4TopLevel[p4i.Counter]):
 
     @property
     def size(self) -> int:
+        "Array size of counter."
         return self.pbuf.size
 
     @property
     def unit(self) -> P4CounterUnit:
+        "Counter unit."
         return P4CounterUnit(self.pbuf.spec.unit)
 
 
@@ -1338,10 +1342,12 @@ class P4Meter(_P4TopLevel[p4i.Meter]):
 
     @property
     def size(self) -> int:
+        "Array size of meter."
         return self.pbuf.size
 
     @property
     def unit(self) -> P4MeterUnit:
+        "Meter unit."
         return P4MeterUnit(self.pbuf.spec.unit)
 
 
@@ -1368,6 +1374,7 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
 
     @property
     def type_name(self) -> str:
+        "Type name."
         assert not self._varbit
         if not self._signed:
             return f"u{self.bitwidth}"
@@ -1375,30 +1382,37 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
 
     @property
     def bitwidth(self) -> int:
+        "Bit width."
         return self._bitwidth
 
     @property
     def signed(self) -> bool:
+        "True if signed value."
         return self._signed
 
     @property
     def varbit(self) -> bool:
+        "True if bit width is variable."
         return self._varbit
 
     def encode_bytes(self, value: Any) -> bytes:
+        "Encode value as bytes."
         # TODO: Implement signed and varbit.
         assert not self.signed and not self.varbit
         return p4values.encode_exact(value, self.bitwidth)
 
     def decode_bytes(self, data: bytes) -> Any:
+        "Decode value from bytes."
         # TODO: Implement signed and varbit.
         assert not self.signed and not self.varbit
         return p4values.decode_exact(data, self.bitwidth)
 
     def encode_data(self, value: Any) -> p4d.P4Data:
+        "Encode value as P4Data protobuf."
         return p4d.P4Data(bitstring=self.encode_bytes(value))
 
     def decode_data(self, data: p4d.P4Data) -> Any:
+        "Decode value from P4Data protobuf."
         return self.decode_bytes(data.bitstring)
 
 
@@ -1407,12 +1421,15 @@ class P4BoolType(_P4Bridged[p4t.P4BoolType]):
 
     @property
     def type_name(self) -> str:
+        "Type name."
         return "bool"
 
     def encode_data(self, value: bool) -> p4d.P4Data:
+        "Encode value as P4Data protobuf."
         return p4d.P4Data(bool=value)
 
     def decode_data(self, data: p4d.P4Data) -> bool:
+        "Decode value from P4Data protobuf."
         return data.bool
 
 
@@ -1429,13 +1446,16 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
 
     @property
     def type_name(self) -> str:
+        "Type name."
         return self._type_name
 
     @property
     def members(self) -> dict[str, P4BitsType]:
+        "Dictionary of header members."
         return self._members
 
     def encode_data(self, value: dict[str, Any]) -> p4d.P4Data:
+        "Encode value as P4Data protobuf."
         return p4d.P4Data(header=self.encode_header(value))
 
     def encode_header(self, value: dict[str, Any]) -> p4d.P4Header:
@@ -1457,6 +1477,7 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
         return p4d.P4Header(is_valid=True, bitstrings=bitstrings)
 
     def decode_data(self, data: p4d.P4Data) -> dict[str, Any]:
+        "Decode value from P4Data protobuf."
         return self.decode_header(data.header)
 
     def decode_header(self, header: p4d.P4Header) -> dict[str, Any]:
@@ -1501,6 +1522,7 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
 
     @property
     def type_name(self) -> str:
+        "Type name."
         return self._type_name
 
     @property
@@ -1508,6 +1530,7 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
         return self._members
 
     def encode_data(self, value: _HeaderUnionValue) -> p4d.P4Data:
+        "Encode value as P4Data protobuf."
         return p4d.P4Data(header_union=self.encode_union(value))
 
     def encode_union(self, value: _HeaderUnionValue) -> p4d.P4HeaderUnion:
@@ -1531,6 +1554,7 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
         )
 
     def decode_data(self, data: p4d.P4Data) -> _HeaderUnionValue:
+        "Decode value from P4Data protobuf."
         return self.decode_union(data.header_union)
 
     def decode_union(self, header_union: p4d.P4HeaderUnion) -> _HeaderUnionValue:
@@ -1555,6 +1579,7 @@ class P4HeaderStackType(_P4Bridged[p4t.P4HeaderStackTypeSpec]):
 
     @property
     def type_name(self) -> str:
+        "Type name."
         return f"{self.header.type_name}[{self.size}]"
 
     @property
@@ -1566,6 +1591,7 @@ class P4HeaderStackType(_P4Bridged[p4t.P4HeaderStackTypeSpec]):
         return self.pbuf.size
 
     def encode_data(self, value: Sequence[dict[str, Any]]) -> p4d.P4Data:
+        "Encode value as P4Data protobuf."
         if len(value) != self.size:
             raise ValueError(f"P4HeaderStack: expected {self.size} items")
 
@@ -1573,6 +1599,7 @@ class P4HeaderStackType(_P4Bridged[p4t.P4HeaderStackTypeSpec]):
         return p4d.P4Data(header_stack=p4d.P4HeaderStack(entries=entries))
 
     def decode_data(self, data: p4d.P4Data) -> Sequence[dict[str, Any]]:
+        "Decode value from P4Data protobuf."
         entries = data.header_stack.entries
         return [self.header.decode_header(header) for header in entries]
 
@@ -1588,6 +1615,7 @@ class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
 
     @property
     def type_name(self) -> str:
+        "Type name."
         return f"{self.header_union.type_name}[{self.size}]"
 
     @property
@@ -1599,6 +1627,7 @@ class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
         return self.pbuf.size
 
     def encode_data(self, value: Sequence[_HeaderUnionValue]) -> p4d.P4Data:
+        "Encode value as P4Data protobuf."
         if len(value) != self.size:
             raise ValueError(f"P4HeaderUnionStack: expected {self.size} items")
 
@@ -1606,6 +1635,7 @@ class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
         return p4d.P4Data(header_union_stack=p4d.P4HeaderUnionStack(entries=entries))
 
     def decode_data(self, data: p4d.P4Data) -> list[_HeaderUnionValue]:
+        "Decode value from P4Data protobuf."
         entries = data.header_union_stack.entries
         return [self.header_union.decode_union(union) for union in entries]
 
@@ -1629,6 +1659,7 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
 
     @property
     def type_name(self) -> str:
+        "Type name."
         return self._type_name
 
     @property
@@ -1636,6 +1667,7 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
         return self._members
 
     def encode_data(self, value: dict[str, Any]) -> p4d.P4Data:
+        "Encode value as P4Data protobuf."
         try:
             members = [typ.encode_data(value[key]) for key, typ in self.members.items()]
         except KeyError as ex:
@@ -1648,6 +1680,7 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
         return p4d.P4Data(struct=p4d.P4StructLike(members=members))
 
     def decode_data(self, data: p4d.P4Data) -> dict[str, Any]:
+        "Decode value from P4Data protobuf."
         struct = data.struct
         if len(struct.members) != len(self.members):
             raise ValueError(f"invalid struct size: {struct!r}")
@@ -1674,6 +1707,7 @@ class P4TupleType(_P4Bridged[p4t.P4TupleTypeSpec]):
 
     @property
     def type_name(self) -> str:
+        "Type name."
         subtypes = ", ".join([subtype.type_name for subtype in self.members])
         return f"tuple[{subtypes}]"
 
@@ -1682,6 +1716,7 @@ class P4TupleType(_P4Bridged[p4t.P4TupleTypeSpec]):
         return self._members
 
     def encode_data(self, value: tuple[Any, ...]) -> p4d.P4Data:
+        "Encode value as P4Data protobuf."
         if len(value) != len(self.members):
             raise ValueError(f"P4Tuple: expected {len(self.members)} items")
 
@@ -1689,6 +1724,7 @@ class P4TupleType(_P4Bridged[p4t.P4TupleTypeSpec]):
         return p4d.P4Data(tuple=p4d.P4StructLike(members=members))
 
     def decode_data(self, data: p4d.P4Data) -> tuple[Any, ...]:
+        "Decode value from P4Data protobuf."
         tuple_ = data.tuple
         if len(tuple_.members) != len(self.members):
             raise ValueError(f"invalid tuple size: {tuple_!r}")
@@ -1755,6 +1791,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
 
     @property
     def type_name(self) -> str:
+        "Type name."
         return self._type_name
 
     @property
@@ -1804,6 +1841,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
                 raise ValueError(f"unexpected kind: {other!r}")
 
     def encode_data(self, value: Any) -> p4d.P4Data:
+        "Encode value as P4Data protobuf."
         match self.kind:
             case P4NewTypeKind.ORIGINAL_TYPE:
                 return self.original_type.encode_data(value)
@@ -1813,6 +1851,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
                 raise ValueError(f"unexpected kind: {other!r}")
 
     def decode_data(self, data: p4d.P4Data) -> Any:
+        "Decode value from P4Data protobuf."
         match self.kind:
             case P4NewTypeKind.ORIGINAL_TYPE:
                 return self.original_type.decode_data(data)
@@ -1823,6 +1862,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
                 raise ValueError(f"unexpected kind: {other!r}")
 
     def __repr__(self) -> str:
+        "Return string representation."
         match self.kind:
             case P4NewTypeKind.ORIGINAL_TYPE:
                 result = f"P4NewType(original_type={self.original_type!r}"
@@ -2069,6 +2109,7 @@ class P4SchemaDescription:
         self._schema = schema
 
     def __str__(self) -> str:
+        "Return string description of schema."
         result = self._describe_preamble()
         for table in self._schema.tables:
             result += self._describe_table(table)
