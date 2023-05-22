@@ -1,6 +1,6 @@
 # Finsy P4Runtime Controller Library 
 
-[![pypi](https://img.shields.io/pypi/v/finsy)](https://pypi.org/project/finsy/) [![documentation](https://img.shields.io/badge/-documentation-informational?logo=readme&logoColor=white)](https://byllyfish.github.io/finsy/finsy.html) [![ci](https://github.com/byllyfish/finsy/actions/workflows/ci.yml/badge.svg)](https://github.com/byllyfish/finsy/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/byllyfish/finsy/branch/main/graph/badge.svg?token=8RPYWRXNGS)](https://codecov.io/gh/byllyfish/finsy) [![codespace](https://img.shields.io/badge/codespace-blueviolet?logo=github)](https://codespaces.new/byllyfish/finsy)
+[![pypi](https://img.shields.io/pypi/v/finsy)](https://pypi.org/project/finsy/ "View Finsy on PyPI") [![documentation](https://img.shields.io/badge/-documentation-informational?logo=readme&logoColor=white)](https://byllyfish.github.io/finsy/finsy.html "View the latest API docs") [![ci](https://github.com/byllyfish/finsy/actions/workflows/ci.yml/badge.svg)](https://github.com/byllyfish/finsy/actions/workflows/ci.yml "View the latest CI builds") [![codecov](https://codecov.io/gh/byllyfish/finsy/branch/main/graph/badge.svg?token=8RPYWRXNGS)](https://codecov.io/gh/byllyfish/finsy "View the latest code coverage stats") [![codespace](https://img.shields.io/badge/codespace-blueviolet?logo=github)](https://codespaces.new/byllyfish/finsy "Open Finsy in a Github Codespace")
 
 Finsy is a [P4Runtime](https://p4.org/p4-spec/p4runtime/main/P4Runtime-Spec.html) controller library written in Python using [asyncio](https://docs.python.org/3/library/asyncio.html). Finsy includes support for [gNMI](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md).
 
@@ -107,7 +107,9 @@ For more examples, see the [examples](https://github.com/byllyfish/finsy/tree/ma
 
 ## Development and Testing
 
-To set up your local environment for Finsy development.
+Finsy requires Python 3.10 or later. If [poetry](https://python-poetry.org/) is not installed, follow [these directions](https://python-poetry.org/docs/#installation) to install it.
+
+Perform these steps to set up your local environment for Finsy development.
 
 ### Check Installation Requirements
 
@@ -115,8 +117,6 @@ To set up your local environment for Finsy development.
 $ python3 --version
 $ poetry --version
 ```
-
-Finsy requires Python 3.10 or later. If [poetry](https://python-poetry.org/) is not installed, follow [these directions](https://python-poetry.org/docs/#installation) to install it.
 
 ### Clone and Run Tests
 
