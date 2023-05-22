@@ -21,12 +21,12 @@ async def test_demo0(python):
 hello.p4 (version=1, arch=v1model)
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 📋 ipv4[1024]
-   ipv4_dst:32 
+   ipv4_dst:32
    forward(port:9) flood() MyIngress.drop()
 📬 packet_in
-   ingress_port:9 _pad:7 
+   ingress_port:9 _pad:7
 📬 packet_out
-   egress_port:9 _pad:7 
+   egress_port:9 _pad:7
 
 """
     )

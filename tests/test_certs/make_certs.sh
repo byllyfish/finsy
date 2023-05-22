@@ -2,13 +2,17 @@
 #
 # Script to make client/server TLS certificates for testing.
 # 
+# A client certificate can only be used by TLS client. A server certificate
+# can only be used by a TLS server. A server certificate can NEVER be used as a
+# client certificate, or vice versa.
+#
 # Usage:  ./make_certs.sh <id>
 
 # shellcheck disable=SC2086
 
 set -eu
 
-ID="${1-}"  # ID is optional; it's added to file names.
+ID="${1-}"  # ID is an optional string; it's added to file names.
 
 PREFIX="/C=US/ST=AZ/L=Phoenix/O=Finsy/OU=Test"
 DEFAULT_KEY_SIZE=4096
