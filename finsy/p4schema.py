@@ -1459,6 +1459,7 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
         return p4d.P4Data(header=self.encode_header(value))
 
     def encode_header(self, value: dict[str, Any]) -> p4d.P4Header:
+        "Encode value as P4Header."
         # TODO: Handle valid but memberless header?
         if not value:
             return p4d.P4Header(is_valid=False)
@@ -1527,6 +1528,7 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
 
     @property
     def members(self) -> dict[str, P4HeaderType]:
+        "Members of the header union."
         return self._members
 
     def encode_data(self, value: _HeaderUnionValue) -> p4d.P4Data:
@@ -1534,6 +1536,7 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
         return p4d.P4Data(header_union=self.encode_union(value))
 
     def encode_union(self, value: _HeaderUnionValue) -> p4d.P4HeaderUnion:
+        "Encode value as P4HeaderUnion."
         if len(value) > 1:
             raise ValueError(f"P4HeaderUnion: too many headers {value!r}")
 
@@ -1558,6 +1561,7 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
         return self.decode_union(data.header_union)
 
     def decode_union(self, header_union: p4d.P4HeaderUnion) -> _HeaderUnionValue:
+        "Decode P4HeaderUnion."
         header_name = header_union.valid_header_name
 
         if not header_name:
@@ -1584,10 +1588,12 @@ class P4HeaderStackType(_P4Bridged[p4t.P4HeaderStackTypeSpec]):
 
     @property
     def header(self) -> P4HeaderType:
+        "Type of Header stack."
         return self._header
 
     @property
     def size(self) -> int:
+        "Size of header stack."
         return self.pbuf.size
 
     def encode_data(self, value: Sequence[dict[str, Any]]) -> p4d.P4Data:
@@ -1620,10 +1626,12 @@ class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
 
     @property
     def header_union(self) -> P4HeaderUnionType:
+        "Type of header union stack."
         return self._header_union
 
     @property
     def size(self) -> int:
+        "Size of header union stack."
         return self.pbuf.size
 
     def encode_data(self, value: Sequence[_HeaderUnionValue]) -> p4d.P4Data:
@@ -1664,6 +1672,7 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
 
     @property
     def members(self) -> dict[str, "_P4Type"]:
+        "Dictionary of struct members."
         return self._members
 
     def encode_data(self, value: dict[str, Any]) -> p4d.P4Data:
@@ -1713,6 +1722,7 @@ class P4TupleType(_P4Bridged[p4t.P4TupleTypeSpec]):
 
     @property
     def members(self) -> list["_P4Type"]:
+        "List of tuple members."
         return self._members
 
     def encode_data(self, value: tuple[Any, ...]) -> p4d.P4Data:
@@ -1796,25 +1806,30 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
 
     @property
     def kind(self) -> P4NewTypeKind:
+        "Kind of P4NewType."
         return self._kind
 
     @property
     def original_type(self) -> "_P4Type":
+        "Original type of P4NewType, assuming its kind is ORIGINAL_TYPE."
         assert self._kind == P4NewTypeKind.ORIGINAL_TYPE
         assert self._original_type is not None
         return self._original_type
 
     @property
     def translated_uri(self) -> str:
+        "Translated URI of P4NewType, assuming its not an original type."
         assert self._kind != P4NewTypeKind.ORIGINAL_TYPE
         return self._translated_uri
 
     @property
     def translated_bitwidth(self) -> int:
+        "Translated bitwidth of P4NewType, assuming its kind is SDN_BITWIDTH."
         assert self._kind == P4NewTypeKind.SDN_BITWIDTH
         return self._translated_bitwidth
 
     def encode_bytes(self, value: Any) -> bytes:
+        "Encode P4NewType as bytes."
         match self.kind:
             case P4NewTypeKind.SDN_BITWIDTH:
                 return p4values.encode_exact(value, self.translated_bitwidth)
@@ -1830,6 +1845,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
                 raise ValueError(f"unexpected kind: {other!r}")
 
     def decode_bytes(self, data: bytes) -> Any:
+        "Decode bytes to P4NewType."
         match self.kind:
             case P4NewTypeKind.SDN_BITWIDTH:
                 return p4values.decode_exact(data, self.translated_bitwidth)
@@ -1926,11 +1942,13 @@ class P4Register(_P4TopLevel[p4i.Register]):
 
     @property
     def type_spec(self) -> _P4Type:
+        "Type of register."
         assert self._type_spec is not None
         return self._type_spec
 
     @property
     def size(self) -> int:
+        "Size of register array."
         return self.pbuf.size
 
 
@@ -1944,6 +1962,7 @@ class P4Digest(_P4TopLevel[p4i.Digest]):
 
     @property
     def type_spec(self) -> _P4Type:
+        "Type of P4Digest."
         return self._type_spec
 
 
@@ -1965,10 +1984,12 @@ class P4ValueSet(_P4TopLevel[p4i.ValueSet]):
 
     @property
     def match(self) -> P4EntityMap[P4MatchField]:
+        "Match fields."
         return self._match
 
     @property
     def size(self) -> int:
+        "Size of the value set."
         return self.pbuf.size
 
 
