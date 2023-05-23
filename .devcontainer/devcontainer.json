@@ -1,22 +1,13 @@
 {
   "name": "finsy-dev",
-  // https://github.com/devcontainers/images/tree/main/src/base-ubuntu
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  // Reference: https://github.com/devcontainers/images
+  "image": "mcr.microsoft.com/devcontainers/universal:linux",
+  // Reference: https://github.com/devcontainers/features
   "features": {
-    // https://github.com/devcontainers/features/tree/main/src/docker-in-docker
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  },
-  "postCreateCommand": ".devcontainer/post-install.sh",
-
-  "customizations": {
-    // Configure properties specific to VS Code.
-    "vscode": {
-      // "settings": {
-      //   "python.defaultInterpreterPath": "/usr/bin/python3"
-      // },
-      "extensions": [
-        "ms-python.python"
-      ]
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11",
+      "installTools": false
     }
   }
 }
