@@ -123,6 +123,13 @@ $ poetry --version
 ```bash
 $ git clone https://github.com/byllyfish/finsy.git
 $ cd finsy
+$ poetry install
 $ poetry run pytest
-$ poetry run -C examples pytest
+```
+
+### Run Integration Tests
+
+```bash
+$ cd examples
+$ FINSY_PODMAN=docker poetry run pytest
 ```
