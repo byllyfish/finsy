@@ -1,13 +1,20 @@
 {
   "name": "finsy-dev",
+
+  // The "universal:linux" image is Ubuntu 20.04.6 LTS (2023-05-23).
   // Reference: https://github.com/devcontainers/images
   "image": "mcr.microsoft.com/devcontainers/universal:linux",
+
   // Reference: https://github.com/devcontainers/features
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.11",
-      "installTools": false
+      // It is possible to specify version "3.11" here. However, the codespace
+      // will take about 4-5 minutes to be created because python 3.11 has to
+      // be compiled from scratch. I'm sticking with the image defaults...
+      //
+      //   "version": "3.11",
+      //   "installTools": false
     }
   }
 }

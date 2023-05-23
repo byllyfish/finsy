@@ -123,6 +123,7 @@ $ poetry --version
 ```bash
 $ git clone https://github.com/byllyfish/finsy.git
 $ cd finsy
+$ python3 -m venv .venv
 $ poetry install
 $ poetry run pytest
 ```
