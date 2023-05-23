@@ -1,0 +1,9 @@
+{
+  "name": "finsy-experiment",
+
+  // The "universal" image is Ubuntu 20.04.6 LTS (2023-05-23).
+  // Reference: https://github.com/devcontainers/images
+  "image": "mcr.microsoft.com/devcontainers/universal",
+
+  "postCreateCommand": "python3 -m venv .venv && poetry install"
+}
