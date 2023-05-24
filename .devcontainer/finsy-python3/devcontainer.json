@@ -1,9 +1,0 @@
-// Reference: https://github.com/microsoft/vscode-remote-try-python/blob/main/.devcontainer/devcontainer.json
-
-{
-	"name": "finsy-python3",
-	"image": "mcr.microsoft.com/devcontainers/python:0-3.11",
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "echo Hello"
-}
