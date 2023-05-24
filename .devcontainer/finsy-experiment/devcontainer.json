@@ -5,6 +5,14 @@
   // Reference: https://github.com/devcontainers/images
   "image": "mcr.microsoft.com/devcontainers/universal",
 
-  "onCreateCommand": "pipx install poetry",
-  "postCreateCommand": "python3 -m venv .venv && poetry install"
+  "onCreateCommand": "pipx install --pip-args '-q' poetry",
+  "postCreateCommand": "python3 -m venv .venv && poetry install -q && echo 'Hello!' > /workspaces/.codespaces/shared/first-run-notice.txt",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python"
+      ]
+    }
+  }
 }
