@@ -1,7 +1,8 @@
 {
   "name": "finsy-experiment",
 
-  // The "universal" image is Ubuntu 20.04.6 LTS (as of 2023-05-23).
+  // The "universal" image is Ubuntu 20.04.6 LTS (as of 2023-05-24).
+  // The universal image has Python 3.10.4 and Docker-in-Docker enabled.
   // Reference: https://github.com/devcontainers/images
   "image": "mcr.microsoft.com/devcontainers/universal:2",
 
@@ -11,7 +12,9 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "python.defaultInterpreterPath": "./.venv/bin/python"
+        "python.defaultInterpreterPath": "./.venv/bin/python",
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "python.linting.pylintEnabled": false
       },
       "extensions": [
         "ms-python.python"
