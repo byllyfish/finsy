@@ -3,11 +3,10 @@
 
   // The "universal" image is Ubuntu 20.04.6 LTS (as of 2023-05-23).
   // Reference: https://github.com/devcontainers/images
-  "image": "mcr.microsoft.com/devcontainers/universal",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
 
-  "onCreateCommand": "pipx install --pip-args='-q -q' poetry",
+  //"onCreateCommand": "pipx install --pip-args='-q -q' poetry",
   "postCreateCommand": "python3 -m venv .venv && poetry install -q",
-  "postStartCommand": "echo '🐟 Welcome to Finsy!' && exec poetry shell",
 
   "customizations": {
     "vscode": {
