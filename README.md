@@ -4,7 +4,8 @@
 
 Finsy is a [P4Runtime](https://p4.org/p4-spec/p4runtime/main/P4Runtime-Spec.html) controller library written in Python using [asyncio](https://docs.python.org/3/library/asyncio.html). Finsy includes support for [gNMI](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md).
 
-Check out the [examples](https://github.com/byllyfish/finsy/tree/main/examples) directory for demo programs.
+Check out the [examples](https://github.com/byllyfish/finsy/tree/main/examples) directory
+for some demonstration programs.
 
 ## Installation
 
@@ -107,30 +108,38 @@ For more examples, see the [examples](https://github.com/byllyfish/finsy/tree/ma
 
 ## Development and Testing
 
-Finsy requires Python 3.10 or later. If [poetry](https://python-poetry.org/) is not installed, follow [these directions](https://python-poetry.org/docs/#installation) to install it.
+Perform these steps to set up your local environment for Finsy development, or try 
+the [codespace](https://codespaces.new/byllyfish/finsy). Finsy requires Python 3.10 or 
+later. If [poetry](https://python-poetry.org/) is not installed, follow 
+[these directions](https://python-poetry.org/docs/#installation) to install it.
 
-Perform these steps to set up your local environment for Finsy development.
+### Clone and Prepare a Virtual Environment
 
-### Check Installation Requirements
+The `poetry install` command installs all development dependencies into the
+virtual environment (venv).
 
-```bash
-$ python3 --version
-$ poetry --version
-```
-
-### Clone and Run Tests
-
-```bash
+```sh
 $ git clone https://github.com/byllyfish/finsy.git
 $ cd finsy
 $ python3 -m venv .venv
 $ poetry install
+```
+
+### Run Unit Tests
+
+When you run pytest from the top level of the repository, you will run the unit tests.
+
+```sh
 $ poetry run pytest
 ```
 
 ### Run Integration Tests
 
+When you run pytest from within the `examples` directory, you will run the integration
+tests instead of the unit tests. The integration tests run the example programs against a
+[Mininet](https://github.com/mininet/mininet) network. Docker or podman are required.
+
 ```bash
 $ cd examples
-$ FINSY_PODMAN=docker poetry run pytest
+$ poetry run pytest
 ```

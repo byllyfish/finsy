@@ -5,6 +5,7 @@ import asyncio
 import json
 import os
 import re
+import shutil
 import socket
 import tempfile
 from dataclasses import KW_ONLY, asdict, dataclass, field
@@ -28,9 +29,6 @@ except ImportError:
 
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
-
-# Allow an environment variable to override podman command (e.g. to use docker).
-PODMAN = os.environ.get("FINSY_PODMAN", "podman")
 
 
 class DemoItem:
@@ -239,8 +237,7 @@ class DemoNet:
 
     async def __aenter__(self) -> Self:
         try:
-            await self._setup()
-            cmd = podman_start("mininet")
+            cmd = await self._setup()
             self._runner = Runner(cmd.stdout(sh.CAPTURE))
             await self._runner.__aenter__()
             self._prompt = Prompt(self._runner, "mininet> ")
@@ -296,8 +293,7 @@ class DemoNet:
 
     async def _interact(self):
         try:
-            await self._setup()
-            cmd = podman_start("mininet")
+            cmd = await self._setup()
             await cmd.stdin(sh.INHERIT).stdout(sh.INHERIT).stderr(sh.INHERIT)
             await self._teardown()
         except Exception:
@@ -306,7 +302,7 @@ class DemoNet:
 
     def mnexec(self, host: str, *args: str) -> Command[str]:
         pid = self._pids[host]
-        return sh(PODMAN, "exec", "-it", "mininet", "mnexec", "-a", pid, *args)
+        return podman_exec("mininet", "mnexec", "-a", str(pid), *args)
 
     async def send(self, cmdline: str, *, expect: str = "") -> str:
         assert self._prompt is not None
@@ -326,6 +322,7 @@ class DemoNet:
         image = self._image()
         switch_count = self._switch_count()
 
+        await check_versions()
         await podman_create("mininet", image.name, switch_count)
         await podman_copy(DEMONET_TOPO, "mininet", "/root/demonet_topo.py")
 
@@ -337,6 +334,8 @@ class DemoNet:
             await podman_copy(temp, "mininet", "/root/demonet_topo.json")
         finally:
             temp.unlink()
+
+        return podman_start("mininet")
 
     async def _teardown(self):
         pass
@@ -369,8 +368,23 @@ def _json_default(obj: object):
         ) from ex
 
 
+# Allow an environment variable to override podman command.
+_podman = os.environ.get("FINSY_PODMAN", "podman")
 DEMONET_TOPO = Path(__file__).parent / "demonet_topo.py"
 PUBLISH_BASE = 50000
+
+
+async def check_versions():
+    "Check the versions of podman/docker installed."
+    global _podman
+
+    cmd = _podman
+    if shutil.which(cmd):
+        _podman = cmd
+    elif shutil.which("docker"):
+        _podman = "docker"
+    else:
+        raise RuntimeError("Cannot find podman or docker!")
 
 
 def podman_create(
@@ -390,7 +404,7 @@ def podman_create(
         debug = ["-v", "debug"]
 
     return sh(
-        PODMAN,
+        _podman,
         "create",
         "--privileged",
         "--rm",
@@ -412,7 +426,7 @@ def podman_create(
 
 def podman_copy(src_path: Path, container: str, dest_path: str) -> Command[str]:
     return sh(
-        PODMAN,
+        _podman,
         "cp",
         src_path,
         f"{container}:{dest_path}",
@@ -420,11 +434,15 @@ def podman_copy(src_path: Path, container: str, dest_path: str) -> Command[str]:
 
 
 def podman_start(container: str) -> Command[str]:
-    return sh(PODMAN, "start", "-ai", container).set(pty=True)
+    return sh(_podman, "start", "-ai", container).set(pty=True)
 
 
 def podman_rm(container: str) -> Command[str]:
-    return sh(PODMAN, "rm", container).set(exit_codes={0, 1})
+    return sh(_podman, "rm", container).set(exit_codes={0, 1})
+
+
+def podman_exec(container: str, *args: str) -> Command[str]:
+    return sh(_podman, "exec", "-it", container, *args)
 
 
 def _create_graph(config: Sequence[DemoItem]):
