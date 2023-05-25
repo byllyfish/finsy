@@ -136,8 +136,8 @@ $ poetry run pytest
 ### Run Integration Tests
 
 When you run pytest from within the `examples` directory, you will run the integration
-tests instead of the unit tests. These tests run tests against [Mininet](https://github.com/mininet/mininet) 
-running in a container. They require docker or podman to be installed.
+tests instead of the unit tests. The integration tests run the example programs against a
+[Mininet](https://github.com/mininet/mininet) network. Docker or podman are required.
 
 ```bash
 $ cd examples
