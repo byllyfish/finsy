@@ -1,5 +1,16 @@
 # Finsy Change Log
 
+## 0.16.0
+
+- Add `GRPCCredentialsTLS` class for improved TLS support.
+- Add support for structured annotations in P4Schema.
+- Add support for caching and reusing P4Defs as part of P4Schema.
+- Add a py.typed file and improve type annotations.
+- Add a `devcontainer.json` file for Github Codespace.
+- Fix P4TableAction to allow an action that expects some arguments to be encoded with 0 arguments. Used for wildcard reads. (#193)
+- The Demonet sub-module now automatically tries docker if podman is not available.
+- Replace flake8 with ruff, fix lint issues, and improve testing.
+
 ## 0.15.0
 
 - Rename `current_controller()` function to `Controller.current()`.
