@@ -9,12 +9,12 @@ bmv2. Each Finsy controller will load this program into the switch for its forwa
 pipeline. 
 - `net` contains a Python script and resources for setting up a demonstration 
 Mininet network. To run the demo network, type `./net/run.py`. The `run.py` script uses 
-`podman` to run the demonstration network in a container.
+podman or docker to run the demonstration network in a container.
 
 ### Requirements
 
 - Python 3.10 virtual environment with `finsy` installed.
-- [podman](https://podman.io/) 3.4 or later.
+- [podman](https://podman.io/) or [docker](https://docker.com)
 
 ## gnmi
 
