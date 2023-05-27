@@ -1375,7 +1375,8 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
     @property
     def type_name(self) -> str:
         "Type name."
-        assert not self._varbit
+        if self._varbit:
+            return f"vb{self.bitwidth}"
         if not self._signed:
             return f"u{self.bitwidth}"
         return f"s{self.bitwidth}"
@@ -1397,22 +1398,29 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
 
     def encode_bytes(self, value: Any) -> bytes:
         "Encode value as bytes."
-        # TODO: Implement signed and varbit.
-        assert not self.signed and not self.varbit
+        if self._signed:
+            return p4values.encode_signed(value, self.bitwidth)
         return p4values.encode_exact(value, self.bitwidth)
 
     def decode_bytes(self, data: bytes) -> Any:
         "Decode value from bytes."
-        # TODO: Implement signed and varbit.
-        assert not self.signed and not self.varbit
+        if self._signed:
+            return p4values.decode_signed(data, self.bitwidth)
         return p4values.decode_exact(data, self.bitwidth)
 
     def encode_data(self, value: Any) -> p4d.P4Data:
         "Encode value as P4Data protobuf."
+        if self._varbit:
+            val, bitwidth = value
+            return p4d.P4Data(
+                varbit=p4d.P4Varbit(bitstring=self.encode_bytes(val), bitwidth=bitwidth)
+            )
         return p4d.P4Data(bitstring=self.encode_bytes(value))
 
     def decode_data(self, data: p4d.P4Data) -> Any:
         "Decode value from P4Data protobuf."
+        if self._varbit:
+            return (self.decode_bytes(data.varbit.bitstring), data.varbit.bitwidth)
         return self.decode_bytes(data.bitstring)
 
 

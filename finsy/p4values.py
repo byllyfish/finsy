@@ -36,10 +36,18 @@ def p4r_minimum_string_size(bitwidth: int) -> int:
     return (bitwidth + 7) // 8
 
 
-def p4r_truncate(value: bytes, signed: bool = False) -> bytes:
+def p4r_truncate(value: bytes) -> bytes:
     "Truncate a bytes value to the specified bitwidth."
-    assert not signed, "TODO: signed not yet supported"
+    return value.lstrip(b"\x00") or b"\x00"
 
+
+def p4r_truncate_signed(value: bytes) -> bytes:
+    "Truncate a signed bytes value to the specified bitwidth."
+    if (value[0] & 0x80) == 0x80:
+        value = value.lstrip(b"\xFF")
+        if not value or (value[0] & 0x80) == 0:
+            return b"\xFF" + value
+        return value
     return value.lstrip(b"\x00") or b"\x00"
 
 
@@ -550,3 +558,14 @@ def format_range(value: _RangeValue, bitwidth: int, format: DecodeFormat) -> str
     result = decode_range(data[0], data[1], bitwidth, format | DecodeFormat.STRING)
     assert isinstance(result, str)
     return result
+
+
+def encode_signed(value: int, bitwidth: int) -> bytes:
+    "Encode a signed value."
+    size = p4r_minimum_string_size(bitwidth)
+    return p4r_truncate_signed(value.to_bytes(size, "big", signed=True))
+
+
+def decode_signed(data: bytes, bitwidth: int) -> int:
+    "Decode a signed value."
+    return int.from_bytes(data, "big", signed=True)
