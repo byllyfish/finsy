@@ -169,7 +169,8 @@ _validate_enum(GRPCStatusCode, rpc_code.Code)
 # Base Classes
 # ~~~~~~~~~~~~
 
-_EXEMPT_PROPERTIES = {"pbuf", "p4info", "p4blob"}
+# Don't include properties that are redundant or verbose.
+_EXEMPT_PROPERTIES = {"pbuf", "p4info", "p4blob", "data_type_spec"}
 
 
 class _ReprMixin:
@@ -1382,7 +1383,7 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
         return f"s{self.bitwidth}"
 
     @property
-    def type_spec(self) -> p4t.P4DataTypeSpec:
+    def data_type_spec(self) -> p4t.P4DataTypeSpec:
         "Protobuf type specification."
         return p4t.P4DataTypeSpec(bitstring=self.pbuf)
 
@@ -1438,7 +1439,7 @@ class P4BoolType(_P4Bridged[p4t.P4BoolType]):
         return "bool"
 
     @property
-    def type_spec(self) -> p4t.P4DataTypeSpec:
+    def data_type_spec(self) -> p4t.P4DataTypeSpec:
         "Protobuf type specification."
         return p4t.P4DataTypeSpec(bool=self.pbuf)
 
@@ -1468,7 +1469,7 @@ class P4HeaderType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderTypeSpec]):
         return self._type_name
 
     @property
-    def type_spec(self) -> p4t.P4DataTypeSpec:
+    def data_type_spec(self) -> p4t.P4DataTypeSpec:
         "Protobuf type specification."
         return p4t.P4DataTypeSpec(header=p4t.P4NamedType(name=self._type_name))
 
@@ -1550,7 +1551,7 @@ class P4HeaderUnionType(_P4AnnoMixin, _P4Bridged[p4t.P4HeaderUnionTypeSpec]):
         return self._type_name
 
     @property
-    def type_spec(self) -> p4t.P4DataTypeSpec:
+    def data_type_spec(self) -> p4t.P4DataTypeSpec:
         "Protobuf type specification."
         return p4t.P4DataTypeSpec(header_union=p4t.P4NamedType(name=self._type_name))
 
@@ -1615,7 +1616,7 @@ class P4HeaderStackType(_P4Bridged[p4t.P4HeaderStackTypeSpec]):
         return f"{self.header.type_name}[{self.size}]"
 
     @property
-    def type_spec(self) -> p4t.P4DataTypeSpec:
+    def data_type_spec(self) -> p4t.P4DataTypeSpec:
         "Protobuf type specification."
         return p4t.P4DataTypeSpec(header_stack=self.pbuf)
 
@@ -1658,7 +1659,7 @@ class P4HeaderUnionStackType(_P4Bridged[p4t.P4HeaderUnionStackTypeSpec]):
         return f"{self.header_union.type_name}[{self.size}]"
 
     @property
-    def type_spec(self) -> p4t.P4DataTypeSpec:
+    def data_type_spec(self) -> p4t.P4DataTypeSpec:
         "Protobuf type specification."
         return p4t.P4DataTypeSpec(header_union_stack=self.pbuf)
 
@@ -1709,7 +1710,7 @@ class P4StructType(_P4AnnoMixin, _P4Bridged[p4t.P4StructTypeSpec]):
         return self._type_name
 
     @property
-    def type_spec(self) -> p4t.P4DataTypeSpec:
+    def data_type_spec(self) -> p4t.P4DataTypeSpec:
         "Protobuf type specification."
         return p4t.P4DataTypeSpec(struct=p4t.P4NamedType(name=self._type_name))
 
@@ -1764,7 +1765,7 @@ class P4TupleType(_P4Bridged[p4t.P4TupleTypeSpec]):
         return f"tuple[{subtypes}]"
 
     @property
-    def type_spec(self) -> p4t.P4DataTypeSpec:
+    def data_type_spec(self) -> p4t.P4DataTypeSpec:
         "Protobuf type specification."
         return p4t.P4DataTypeSpec(tuple=self.pbuf)
 
@@ -1853,7 +1854,7 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
         return self._type_name
 
     @property
-    def type_spec(self) -> p4t.P4DataTypeSpec:
+    def data_type_spec(self) -> p4t.P4DataTypeSpec:
         "Protobuf type specification."
         return p4t.P4DataTypeSpec(new_type=p4t.P4NamedType(name=self._type_name))
 
