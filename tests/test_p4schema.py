@@ -232,6 +232,7 @@ def test_p4bitstype():
     assert bits.bitwidth == 8
     assert not bits.signed and not bits.varbit
     assert bits.type_name == "u8"
+    assert pbuf.to_dict(bits.data_type_spec) == {"bitstring": {"bit": {"bitwidth": 8}}}
 
     assert bits.encode_bytes(0) == b"\x00"
     assert bits.decode_bytes(b"\x00") == 0
@@ -252,10 +253,87 @@ def test_p4bitstype():
         bits.encode_data(65535)
 
 
+def test_p4bitstype_signed():
+    "Test P4BitsType with signed value."
+    bits = P4BitsType(
+        p4t.P4BitstringLikeTypeSpec(
+            int=p4t.P4IntTypeSpec(
+                bitwidth=8,
+            )
+        )
+    )
+    assert bits.bitwidth == 8
+    assert bits.signed and not bits.varbit
+    assert bits.type_name == "s8"
+    assert pbuf.to_dict(bits.data_type_spec) == {"bitstring": {"int": {"bitwidth": 8}}}
+
+    assert bits.encode_bytes(-128) == b"\x80"
+    assert bits.decode_bytes(b"\x80") == -128
+
+    assert bits.encode_bytes(127) == b"\x7F"
+    assert bits.decode_bytes(b"\x7F") == 127
+
+    data = bits.encode_data(-128)
+    assert pbuf.to_dict(data) == {"bitstring": "gA=="}
+    assert bits.decode_data(data) == -128
+
+    data = bits.encode_data(127)
+    assert pbuf.to_dict(data) == {"bitstring": "fw=="}
+    assert bits.decode_data(data) == 127
+
+    # Test invalid data value.
+    with pytest.raises(OverflowError, match="too big"):
+        bits.encode_data(255)
+
+
+def test_p4bitstype_varbit():
+    "Test P4BitsType with varbit value."
+    bits = P4BitsType(
+        p4t.P4BitstringLikeTypeSpec(
+            varbit=p4t.P4VarbitTypeSpec(
+                max_bitwidth=8,
+            )
+        )
+    )
+    assert bits.bitwidth == 8
+    assert not bits.signed and bits.varbit
+    assert bits.type_name == "vb8"
+    assert pbuf.to_dict(bits.data_type_spec) == {
+        "bitstring": {"varbit": {"max_bitwidth": 8}}
+    }
+
+    assert bits.encode_bytes(0) == b"\x00"
+    assert bits.decode_bytes(b"\x00") == 0
+
+    assert bits.encode_bytes(255) == b"\xFF"
+    assert bits.decode_bytes(b"\xFF") == 255
+
+    data = bits.encode_data((0, 8))
+    assert pbuf.to_dict(data) == {"varbit": {"bitstring": "AA==", "bitwidth": 8}}
+    assert bits.decode_data(data) == (0, 8)
+
+    data = bits.encode_data((255, 8))
+    assert pbuf.to_dict(data) == {"varbit": {"bitstring": "/w==", "bitwidth": 8}}
+    assert bits.decode_data(data) == (255, 8)
+
+    # Test invalid data value.
+    with pytest.raises(ValueError, match="invalid value for bitwidth 8"):
+        bits.encode_data((256, 8))
+
+    # Test invalid bitwidth value.
+    with pytest.raises(ValueError, match="invalid bitwidth: 9"):
+        bits.encode_data((1, 9))
+
+    # Test invalid type.
+    with pytest.raises(ValueError, match="expected 2-tuple"):
+        bits.encode_data(1)
+
+
 def test_p4booltype():
     "Test P4BoolType."
     bool_type = P4BoolType(p4t.P4BoolType())
     assert bool_type.type_name == "bool"
+    assert pbuf.to_dict(bool_type.data_type_spec) == {"bool": {}}
 
     data = bool_type.encode_data(True)
     assert pbuf.to_dict(data) == {"bool": True}

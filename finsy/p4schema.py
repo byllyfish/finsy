@@ -308,7 +308,7 @@ class P4EntityMap(Generic[_T]):
         self._entry_type = entry_type
 
     def get(self, key: str | int) -> _T | None:
-        "Retrieve item by name of ID."
+        "Retrieve item by name or ID. Return None if not found."
         if isinstance(key, int):
             return self._by_id.get(key)
         return self._by_name.get(key)
@@ -1417,7 +1417,12 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
     def encode_data(self, value: Any) -> p4d.P4Data:
         "Encode value as P4Data protobuf."
         if self._varbit:
-            val, bitwidth = value
+            try:
+                val, bitwidth = value
+            except TypeError:
+                raise ValueError(f"expected 2-tuple but got {value!r}") from None
+            if bitwidth > self._bitwidth:
+                raise ValueError(f"invalid bitwidth: {bitwidth}")
             return p4d.P4Data(
                 varbit=p4d.P4Varbit(bitstring=self.encode_bytes(val), bitwidth=bitwidth)
             )
