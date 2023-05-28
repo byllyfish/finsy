@@ -282,7 +282,7 @@ def test_p4bitstype_signed():
     assert bits.decode_data(data) == 127
 
     # Test invalid data value.
-    with pytest.raises(OverflowError, match="too big"):
+    with pytest.raises(ValueError, match="invalid SIGNED value for bitwidth"):
         bits.encode_data(255)
 
 

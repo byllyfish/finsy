@@ -36,6 +36,7 @@ class P4TypeFactory:
     ) -> sch.P4BitsType:
         "Construct a `bits` type, which may be signed or varbit."
         if varbit:
+            assert not signed
             return sch.P4BitsType(
                 p4t.P4BitstringLikeTypeSpec(
                     varbit=p4t.P4VarbitTypeSpec(max_bitwidth=bitwidth)
@@ -43,6 +44,7 @@ class P4TypeFactory:
             )
 
         if signed:
+            assert not varbit
             return sch.P4BitsType(
                 p4t.P4BitstringLikeTypeSpec(int=p4t.P4IntTypeSpec(bitwidth=bitwidth))
             )

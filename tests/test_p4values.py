@@ -45,6 +45,30 @@ def test_mask_to_prefix():
         assert p4values.mask_to_prefix(val, bitwidth) == result
 
 
+def test_p4r_truncate():
+    "Test the p4r_truncate function."
+    assert p4values.p4r_truncate(b"\x00") == b"\x00"
+    assert p4values.p4r_truncate(b"\x80") == b"\x80"
+    assert p4values.p4r_truncate(b"\xFF") == b"\xFF"
+    assert p4values.p4r_truncate(b"\x00\x80") == b"\x80"
+    assert p4values.p4r_truncate(b"\x80\x80") == b"\x80\x80"
+    assert p4values.p4r_truncate(b"\xFF\x80") == b"\xFF\x80"
+    assert p4values.p4r_truncate(b"\xFF\xFF") == b"\xFF\xFF"
+
+
+def test_p4r_truncate_signed():
+    "Test the p4r_truncate_signed function."
+    assert p4values.p4r_truncate_signed(b"\x00") == b"\x00"
+    assert p4values.p4r_truncate_signed(b"\x80") == b"\x80"
+    assert p4values.p4r_truncate_signed(b"\xFF") == b"\xFF"
+    assert p4values.p4r_truncate_signed(b"\x00\x80") == b"\x00\x80"
+    assert p4values.p4r_truncate_signed(b"\x80\x80") == b"\x80\x80"
+    assert p4values.p4r_truncate_signed(b"\xFF\x80") == b"\x80"
+    assert p4values.p4r_truncate_signed(b"\xFF\xFF") == b"\xFF"
+    assert p4values.p4r_truncate_signed(b"\x80\xFF\xFF") == b"\x80\xFF\xFF"
+    assert p4values.p4r_truncate_signed(b"\x7F\xFF\xFF") == b"\x7F\xFF\xFF"
+
+
 def test_encode_exact_int():
     "Test the encode_exact function."
     data = [

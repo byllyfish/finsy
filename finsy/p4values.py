@@ -48,7 +48,11 @@ def p4r_truncate_signed(value: bytes) -> bytes:
         if not value or (value[0] & 0x80) == 0:
             return b"\xFF" + value
         return value
-    return value.lstrip(b"\x00") or b"\x00"
+
+    value = value.lstrip(b"\x00")
+    if not value or (value[0] & 0x80) == 0x80:
+        return b"\x00" + value
+    return value
 
 
 def all_ones(bitwidth: int) -> int:
@@ -562,6 +566,10 @@ def format_range(value: _RangeValue, bitwidth: int, format: DecodeFormat) -> str
 
 def encode_signed(value: int, bitwidth: int) -> bytes:
     "Encode a signed value."
+    MAX = (1 << (bitwidth - 1)) - 1
+    if value > MAX or value < -MAX - 1:
+        raise _invalid_err("signed", bitwidth, value)
+
     size = p4r_minimum_string_size(bitwidth)
     return p4r_truncate_signed(value.to_bytes(size, "big", signed=True))
 
