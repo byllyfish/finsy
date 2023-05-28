@@ -54,7 +54,7 @@ class P4TypeFactory:
     def tuple_type(self, *members: sch._P4Type):
         "Construct a `tuple` type."
         return sch.P4TupleType(
-            p4t.P4TupleTypeSpec(members=(member.type_spec for member in members)),
+            p4t.P4TupleTypeSpec(members=(member.data_type_spec for member in members)),
             type_info=self._type_info,
         )
 
@@ -64,7 +64,9 @@ class P4TypeFactory:
             __name,
             p4t.P4StructTypeSpec(
                 members=[
-                    p4t.P4StructTypeSpec.Member(name=key, type_spec=value.type_spec)
+                    p4t.P4StructTypeSpec.Member(
+                        name=key, type_spec=value.data_type_spec
+                    )
                     for key, value in members.items()
                 ]
             ),
