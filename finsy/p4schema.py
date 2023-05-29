@@ -1403,7 +1403,6 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
         return self._varbit
 
     def encode_bytes(self, value: Any) -> bytes:
-        assert not self._varbit
         "Encode value as bytes."
         if self._signed:
             return p4values.encode_signed(value, self.bitwidth)
