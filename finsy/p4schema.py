@@ -1403,6 +1403,7 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
         return self._varbit
 
     def encode_bytes(self, value: Any) -> bytes:
+        assert not self._varbit
         "Encode value as bytes."
         if self._signed:
             return p4values.encode_signed(value, self.bitwidth)
@@ -1424,7 +1425,9 @@ class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
             if bitwidth > self._bitwidth:
                 raise ValueError(f"invalid bitwidth: {bitwidth}")
             return p4d.P4Data(
-                varbit=p4d.P4Varbit(bitstring=self.encode_bytes(val), bitwidth=bitwidth)
+                varbit=p4d.P4Varbit(
+                    bitstring=p4values.encode_exact(val, bitwidth), bitwidth=bitwidth
+                )
             )
         return p4d.P4Data(bitstring=self.encode_bytes(value))
 

@@ -221,3 +221,84 @@ def test_i3(type_factory: P4TypeFactory):
 
     with pytest.raises(ValueError, match="invalid SIGNED value for bitwidth"):
         check_roundtrip(i3_t, 2**3 - 1, "")
+
+
+def test_vb32(type_factory: P4TypeFactory):
+    "Test varbit<32>."
+    vb32_t = type_factory.bits_type(32, varbit=True)
+    assert pbuf.to_dict(vb32_t.data_type_spec) == {
+        "bitstring": {
+            "varbit": {"max_bitwidth": 32},
+        }
+    }
+
+    check_roundtrip(vb32_t, (0, 16), "12050a01001010")
+    check_roundtrip(vb32_t, (2**7, 16), "12050a01801010")
+    check_roundtrip(vb32_t, (2**8 - 1, 16), "12050a01ff1010")
+    check_roundtrip(vb32_t, (2**8, 16), "12060a0201001010")
+    check_roundtrip(vb32_t, (2**16 - 1, 16), "12060a02ffff1010")
+
+    check_roundtrip(vb32_t, (2**16, 32), "12070a030100001020")
+    check_roundtrip(vb32_t, (2**32 - 128, 32), "12080a04ffffff801020")
+    check_roundtrip(vb32_t, (2**32 - 1, 32), "12080a04ffffffff1020")
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth 16"):
+        check_roundtrip(vb32_t, (2**32, 16), "")
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth 32"):
+        check_roundtrip(vb32_t, (2**32, 32), "")
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth 32"):
+        check_roundtrip(vb32_t, (-1, 32), "")
+
+    with pytest.raises(ValueError, match="invalid bitwidth"):
+        check_roundtrip(vb32_t, (0, 33), "12050a01001010")
+
+
+def test_vb13(type_factory: P4TypeFactory):
+    "Test varbit<13>."
+    vb13_t = type_factory.bits_type(13, varbit=True)
+    assert pbuf.to_dict(vb13_t.data_type_spec) == {
+        "bitstring": {
+            "varbit": {"max_bitwidth": 13},
+        }
+    }
+
+    check_roundtrip(vb13_t, (0, 11), "12050a0100100b")
+    check_roundtrip(vb13_t, (2**7, 11), "12050a0180100b")
+    check_roundtrip(vb13_t, (2**8 - 1, 11), "12050a01ff100b")
+    check_roundtrip(vb13_t, (2**8, 11), "12060a020100100b")
+    check_roundtrip(vb13_t, (2**11 - 1, 11), "12060a0207ff100b")
+    check_roundtrip(vb13_t, (2**13 - 1, 13), "12060a021fff100d")
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth 13"):
+        check_roundtrip(vb13_t, (2**13, 13), "")
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth 13"):
+        check_roundtrip(vb13_t, (-1, 13), "")
+
+    with pytest.raises(ValueError, match="invalid bitwidth"):
+        check_roundtrip(vb13_t, (0, 14), "12050a01001010")
+
+
+def test_vb3(type_factory: P4TypeFactory):
+    "Test varbit<3>."
+    vb3_t = type_factory.bits_type(3, varbit=True)
+    assert pbuf.to_dict(vb3_t.data_type_spec) == {
+        "bitstring": {
+            "varbit": {"max_bitwidth": 3},
+        }
+    }
+
+    check_roundtrip(vb3_t, (0, 2), "12050a01001002")
+    check_roundtrip(vb3_t, (3, 2), "12050a01031002")
+    check_roundtrip(vb3_t, (2**3 - 1, 3), "12050a01071003")
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth 3"):
+        check_roundtrip(vb3_t, (2**3, 3), "")
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth 3"):
+        check_roundtrip(vb3_t, (-1, 3), "")
+
+    with pytest.raises(ValueError, match="invalid bitwidth"):
+        check_roundtrip(vb3_t, (0, 4), "12050a01001010")
