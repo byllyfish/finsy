@@ -21,7 +21,7 @@ def type_factory():
 
 
 def check_roundtrip(
-    type_t: p4s._P4Type,
+    type_t: p4s.P4Type,
     value: Any,
     expected_hex: str,
     decode_val: Any = None,
