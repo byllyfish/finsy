@@ -22,7 +22,7 @@ python = "^3.10"
 grpcio = "^1.54.0"
 macaddress = "^2.0.2"
 parsy = "^2.0.0"
-pyee = "^9.0.4"
+pyee = ">=9.0.4,<11.0.0"
 pylev = "^1.4.0"
 protobuf = "^4.22.4"
 
