@@ -150,7 +150,11 @@ class RouteManagerActionProfile(RouteManagerOneShot):
     "Version of RouteManager that uses ActionProfiles instead of one shots."
 
     LEAF_GROUP_ID = 1
-    members: dict[fy.MACAddress, int] = {}
+    members: dict[fy.MACAddress, int]
+
+    def __init__(self, switch: fy.Switch):
+        super().__init__(switch)
+        self.members = {}
 
     async def _init_profiles(self):
         "Write members and groups before we add table entries."
