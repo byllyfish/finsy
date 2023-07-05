@@ -134,7 +134,7 @@ async def test_read_tables_oneshot(demonet, caplog):
 
     for target, expected_state in expected_switch_states.items():
         actual_state = await testlib.read_p4_tables(target)
-        assert actual_state == expected_state
+        assert actual_state == expected_state, f"{target} failed!"
 
 
 async def test_ngsdn_actionprofile(demonet, python):
@@ -272,4 +272,4 @@ async def test_read_tables_actionprofile(demonet, caplog):
 
     for target, expected_state in expected_switch_states.items():
         actual_state = await testlib.read_p4_tables(target)
-        assert actual_state == expected_state
+        assert actual_state == expected_state, f"{target} failed!"

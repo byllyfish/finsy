@@ -12,7 +12,7 @@ NETCFG = Path(__file__).parent.parent / "netcfg.json"
 
 async def main():
     "Run the controller."
-    prometheus_client.start_http_server(9091)
+    # prometheus_client.start_http_server(9091)
 
     controller = Controller(load_netcfg(NETCFG))
     async with controller:
