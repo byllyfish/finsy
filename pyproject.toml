@@ -35,9 +35,9 @@ pdoc = "^14.0.0"
 pyright = "^1.1.306"
 pytest-cov = "^4.0.0"
 pylint = "^2.17.3"
-shellous = "^0.25.0"
+shellous = "^0.26.0"
 prometheus-client = "^0.17.0"
-ruff = "^0.0.274"
+ruff = "^0.0.276"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

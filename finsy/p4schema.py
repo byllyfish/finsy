@@ -24,6 +24,7 @@ from contextvars import ContextVar
 from pathlib import Path
 from typing import (
     Any,
+    ClassVar,
     Generic,
     Iterator,
     Mapping,
@@ -2179,7 +2180,7 @@ class P4SchemaDescription:
     TABLE_ONLY = "\U00002191"  # Up arrow
     DEFAULT_ONLY = "\U00002193"  # Down arrow
 
-    MATCH_TYPES = {
+    _MATCH_TYPES: ClassVar[dict[P4MatchType, str]] = {
         P4MatchType.EXACT: ":",
         P4MatchType.LPM: "/",
         P4MatchType.TERNARY: "/&",
@@ -2220,7 +2221,7 @@ class P4SchemaDescription:
         "Return a string describing the match type."
         if isinstance(match_type, str):
             return f"[{match_type}]"
-        return self.MATCH_TYPES[match_type]
+        return self._MATCH_TYPES[match_type]
 
     def _describe_table(self, table: P4Table) -> str:
         "Describe P4Table."

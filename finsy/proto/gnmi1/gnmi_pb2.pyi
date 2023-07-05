@@ -717,6 +717,7 @@ class SetRequest(google.protobuf.message.Message):
     DELETE_FIELD_NUMBER: builtins.int
     REPLACE_FIELD_NUMBER: builtins.int
     UPDATE_FIELD_NUMBER: builtins.int
+    UNION_REPLACE_FIELD_NUMBER: builtins.int
     EXTENSION_FIELD_NUMBER: builtins.int
     @property
     def prefix(self) -> global___Path:
@@ -731,6 +732,13 @@ class SetRequest(google.protobuf.message.Message):
     def update(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Update]:
         """Updates specifying elements to updated."""
     @property
+    def union_replace(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Update]:
+        """Updates specifying elements to union and then replace the data tree.  
+        See the gNMI specification at
+        https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md
+        for details.
+        """
+    @property
     def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
         """Extension messages associated with the SetRequest. See the
         gNMI extension specification for further definition.
@@ -742,10 +750,11 @@ class SetRequest(google.protobuf.message.Message):
         delete: collections.abc.Iterable[global___Path] | None = ...,
         replace: collections.abc.Iterable[global___Update] | None = ...,
         update: collections.abc.Iterable[global___Update] | None = ...,
+        union_replace: collections.abc.Iterable[global___Update] | None = ...,
         extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["prefix", b"prefix"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["delete", b"delete", "extension", b"extension", "prefix", b"prefix", "replace", b"replace", "update", b"update"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["delete", b"delete", "extension", b"extension", "prefix", b"prefix", "replace", b"replace", "union_replace", b"union_replace", "update", b"update"]) -> None: ...
 
 global___SetRequest = SetRequest
 
@@ -821,6 +830,8 @@ class UpdateResult(google.protobuf.message.Message):
         """The result relates to a replace of Path."""
         UPDATE: UpdateResult._Operation.ValueType  # 3
         """The result relates to an update of Path."""
+        UNION_REPLACE: UpdateResult._Operation.ValueType  # 4
+        """The result of a union_replace of Path or CLI origin."""
 
     class Operation(_Operation, metaclass=_OperationEnumTypeWrapper):
         """The operation that was associated with the Path specified."""
@@ -832,6 +843,8 @@ class UpdateResult(google.protobuf.message.Message):
     """The result relates to a replace of Path."""
     UPDATE: UpdateResult.Operation.ValueType  # 3
     """The result relates to an update of Path."""
+    UNION_REPLACE: UpdateResult.Operation.ValueType  # 4
+    """The result of a union_replace of Path or CLI origin."""
 
     TIMESTAMP_FIELD_NUMBER: builtins.int
     PATH_FIELD_NUMBER: builtins.int
