@@ -519,14 +519,14 @@ class P4IndirectAction:
         # Use the name of the action_profile, if we can get it. If not, just
         # use the placeholder "__indirect".
         if table.action_profile is not None:
-            profile_name = table.action_profile.alias
+            profile_name = f"@{table.action_profile.alias}"
         else:
             profile_name = "__indirect"
 
         if self.member_id is not None:
-            return f"${profile_name}(member_id={self.member_id:#x})"
+            return f"{profile_name}[[{self.member_id:#x}]]"
 
-        return f"${profile_name}(group_id={self.group_id:#x})"
+        return f"{profile_name}[{self.group_id:#x}]"
 
     def __repr__(self) -> str:
         "Customize representation to make it more concise."
@@ -1133,7 +1133,7 @@ class P4ActionProfileGroup(_P4Writable):
             return ""
 
         return " ".join(
-            [f"{member.weight}*[{member.member_id:#x}]" for member in self.members]
+            [f"{member.weight}*{member.member_id:#x}" for member in self.members]
         )
 
 

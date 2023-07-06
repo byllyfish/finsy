@@ -243,7 +243,7 @@ def test_indirect_action2():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(group_id=123)"
-    assert action.format_str(table) == "$__indirect(group_id=0x7b)"
+    assert action.format_str(table) == "__indirect[0x7b]"
 
 
 def test_indirect_action3():
@@ -257,7 +257,7 @@ def test_indirect_action3():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(member_id=345)"
-    assert action.format_str(table) == "$__indirect(member_id=0x159)"
+    assert action.format_str(table) == "__indirect[[0x159]]"
 
 
 def test_indirect_action4():
@@ -308,13 +308,13 @@ def test_indirect_action5():
     msg1 = action1.encode_table_action(table)
     assert pbuf.to_dict(msg1) == {"action_profile_group_id": 123}
     assert action1 == P4TableAction.decode_table_action(msg1, table)
-    assert action1.format_str(table) == "$hashed_selector(group_id=0x7b)"
+    assert action1.format_str(table) == "@hashed_selector[0x7b]"
 
     action2 = P4IndirectAction(member_id=456)
     msg1 = action2.encode_table_action(table)
     assert pbuf.to_dict(msg1) == {"action_profile_member_id": 456}
     assert action2 == P4TableAction.decode_table_action(msg1, table)
-    assert action2.format_str(table) == "$hashed_selector(member_id=0x1c8)"
+    assert action2.format_str(table) == "@hashed_selector[[0x1c8]]"
 
 
 def test_weighted_action():
@@ -769,7 +769,7 @@ def test_action_profile_group_actionstr():
         assert entry.action_profile_id == "hashed_selector"
         assert entry.group_id == 2
         assert entry.max_size == 3
-        assert entry.action_str() == "(3, 2748)*[0x1] 4*[0x2]"
+        assert entry.action_str() == "(3, 2748)*0x1 4*0x2"
 
 
 def test_member():

@@ -48,14 +48,16 @@ async def read_p4_tables(target: str, *, skip_const: bool = False) -> set[str]:
             # raised when the selector programming mode is using one shots.
             try:
                 async for entry in sw.read(fy.P4ActionProfileGroup()):
+                    # Group syntax uses [ ]
                     result.add(
-                        f"${entry.action_profile_id} group_id={entry.group_id:#x}"
+                        f"@{entry.action_profile_id}[{entry.group_id:#x}]"
                         f" max_size={entry.max_size:#x} {entry.action_str()}"
                     )
 
                 async for entry in sw.read(fy.P4ActionProfileMember()):
+                    # Member syntax uses [[ ]]
                     result.add(
-                        f"${entry.action_profile_id}[{entry.member_id:#x}] {entry.action_str()}"
+                        f"@{entry.action_profile_id}[[{entry.member_id:#x}]] {entry.action_str()}"
                     )
 
             except fy.P4ClientError as ex:
