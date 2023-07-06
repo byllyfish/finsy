@@ -243,7 +243,7 @@ def test_indirect_action2():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(group_id=123)"
-    assert action.format_str(table) == "__indirect(group_id=0x7b)"
+    assert action.format_str(table) == "$__indirect(group_id=0x7b)"
 
 
 def test_indirect_action3():
@@ -257,7 +257,7 @@ def test_indirect_action3():
     assert action == P4TableAction.decode_table_action(msg, table)
 
     assert repr(action) == "P4IndirectAction(member_id=345)"
-    assert action.format_str(table) == "__indirect(member_id=0x159)"
+    assert action.format_str(table) == "$__indirect(member_id=0x159)"
 
 
 def test_indirect_action4():
@@ -297,6 +297,24 @@ def test_indirect_action4():
     assert (
         action.format_str(table) == "(1, 1)*ipv4_forward(dstAddr=0xa000001, port=0x1)"
     )
+
+
+def test_indirect_action5():
+    "Test P4IndirectAction class."
+    schema = P4Schema(_P4INFO_TEST_DIR / "fabric.p4.p4info.txt")
+    table = schema.tables["hashed"]
+
+    action1 = P4IndirectAction(group_id=123)
+    msg1 = action1.encode_table_action(table)
+    assert pbuf.to_dict(msg1) == {"action_profile_group_id": 123}
+    assert action1 == P4TableAction.decode_table_action(msg1, table)
+    assert action1.format_str(table) == "$hashed_selector(group_id=0x7b)"
+
+    action2 = P4IndirectAction(member_id=456)
+    msg1 = action2.encode_table_action(table)
+    assert pbuf.to_dict(msg1) == {"action_profile_member_id": 456}
+    assert action2 == P4TableAction.decode_table_action(msg1, table)
+    assert action2.format_str(table) == "$hashed_selector(member_id=0x1c8)"
 
 
 def test_weighted_action():

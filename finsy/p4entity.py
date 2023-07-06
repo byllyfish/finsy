@@ -509,16 +509,24 @@ class P4IndirectAction:
     def format_str(self, table: P4Table) -> str:
         """Format the indirect table action as a human-readable string."""
         if self.action_set is not None:
+            assert self.member_id is None and self.group_id is None
             weighted_actions = [
                 f"{weight}*{action.format_str(table)}"
                 for weight, action in self.action_set
             ]
             return " ".join(weighted_actions)
 
-        if self.member_id is not None:
-            return f"__indirect(member_id={self.member_id:#x})"
+        # Use the name of the action_profile, if we can get it. If not, just
+        # use the placeholder "__indirect".
+        if table.action_profile is not None:
+            profile_name = table.action_profile.alias
+        else:
+            profile_name = "__indirect"
 
-        return f"__indirect(group_id={self.group_id:#x})"
+        if self.member_id is not None:
+            return f"${profile_name}(member_id={self.member_id:#x})"
+
+        return f"${profile_name}(group_id={self.group_id:#x})"
 
     def __repr__(self) -> str:
         "Customize representation to make it more concise."
