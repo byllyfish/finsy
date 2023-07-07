@@ -298,7 +298,7 @@ async def test_ngsdn_delete_all():
 
     actual_state = await testlib.read_p4_tables(target)
     assert actual_state == {
-        # These are default table entries.
+        # These are default table entries; they are supposed to be here.
         "acl_table NoAction()",
         "l2_exact_table drop()",
         "l2_ternary_table drop()",
@@ -307,9 +307,4 @@ async def test_ngsdn_delete_all():
         "routing_v6_table NoAction()",
         "srv6_my_sid NoAction()",
         "srv6_transit NoAction()",
-        # FIXME: Need to remove action_profiles in delete_all().
-        "@ecmp_selector[0x1] max_size=0x0 1*0x1 1*0x2",
-        "@ecmp_selector[[0x10001]] set_next_hop(dmac=0x1a)",
-        "@ecmp_selector[[0x1]] set_next_hop(dmac=0xbb00000001)",
-        "@ecmp_selector[[0x2]] set_next_hop(dmac=0xbb00000002)",
     }
