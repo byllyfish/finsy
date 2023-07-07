@@ -4,6 +4,8 @@ from pathlib import Path
 
 import testlib
 
+import finsy as fy
+
 NGSDN_DIR = Path(__file__).parent.parent / "ngsdn"
 
 DEMONET = NGSDN_DIR / "net/run.py"
@@ -59,6 +61,8 @@ async def test_read_tables_oneshot(demonet, caplog):
             "srv6_my_sid dst_addr=0x30101000200000000000000000000 srv6_end()",
             "srv6_my_sid NoAction()",
             "srv6_transit NoAction()",
+            "/clone/0x63 class_of_service=0 255",
+            "/multicast/0x63 3 4 5 6",
         },
         "127.0.0.1:50002": {
             "acl_table 0x1 ingress_port=* dst_addr=* src_addr=* ether_type=0x806 ip_proto=* icmp_type=* l4_src_port=* l4_dst_port=* clone_to_cpu()",
@@ -87,6 +91,8 @@ async def test_read_tables_oneshot(demonet, caplog):
             "srv6_my_sid dst_addr=0x30102000200000000000000000000 srv6_end()",
             "srv6_my_sid NoAction()",
             "srv6_transit NoAction()",
+            "/clone/0x63 class_of_service=0 255",
+            "/multicast/0x63 3 4",
         },
         "127.0.0.1:50003": {
             "acl_table 0x2 ingress_port=* dst_addr=* src_addr=* ether_type=0x88cc ip_proto=* icmp_type=* l4_src_port=* l4_dst_port=* send_to_cpu()",
@@ -108,6 +114,7 @@ async def test_read_tables_oneshot(demonet, caplog):
             "srv6_my_sid dst_addr=0x30201000200000000000000000000 srv6_end()",
             "srv6_my_sid NoAction()",
             "srv6_transit NoAction()",
+            "/clone/0x63 class_of_service=0 255",
         },
         "127.0.0.1:50004": {
             "acl_table 0x2 ingress_port=* dst_addr=* src_addr=* ether_type=0x88cc ip_proto=* icmp_type=* l4_src_port=* l4_dst_port=* send_to_cpu()",
@@ -129,12 +136,13 @@ async def test_read_tables_oneshot(demonet, caplog):
             "srv6_my_sid dst_addr=0x30202000200000000000000000000 srv6_end()",
             "srv6_my_sid NoAction()",
             "srv6_transit NoAction()",
+            "/clone/0x63 class_of_service=0 255",
         },
     }
 
     for target, expected_state in expected_switch_states.items():
         actual_state = await testlib.read_p4_tables(target)
-        assert actual_state == expected_state
+        assert actual_state == expected_state, f"{target} failed!"
 
 
 async def test_ngsdn_actionprofile(demonet, python):
@@ -176,19 +184,21 @@ async def test_read_tables_actionprofile(demonet, caplog):
             "ndp_reply_table target_ipv6_addr=0x200100010001000000000000000000ff ndp_ns_to_na(target_mac=0xaa00000001)",
             "ndp_reply_table target_ipv6_addr=0x200100010002000000000000000000ff ndp_ns_to_na(target_mac=0xaa00000001)",
             "ndp_reply_table NoAction()",
-            "routing_v6_table dst_addr=0x2001000100010000000000000000000a __indirect(member_id=0x10001)",
-            "routing_v6_table dst_addr=0x20010002000300000000000000000000/64 __indirect(group_id=0x1)",
-            "routing_v6_table dst_addr=0x20010002000400000000000000000000/64 __indirect(group_id=0x1)",
-            "routing_v6_table dst_addr=0x30201000200000000000000000000 __indirect(member_id=0x1)",
-            "routing_v6_table dst_addr=0x30202000200000000000000000000 __indirect(member_id=0x2)",
+            "routing_v6_table dst_addr=0x2001000100010000000000000000000a @ecmp_selector[[0x10001]]",
+            "routing_v6_table dst_addr=0x20010002000300000000000000000000/64 @ecmp_selector[0x1]",
+            "routing_v6_table dst_addr=0x20010002000400000000000000000000/64 @ecmp_selector[0x1]",
+            "routing_v6_table dst_addr=0x30201000200000000000000000000 @ecmp_selector[[0x1]]",
+            "routing_v6_table dst_addr=0x30202000200000000000000000000 @ecmp_selector[[0x2]]",
             "routing_v6_table NoAction()",
             "srv6_my_sid dst_addr=0x30101000200000000000000000000 srv6_end()",
             "srv6_my_sid NoAction()",
             "srv6_transit NoAction()",
-            "$ecmp_selector group_id=0x1 max_size=0x0 1*[0x1] 1*[0x2]",
-            "$ecmp_selector[0x1] set_next_hop(dmac=0xbb00000001)",
-            "$ecmp_selector[0x2] set_next_hop(dmac=0xbb00000002)",
-            "$ecmp_selector[0x10001] set_next_hop(dmac=0x1a)",
+            "@ecmp_selector[0x1] max_size=0x0 1*0x1 1*0x2",
+            "@ecmp_selector[[0x1]] set_next_hop(dmac=0xbb00000001)",
+            "@ecmp_selector[[0x2]] set_next_hop(dmac=0xbb00000002)",
+            "@ecmp_selector[[0x10001]] set_next_hop(dmac=0x1a)",
+            "/clone/0x63 class_of_service=0 255",
+            "/multicast/0x63 3 4 5 6",
         },
         "127.0.0.1:50002": {
             "acl_table 0x1 ingress_port=* dst_addr=* src_addr=* ether_type=0x806 ip_proto=* icmp_type=* l4_src_port=* l4_dst_port=* clone_to_cpu()",
@@ -208,19 +218,21 @@ async def test_read_tables_actionprofile(demonet, caplog):
             "ndp_reply_table target_ipv6_addr=0x200100020003000000000000000000ff ndp_ns_to_na(target_mac=0xaa00000002)",
             "ndp_reply_table target_ipv6_addr=0x200100020004000000000000000000ff ndp_ns_to_na(target_mac=0xaa00000002)",
             "ndp_reply_table NoAction()",
-            "routing_v6_table dst_addr=0x20010001000100000000000000000000/64 __indirect(group_id=0x1)",
-            "routing_v6_table dst_addr=0x20010001000200000000000000000000/64 __indirect(group_id=0x1)",
-            "routing_v6_table dst_addr=0x20010002000300000000000000000001 __indirect(member_id=0x10001)",
-            "routing_v6_table dst_addr=0x30201000200000000000000000000 __indirect(member_id=0x1)",
-            "routing_v6_table dst_addr=0x30202000200000000000000000000 __indirect(member_id=0x2)",
+            "routing_v6_table dst_addr=0x20010001000100000000000000000000/64 @ecmp_selector[0x1]",
+            "routing_v6_table dst_addr=0x20010001000200000000000000000000/64 @ecmp_selector[0x1]",
+            "routing_v6_table dst_addr=0x20010002000300000000000000000001 @ecmp_selector[[0x10001]]",
+            "routing_v6_table dst_addr=0x30201000200000000000000000000 @ecmp_selector[[0x1]]",
+            "routing_v6_table dst_addr=0x30202000200000000000000000000 @ecmp_selector[[0x2]]",
             "routing_v6_table NoAction()",
             "srv6_my_sid dst_addr=0x30102000200000000000000000000 srv6_end()",
             "srv6_my_sid NoAction()",
             "srv6_transit NoAction()",
-            "$ecmp_selector group_id=0x1 max_size=0x0 1*[0x1] 1*[0x2]",
-            "$ecmp_selector[0x1] set_next_hop(dmac=0xbb00000001)",
-            "$ecmp_selector[0x2] set_next_hop(dmac=0xbb00000002)",
-            "$ecmp_selector[0x10001] set_next_hop(dmac=0x30)",
+            "@ecmp_selector[0x1] max_size=0x0 1*0x1 1*0x2",
+            "@ecmp_selector[[0x1]] set_next_hop(dmac=0xbb00000001)",
+            "@ecmp_selector[[0x2]] set_next_hop(dmac=0xbb00000002)",
+            "@ecmp_selector[[0x10001]] set_next_hop(dmac=0x30)",
+            "/clone/0x63 class_of_service=0 255",
+            "/multicast/0x63 3 4",
         },
         "127.0.0.1:50003": {
             "acl_table 0x2 ingress_port=* dst_addr=* src_addr=* ether_type=0x88cc ip_proto=* icmp_type=* l4_src_port=* l4_dst_port=* send_to_cpu()",
@@ -232,18 +244,19 @@ async def test_read_tables_actionprofile(demonet, caplog):
             "my_station_table dst_addr=0xbb00000001 NoAction()",
             "my_station_table NoAction()",
             "ndp_reply_table NoAction()",
-            "routing_v6_table dst_addr=0x20010001000100000000000000000000/64 __indirect(member_id=0x1)",
-            "routing_v6_table dst_addr=0x20010001000200000000000000000000/64 __indirect(member_id=0x1)",
-            "routing_v6_table dst_addr=0x20010002000300000000000000000000/64 __indirect(member_id=0x2)",
-            "routing_v6_table dst_addr=0x20010002000400000000000000000000/64 __indirect(member_id=0x2)",
-            "routing_v6_table dst_addr=0x30101000200000000000000000000 __indirect(member_id=0x1)",
-            "routing_v6_table dst_addr=0x30102000200000000000000000000 __indirect(member_id=0x2)",
+            "routing_v6_table dst_addr=0x20010001000100000000000000000000/64 @ecmp_selector[[0x1]]",
+            "routing_v6_table dst_addr=0x20010001000200000000000000000000/64 @ecmp_selector[[0x1]]",
+            "routing_v6_table dst_addr=0x20010002000300000000000000000000/64 @ecmp_selector[[0x2]]",
+            "routing_v6_table dst_addr=0x20010002000400000000000000000000/64 @ecmp_selector[[0x2]]",
+            "routing_v6_table dst_addr=0x30101000200000000000000000000 @ecmp_selector[[0x1]]",
+            "routing_v6_table dst_addr=0x30102000200000000000000000000 @ecmp_selector[[0x2]]",
             "routing_v6_table NoAction()",
             "srv6_my_sid dst_addr=0x30201000200000000000000000000 srv6_end()",
             "srv6_my_sid NoAction()",
             "srv6_transit NoAction()",
-            "$ecmp_selector[0x1] set_next_hop(dmac=0xaa00000001)",
-            "$ecmp_selector[0x2] set_next_hop(dmac=0xaa00000002)",
+            "@ecmp_selector[[0x1]] set_next_hop(dmac=0xaa00000001)",
+            "@ecmp_selector[[0x2]] set_next_hop(dmac=0xaa00000002)",
+            "/clone/0x63 class_of_service=0 255",
         },
         "127.0.0.1:50004": {
             "acl_table 0x2 ingress_port=* dst_addr=* src_addr=* ether_type=0x88cc ip_proto=* icmp_type=* l4_src_port=* l4_dst_port=* send_to_cpu()",
@@ -255,21 +268,48 @@ async def test_read_tables_actionprofile(demonet, caplog):
             "my_station_table dst_addr=0xbb00000002 NoAction()",
             "my_station_table NoAction()",
             "ndp_reply_table NoAction()",
-            "routing_v6_table dst_addr=0x20010001000100000000000000000000/64 __indirect(member_id=0x1)",
-            "routing_v6_table dst_addr=0x20010001000200000000000000000000/64 __indirect(member_id=0x1)",
-            "routing_v6_table dst_addr=0x20010002000300000000000000000000/64 __indirect(member_id=0x2)",
-            "routing_v6_table dst_addr=0x20010002000400000000000000000000/64 __indirect(member_id=0x2)",
-            "routing_v6_table dst_addr=0x30101000200000000000000000000 __indirect(member_id=0x1)",
-            "routing_v6_table dst_addr=0x30102000200000000000000000000 __indirect(member_id=0x2)",
+            "routing_v6_table dst_addr=0x20010001000100000000000000000000/64 @ecmp_selector[[0x1]]",
+            "routing_v6_table dst_addr=0x20010001000200000000000000000000/64 @ecmp_selector[[0x1]]",
+            "routing_v6_table dst_addr=0x20010002000300000000000000000000/64 @ecmp_selector[[0x2]]",
+            "routing_v6_table dst_addr=0x20010002000400000000000000000000/64 @ecmp_selector[[0x2]]",
+            "routing_v6_table dst_addr=0x30101000200000000000000000000 @ecmp_selector[[0x1]]",
+            "routing_v6_table dst_addr=0x30102000200000000000000000000 @ecmp_selector[[0x2]]",
             "routing_v6_table NoAction()",
             "srv6_my_sid dst_addr=0x30202000200000000000000000000 srv6_end()",
             "srv6_my_sid NoAction()",
             "srv6_transit NoAction()",
-            "$ecmp_selector[0x1] set_next_hop(dmac=0xaa00000001)",
-            "$ecmp_selector[0x2] set_next_hop(dmac=0xaa00000002)",
+            "@ecmp_selector[[0x1]] set_next_hop(dmac=0xaa00000001)",
+            "@ecmp_selector[[0x2]] set_next_hop(dmac=0xaa00000002)",
+            "/clone/0x63 class_of_service=0 255",
         },
     }
 
     for target, expected_state in expected_switch_states.items():
         actual_state = await testlib.read_p4_tables(target)
-        assert actual_state == expected_state
+        assert actual_state == expected_state, f"{target} failed!"
+
+
+async def test_ngsdn_delete_all():
+    "Test that all entries are deleted when we are done."
+
+    target = "127.0.0.1:50001"
+    async with fy.Switch("sw1", target) as sw1:
+        await sw1.delete_all()
+
+    actual_state = await testlib.read_p4_tables(target)
+    assert actual_state == {
+        # These are default table entries.
+        "acl_table NoAction()",
+        "l2_exact_table drop()",
+        "l2_ternary_table drop()",
+        "my_station_table NoAction()",
+        "ndp_reply_table NoAction()",
+        "routing_v6_table NoAction()",
+        "srv6_my_sid NoAction()",
+        "srv6_transit NoAction()",
+        # FIXME: Need to remove action_profiles in delete_all().
+        "@ecmp_selector[0x1] max_size=0x0 1*0x1 1*0x2",
+        "@ecmp_selector[[0x10001]] set_next_hop(dmac=0x1a)",
+        "@ecmp_selector[[0x1]] set_next_hop(dmac=0xbb00000001)",
+        "@ecmp_selector[[0x2]] set_next_hop(dmac=0xbb00000002)",
+    }
