@@ -35,6 +35,7 @@ async def test_read_tables(demonet):
             "tb_int_reporting NoAction()",
             "tb_int_transit NoAction()",
             "tb_int_transit configure_transit(switch_id=0x1, l3_mtu=0x5dc)",
+            "/clone/0x1 class_of_service=0 4",
         },
         "127.0.0.1:50002": {
             "tb_int_transit configure_transit(switch_id=0x2, l3_mtu=0x5dc)",
@@ -50,6 +51,7 @@ async def test_read_tables(demonet):
             "tb_int_reporting send_report(dp_mac=0xf60000000002, dp_ip=0xa000002, collector_mac=0x909, collector_ip=0xa000909, collector_port=0x1770)",
             "tb_int_sink egress_spec=0x1 configure_sink(sink_reporting_port=0x4)",
             "tb_forward 0xb dstAddr=0x101 send_to_port(port=0x2)",
+            "/clone/0x1 class_of_service=0 4",
         },
         "127.0.0.1:50003": {
             "tb_activate_source NoAction()",
@@ -65,9 +67,10 @@ async def test_read_tables(demonet):
             "tb_port_forward NoAction()",
             "tb_int_sink NoAction()",
             "tb_forward NoAction()",
+            "/clone/0x1 class_of_service=0 4",
         },
     }
 
     for target, expected_state in expected_switch_states.items():
         actual_state = await testlib.read_p4_tables(target, skip_const=True)
-        assert actual_state == expected_state
+        assert actual_state == expected_state, f"{target} failed!"

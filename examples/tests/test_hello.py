@@ -66,21 +66,24 @@ async def test_read_tables(demonet):
             "ipv4 ipv4_dst=10.0.0.2 forward(port=0x2)",
             "ipv4 ipv4_dst=10.0.0.3 forward(port=0x2)",
             "ipv4 MyIngress.drop()",
+            "/multicast/0x1 1 2 255",
         },
         "127.0.0.1:50002": {
             "ipv4 ipv4_dst=10.0.0.1 forward(port=0x2)",
             "ipv4 ipv4_dst=10.0.0.2 forward(port=0x1)",
             "ipv4 ipv4_dst=10.0.0.3 forward(port=0x3)",
             "ipv4 MyIngress.drop()",
+            "/multicast/0x1 1 2 3 255",
         },
         "127.0.0.1:50003": {
             "ipv4 ipv4_dst=10.0.0.1 forward(port=0x2)",
             "ipv4 ipv4_dst=10.0.0.2 forward(port=0x2)",
             "ipv4 ipv4_dst=10.0.0.3 forward(port=0x1)",
             "ipv4 MyIngress.drop()",
+            "/multicast/0x1 1 2 255",
         },
     }
 
     for target, expected_state in expected_switch_states.items():
         actual_state = await testlib.read_p4_tables(target)
-        assert actual_state == expected_state
+        assert actual_state == expected_state, f"{target} failed!"

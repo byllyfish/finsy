@@ -64,4 +64,22 @@ async def read_p4_tables(target: str, *, skip_const: bool = False) -> set[str]:
                 if ex.code != fy.GRPCStatusCode.INVALID_ARGUMENT:
                     raise
 
+            # Read CloneSessionEntry's.
+            async for entry in sw.read(fy.P4CloneSessionEntry()):
+                # Include packet_length only if it is non-zero.
+                packet_length = entry.packet_length_bytes
+                if packet_length != 0:
+                    pkt_len_str = f"packet_length={packet_length} "
+                else:
+                    pkt_len_str = ""
+                result.add(
+                    f"/clone/{entry.session_id:#x} class_of_service={entry.class_of_service} {pkt_len_str}{entry.replicas_str()}"
+                )
+
+            # Read MulticastGroupEntry's.
+            async for entry in sw.read(fy.P4MulticastGroupEntry()):
+                result.add(
+                    f"/multicast/{entry.multicast_group_id:#x} {entry.replicas_str()}"
+                )
+
     return result

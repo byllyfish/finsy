@@ -36,6 +36,7 @@ from finsy.p4entity import (
     encode_replica,
     encode_updates,
     flatten,
+    format_replica,
 )
 from finsy.p4schema import P4Schema
 from finsy.proto import p4r
@@ -66,6 +67,13 @@ def test_replica2():
     msg = encode_replica((1, 2))
     assert pbuf.to_dict(msg) == {"egress_port": 1, "instance": 2}
     assert decode_replica(msg) == (1, 2)
+
+
+def test_format_replica():
+    "Test the format_replica function."
+    assert format_replica(1) == "1"
+    assert format_replica((1, 0)) == "1"
+    assert format_replica((1, 2)) == "1#2"
 
 
 def test_table_match1():

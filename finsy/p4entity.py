@@ -233,6 +233,17 @@ def decode_replica(replica: p4r.Replica) -> _ReplicaCanonType:
     return (replica.egress_port, replica.instance)
 
 
+def format_replica(value: _ReplicaType) -> str:
+    "Format python representation of Replica."
+    if isinstance(value, int):
+        return str(value)
+    assert isinstance(value, tuple) and len(value) == 2
+    port, instance = value
+    if instance == 0:
+        return str(port)
+    return f"{port}#{instance}"
+
+
 def encode_watch_port(watch_port: int) -> bytes:
     "Encode watch_port into protobuf message."
     return p4values.encode_exact(watch_port, 32)
@@ -890,6 +901,10 @@ class P4MulticastGroupEntry(_P4Writable):
             replicas=tuple(decode_replica(replica) for replica in entry.replicas),
         )
 
+    def replicas_str(self) -> str:
+        "Format the replicas as a human-readable, canonical string."
+        return " ".join(format_replica(rep) for rep in self.replicas)
+
 
 @decodable("clone_session_entry")
 @dataclass
@@ -926,6 +941,10 @@ class P4CloneSessionEntry(_P4Writable):
             packet_length_bytes=entry.packet_length_bytes,
             replicas=tuple(decode_replica(replica) for replica in entry.replicas),
         )
+
+    def replicas_str(self) -> str:
+        "Format the replicas as a human-readable, canonical string."
+        return " ".join(format_replica(rep) for rep in self.replicas)
 
 
 @decodable("digest_entry")

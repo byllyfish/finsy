@@ -28,6 +28,7 @@ async def test_read_tables(demonet):
             "dmac dstAddr=0x2 fwd(eg_port=0x2)",
             "dmac dstAddr=0x3 fwd(eg_port=0x2)",
             "dmac broadcast(mgrp=0xab)",
+            "/multicast/0xab 1 2 3",
         },
         "127.0.0.1:50002": {
             "smac srcAddr=0x1 NoAction()",
@@ -38,6 +39,7 @@ async def test_read_tables(demonet):
             "dmac dstAddr=0x2 fwd(eg_port=0x1)",
             "dmac dstAddr=0x3 fwd(eg_port=0x3)",
             "dmac broadcast(mgrp=0xab)",
+            "/multicast/0xab 1 2 3",
         },
         "127.0.0.1:50003": {
             "smac srcAddr=0x1 NoAction()",
@@ -48,9 +50,10 @@ async def test_read_tables(demonet):
             "dmac dstAddr=0x2 fwd(eg_port=0x2)",
             "dmac dstAddr=0x3 fwd(eg_port=0x1)",
             "dmac broadcast(mgrp=0xab)",
+            "/multicast/0xab 1 2 3",
         },
     }
 
     for target, expected_state in expected_switch_states.items():
         actual_state = await testlib.read_p4_tables(target)
-        assert actual_state == expected_state
+        assert actual_state == expected_state, f"{target} failed!"
