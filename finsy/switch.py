@@ -496,10 +496,7 @@ class Switch:
                 warn_only,
             )
 
-    async def delete_all(
-        self,
-        entities: Iterable[p4entity.P4EntityList] = (),
-    ) -> None:
+    async def delete_all(self) -> None:
         """Delete all entities if no parameter is passed. Otherwise, delete
         items that match `entities`.
 
@@ -509,13 +506,9 @@ class Switch:
 
         TODO: ActionProfileGroup/Member, ValueSet.
         """
-        if entities:
-            # Delete just the matching entities and return.
-            await self._wildcard_delete(entities)
-            return
 
         # Start by deleting everything that matches these wildcards.
-        await self._wildcard_delete(
+        await self.delete_many(
             [
                 p4entity.P4TableEntry(),
                 p4entity.P4MulticastGroupEntry(),
@@ -933,7 +926,7 @@ class Switch:
             )
         )
 
-    async def _wildcard_delete(self, entities: Iterable[p4entity.P4EntityList]):
+    async def delete_many(self, entities: Iterable[p4entity.P4EntityList]):
         """Delete entities that match a wildcard read.
 
         This method always skips over entries in const tables. It is an error

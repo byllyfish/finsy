@@ -117,7 +117,7 @@ async def _srv6_clear(controller: fy.Controller, args: list[str]):
         case [device]:
             switch = controller[device]
             entry = fy.P4TableEntry("srv6_transit")
-            await switch.delete_all([entry])
+            await switch.delete_many([entry])
         case _:
             print("srv6-clear <device>")
 
