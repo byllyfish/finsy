@@ -1,5 +1,14 @@
 # Finsy Change Log
 
+## 0.17.0
+
+- The `Switch.delete_all` method no longer takes any arguments; use the new `Switch.delete_many` method for wildcard deletes instead.
+- The `Switch.delete_all` method now deletes all action profiles.
+- Add support for signed/varbit values.
+- Add a P4TypeFactory class for use in testing.
+- Update example docs to say that both docker and podman are supported.
+- Update project dependencies.
+
 ## 0.16.0
 
 - Add `GRPCCredentialsTLS` class for improved TLS support.
