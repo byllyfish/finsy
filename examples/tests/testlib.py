@@ -82,4 +82,14 @@ async def read_p4_tables(target: str, *, skip_const: bool = False) -> set[str]:
                     f"/multicast/{entry.multicast_group_id:#x} {entry.replicas_str()}"
                 )
 
+            # Read all DigestEntry's (wildcard reads are not supported).
+            digest_entries = [
+                fy.P4DigestEntry(digest.alias) for digest in sw.p4info.digests
+            ]
+            if digest_entries:
+                async for entry in sw.read(digest_entries):
+                    result.add(
+                        f"/digest/{entry.digest_id} max_list_size={entry.max_list_size} max_timeout_ns={entry.max_timeout_ns} ack_timeout_ns={entry.ack_timeout_ns}"
+                    )
+
     return result

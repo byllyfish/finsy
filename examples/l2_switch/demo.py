@@ -43,6 +43,7 @@ async def _handle_digests(switch: fy.Switch):
     async for digest in switch.read_digests("digest_t"):
         entries = (_learn(entry["srcAddr"], entry["ingressPort"]) for entry in digest)
         await switch.write(entries, warn_only=True)
+        # Ack the digest.
         await switch.write([digest.ack()])
 
 
