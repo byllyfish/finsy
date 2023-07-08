@@ -496,26 +496,18 @@ class Switch:
                 warn_only,
             )
 
-    async def delete_all(
-        self,
-        entities: Iterable[p4entity.P4EntityList] = (),
-    ) -> None:
+    async def delete_all(self) -> None:
         """Delete all entities if no parameter is passed. Otherwise, delete
         items that match `entities`.
 
         This method does not attempt to delete entries in const tables.
 
-        TODO: This method does not affect indirect counters or meters.
-
-        TODO: ActionProfileGroup/Member, ValueSet.
+        TODO: This method does not affect indirect counters, meters or
+        value_sets.
         """
-        if entities:
-            # Delete just the matching entities and return.
-            await self._wildcard_delete(entities)
-            return
 
         # Start by deleting everything that matches these wildcards.
-        await self._wildcard_delete(
+        await self.delete_many(
             [
                 p4entity.P4TableEntry(),
                 p4entity.P4MulticastGroupEntry(),
@@ -531,6 +523,17 @@ class Switch:
         ]
         if default_entries:
             await self.modify(default_entries)
+
+        # Delete all P4ActionProfileGroup's and P4ActionProfileMember's.
+        # We do this after deleting the P4TableEntry's in case a client is using
+        # "one-shot" references; these are incompatible with separate
+        # action profiles.
+        await self.delete_many(
+            [
+                p4entity.P4ActionProfileGroup(),
+                p4entity.P4ActionProfileMember(),
+            ]
+        )
 
         # Delete DigestEntry separately. Wildcard reads are not supported.
         digest_entries = [
@@ -933,7 +936,7 @@ class Switch:
             )
         )
 
-    async def _wildcard_delete(self, entities: Iterable[p4entity.P4EntityList]):
+    async def delete_many(self, entities: Iterable[p4entity.P4EntityList]):
         """Delete entities that match a wildcard read.
 
         This method always skips over entries in const tables. It is an error
