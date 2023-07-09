@@ -5,7 +5,6 @@ import asyncio
 import json
 import os
 import re
-import shutil
 import socket
 import tempfile
 from dataclasses import KW_ONLY, asdict, dataclass, field
@@ -368,8 +367,7 @@ def _json_default(obj: object):
         ) from ex
 
 
-# Allow an environment variable to override podman command.
-_podman = os.environ.get("FINSY_PODMAN", "podman")
+_podman = Path("podman")
 DEMONET_TOPO = Path(__file__).parent / "demonet_topo.py"
 PUBLISH_BASE = 50000
 
@@ -378,13 +376,15 @@ async def check_versions():
     "Check the versions of podman/docker installed."
     global _podman
 
-    cmd = _podman
-    if shutil.which(cmd):
-        _podman = cmd
-    elif shutil.which("docker"):
-        _podman = "docker"
-    else:
+    cmd = sh.find_command("podman") or sh.find_command("docker")
+    if cmd is None:
         raise RuntimeError("Cannot find podman or docker!")
+
+    _podman = cmd
+
+    # Do a quick check that podman/docker is available.
+    if not await sh.result(_podman, "ps"):
+        raise RuntimeError(f"There is a problem using docker/podman: {cmd}")
 
 
 def podman_create(
@@ -438,7 +438,7 @@ def podman_start(container: str) -> Command[str]:
 
 
 def podman_rm(container: str) -> Command[str]:
-    return sh(_podman, "rm", container).set(exit_codes={0, 1})
+    return sh(_podman, "rm", container).set(exit_codes={0, 1, 125})
 
 
 def podman_exec(container: str, *args: str) -> Command[str]:

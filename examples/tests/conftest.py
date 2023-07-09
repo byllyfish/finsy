@@ -43,8 +43,12 @@ async def demonet(request):
     "Fixture to run demonet based on config in module."
     config = _get_config(request.module.DEMONET)
 
-    async with dn.DemoNet(config) as net:
-        yield net
+    try:
+        async with dn.DemoNet(config) as net:
+            yield net
+
+    except RuntimeError as ex:
+        pytest.exit(f"DemoNet failure: {ex}")
 
 
 @pytest.fixture
