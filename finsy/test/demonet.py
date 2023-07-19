@@ -14,7 +14,7 @@ from types import TracebackType
 from typing import Any, Generator, Sequence
 
 from shellous import Command, Runner, sh
-from shellous.harvest import harvest_results
+from shellous.prompt import Prompt
 from typing_extensions import Self
 
 from finsy import MACAddress
@@ -129,77 +129,6 @@ class Bridge(DemoItem):
     commands: list[str] = field(default_factory=list)
 
 
-class Prompt:
-    "Utility class to help with an interactive prompt."
-
-    runner: Runner
-    prompt_bytes: bytes
-
-    def __init__(self, runner: Runner, prompt: str):
-        self.runner = runner
-        self.prompt_bytes = prompt.encode("utf-8")
-
-    async def send(
-        self,
-        input_text: str = "",
-        *,
-        timeout: float | None = None,
-    ) -> str:
-        "Write some input text to stdin, then await the response."
-        assert self.runner.returncode is None
-        assert self.runner.stdin is not None
-        assert self.runner.stdout is not None
-        assert self.runner.stderr is None
-
-        stdin = self.runner.stdin
-        stdout = self.runner.stdout
-
-        if input_text:
-            stdin.write(input_text.encode("utf-8") + b"\n")
-
-        # Drain our write to stdin, and wait for prompt from stdout.
-        cancelled, (buf, _) = await harvest_results(
-            _read_until(stdout, self.prompt_bytes),
-            stdin.drain(),
-            timeout=timeout,
-        )
-        if cancelled:
-            raise asyncio.CancelledError()
-
-        # Clean up the output to remove the prompt, then return as string.
-        assert isinstance(buf, bytes)
-        buf = buf.replace(b"\r\n", b"\n")
-        if buf.endswith(self.prompt_bytes):
-            promptlen = len(self.prompt_bytes)
-            buf = buf[0:-promptlen].rstrip(b"\n")
-
-        return buf.decode("utf-8")
-
-
-async def _read_until(stream: asyncio.StreamReader, sep: bytes) -> bytes:
-    "Read all data until separator."
-    # Most reads can complete without buffering.
-    try:
-        return await stream.readuntil(sep)
-    except asyncio.IncompleteReadError as ex:
-        return ex.partial
-    except asyncio.LimitOverrunError as ex:
-        # Okay, we have to buffer.
-        buf = bytearray(await stream.read(ex.consumed))
-
-    while True:
-        try:
-            buf.extend(await stream.readuntil(sep))
-        except asyncio.IncompleteReadError as ex:
-            buf.extend(ex.partial)
-        except asyncio.LimitOverrunError as ex:
-            buf.extend(await stream.read(ex.consumed))
-            continue
-        break
-
-    return bytes(buf)
-
-
 PID_MATCH = re.compile(r"<\w+ (\w+):.* pid=(\d+)>", re.MULTILINE)
 
 
@@ -239,7 +168,7 @@ class DemoNet:
             cmd = await self._setup()
             self._runner = Runner(cmd.stdout(sh.CAPTURE))
             await self._runner.__aenter__()
-            self._prompt = Prompt(self._runner, "mininet> ")
+            self._prompt = Prompt(self._runner, "mininet> ", normalize_newlines=True)
 
             await self._read_welcome()
             await self._read_pids()
@@ -272,7 +201,7 @@ class DemoNet:
     async def _read_welcome(self):
         "Collect welcome message from Mininet."
         assert self._prompt is not None
-        welcome = await self._prompt.send()
+        welcome = await self._prompt.receive()
         if welcome.startswith("Error:"):
             raise RuntimeError(welcome)
         print(welcome)
