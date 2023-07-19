@@ -29,6 +29,7 @@ async def test_read_tables(demonet):
             "dmac dstAddr=0x3 fwd(eg_port=0x2)",
             "dmac broadcast(mgrp=0xab)",
             "/multicast/0xab 1 2 3",
+            "/digest/digest_t max_list_size=1 max_timeout_ns=0 ack_timeout_ns=1000000000",
         },
         "127.0.0.1:50002": {
             "smac srcAddr=0x1 NoAction()",
@@ -40,6 +41,7 @@ async def test_read_tables(demonet):
             "dmac dstAddr=0x3 fwd(eg_port=0x3)",
             "dmac broadcast(mgrp=0xab)",
             "/multicast/0xab 1 2 3",
+            "/digest/digest_t max_list_size=1 max_timeout_ns=0 ack_timeout_ns=1000000000",
         },
         "127.0.0.1:50003": {
             "smac srcAddr=0x1 NoAction()",
@@ -51,6 +53,7 @@ async def test_read_tables(demonet):
             "dmac dstAddr=0x3 fwd(eg_port=0x1)",
             "dmac broadcast(mgrp=0xab)",
             "/multicast/0xab 1 2 3",
+            "/digest/digest_t max_list_size=1 max_timeout_ns=0 ack_timeout_ns=1000000000",
         },
     }
 
