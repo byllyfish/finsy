@@ -154,5 +154,7 @@ class DemoTopo(Topo):
             quietRun("apt-get -y -qq update", echo=True)
             quietRun("apt-get -y -qq install bridge-utils", echo=True)
 
+        # Disable IPv6.
+        quietRun("sysctl -w net.ipv6.conf.default.disable_ipv6=1")
 
 topos = {"demonet": DemoTopo}
