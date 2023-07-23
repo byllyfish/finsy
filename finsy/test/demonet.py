@@ -252,14 +252,14 @@ class DemoNet:
 
         await check_versions()
         await podman_create("mininet", image.name, switch_count)
-        await podman_copy(DEMONET_TOPO, "mininet", "/root/demonet_topo.py")
+        await podman_copy(DEMONET_TOPO, "mininet", "/tmp/demonet_topo.py")
 
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as tfile:
             json.dump(self._config, tfile, default=_json_default)
 
         try:
             temp = Path(tfile.name)
-            await podman_copy(temp, "mininet", "/root/demonet_topo.json")
+            await podman_copy(temp, "mininet", "/tmp/demonet_topo.json")
         finally:
             temp.unlink()
 
@@ -346,7 +346,7 @@ def podman_create(
         "net.ipv6.conf.default.disable_ipv6=1",
         image_slug,
         "--custom",
-        "/root/demonet_topo.py",
+        "/tmp/demonet_topo.py",
         "--topo",
         "demonet",
         *debug,

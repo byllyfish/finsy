@@ -1,0 +1,197 @@
+"Custom switch classes for Mininet."
+
+import shlex
+from pathlib import Path
+from typing import Any, ClassVar, Iterable
+
+from mininet.node import Switch  # pyright: ignore[reportMissingImports]
+
+_DEFAULT_CPU_PORT = 255
+_DEFAULT_DEVICE_ID = 1
+_DEFAULT_LOG_LEVEL = "warn"
+_DEFAULT_TMP_DIR = Path("/tmp")
+
+
+class P4RuntimeSwitch(Switch):
+    """Abstract base class for a P4Runtime switch (either BMV2 or Stratum)
+
+    Subclasses must override `switch_command` method.
+    """
+
+    grpc_port: int
+    log_level: str
+    cpu_port: int
+    device_id: int
+    temp_dir: Path
+    log_file: Path
+    _start_command: str = ""
+    _base_grpc_port: ClassVar[int] = 50000
+
+    def __init__(
+        self,
+        name: str,
+        grpc_port: int = 0,
+        log_level: str = _DEFAULT_LOG_LEVEL,
+        cpu_port: int = _DEFAULT_CPU_PORT,
+        device_id: int = _DEFAULT_DEVICE_ID,
+        **kwargs,
+    ):
+        super().__init__(name, **kwargs)
+        self.grpc_port = grpc_port or P4RuntimeSwitch._next_grpc_port()
+        self.log_level = log_level
+        self.cpu_port = cpu_port
+        self.device_id = device_id
+
+        self.temp_dir = _DEFAULT_TMP_DIR / name
+        self.log_file = self.temp_dir / "log.txt"
+        self._reset_temp_dir()
+
+    def start(self, controllers):
+        "Start the switch."
+        args = list(_flatten(self.switch_command()))
+        self._start_command = shlex.quote(args[0])
+        cmd_line = shlex.join(args)
+        log = shlex.quote(str(self.log_file))
+
+        self.cmd(f"{cmd_line} &> {log} &")
+        print(f"⚡️ {self._start_command} @ {self.grpc_port}")
+
+    def stop(self, deleteIntfs=True):
+        "Stop the switch."
+        self.cmd(f"kill %{self._start_command}")
+        self.cmd("wait")
+        self._start_command = ""
+
+        super().stop(deleteIntfs)
+
+    def switch_command(self):
+        """Return command line to run the switch.
+        
+        Result must be a list of strings. If this list contains any tuple or
+        list objects, they will be recursively flattened, so the end result
+        is a single list of strings.
+        """
+        raise NotImplementedError
+
+    def _reset_temp_dir(self):
+        "Remove the temporary switch directory and re-create it."
+        tmp = shlex.quote(str(self.temp_dir))
+        self.cmd(f"rm -rf {tmp}")
+        self.temp_dir.mkdir()
+
+    def _get_interfaces(self):
+        "Return (id, name) iterator for all interfaces (excluding loopback)."
+        if_index = 1
+        for if_name in self.intfNames():
+            if if_name == "lo":
+                continue
+            yield (if_index, if_name)
+            if_index += 1
+
+    @staticmethod
+    def _next_grpc_port():
+        "Return the next available GRPC port."
+        P4RuntimeSwitch._base_grpc_port += 1
+        return P4RuntimeSwitch._base_grpc_port
+
+
+class StratumSwitch(P4RuntimeSwitch):
+    "StratumBMV2 switch."
+
+    def switch_command(self) -> list[Any]:
+        "Return command line to run the switch."
+        # Stratum requires an initial dummy pipeline file.
+        initial_pipeline = Path("/root/dummy.json")
+        assert initial_pipeline.exists()
+
+        # Stratum configures the interfaces using a config file.
+        config_file = self.temp_dir / "chassis_config.txt"
+        config_file.write_text(
+            _stratum_chassis_config(self.name, self.device_id, self._get_interfaces())
+        )
+
+        return [
+            "stratum_bmv2",
+            f"-device_id={self.device_id}",
+            f"-chassis_config_file={config_file}",
+            f"-persistent_config_dir={self.temp_dir}",
+            f"-initial_pipeline={initial_pipeline}",
+            f"-cpu_port={self.cpu_port}",
+            f"-external_stratum_urls=0.0.0.0:{self.grpc_port}",
+            f"-bmv2_log_level={self.log_level}",
+        ]
+
+
+class BMV2Switch(P4RuntimeSwitch):
+    "BMV2 switch."
+
+    def switch_command(self) -> list[Any]:
+        "Return command line to run the switch."
+        # TODO --grpc-server-ssl, --grpc-server-with-client-auth
+        return [
+            "simple_switch_grpc",
+            "--no-p4",
+            "--log-console",
+            "--log-level",
+            self.log_level,
+            "--device-id",
+            self.device_id,
+            [("-i", f"{id}@{name}") for id, name in self._get_interfaces()],
+            "--",
+            "--cpu-port",
+            self.cpu_port,
+            "--grpc-server-addr",
+            f"0.0.0.0:{self.grpc_port}",
+        ]
+
+
+# Exports for bin/mn
+switches = {
+    'bmv2': BMV2Switch,
+    'stratum': StratumSwitch,
+}
+
+
+def _stratum_chassis_config(name: str, node_id: int, interfaces):
+    "Produce chassis config file used to configure interfaces."
+    ports = "\n".join(
+        f"""\
+singleton_ports {{
+  id: {if_index}
+  name: "{if_name}"
+  slot: 1
+  port: {if_index}
+  channel: 1
+  speed_bps: 10000000000
+  config_params {{
+    admin_state: ADMIN_STATE_ENABLED
+  }}
+  node: {node_id}
+}}
+""".strip()
+        for (if_index, if_name) in interfaces
+    )
+    result = f"""\
+description: "{name}"
+chassis {{
+  platform: PLT_P4_SOFT_SWITCH
+  name: "{name}"
+}}
+nodes {{
+  id: {node_id}
+  name: "{name} node {node_id}"
+  slot: 1
+  index: 1
+}}
+{ports}
+"""
+    return result.strip()
+
+
+def _flatten(value: Iterable[Any]) -> Iterable[str]:
+    """Recursively flatten a list containing tuples/lists."""
+    for item in value:
+        if isinstance(item, (list, tuple)):
+            yield from _flatten(item)
+        else:
+            yield str(item)

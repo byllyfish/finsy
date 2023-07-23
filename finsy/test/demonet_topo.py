@@ -14,9 +14,8 @@ from mininet.nodelib import LinuxBridge
 from mininet.topo import Topo
 from mininet.util import quietRun
 
-# Name of file to load topology from. The file should be located in the same
-# directory as this python file.
-DEMONET_JSON = "demonet_topo.json"
+# Name of file to load topology from.
+DEMONET_JSON = "/tmp/demonet_topo.json"
 
 
 class DemoHost(Host):
@@ -127,8 +126,7 @@ class DemoTopo(Topo):
         "Load topology from `DEMONET_JSON` file."
         super(DemoTopo, self).__init__(*args, **kwargs)
 
-        json_file = os.path.join(os.path.dirname(__name__), DEMONET_JSON)
-        with open(json_file) as text:
+        with open(DEMONET_JSON) as text:
             json_config = json.load(text)
 
         need_bridge_utils = False
