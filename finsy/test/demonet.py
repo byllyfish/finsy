@@ -228,10 +228,6 @@ class DemoNet:
             await self._cleanup()
             raise
 
-    def mnexec(self, host: str, *args: str) -> Command[str]:
-        pid = self._pids[host]
-        return podman_exec("mininet", "mnexec", "-a", str(pid), *args)
-
     async def send(self, cmdline: str, *, expect: str = "") -> str:
         assert self._prompt is not None
         result = await self._prompt.send(cmdline)
@@ -239,12 +235,6 @@ class DemoNet:
         if expect:
             assert expect in result
         return result
-
-    async def pingall(self) -> str:
-        return await self.send("pingall")
-
-    async def ifconfig(self, host: str) -> str:
-        return await self.send(f"{host} ifconfig")
 
     async def _setup(self):
         image = self._image()
@@ -368,10 +358,6 @@ def podman_start(container: str) -> Command[str]:
 
 def podman_rm(container: str) -> Command[str]:
     return sh(_podman, "rm", container).set(exit_codes={0, 1, 125})
-
-
-def podman_exec(container: str, *args: str) -> Command[str]:
-    return sh(_podman, "exec", "-it", container, *args)
 
 
 def _create_graph(config: Sequence[DemoItem]):
