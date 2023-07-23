@@ -66,7 +66,7 @@ class P4RuntimeSwitch(Switch):
 
     def switch_command(self):
         """Return command line to run the switch.
-        
+
         Result must be a list of strings. If this list contains any tuple or
         list objects, they will be recursively flattened, so the end result
         is a single list of strings.
@@ -147,8 +147,8 @@ class BMV2Switch(P4RuntimeSwitch):
 
 # Exports for bin/mn
 switches = {
-    'bmv2': BMV2Switch,
-    'stratum': StratumSwitch,
+    "bmv2": BMV2Switch,
+    "stratum": StratumSwitch,
 }
 
 
