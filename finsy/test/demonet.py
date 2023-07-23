@@ -2,6 +2,7 @@
 
 import argparse
 import asyncio
+import contextlib
 import json
 import os
 import re
@@ -11,11 +12,10 @@ from dataclasses import KW_ONLY, asdict, dataclass, field
 from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
 from types import TracebackType
-from typing import Any, Generator, Sequence
+from typing import Any, Sequence
 
 from shellous import Command, Runner, sh
 from shellous.prompt import Prompt
-from typing_extensions import Self
 
 from finsy import MACAddress
 
@@ -132,7 +132,33 @@ class Bridge(DemoItem):
 PID_MATCH = re.compile(r"<\w+ (\w+):.* pid=(\d+)>", re.MULTILINE)
 
 
-class DemoNet:
+class _AContextHelper:
+    "Helper class for implementing an async context manager class."
+
+    __context: Any = None
+
+    async def __aenter__(self):
+        assert self.__context is None
+        context = contextlib.asynccontextmanager(self._async_context_)()
+        result = await context.__aenter__()
+        self.__context = context
+        return result
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None:
+        context = self.__context
+        self.__context = None
+        return await context.__aexit__(exc_type, exc_value, exc_tb)
+
+    async def _async_context_(self):
+        yield self  # subclass must override
+
+
+class DemoNet(_AContextHelper):
     """Demo network that controls Mininet running in a container.
 
     ```
@@ -163,40 +189,17 @@ class DemoNet:
         self._prompt = None
         self._pids = {}
 
-    async def __aenter__(self) -> Self:
-        try:
-            cmd = await self._setup()
-            self._runner = Runner(cmd.stdout(sh.CAPTURE))
-            await self._runner.__aenter__()
-            self._prompt = Prompt(self._runner, "mininet> ", normalize_newlines=True)
+    async def _async_context_(self):
+        cmd = await self._setup()
 
+        async with Runner(cmd.stdout(sh.CAPTURE)) as run:
+            self._prompt = Prompt(run, "mininet> ", normalize_newlines=True)
             await self._read_welcome()
             await self._read_pids()
+            yield self
 
-        except Exception:
-            await self._cleanup()
-            raise
-
-        return self
-
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_value: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> bool | None:
-        assert self._runner is not None
-        await self._read_exit()
-
-        try:
-            await self._runner.__aexit__(exc_type, exc_value, exc_tb)
+            await self._read_exit()
             self._prompt = None
-            self._runner = None
-        finally:
-            await self._teardown()
-
-    def __await__(self) -> Generator[None, None, None]:
-        return self._interact().__await__()
 
     async def _read_welcome(self):
         "Collect welcome message from Mininet."
@@ -219,14 +222,9 @@ class DemoNet:
         assert self._prompt is not None
         print(await self._prompt.send("exit"))
 
-    async def _interact(self):
-        try:
-            cmd = await self._setup()
-            await cmd.stdin(sh.INHERIT).stdout(sh.INHERIT).stderr(sh.INHERIT)
-            await self._teardown()
-        except Exception:
-            await self._cleanup()
-            raise
+    async def run_interactively(self):
+        cmd = await self._setup()
+        await cmd.stdin(sh.INHERIT).stdout(sh.INHERIT).stderr(sh.INHERIT)
 
     async def send(self, cmdline: str, *, expect: str = "") -> str:
         assert self._prompt is not None
@@ -254,12 +252,6 @@ class DemoNet:
             temp.unlink()
 
         return podman_start("mininet")
-
-    async def _teardown(self):
-        pass
-
-    async def _cleanup(self):
-        await podman_rm("mininet")
 
     def _image(self) -> Image:
         "Return the configured image, or the default image if none found."
@@ -306,6 +298,17 @@ async def check_versions():
         raise RuntimeError(f"There is a problem using docker/podman: {cmd}")
 
 
+def mininet_args(*, debug: bool):
+    debug_arg = ("-v", "debug") if debug else ()
+    return (
+        "--custom",
+        "/tmp/demonet_topo.py",
+        "--topo",
+        "demonet",
+        debug_arg,
+    )
+
+
 def podman_create(
     container: str,
     image_slug: str,
@@ -318,9 +321,7 @@ def podman_create(
     else:
         publish = f"{PUBLISH_BASE + 1}-{PUBLISH_BASE+switch_count}"
 
-    debug = []
-    if os.environ.get("DEMONET_DEBUG"):
-        debug = ["-v", "debug"]
+    debug = bool(os.environ.get("DEMONET_DEBUG"))
 
     return sh(
         _podman,
@@ -333,11 +334,7 @@ def podman_create(
         "--publish",
         f"{publish}:{publish}",
         image_slug,
-        "--custom",
-        "/tmp/demonet_topo.py",
-        "--topo",
-        "demonet",
-        *debug,
+        mininet_args(debug=debug),
     ).stderr(sh.INHERIT)
 
 
@@ -466,7 +463,8 @@ def run(config: Sequence[DemoItem]) -> None:
     "Create demo network and run it interactively."
 
     async def _main():
-        await DemoNet(config)
+        net = DemoNet(config)
+        await net.run_interactively()
 
     asyncio.run(_main())
 
