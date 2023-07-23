@@ -6,6 +6,8 @@
 # ci/requirements[-dev].txt must be updated after poetry.lock is 
 # updated.
 
+set -eu
+
 if [ "poetry.lock" -nt "ci/requirements.txt" ]; then
     echo "You must update requirements.txt first."
     exit 1
@@ -14,6 +16,12 @@ fi
 if [ "poetry.lock" -nt "ci/requirements-dev.txt" ]; then
     echo "You must update requirements-dev.txt first."
     exit 1
+fi
+
+# Make sure that everything if formatted correctly with black/isort.
+if [ -d ".venv" ]; then
+    .venv/bin/black --check .
+    .venv/bin/isort --check .
 fi
 
 exit 0
