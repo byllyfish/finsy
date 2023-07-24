@@ -7,7 +7,7 @@ import json
 import os
 import re
 import socket
-import tempfile
+import time
 from dataclasses import KW_ONLY, asdict, dataclass, field
 from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
@@ -29,8 +29,10 @@ except ImportError:
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
 
+TEMP_DIR = Path("/tmp")
 
-class DemoItem:
+
+class Directive:
     "Marker superclass for all Demo configuration directives."
 
 
@@ -41,7 +43,7 @@ class CopyFile:
 
 
 @dataclass
-class Image(DemoItem):
+class Image(Directive):
     name: str
     _: KW_ONLY
     kind: str = field(default="image", init=False)
@@ -49,7 +51,7 @@ class Image(DemoItem):
 
 
 @dataclass
-class Switch(DemoItem):
+class Switch(Directive):
     name: str
     _: KW_ONLY
     kind: str = field(default="switch", init=False)
@@ -58,7 +60,7 @@ class Switch(DemoItem):
 
 
 @dataclass
-class Host(DemoItem):
+class Host(Directive):
     name: str
     switch: str = ""
     _: KW_ONLY
@@ -99,7 +101,7 @@ class Host(DemoItem):
 
 
 @dataclass
-class Link(DemoItem):
+class Link(Directive):
     start: str
     end: str
     _: KW_ONLY
@@ -111,7 +113,7 @@ class Link(DemoItem):
 
 
 @dataclass
-class Pod(DemoItem):
+class Pod(Directive):
     name: str
     _: KW_ONLY
     kind: str = field(default="pod", init=False)
@@ -120,13 +122,188 @@ class Pod(DemoItem):
 
 
 @dataclass
-class Bridge(DemoItem):
+class Bridge(Directive):
     name: str
     _: KW_ONLY
     kind: str = field(default="bridge", init=False)
     mac: str = ""
     ipv4: str = ""
     commands: list[str] = field(default_factory=list)
+
+
+class Config:
+    "Manages a DemoNet configuration."
+
+    items: Sequence[Directive]
+
+    def __init__(
+        self,
+        items: Sequence[Directive],
+    ):
+        self.items = items
+        self._scan_directives()
+
+    def image(self) -> Image:
+        "Return the configured docker image, or the default image if none found."
+        images = [item for item in self.items if isinstance(item, Image)]
+        if len(images) > 1:
+            raise ValueError("There should only be one Image config.")
+        if not images:
+            return Image("docker.io/opennetworking/p4mn")
+        return images[0]
+
+    def switch_count(self) -> int:
+        "Return the number of switches in the config."
+        return sum(1 for item in self.items if isinstance(item, Switch))
+
+    def draw(self, filename: str):
+        "Draw the network to `filename`."
+        graph = self.to_graph()
+        graph.layout()
+        graph.draw(filename)
+
+    def _scan_directives(self):
+        """Scan the directives and fill in necessary details.
+
+        This method modifies unset fields in the configuration. It is safe to do
+        this more than once; this is an idempotent operation.
+
+        TODO: Make directives read-only and do copy-on-write for changes.
+        """
+        port_db = _ConfigPortDB()
+        host_id = 1
+
+        for item in self.items:
+            match item:
+                case Switch():
+                    port_db.add_switch(item.name)
+                case Host():
+                    item.init(host_id)
+                    host_id += 1
+                    if item.switch:
+                        item.assigned_switch_port = port_db.next_port(item.switch)
+                case Link():
+                    if item.start in port_db:
+                        item.assigned_start_port = port_db.next_port(item.start)
+                    if item.end in port_db:
+                        item.assigned_end_port = port_db.next_port(item.end)
+                case _:
+                    pass
+
+            if isinstance(item, (Switch, Host, Link, Bridge)):
+                # Replace "$DEMONET_IP" in "commands".
+                item.commands = [
+                    s.replace("$DEMONET_IP", _LOCAL_IP) for s in item.commands
+                ]
+
+    def to_json(self):
+        return json.dumps(self.items, default=Config._json_default)
+
+    @staticmethod
+    def _json_default(obj: object):
+        if isinstance(obj, Path):
+            return str(obj)
+
+        try:
+            return asdict(obj)  # pyright: ignore[reportGeneralTypeIssues]
+        except TypeError as ex:
+            raise ValueError(
+                f"DemoNet can't serialize {type(obj).__name__!r}: {obj!r}"
+            ) from ex
+
+    def to_graph(self):
+        "Create a pygraphviz Graph of the network."
+        if pgv is None:
+            raise RuntimeError("ERROR: pygraphviz is not installed.")
+
+        graph_style = dict(
+            bgcolor="lightblue",
+            margin="0",
+            pad="0.25",
+        )
+        switch_style = dict(
+            shape="box",
+            fillcolor="green:white",
+            style="filled",
+            gradientangle=90,
+            width="0.1",
+            height="0.1",
+            margin="0.08,0.02",
+        )
+        host_style = dict(
+            shape="box",
+            width="0.01",
+            height="0.01",
+            margin="0.04,0.02",
+            fillcolor="yellow:white",
+            style="filled",
+            gradientangle=90,
+            fontsize="10",
+        )
+        bridge_style = dict(
+            shape="box",
+            width="0.01",
+            height="0.01",
+            margin="0.04,0.02",
+            fillcolor="white",
+            style="filled",
+            fontsize="10",
+        )
+        link_style = dict(
+            penwidth="2.0",
+            fontcolor="darkgreen",
+            fontsize="10",
+        )
+
+        graph = pgv.AGraph(**graph_style)
+
+        for item in self.items:
+            match item:
+                case Switch():
+                    graph.add_node(item.name, **switch_style)
+                case Host():
+                    sublabels = [item.name, item.assigned_ipv4, item.assigned_ipv6]
+                    host_label = "\n".join(x for x in sublabels if x)
+                    graph.add_node(
+                        item.name,
+                        label=host_label,
+                        **host_style,
+                    )
+                    if item.switch:
+                        graph.add_edge(
+                            item.name,
+                            item.switch,
+                            headlabel=f"{item.assigned_switch_port}",
+                            **link_style,
+                        )
+                case Bridge():
+                    sublabels = [item.name, item.ipv4]
+                    bridge_label = "\n".join(x for x in sublabels if x)
+                    graph.add_node(
+                        item.name,
+                        label=bridge_label,
+                        **bridge_style,
+                    )
+                case Link():
+                    labels = {}
+                    if item.assigned_end_port:
+                        labels["headlabel"] = str(item.assigned_end_port)
+                    if item.assigned_start_port:
+                        labels["taillabel"] = str(item.assigned_start_port)
+                    addl_style = {}
+                    if item.style:
+                        addl_style.update(style=item.style)
+                    graph.add_edge(
+                        item.start,
+                        item.end,
+                        **labels,
+                        **link_style,
+                        **addl_style,
+                    )
+                case _:
+                    pass
+
+        return graph
 
 
 PID_MATCH = re.compile(r"<\w+ (\w+):.* pid=(\d+)>", re.MULTILINE)
@@ -174,24 +351,27 @@ class DemoNet(_AContextHelper):
     ```
     """
 
-    _config: Sequence[DemoItem]
-    _runner: Runner | None
-    _prompt: Prompt | None
+    config: Config
     _pids: dict[str, int]
+    _prompt: Prompt | None = None
 
     def __init__(
         self,
-        config: Sequence[DemoItem],
+        config: Config | Sequence[Directive],
     ):
-        _configure(config)
-        self._config = config
-        self._runner = None
-        self._prompt = None
+        if isinstance(config, Config):
+            self.config = config
+        else:
+            self.config = Config(config)
         self._pids = {}
+        self._json_path = TEMP_DIR / "demonet_topo.json"
+        self._json_path.write_text(self.config.to_json())
 
     async def _async_context_(self):
+        assert self._prompt is None
         cmd = await self._setup()
 
+        # FIXME: Remove Runner wrapper on next line.
         async with Runner(cmd.stdout(sh.CAPTURE)) as run:
             self._prompt = Prompt(run, "mininet> ", normalize_newlines=True)
             await self._read_welcome()
@@ -235,47 +415,17 @@ class DemoNet(_AContextHelper):
         return result
 
     async def _setup(self):
-        image = self._image()
-        switch_count = self._switch_count()
+        image = self.config.image()
+        switch_count = self.config.switch_count()
 
         await check_versions()
-        await podman_create("mininet", image.name, switch_count)
-        await podman_copy(DEMONET_TOPO, "mininet", "/tmp/demonet_topo.py")
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as tfile:
-            json.dump(self._config, tfile, default=_json_default)
+        container = f"mininet-{int(time.time()):x}"
+        await podman_create(container, image.name, switch_count)
+        await podman_copy(DEMONET_TOPO, container, "/tmp/demonet_topo.py")
+        await podman_copy(self._json_path, container, "/tmp/demonet_topo.json")
 
-        try:
-            temp = Path(tfile.name)
-            await podman_copy(temp, "mininet", "/tmp/demonet_topo.json")
-        finally:
-            temp.unlink()
-
-        return podman_start("mininet")
-
-    def _image(self) -> Image:
-        "Return the configured image, or the default image if none found."
-        images = [item for item in self._config if isinstance(item, Image)]
-        if len(images) > 1:
-            raise ValueError("There should only be one Image config.")
-        if not images:
-            return Image("docker.io/opennetworking/p4mn")
-        return images[0]
-
-    def _switch_count(self) -> int:
-        "Return the number of switches in the config."
-        return sum(1 for item in self._config if isinstance(item, Switch))
-
-
-def _json_default(obj: object):
-    try:
-        if isinstance(obj, Path):
-            return str(obj)
-        return asdict(obj)  # pyright: ignore[reportGeneralTypeIssues]
-    except TypeError as ex:
-        raise ValueError(
-            f"DemoNet can't serialize {type(obj).__name__!r}: {obj!r}"
-        ) from ex
+        return podman_start(container)
 
 
 _podman = Path("podman")
@@ -298,14 +448,13 @@ async def check_versions():
         raise RuntimeError(f"There is a problem using docker/podman: {cmd}")
 
 
-def mininet_args(*, debug: bool):
-    debug_arg = ("-v", "debug") if debug else ()
+def extra_mininet_args(*, debug: bool):
     return (
         "--custom",
         "/tmp/demonet_topo.py",
         "--topo",
         "demonet",
-        debug_arg,
+        ("-v", "debug") if debug else (),
     )
 
 
@@ -334,17 +483,12 @@ def podman_create(
         "--publish",
         f"{publish}:{publish}",
         image_slug,
-        mininet_args(debug=debug),
-    ).stderr(sh.INHERIT)
+        extra_mininet_args(debug=debug),
+    )
 
 
 def podman_copy(src_path: Path, container: str, dest_path: str) -> Command[str]:
-    return sh(
-        _podman,
-        "cp",
-        src_path,
-        f"{container}:{dest_path}",
-    )
+    return sh(_podman, "cp", src_path, f"{container}:{dest_path}")
 
 
 def podman_start(container: str) -> Command[str]:
@@ -355,111 +499,7 @@ def podman_rm(container: str) -> Command[str]:
     return sh(_podman, "rm", container).set(exit_codes={0, 1, 125})
 
 
-def _create_graph(config: Sequence[DemoItem]):
-    "Create a pygraphviz Graph of the network."
-    assert pgv is not None, "pygraphviz is not installed."
-
-    graph_style = dict(
-        bgcolor="lightblue",
-        margin="0",
-        pad="0.25",
-    )
-    switch_style = dict(
-        shape="box",
-        fillcolor="green:white",
-        style="filled",
-        gradientangle=90,
-        width="0.1",
-        height="0.1",
-        margin="0.08,0.02",
-    )
-    host_style = dict(
-        shape="box",
-        width="0.01",
-        height="0.01",
-        margin="0.04,0.02",
-        fillcolor="yellow:white",
-        style="filled",
-        gradientangle=90,
-        fontsize="10",
-    )
-    bridge_style = dict(
-        shape="box",
-        width="0.01",
-        height="0.01",
-        margin="0.04,0.02",
-        fillcolor="white",
-        style="filled",
-        fontsize="10",
-    )
-    link_style = dict(
-        penwidth="2.0",
-        fontcolor="darkgreen",
-        fontsize="10",
-    )
-
-    graph = pgv.AGraph(**graph_style)
-
-    for item in config:
-        match item:
-            case Switch():
-                graph.add_node(item.name, **switch_style)
-            case Host():
-                sublabels = [item.name, item.assigned_ipv4, item.assigned_ipv6]
-                host_label = "\n".join(x for x in sublabels if x)
-                graph.add_node(
-                    item.name,
-                    label=host_label,
-                    **host_style,
-                )
-                if item.switch:
-                    graph.add_edge(
-                        item.name,
-                        item.switch,
-                        headlabel=f"{item.assigned_switch_port}",
-                        **link_style,
-                    )
-            case Bridge():
-                sublabels = [item.name, item.ipv4]
-                bridge_label = "\n".join(x for x in sublabels if x)
-                graph.add_node(
-                    item.name,
-                    label=bridge_label,
-                    **bridge_style,
-                )
-            case Link():
-                labels = {}
-                if item.assigned_end_port:
-                    labels["headlabel"] = str(item.assigned_end_port)
-                if item.assigned_start_port:
-                    labels["taillabel"] = str(item.assigned_start_port)
-                addl_style = {}
-                if item.style:
-                    addl_style.update(style=item.style)
-                graph.add_edge(
-                    item.start,
-                    item.end,
-                    **labels,
-                    **link_style,
-                    **addl_style,
-                )
-            case _:
-                pass
-
-    return graph
-
-
-def draw(config: Sequence[DemoItem], filename: str) -> None:
-    "Draw the config as a graph."
-    if pgv is None:
-        raise RuntimeError("ERROR: pygraphviz is not installed.")
-    _configure(config)
-    graph = _create_graph(config)
-    graph.layout()
-    graph.draw(filename)
-
-
-def run(config: Sequence[DemoItem]) -> None:
+def run(config: Sequence[Directive]) -> None:
     "Create demo network and run it interactively."
 
     async def _main():
@@ -469,38 +509,7 @@ def run(config: Sequence[DemoItem]) -> None:
     asyncio.run(_main())
 
 
-def _configure(config: Sequence[DemoItem]):
-    """Scan the configuration and fill in necessary details.
-
-    This method modifies unset fields in the configuration. It is safe to do
-    this more than once; this is an idempotent operation.
-    """
-    switch_db = SwitchPortDB()
-    host_id = 1
-
-    for item in config:
-        match item:
-            case Switch():
-                switch_db.add_switch(item.name)
-            case Host():
-                item.init(host_id)
-                host_id += 1
-                if item.switch:
-                    item.assigned_switch_port = switch_db.next_port(item.switch)
-            case Link():
-                if item.start in switch_db:
-                    item.assigned_start_port = switch_db.next_port(item.start)
-                if item.end in switch_db:
-                    item.assigned_end_port = switch_db.next_port(item.end)
-            case _:
-                pass
-
-        if isinstance(item, (Switch, Host, Link, Bridge)):
-            # Replace "$DEMONET_IP" in "commands".
-            item.commands = [s.replace("$DEMONET_IP", _LOCAL_IP) for s in item.commands]
-
-
-class SwitchPortDB:
+class _ConfigPortDB:
     "Helper class to help track the next available switch port number."
 
     _next_port: dict[str, int]
@@ -529,11 +538,11 @@ def _parse_args():
     return parser.parse_args()
 
 
-def main(config: Sequence[DemoItem]) -> None:
+def main(config: Sequence[Directive]) -> None:
     "Main entry point for demonet."
     args = _parse_args()
     if args.draw:
-        draw(config, args.draw)
+        Config(config).draw(args.draw)
     else:
         run(config)
 
