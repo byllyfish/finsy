@@ -216,65 +216,26 @@ class Config:
         if pgv is None:
             raise RuntimeError("ERROR: pygraphviz is not installed.")
 
-        graph_style = dict(
-            bgcolor="lightblue",
-            margin="0",
-            pad="0.25",
-        )
-        switch_style = dict(
-            shape="box",
-            fillcolor="green:white",
-            style="filled",
-            gradientangle=90,
-            width="0.1",
-            height="0.1",
-            margin="0.08,0.02",
-        )
-        host_style = dict(
-            shape="box",
-            width="0.01",
-            height="0.01",
-            margin="0.04,0.02",
-            fillcolor="yellow:white",
-            style="filled",
-            gradientangle=90,
-            fontsize="10",
-        )
-        bridge_style = dict(
-            shape="box",
-            width="0.01",
-            height="0.01",
-            margin="0.04,0.02",
-            fillcolor="white",
-            style="filled",
-            fontsize="10",
-        )
-        link_style = dict(
-            penwidth="2.0",
-            fontcolor="darkgreen",
-            fontsize="10",
-        )
-
-        graph = pgv.AGraph(**graph_style)
+        graph = pgv.AGraph(**_PyGraphStyle.graph)
 
         for item in self.items:
             match item:
                 case Switch():
-                    graph.add_node(item.name, **switch_style)
+                    graph.add_node(item.name, **_PyGraphStyle.switch)
                 case Host():
                     sublabels = [item.name, item.assigned_ipv4, item.assigned_ipv6]
                     host_label = "\n".join(x for x in sublabels if x)
                     graph.add_node(
                         item.name,
                         label=host_label,
-                        **host_style,
+                        **_PyGraphStyle.host,
                     )
                     if item.switch:
                         graph.add_edge(
                             item.name,
                             item.switch,
                             headlabel=f"{item.assigned_switch_port}",
-                            **link_style,
+                            **_PyGraphStyle.link,
                         )
                 case Bridge():
                     sublabels = [item.name, item.ipv4]
@@ -282,7 +243,7 @@ class Config:
                     graph.add_node(
                         item.name,
                         label=bridge_label,
-                        **bridge_style,
+                        **_PyGraphStyle.bridge,
                     )
                 case Link():
                     labels = {}
@@ -290,15 +251,14 @@ class Config:
                         labels["headlabel"] = str(item.assigned_end_port)
                     if item.assigned_start_port:
                         labels["taillabel"] = str(item.assigned_start_port)
-                    addl_style = {}
+                    style = _PyGraphStyle.link.copy()
                     if item.style:
-                        addl_style.update(style=item.style)
+                        style.update(style=item.style)
                     graph.add_edge(
                         item.start,
                         item.end,
                         **labels,
-                        **link_style,
-                        **addl_style,
+                        **style,
                     )
                 case _:
                     pass
@@ -560,3 +520,50 @@ def _get_local_ipv4_address():
 
 
 _LOCAL_IP = _get_local_ipv4_address()
+
+
+class _PyGraphStyle:
+    "Style defaults for different graphviz elements."
+
+    graph = dict(
+        bgcolor="lightblue",
+        margin="0",
+        pad="0.25",
+    )
+
+    switch = dict(
+        shape="box",
+        fillcolor="green:white",
+        style="filled",
+        gradientangle=90,
+        width="0.1",
+        height="0.1",
+        margin="0.08,0.02",
+    )
+
+    host = dict(
+        shape="box",
+        width="0.01",
+        height="0.01",
+        margin="0.04,0.02",
+        fillcolor="yellow:white",
+        style="filled",
+        gradientangle=90,
+        fontsize="10",
+    )
+
+    bridge = dict(
+        shape="box",
+        width="0.01",
+        height="0.01",
+        margin="0.04,0.02",
+        fillcolor="white",
+        style="filled",
+        fontsize="10",
+    )
+
+    link = dict(
+        penwidth="2.0",
+        fontcolor="darkgreen",
+        fontsize="10",
+    )
