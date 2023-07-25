@@ -59,8 +59,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run unit tests
         run: |
-          pwd
-          mn --help
+          source /etc/os-release
+          echo "$PRETTY_NAME"
+          mn --version
           #python3 -m venv venv
           #source venv/bin/activate
           #pip install -r ./ci/requirements-dev.txt
