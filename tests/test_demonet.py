@@ -12,6 +12,10 @@ def test_config():
         ]
     )
 
+    assert len(config.items) == 2
+    assert config.image() == dn.Image("docker.io/opennetworking/p4mn")
+    assert config.switch_count() == 1
+
     assert json.loads(config.to_json(indent=2)) == [
         {"commands": [], "kind": "switch", "name": "s1", "params": {}},
         {

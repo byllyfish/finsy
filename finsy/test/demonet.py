@@ -29,8 +29,6 @@ except ImportError:
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
 
-TEMP_DIR = Path("/tmp")
-
 
 class Directive:
     "Marker superclass for all Demo configuration directives."
@@ -315,6 +313,7 @@ class DemoNet(_AContextHelper):
 
     config: Config
     _pids: dict[str, int]
+    _config_file: Path
     _prompt: Prompt | None = None
 
     def __init__(
@@ -326,12 +325,12 @@ class DemoNet(_AContextHelper):
         else:
             self.config = Config(config)
         self._pids = {}
-        self._json_path = TEMP_DIR / "demonet_topo.json"
-        self._json_path.write_text(self.config.to_json())
+        self._config_file = _LOCAL_TEMP_DIR / "demonet_config.json"
+        self._config_file.write_text(self.config.to_json())
 
     async def _async_context_(self):
         assert self._prompt is None
-        cmd = await self._setup()
+        cmd = await self._mininet_command()
 
         # FIXME: Remove Runner wrapper on next line.
         async with Runner(cmd.stdout(sh.CAPTURE)) as run:
@@ -365,7 +364,7 @@ class DemoNet(_AContextHelper):
         print(await self._prompt.send("exit"))
 
     async def run_interactively(self):
-        cmd = await self._setup()
+        cmd = await self._mininet_command()
         await cmd.stdin(sh.INHERIT).stdout(sh.INHERIT).stderr(sh.INHERIT)
 
     async def send(self, cmdline: str, *, expect: str = "") -> str:
@@ -376,26 +375,44 @@ class DemoNet(_AContextHelper):
             assert expect in result
         return result
 
-    async def _setup(self):
+    async def _mininet_command(self):
+        """Return a command to run Mininet.
+
+        If Mininet is installed locally, we return a command to run the local
+        version. Otherwise, we set up a Docker image to run Mininet in a
+        container.
+        """
+        if sh.find_command("mn"):
+            return mininet_start()
+
         image = self.config.image()
         switch_count = self.config.switch_count()
-
-        await check_versions()
-
         container = f"mininet-{int(time.time()):x}"
+
+        await podman_check()
         await podman_create(container, image.name, switch_count)
-        await podman_copy(DEMONET_TOPO, container, "/tmp/demonet_topo.py")
-        await podman_copy(self._json_path, container, "/tmp/demonet_topo.json")
+        await podman_copy(_LOCAL_TOPO_PY, container, _IMAGE_TOPO_PY)
+        await podman_copy(self._config_file, container, _IMAGE_CONFIG)
 
         return podman_start(container)
 
 
 _podman = Path("podman")
-DEMONET_TOPO = Path(__file__).parent / "demonet_topo.py"
+
+_LOCAL_TEMP_DIR = Path("/tmp")
+_LOCAL_TOPO_PY = Path(__file__).parent / "demonet_topo.py"
+_LOCAL_P4SWITCH_PY = Path(__file__).parent.parent.parent / "ci/demonet/p4switch.py"
+
+assert _LOCAL_TOPO_PY.exists()
+assert _LOCAL_P4SWITCH_PY.exists()
+
 PUBLISH_BASE = 50000
 
+_IMAGE_TOPO_PY = "/tmp/demonet_topo.py"
+_IMAGE_CONFIG = "/tmp/demonet_config.json"
 
-async def check_versions():
+
+async def podman_check():
     "Check the versions of podman/docker installed."
     global _podman
 
@@ -413,10 +430,25 @@ async def check_versions():
 def extra_mininet_args(*, debug: bool):
     return (
         "--custom",
-        "/tmp/demonet_topo.py",
+        _IMAGE_TOPO_PY,
         "--topo",
         "demonet",
         ("-v", "debug") if debug else (),
+    )
+
+
+def mininet_start():
+    debug = bool(os.environ.get("DEMONET_DEBUG"))
+
+    return sh(
+        "mn",
+        "--custom",
+        _LOCAL_P4SWITCH_PY,
+        "--switch",
+        "bmv2",
+        "--controller",
+        "none",
+        extra_mininet_args(debug=debug),
     )
 
 
@@ -506,7 +538,7 @@ def main(config: Sequence[Directive]) -> None:
 
 
 def _get_local_ipv4_address():
-    "Retrieve the local (routable) IPv4 address."
+    "Retrieve the local (route-able) IPv4 address."
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         sock.settimeout(0)
