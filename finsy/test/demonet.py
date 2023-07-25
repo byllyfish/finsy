@@ -196,8 +196,8 @@ class Config:
                     s.replace("$DEMONET_IP", _LOCAL_IP) for s in item.commands
                 ]
 
-    def to_json(self) -> str:
-        return json.dumps(self.items, default=Config._json_default)
+    def to_json(self, **kwds: Any) -> str:
+        return json.dumps(self.items, default=Config._json_default, **kwds)
 
     @staticmethod
     def _json_default(obj: object):
