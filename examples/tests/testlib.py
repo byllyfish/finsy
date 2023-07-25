@@ -1,3 +1,7 @@
+import difflib
+from pathlib import Path
+from typing import Iterator
+
 import finsy as fy
 
 
@@ -93,3 +97,25 @@ async def read_p4_tables(target: str, *, skip_const: bool = False) -> set[str]:
                     )
 
     return result
+
+
+def diff_text(orig: Path, new: Path) -> list[str]:
+    "Compare two text files line by line."
+    with orig.open() as a, new.open() as b:
+        diff = difflib.unified_diff(
+            a.readlines(),
+            b.readlines(),
+            fromfile=orig.name,
+            tofile=new.name,
+        )
+        return list(diff)
+
+
+def has_pygraphviz():
+    "Return True if the `pygraphviz` module is available."
+    try:
+        import pygraphviz
+
+        return True
+    except ImportError:
+        return False

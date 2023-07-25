@@ -1,6 +1,9 @@
 import asyncio
 from pathlib import Path
 
+import pytest
+import testlib
+
 GNMI_DIR = Path(__file__).parent.parent / "gnmi"
 
 DEMONET = GNMI_DIR / "net/run.py"
@@ -41,3 +44,13 @@ async def test_demo3(demonet, python):
     assert result.decode().startswith(
         "initial: s1-eth1 is UP\nupdate:  s1-eth1 is DOWN\nupdate:  s1-eth1 is UP\nupdate:  s1-eth1 is DOWN"
     )
+
+
+@pytest.mark.skipif(not testlib.has_pygraphviz(), reason="Requires pygraphviz")
+async def test_graph_dot(demonet, tmp_path):
+    "Test the graph dot file."
+    orig = GNMI_DIR / "net/map.dot"
+    temp = tmp_path / "map.dot"
+    demonet.config.to_graph().write(temp)
+
+    assert testlib.diff_text(orig, temp) == []

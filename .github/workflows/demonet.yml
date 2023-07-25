@@ -15,5 +15,6 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build image
       run: |
-        docker build --tag ghcr.io/byllyfish/demonet:latest ci/demonet/. 
-        docker push ghcr.io/byllyfish/demonet:latest
+        tag="$(date '+%y.%m')"
+        docker build --tag ghcr.io/byllyfish/demonet:$tag ci/demonet/. 
+        docker push ghcr.io/byllyfish/demonet:$tag

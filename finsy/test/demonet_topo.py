@@ -1,4 +1,4 @@
-"""Custom Mininet file that loads topology from `demonet_topo.json` file.
+"""Custom Mininet file that loads topology from `demonet_config.json` file.
 
 For compatibility, this file MUST support BOTH Python 2.7 and Python 3+.
 """
@@ -14,8 +14,8 @@ from mininet.nodelib import LinuxBridge
 from mininet.topo import Topo
 from mininet.util import quietRun
 
-# Name of file to load topology from.
-DEMONET_JSON = "/tmp/demonet_topo.json"
+# Location of file to load topology from.
+DEMONET_CONFIG = os.environ.get("DEMONET_CONFIG", "/tmp/demonet_config.json")
 
 
 class DemoHost(Host):
@@ -123,10 +123,10 @@ class DemoTopo(Topo):
     "Demo topology."
 
     def __init__(self, *args, **kwargs):
-        "Load topology from `DEMONET_JSON` file."
+        "Load topology from `demonet_config.json` file."
         super(DemoTopo, self).__init__(*args, **kwargs)
 
-        with open(DEMONET_JSON) as text:
+        with open(DEMONET_CONFIG) as text:
             json_config = json.load(text)
 
         need_bridge_utils = False
@@ -153,6 +153,9 @@ class DemoTopo(Topo):
         if need_bridge_utils:
             quietRun("apt-get -y -qq update", echo=True)
             quietRun("apt-get -y -qq install bridge-utils", echo=True)
+
+        # Disable IPv6.
+        quietRun("sysctl -w net.ipv6.conf.default.disable_ipv6=1")
 
 
 topos = {"demonet": DemoTopo}
