@@ -1,0 +1,28 @@
+strict graph "" {
+	graph [bgcolor=lightblue,
+		margin=0,
+		pad=0.25
+	];
+	node [label="\N"];
+	s1	[fillcolor="green:white",
+		gradientangle=90,
+		height=0.1,
+		margin="0.08,0.02",
+		shape=box,
+		style=filled,
+		width=0.1];
+	h1	[fillcolor="yellow:white",
+		fontsize=10,
+		gradientangle=90,
+		height=0.01,
+		label="h1
+10.0.0.1/8",
+		margin="0.04,0.02",
+		shape=box,
+		style=filled,
+		width=0.01];
+	h1 -- s1	[fontcolor=darkgreen,
+		fontsize=10,
+		headlabel=1,
+		penwidth=2.0];
+}

@@ -1,6 +1,8 @@
 import asyncio
+import difflib
 from pathlib import Path
 
+import pytest
 import testlib
 
 HELLO_DIR = Path(__file__).parent.parent / "hello"
@@ -87,3 +89,13 @@ async def test_read_tables(demonet):
     for target, expected_state in expected_switch_states.items():
         actual_state = await testlib.read_p4_tables(target)
         assert actual_state == expected_state, f"{target} failed!"
+
+
+@pytest.mark.skipif(not testlib.has_pygraphviz(), reason="Requires pygraphviz")
+async def test_graph_dot(demonet, tmp_path):
+    "Test the graph dot file."
+    orig = HELLO_DIR / "net/map.dot"
+    temp = tmp_path / "map.dot"
+    demonet.config.to_graph().write(temp)
+
+    assert testlib.diff_text(orig, temp) == []

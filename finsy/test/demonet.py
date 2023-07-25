@@ -196,7 +196,7 @@ class Config:
                     s.replace("$DEMONET_IP", _LOCAL_IP) for s in item.commands
                 ]
 
-    def to_json(self):
+    def to_json(self) -> str:
         return json.dumps(self.items, default=Config._json_default)
 
     @staticmethod
@@ -216,7 +216,9 @@ class Config:
         if pgv is None:
             raise RuntimeError("ERROR: pygraphviz is not installed.")
 
-        graph = pgv.AGraph(**_PyGraphStyle.graph)
+        graph = pgv.AGraph(
+            **_PyGraphStyle.graph,  # pyright: ignore[reportGeneralTypeIssues]
+        )
 
         for item in self.items:
             match item:
@@ -257,7 +259,7 @@ class Config:
                     graph.add_edge(
                         item.start,
                         item.end,
-                        **labels,
+                        **labels,  # pyright: ignore[reportUnknownArgumentType]
                         **style,
                     )
                 case _:
@@ -453,10 +455,6 @@ def podman_copy(src_path: Path, container: str, dest_path: str) -> Command[str]:
 
 def podman_start(container: str) -> Command[str]:
     return sh(_podman, "start", "-ai", container).set(pty=True)
-
-
-def podman_rm(container: str) -> Command[str]:
-    return sh(_podman, "rm", container).set(exit_codes={0, 1, 125})
 
 
 def run(config: Sequence[Directive]) -> None:
