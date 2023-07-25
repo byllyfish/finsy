@@ -8,8 +8,8 @@ on:
     branches: [ "*" ]
 
 jobs:
-  build:
 
+  build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -48,3 +48,18 @@ jobs:
     - name: Type Check
       run: |
         PYTHONPATH=. pyright --ignoreexternal --verifytypes finsy || echo "Not yet 100%."
+
+  test-examples:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/byllyfish/demonet
+      options: --privileged
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run unit tests
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r ./ci/requirements-dev.txt
+          pytest
