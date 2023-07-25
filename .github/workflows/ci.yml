@@ -26,7 +26,7 @@ jobs:
         check-latest: true
     - name: Install dependencies
       run: |
-        pip install -r ./ci/requirements-dev.txt
+        pip install -r ./ci/requirements-dev.txt -r ./ci/requirements-extra.txt
     - name: Lint Check
       run: |
         ruff check --exit-zero .

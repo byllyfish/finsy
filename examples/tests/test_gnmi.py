@@ -1,6 +1,4 @@
 import asyncio
-import difflib
-import sys
 from pathlib import Path
 
 import pytest
