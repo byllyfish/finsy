@@ -383,7 +383,7 @@ class DemoNet(_AContextHelper):
         container.
         """
         if sh.find_command("mn"):
-            return mininet_start()
+            return mininet_start(DEMONET_CONFIG=str(self._config_file))
 
         image = self.config.image()
         switch_count = self.config.switch_count()
@@ -394,7 +394,7 @@ class DemoNet(_AContextHelper):
         await podman_copy(_LOCAL_TOPO_PY, container, _IMAGE_TOPO_PY)
         await podman_copy(self._config_file, container, _IMAGE_CONFIG)
 
-        return podman_start(container)
+        return podman_start(container, DEMONET_CONFIG=_IMAGE_CONFIG)
 
 
 _podman = Path("podman")
@@ -437,19 +437,23 @@ def extra_mininet_args(*, debug: bool):
     )
 
 
-def mininet_start():
+def mininet_start(**env: str):
     debug = bool(os.environ.get("DEMONET_DEBUG"))
 
-    return sh(
-        "mn",
-        "--custom",
-        _LOCAL_P4SWITCH_PY,
-        "--switch",
-        "bmv2",
-        "--controller",
-        "none",
-        extra_mininet_args(debug=debug),
-    ).set(pty=True)
+    return (
+        sh(
+            "mn",
+            "--custom",
+            _LOCAL_P4SWITCH_PY,
+            "--switch",
+            "bmv2",
+            "--controller",
+            "none",
+            extra_mininet_args(debug=debug),
+        )
+        .set(pty=True)
+        .env(**env)
+    )
 
 
 def podman_create(
@@ -485,8 +489,8 @@ def podman_copy(src_path: Path, container: str, dest_path: str) -> Command[str]:
     return sh(_podman, "cp", src_path, f"{container}:{dest_path}")
 
 
-def podman_start(container: str) -> Command[str]:
-    return sh(_podman, "start", "-ai", container).set(pty=True)
+def podman_start(container: str, **env: str) -> Command[str]:
+    return sh(_podman, "start", "-ai", container).set(pty=True).env(**env)
 
 
 def run(config: Sequence[Directive]) -> None:
