@@ -394,7 +394,7 @@ class DemoNet(_AContextHelper):
         await podman_copy(_LOCAL_TOPO_PY, container, _IMAGE_TOPO_PY)
         await podman_copy(self._config_file, container, _IMAGE_CONFIG)
 
-        return podman_start(container, DEMONET_CONFIG=_IMAGE_CONFIG)
+        return podman_start(container, DEMONET_CONFIG=str(_IMAGE_CONFIG))
 
 
 _podman = Path("podman")
@@ -408,8 +408,8 @@ assert _LOCAL_P4SWITCH_PY.exists()
 
 PUBLISH_BASE = 50000
 
-_IMAGE_TOPO_PY = "/tmp/demonet_topo.py"
-_IMAGE_CONFIG = "/tmp/demonet_config.json"
+_IMAGE_TOPO_PY = Path("/tmp/demonet_topo.py")
+_IMAGE_CONFIG = Path("/tmp/demonet_config.json")
 
 
 async def podman_check():
@@ -427,10 +427,10 @@ async def podman_check():
         raise RuntimeError(f"There is a problem using docker/podman: {cmd}")
 
 
-def extra_mininet_args(*, debug: bool):
+def extra_mininet_args(*, debug: bool, topo_py: Path):
     return (
         "--custom",
-        _IMAGE_TOPO_PY,
+        topo_py,
         "--topo",
         "demonet",
         ("-v", "debug") if debug else (),
@@ -449,7 +449,7 @@ def mininet_start(**env: str):
             "bmv2",
             "--controller",
             "none",
-            extra_mininet_args(debug=debug),
+            extra_mininet_args(debug=debug, topo_py=_LOCAL_TOPO_PY),
         )
         .set(pty=True)
         .env(**env)
@@ -481,11 +481,11 @@ def podman_create(
         "--publish",
         f"{publish}:{publish}",
         image_slug,
-        extra_mininet_args(debug=debug),
+        extra_mininet_args(debug=debug, topo_py=_IMAGE_TOPO_PY),
     )
 
 
-def podman_copy(src_path: Path, container: str, dest_path: str) -> Command[str]:
+def podman_copy(src_path: Path, container: str, dest_path: Path) -> Command[str]:
     return sh(_podman, "cp", src_path, f"{container}:{dest_path}")
 
 
