@@ -64,7 +64,7 @@ jobs:
           echo "$PRETTY_NAME"
           mn --version
           python3 -m venv venv
-          source venv/bin/activate
+          . venv/bin/activate
           pip install -r ./ci/requirements-dev.txt
           pytest
           cd examples; pytest -vv -s -k simple
