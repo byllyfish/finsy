@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import pytest
@@ -18,8 +19,10 @@ async def test_demo(demonet, python):
     await demonet.send("iperf", expect="Mbits/sec")
 
 
-async def test_read_tables(demonet):
+async def test_read_tables(demonet, caplog):
     "Test the state of the tables after the demo finishes."
+    caplog.set_level(logging.INFO, logger="finsy")
+
     expected_switch_states = {
         "127.0.0.1:50001": {
             "forward ingress._drop()",
@@ -39,8 +42,10 @@ async def test_read_tables(demonet):
         assert actual_state == expected_state, f"{target} failed!"
 
 
-async def test_too_many_entries(demonet):
+async def test_too_many_entries(demonet, caplog):
     "Test sending 1025 entries to a table that only support 1024."
+    caplog.set_level(logging.INFO, logger="finsy")
+
     entries = [
         +fy.P4TableEntry(
             "ipv4_lpm",
