@@ -52,7 +52,7 @@ jobs:
   test-examples:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/byllyfish/demonet
+      image: ghcr.io/byllyfish/demonet:23.07
       options: --privileged
 
     steps:
@@ -63,7 +63,8 @@ jobs:
           . /etc/os-release
           echo "$PRETTY_NAME"
           mn --version
-          #python3 -m venv venv
-          #source venv/bin/activate
-          #pip install -r ./ci/requirements-dev.txt
-          #pytest
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r ./ci/requirements-dev.txt
+          pytest
+          cd examples; pytest -vv -s -k simple
