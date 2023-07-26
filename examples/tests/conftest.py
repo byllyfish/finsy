@@ -45,6 +45,8 @@ async def demonet(request):
 
     try:
         async with dn.DemoNet(config) as net:
+            # FIXME: wait for switches to be ready
+            await asyncio.sleep(0.25)
             yield net
 
     except RuntimeError as ex:
