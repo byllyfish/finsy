@@ -449,7 +449,7 @@ def mininet_start():
         "--controller",
         "none",
         extra_mininet_args(debug=debug),
-    )
+    ).set(pty=True)
 
 
 def podman_create(
