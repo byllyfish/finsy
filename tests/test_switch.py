@@ -25,6 +25,12 @@ async def test_switch1(p4rt_server_target: str):
         assert sw1.is_primary
         assert sw1.gnmi_client is None
 
+        with pytest.raises(RuntimeError, match="client is open"):
+            sw1.options = SwitchOptions(device_id=2)
+
+    sw1.options = SwitchOptions(device_id=3)
+    assert sw1.device_id == 3
+
 
 async def test_switch2(p4rt_server_target: str):
     async def _read(sw: Switch):
