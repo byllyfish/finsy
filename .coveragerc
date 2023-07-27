@@ -1,0 +1,10 @@
+; coverage.py config file
+; The config is here instead of pyproject.toml to make sharing easier.
+
+[run]
+omit =
+    ; skip compiled protobuf files
+    *_pb2.py
+    *_pb2_grpc.py
+    ; this file is injected into mininet; ignore its lack of code coverage
+    demonet_topo.py

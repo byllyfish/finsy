@@ -1,3 +1,7 @@
+#**************
+# p o e t r y *
+#**************
+
 [tool.poetry]
 name = "finsy"
 version = "0.17.0"
@@ -19,7 +23,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-grpcio = "^1.56.0"
+grpcio = "^1.56.2"
 macaddress = "^2.0.2"
 parsy = "^2.1.0"
 pyee = "^11.0.0"
@@ -27,17 +31,17 @@ pylev = "^1.4.0"
 protobuf = "^4.23.4"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.2.1"
+pytest = "^7.4.0"
 black = "^23.7.0"
-pytest-asyncio = "^0.21.0"
-mypy = "^1.0.0"
+pytest-asyncio = "^0.21.1"
+mypy = "^1.4.1"
 pdoc = "^14.0.0"
-pyright = "^1.1.306"
-pytest-cov = "^4.0.0"
-pylint = "^2.17.3"
+pyright = "^1.1.318"
+pytest-cov = "^4.1.0"
+pylint = "^2.17.5"
 shellous = "^0.27.0"
-prometheus-client = "^0.17.0"
-ruff = "^0.0.278"
+prometheus-client = "^0.17.1"
+ruff = "^0.0.280"
 
 [tool.poetry.group.extra.dependencies]
 pygraphviz = "^1.11"
@@ -46,10 +50,18 @@ pygraphviz = "^1.11"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+#**************
+# p y t e s t *
+#**************
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 addopts = '-s --log-cli-format="%(created).03f %(levelname)s %(name)s %(message)s" --log-cli-level=DEBUG --log-file-format="%(created).03f %(levelname)s %(name)s %(message)s"'
 norecursedirs = ["examples"]
+
+#****************
+# p y r i g h t *
+#****************
 
 [tool.pyright]
 ignore = [
@@ -76,17 +88,26 @@ reportUninitializedInstanceVariable = "warning"
 reportCallInDefaultInitializer = "warning"
 reportUnnecessaryTypeIgnoreComment = "warning"
 
+#************
+# b l a c k *
+#************
+
 [tool.black]
 target-version = ['py310']
 required-version = "23.7.0"
 extend-exclude = "_pb2(_grpc)?\\.pyi?$"
 
+#************
+# i s o r t *
+#************
+
 [tool.isort]
 profile = "black"
 skip_glob = ["*_pb2.py", "*_pb2_grpc.py", "*install-poetry.py"]
 
-[tool.coverage.run]
-omit = ["*_pb2.py", "*_pb2_grpc.py"]
+#**************
+# p y l i n t *
+#**************
 
 [tool.pylint.main]
 ignore-patterns = [".*_pb2\\.py", ".*_pb2_grpc\\.py"]
@@ -117,9 +138,17 @@ disable = [
 [tool.pylint.variables]
 allowed-redefined-builtins = ["format"]
 
+#**********
+# m y p y *
+#**********
+
 [tool.mypy]
 disallow_untyped_defs = true
 exclude = [ ".+_pb2.py", ".+_pb2_grpc.py" ]
+
+#**********
+# r u f f *
+#**********
 
 [tool.ruff]
 select = ["E", "F", "D202", "PTH", "RET", "RUF", "W"]
