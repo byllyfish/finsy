@@ -18,4 +18,6 @@ import macaddress
 
 
 class MACAddress(macaddress.EUI48):
+    "Concrete class for a MAC address."
+
     formats: tuple[str, ...] = ("xx:xx:xx:xx:xx:xx", "xx-xx-xx-xx-xx-xx")

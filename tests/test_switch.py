@@ -18,7 +18,12 @@ from finsy.switch import ApiVersion
 async def test_switch1(p4rt_server_target: str):
     "Test switch and P4RT server."
     async with Switch("sw1", p4rt_server_target) as sw1:
+        assert sw1.is_up
         assert sw1.device_id == 1
+        assert sw1.election_id == 10
+        assert sw1.primary_id == 10
+        assert sw1.is_primary
+        assert sw1.gnmi_client is None
 
 
 async def test_switch2(p4rt_server_target: str):

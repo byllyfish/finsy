@@ -189,6 +189,10 @@ class _P4Writable(P4Entity):
         self._update_type = P4UpdateType.MODIFY
         return self
 
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
+        "Encode object as an entity."
+        raise NotImplementedError()  # pragma: no cover
+
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         "Encode object as an update or stream request."
         if self._update_type == P4UpdateType.UNSPECIFIED:
@@ -201,6 +205,10 @@ class _P4ModifyOnly(P4Entity):
 
     def __invert__(self) -> Self:
         return self
+
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
+        "Encode object as an entity."
+        raise NotImplementedError()  # pragma: no cover
 
     def encode_update(self, schema: P4Schema) -> p4r.Update:
         "Encode object as an update or stream request."

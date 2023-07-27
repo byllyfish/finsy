@@ -291,7 +291,6 @@ async def test_read_tables_actionprofile(demonet, caplog):
 
 async def test_ngsdn_delete_all():
     "Test that all entries are deleted when we are done."
-
     target = "127.0.0.1:50001"
     async with fy.Switch("sw1", target) as sw1:
         await sw1.delete_all()

@@ -1,3 +1,4 @@
+import importlib.util
 import json
 
 import pytest
@@ -7,12 +8,7 @@ import finsy.test.demonet as dn
 
 def _has_pygraphviz():
     "Return True if the `pygraphviz` module is available."
-    try:
-        import pygraphviz
-
-        return True
-    except ImportError:
-        return False
+    return importlib.util.find_spec("pygraphviz") is not None
 
 
 def test_config():

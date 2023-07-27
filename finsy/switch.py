@@ -505,8 +505,6 @@ class Switch:
         TODO: This method does not affect indirect counters, meters or
         value_sets.
         """
-
-        # Start by deleting everything that matches these wildcards.
         await self.delete_many(
             [
                 p4entity.P4TableEntry(),
