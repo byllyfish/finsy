@@ -57,14 +57,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Run unit tests
+      - name: Install dependencies
         run: |
-          set
           . /etc/os-release
           echo "$PRETTY_NAME"
           mn --version
           python3 -m venv venv
           . venv/bin/activate
-          pip install -r ./ci/requirements-dev.txt
+          pip install --no-cache-dir -r ./ci/requirements-dev.txt
+      - name: Run tests
+        run: |
+          . venv/bin/activate
           pytest
-          cd examples; PYTHONPATH=.. pytest -vv -s -k simple
+          cd examples; PYTHONPATH=.. pytest -v -s -k simple
+      - name: Run example tests with coverage
+        run: |
+          . venv/bin/activate
+          cd examples; PYTHONPATH=.. pytest -k simple --cov ../finsy
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
