@@ -73,6 +73,9 @@ jobs:
       - name: Run example tests with coverage
         run: |
           . venv/bin/activate
-          cd examples; PYTHONPATH=.. pytest -k simple --cov ../finsy
+          cd examples; PYTHONPATH=.. pytest -k simple --cov ../finsy --cov-report=xml
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          directory: ./examples/
+          root_dir: ${{ github.workspace }}
