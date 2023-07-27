@@ -117,7 +117,7 @@ class SwitchOptions:
         return dataclasses.replace(self, **kwds)
 
 
-_SEMVER_REGEX = re.compile(r"^(\d+)\.(\d+)\.(\d+)(.*)$")
+_SEMVER_REGEX = re.compile(r"^(\d+)\.(\d+)(?:\.(\d+))?(.*)$")
 
 
 class ApiVersion(NamedTuple):
@@ -131,10 +131,10 @@ class ApiVersion(NamedTuple):
     @classmethod
     def parse(cls, version_str: str) -> Self:
         "Parse the API version string."
-        m = _SEMVER_REGEX.match(version_str)
+        m = _SEMVER_REGEX.match(version_str.strip())
         if not m:
             raise ValueError(f"unexpected version string: {version_str}")
-        return cls(int(m[1]), int(m[2]), int(m[3]), m[4])
+        return cls(int(m[1]), int(m[2]), int(m[3] or "0"), m[4])
 
     def __str__(self) -> str:
         "Return the version string."
@@ -280,7 +280,7 @@ class Switch:
         entities: _ET,
     ) -> AsyncGenerator[_ET, None]:
         "Overload for read of a single P4Entity subtype."
-        ...
+        ...  # pragma: no cover
 
     @overload
     async def read(
@@ -288,7 +288,7 @@ class Switch:
         entities: Iterable[_ET],
     ) -> AsyncGenerator[_ET, None]:
         "Overload for read of an iterable of the same P4Entity subtype."
-        ...
+        ...  # pragma: no cover
 
     @overload
     async def read(
@@ -296,7 +296,7 @@ class Switch:
         entities: Iterable[p4entity.P4EntityList],
     ) -> AsyncGenerator[p4entity.P4Entity, None]:
         "Most general overload: we can't determine the return type exactly."
-        ...
+        ...  # pragma: no cover
 
     async def read(
         self,
