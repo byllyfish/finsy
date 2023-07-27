@@ -1,6 +1,6 @@
 import difflib
+import importlib.util
 from pathlib import Path
-from typing import Iterator
 
 import finsy as fy
 
@@ -113,9 +113,4 @@ def diff_text(orig: Path, new: Path) -> list[str]:
 
 def has_pygraphviz():
     "Return True if the `pygraphviz` module is available."
-    try:
-        import pygraphviz
-
-        return True
-    except ImportError:
-        return False
+    return importlib.util.find_spec("pygraphviz") is not None

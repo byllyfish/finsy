@@ -302,3 +302,69 @@ def test_vb3(type_factory: P4TypeFactory):
 
     with pytest.raises(ValueError, match="invalid bitwidth"):
         check_roundtrip(vb3_t, (0, 4), "12050a01001010")
+
+
+def test_tuple_type(type_factory: P4TypeFactory):
+    "Test tuple<bits<4>, bits<8>>"
+    u4_t = type_factory.bits_type(4)
+    u8_t = type_factory.bits_type(8)
+    tup = type_factory.tuple_type(u4_t, u8_t)
+
+    assert pbuf.to_dict(tup.data_type_spec) == {
+        "tuple": {
+            "members": [
+                {"bitstring": {"bit": {"bitwidth": 4}}},
+                {"bitstring": {"bit": {"bitwidth": 8}}},
+            ]
+        }
+    }
+
+    check_roundtrip(tup, (0, 0), "220a0a030a01000a030a0100")
+    check_roundtrip(tup, (10, 100), "220a0a030a010a0a030a0164")
+
+    with pytest.raises(ValueError, match="expected 2 items"):
+        check_roundtrip(tup, (0,), "")
+
+    with pytest.raises(ValueError, match="expected 2 items"):
+        check_roundtrip(tup, (0, 0, 0), "")
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth 4"):
+        check_roundtrip(tup, (100, 0), "")
+
+
+def test_struct_type(type_factory: P4TypeFactory):
+    "Test struct<a=bits<4>, b=bits<8>>"
+    u4_t = type_factory.bits_type(4)
+    u8_t = type_factory.bits_type(8)
+    struct = type_factory.struct_type("s", a=u4_t, b=u8_t)
+
+    assert pbuf.to_dict(struct.data_type_spec) == {"struct": {"name": "s"}}
+
+    check_roundtrip(struct, {"a": 0, "b": 0}, "2a0a0a030a01000a030a0100")
+    check_roundtrip(struct, {"a": 10, "b": 100}, "2a0a0a030a010a0a030a0164")
+
+    with pytest.raises(ValueError, match="missing field 'b'"):
+        check_roundtrip(struct, {"a": 0}, "")
+
+    with pytest.raises(ValueError, match="extra parameters {'c'}"):
+        check_roundtrip(struct, {"a": 0, "b": 0, "c": 0}, "")
+
+    with pytest.raises(ValueError, match="invalid value for bitwidth 4"):
+        check_roundtrip(struct, {"a": 100, "b": 0}, "")
+
+
+def test_tuple_of_structs_type(type_factory: P4TypeFactory):
+    "Test both tuple and struct types together."
+    u4_t = type_factory.bits_type(4)
+    u8_t = type_factory.bits_type(8)
+    struct = type_factory.struct_type("s", a=u4_t, b=u8_t)
+    tup = type_factory.tuple_type(struct, struct)
+
+    assert pbuf.to_dict(tup.data_type_spec) == {
+        "tuple": {"members": [{"struct": {"name": "s"}}, {"struct": {"name": "s"}}]}
+    }
+
+    value = ({"a": 0, "b": 0}, {"a": 10, "b": 100})
+    check_roundtrip(
+        tup, value, "221c0a0c2a0a0a030a01000a030a01000a0c2a0a0a030a010a0a030a0164"
+    )

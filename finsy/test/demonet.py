@@ -12,7 +12,7 @@ from dataclasses import KW_ONLY, asdict, dataclass, field
 from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
 from types import TracebackType
-from typing import Any, Sequence
+from typing import Any, ClassVar, Sequence
 
 from shellous import Command, Runner, sh
 from shellous.prompt import Prompt
@@ -559,34 +559,34 @@ _LOCAL_IP = _get_local_ipv4_address()
 class _PyGraphStyle:
     "Style defaults for different graphviz elements."
 
-    graph = dict(
+    graph: ClassVar[dict[str, str]] = dict(
         bgcolor="lightblue",
         margin="0",
         pad="0.25",
     )
 
-    switch = dict(
+    switch: ClassVar[dict[str, str]] = dict(
         shape="box",
         fillcolor="green:white",
         style="filled",
-        gradientangle=90,
+        gradientangle="90",
         width="0.1",
         height="0.1",
         margin="0.08,0.02",
     )
 
-    host = dict(
+    host: ClassVar[dict[str, str]] = dict(
         shape="box",
         width="0.01",
         height="0.01",
         margin="0.04,0.02",
         fillcolor="yellow:white",
         style="filled",
-        gradientangle=90,
+        gradientangle="90",
         fontsize="10",
     )
 
-    bridge = dict(
+    bridge: ClassVar[dict[str, str]] = dict(
         shape="box",
         width="0.01",
         height="0.01",
@@ -596,7 +596,7 @@ class _PyGraphStyle:
         fontsize="10",
     )
 
-    link = dict(
+    link: ClassVar[dict[str, str]] = dict(
         penwidth="2.0",
         fontcolor="darkgreen",
         fontsize="10",
