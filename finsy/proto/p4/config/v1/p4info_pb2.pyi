@@ -188,7 +188,7 @@ class P4Ids(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _PrefixEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[P4Ids._Prefix.ValueType], builtins.type):  # noqa: F821
+    class _PrefixEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[P4Ids._Prefix.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         UNSPECIFIED: P4Ids._Prefix.ValueType  # 0
         ACTION: P4Ids._Prefix.ValueType  # 1
@@ -372,7 +372,7 @@ class MatchField(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _MatchTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[MatchField._MatchType.ValueType], builtins.type):  # noqa: F821
+    class _MatchTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[MatchField._MatchType.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         UNSPECIFIED: MatchField._MatchType.ValueType  # 0
         EXACT: MatchField._MatchType.ValueType  # 2
@@ -450,7 +450,7 @@ class Table(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _IdleTimeoutBehaviorEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Table._IdleTimeoutBehavior.ValueType], builtins.type):  # noqa: F821
+    class _IdleTimeoutBehaviorEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Table._IdleTimeoutBehavior.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         NO_TIMEOUT: Table._IdleTimeoutBehavior.ValueType  # 0
         NOTIFY_CONTROL: Table._IdleTimeoutBehavior.ValueType  # 1
@@ -538,7 +538,7 @@ class ActionRef(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _ScopeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ActionRef._Scope.ValueType], builtins.type):  # noqa: F821
+    class _ScopeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ActionRef._Scope.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         TABLE_AND_DEFAULT: ActionRef._Scope.ValueType  # 0
         TABLE_ONLY: ActionRef._Scope.ValueType  # 1
@@ -736,7 +736,7 @@ class CounterSpec(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _UnitEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[CounterSpec._Unit.ValueType], builtins.type):  # noqa: F821
+    class _UnitEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[CounterSpec._Unit.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         UNSPECIFIED: CounterSpec._Unit.ValueType  # 0
         BYTES: CounterSpec._Unit.ValueType  # 1
@@ -827,7 +827,7 @@ class MeterSpec(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _UnitEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[MeterSpec._Unit.ValueType], builtins.type):  # noqa: F821
+    class _UnitEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[MeterSpec._Unit.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         UNSPECIFIED: MeterSpec._Unit.ValueType  # 0
         BYTES: MeterSpec._Unit.ValueType  # 1

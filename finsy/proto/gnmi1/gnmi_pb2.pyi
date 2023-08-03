@@ -560,7 +560,7 @@ class SubscriptionList(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _ModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[SubscriptionList._Mode.ValueType], builtins.type):  # noqa: F821
+    class _ModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[SubscriptionList._Mode.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         STREAM: SubscriptionList._Mode.ValueType  # 0
         """Values streamed by the target (Sec. 3.5.1.5.2)."""
@@ -821,7 +821,7 @@ class UpdateResult(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _OperationEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[UpdateResult._Operation.ValueType], builtins.type):  # noqa: F821
+    class _OperationEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[UpdateResult._Operation.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         INVALID: UpdateResult._Operation.ValueType  # 0
         DELETE: UpdateResult._Operation.ValueType  # 1
@@ -893,7 +893,7 @@ class GetRequest(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _DataTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[GetRequest._DataType.ValueType], builtins.type):  # noqa: F821
+    class _DataTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[GetRequest._DataType.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         ALL: GetRequest._DataType.ValueType  # 0
         """All data elements."""
