@@ -298,7 +298,7 @@ class P4Client:
             client_type="P4Client",
         )
 
-        self._stub = p4r_grpc.P4RuntimeStub(self._channel)  # type: ignore
+        self._stub = p4r_grpc.P4RuntimeStub(self._channel)
         self._schema = schema
         self._complete_request = complete_request
 

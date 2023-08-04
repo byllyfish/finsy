@@ -73,9 +73,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
     def _create_server(self) -> grpc.aio.Server:
         "Create AIO server."
         server = grpc.aio.server()
-        p4r_grpc.add_P4RuntimeServicer_to_server(
-            self, server  # pyright: ignore[reportGeneralTypeIssues]
-        )
+        p4r_grpc.add_P4RuntimeServicer_to_server(self, server)
         if self._credentials is None:
             LOGGER.debug(
                 "P4RuntimeServer: create insecure server: %s", self._listen_addr
