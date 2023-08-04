@@ -68,7 +68,7 @@ class WriteRequest(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _AtomicityEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[WriteRequest._Atomicity.ValueType], builtins.type):  # noqa: F821
+    class _AtomicityEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[WriteRequest._Atomicity.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         CONTINUE_ON_ERROR: WriteRequest._Atomicity.ValueType  # 0
         """Required. This is the default behavior. The batch is processed in a
@@ -215,7 +215,7 @@ class Update(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _TypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Update._Type.ValueType], builtins.type):  # noqa: F821
+    class _TypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[Update._Type.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         UNSPECIFIED: Update._Type.ValueType  # 0
         INSERT: Update._Type.ValueType  # 1
@@ -1714,7 +1714,7 @@ class SetForwardingPipelineConfigRequest(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _ActionEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[SetForwardingPipelineConfigRequest._Action.ValueType], builtins.type):  # noqa: F821
+    class _ActionEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[SetForwardingPipelineConfigRequest._Action.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         UNSPECIFIED: SetForwardingPipelineConfigRequest._Action.ValueType  # 0
         VERIFY: SetForwardingPipelineConfigRequest._Action.ValueType  # 1
@@ -1885,7 +1885,7 @@ class GetForwardingPipelineConfigRequest(google.protobuf.message.Message):
         ValueType = typing.NewType("ValueType", builtins.int)
         V: typing_extensions.TypeAlias = ValueType
 
-    class _ResponseTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[GetForwardingPipelineConfigRequest._ResponseType.ValueType], builtins.type):  # noqa: F821
+    class _ResponseTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[GetForwardingPipelineConfigRequest._ResponseType.ValueType], builtins.type):
         DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
         ALL: GetForwardingPipelineConfigRequest._ResponseType.ValueType  # 0
         """Default behaviour. Returns a ForwardingPipelineConfig with all fields set

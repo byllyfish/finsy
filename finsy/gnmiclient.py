@@ -200,7 +200,7 @@ class GNMIClient:
                 client_type="GNMIClient",
             )
 
-        self._stub = gnmi_grpc.gNMIStub(self._channel)  # type: ignore
+        self._stub = gnmi_grpc.gNMIStub(self._channel)
 
     async def close(self) -> None:
         "Close the client channel."
