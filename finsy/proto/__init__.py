@@ -38,33 +38,20 @@ __all__ = (
     "U128",
 )
 
-import os
-import sys
+# These protobuf files reference their dependencies using relative imports.
 
-# Generated protobuf files reference their dependencies using absolute imports.
-# To work around this, modify the import path to substitute our embedded
-# modules for global "p4" and "google.rpc" modules. After we've imported the
-# protobuf modules, we switch `sys.path` back.
-
-if "p4.v1.p4runtime_pb2" in sys.modules:  # pragma: no cover
-    raise RuntimeError("p4runtime_pb2 already imported?")
-
-sys.path.insert(0, os.path.dirname(__file__))  # noqa: PTH120
-
-from gnmi1 import gnmi_ext_pb2 as gnmi_ext
-from gnmi1 import gnmi_pb2 as gnmi
-from gnmi1 import gnmi_pb2_grpc as gnmi_grpc
-from google.rpc import code_pb2 as rpc_code
-from google.rpc import status_pb2 as rpc_status
-from p4.config.v1 import p4info_pb2 as p4i
-from p4.config.v1 import p4types_pb2 as p4t
-from p4.v1 import p4data_pb2 as p4d
-from p4.v1 import p4runtime_pb2 as p4r
-from p4.v1 import p4runtime_pb2_grpc as p4r_grpc
-from p4testgen1 import p4testgen_pb2 as p4testgen
-from stratum1 import p4_role_config_pb2 as stratum
-
-del sys.path[0]
+from .gnmi1 import gnmi_ext_pb2 as gnmi_ext
+from .gnmi1 import gnmi_pb2 as gnmi
+from .gnmi1 import gnmi_pb2_grpc as gnmi_grpc
+from .google.rpc import code_pb2 as rpc_code
+from .google.rpc import status_pb2 as rpc_status
+from .p4.config.v1 import p4info_pb2 as p4i
+from .p4.config.v1 import p4types_pb2 as p4t
+from .p4.v1 import p4data_pb2 as p4d
+from .p4.v1 import p4runtime_pb2 as p4r
+from .p4.v1 import p4runtime_pb2_grpc as p4r_grpc
+from .p4testgen1 import p4testgen_pb2 as p4testgen
+from .stratum1 import p4_role_config_pb2 as stratum
 
 
 class U128:
