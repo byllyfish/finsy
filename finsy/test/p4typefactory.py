@@ -53,14 +53,14 @@ class P4TypeFactory:
             p4t.P4BitstringLikeTypeSpec(bit=p4t.P4BitTypeSpec(bitwidth=bitwidth))
         )
 
-    def tuple_type(self, *members: sch.P4Type):
+    def tuple_type(self, *members: sch.P4Type) -> sch.P4TupleType:
         "Construct a `tuple` type."
         return sch.P4TupleType(
             p4t.P4TupleTypeSpec(members=(member.data_type_spec for member in members)),
             type_info=self._type_info,
         )
 
-    def struct_type(self, __name: str, **members: sch.P4Type):
+    def struct_type(self, __name: str, **members: sch.P4Type) -> sch.P4StructType:
         "Construct a `struct` type."
         result = sch.P4StructType(
             __name,
