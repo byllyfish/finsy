@@ -86,4 +86,7 @@ $protoc $grpc_args "finsy/proto/p4/v1/p4runtime.proto"
 # shellcheck disable=SC2086
 $protoc $grpc_args "finsy/proto/gnmi1/gnmi.proto"
 
+# Patch the files to support relative imports.
+patch -p1 < "$CURRENT_DIR/ci/protoc_relative_path.patch"
+
 exit 0

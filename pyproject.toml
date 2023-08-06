@@ -95,7 +95,7 @@ reportUnnecessaryTypeIgnoreComment = "warning"
 [tool.black]
 target-version = ['py310']
 required-version = "23.7.0"
-extend-exclude = "_pb2(_grpc)?\\.pyi?$"
+force-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 #************
 # i s o r t *
@@ -103,7 +103,7 @@ extend-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 [tool.isort]
 profile = "black"
-skip_glob = ["*_pb2.py", "*_pb2_grpc.py", "*install-poetry.py"]
+skip_glob = ["*_pb2.py", "*_pb2_grpc.py", ".venv*"]
 
 #**************
 # p y l i n t *
