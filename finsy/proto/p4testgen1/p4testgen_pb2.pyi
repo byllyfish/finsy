@@ -7,7 +7,7 @@ import collections.abc
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
-import p4.v1.p4runtime_pb2
+from ..p4.v1 import p4runtime_pb2 as _dot_p4runtime_pb2
 import sys
 
 if sys.version_info >= (3, 8):
@@ -77,7 +77,7 @@ class TestCase(google.protobuf.message.Message):
     def expected_output_packet(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___OutputPacketAtPort]:
         """The corresponding expected output packet."""
     @property
-    def entities(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.v1.p4runtime_pb2.Entity]:
+    def entities(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4runtime_pb2.Entity]:
         """The entities (e.g., table entries) to install on the switch before
         injecting the `input_packet`.
         """
@@ -92,7 +92,7 @@ class TestCase(google.protobuf.message.Message):
         *,
         input_packet: global___InputPacketAtPort | None = ...,
         expected_output_packet: collections.abc.Iterable[global___OutputPacketAtPort] | None = ...,
-        entities: collections.abc.Iterable[p4.v1.p4runtime_pb2.Entity] | None = ...,
+        entities: collections.abc.Iterable[_dot_p4runtime_pb2.Entity] | None = ...,
         traces: collections.abc.Iterable[builtins.str] | None = ...,
         metadata: collections.abc.Iterable[builtins.str] | None = ...,
     ) -> None: ...

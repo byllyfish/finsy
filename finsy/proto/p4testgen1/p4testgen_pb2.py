@@ -11,7 +11,7 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from p4.v1 import p4runtime_pb2 as p4_dot_v1_dot_p4runtime__pb2
+from ..p4.v1 import p4runtime_pb2 as p4_dot_v1_dot_p4runtime__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1ap4testgen1/p4testgen.proto\x12\tp4testgen\x1a\x15p4/v1/p4runtime.proto\"1\n\x11InputPacketAtPort\x12\x0e\n\x06packet\x18\x01 \x01(\x0c\x12\x0c\n\x04port\x18\x02 \x01(\x05\"G\n\x12OutputPacketAtPort\x12\x0e\n\x06packet\x18\x01 \x01(\x0c\x12\x0c\n\x04port\x18\x02 \x01(\x05\x12\x13\n\x0bpacket_mask\x18\x03 \x01(\x0c\"\xc0\x01\n\x08TestCase\x12\x32\n\x0cinput_packet\x18\x01 \x01(\x0b\x32\x1c.p4testgen.InputPacketAtPort\x12=\n\x16\x65xpected_output_packet\x18\x02 \x03(\x0b\x32\x1d.p4testgen.OutputPacketAtPort\x12\x1f\n\x08\x65ntities\x18\x03 \x03(\x0b\x32\r.p4.v1.Entity\x12\x0e\n\x06traces\x18\x04 \x03(\t\x12\x10\n\x08metadata\x18\x05 \x03(\tb\x06proto3')

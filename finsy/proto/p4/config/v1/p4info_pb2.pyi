@@ -9,7 +9,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
-import p4.config.v1.p4types_pb2
+from . import p4types_pb2 as _dot_p4types_pb2
 import sys
 import typing
 
@@ -65,7 +65,7 @@ class P4Info(google.protobuf.message.Message):
     @property
     def externs(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Extern]: ...
     @property
-    def type_info(self) -> p4.config.v1.p4types_pb2.P4TypeInfo: ...
+    def type_info(self) -> _dot_p4types_pb2.P4TypeInfo: ...
     def __init__(
         self,
         *,
@@ -82,7 +82,7 @@ class P4Info(google.protobuf.message.Message):
         registers: collections.abc.Iterable[global___Register] | None = ...,
         digests: collections.abc.Iterable[global___Digest] | None = ...,
         externs: collections.abc.Iterable[global___Extern] | None = ...,
-        type_info: p4.config.v1.p4types_pb2.P4TypeInfo | None = ...,
+        type_info: _dot_p4types_pb2.P4TypeInfo | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["pkg_info", b"pkg_info", "type_info", b"type_info"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["action_profiles", b"action_profiles", "actions", b"actions", "controller_packet_metadata", b"controller_packet_metadata", "counters", b"counters", "digests", b"digests", "direct_counters", b"direct_counters", "direct_meters", b"direct_meters", "externs", b"externs", "meters", b"meters", "pkg_info", b"pkg_info", "registers", b"registers", "tables", b"tables", "type_info", b"type_info", "value_sets", b"value_sets"]) -> None: ...
@@ -140,7 +140,7 @@ class PkgInfo(google.protobuf.message.Message):
     def annotations(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
         """Miscellaneous metadata, free-form; a way to extend PkgInfo"""
     @property
-    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
+    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
@@ -155,7 +155,7 @@ class PkgInfo(google.protobuf.message.Message):
     "http://support.p4.org/ref/p4/switch.p4_v1.0"
     """
     @property
-    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]:
+    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]:
         """Miscellaneous metadata, structured; a way to extend PkgInfo"""
     def __init__(
         self,
@@ -164,12 +164,12 @@ class PkgInfo(google.protobuf.message.Message):
         version: builtins.str = ...,
         doc: global___Documentation | None = ...,
         annotations: collections.abc.Iterable[builtins.str] | None = ...,
-        annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
+        annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
         arch: builtins.str = ...,
         organization: builtins.str = ...,
         contact: builtins.str = ...,
         url: builtins.str = ...,
-        structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
+        structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["doc", b"doc"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "arch", b"arch", "contact", b"contact", "doc", b"doc", "name", b"name", "organization", b"organization", "structured_annotations", b"structured_annotations", "url", b"url", "version", b"version"]) -> None: ...
@@ -288,7 +288,7 @@ class Preamble(google.protobuf.message.Message):
     @property
     def annotations(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     @property
-    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
+    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
@@ -296,7 +296,7 @@ class Preamble(google.protobuf.message.Message):
     def doc(self) -> global___Documentation:
         """Documentation of the entity"""
     @property
-    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
+    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
     def __init__(
         self,
         *,
@@ -304,9 +304,9 @@ class Preamble(google.protobuf.message.Message):
         name: builtins.str = ...,
         alias: builtins.str = ...,
         annotations: collections.abc.Iterable[builtins.str] | None = ...,
-        annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
+        annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
         doc: global___Documentation | None = ...,
-        structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
+        structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["doc", b"doc"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["alias", b"alias", "annotation_locations", b"annotation_locations", "annotations", b"annotations", "doc", b"doc", "id", b"id", "name", b"name", "structured_annotations", b"structured_annotations"]) -> None: ...
@@ -404,7 +404,7 @@ class MatchField(google.protobuf.message.Message):
     @property
     def annotations(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     @property
-    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
+    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
@@ -418,23 +418,23 @@ class MatchField(google.protobuf.message.Message):
     def doc(self) -> global___Documentation:
         """Documentation of the match field"""
     @property
-    def type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
+    def type_name(self) -> _dot_p4types_pb2.P4NamedType:
         """unset if not user-defined type"""
     @property
-    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
+    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
     def __init__(
         self,
         *,
         id: builtins.int = ...,
         name: builtins.str = ...,
         annotations: collections.abc.Iterable[builtins.str] | None = ...,
-        annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
+        annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
         bitwidth: builtins.int = ...,
         match_type: global___MatchField.MatchType.ValueType = ...,
         other_match_type: builtins.str = ...,
         doc: global___Documentation | None = ...,
-        type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
-        structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
+        type_name: _dot_p4types_pb2.P4NamedType | None = ...,
+        structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["doc", b"doc", "match", b"match", "match_type", b"match_type", "other_match_type", b"other_match_type", "type_name", b"type_name"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "bitwidth", b"bitwidth", "doc", b"doc", "id", b"id", "match", b"match", "match_type", b"match_type", "name", b"name", "other_match_type", b"other_match_type", "structured_annotations", b"structured_annotations", "type_name", b"type_name"]) -> None: ...
@@ -559,20 +559,20 @@ class ActionRef(google.protobuf.message.Message):
     @property
     def annotations(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
     @property
-    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
+    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
     @property
-    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
+    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
     def __init__(
         self,
         *,
         id: builtins.int = ...,
         scope: global___ActionRef.Scope.ValueType = ...,
         annotations: collections.abc.Iterable[builtins.str] | None = ...,
-        annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
-        structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
+        annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
+        structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "id", b"id", "scope", b"scope", "structured_annotations", b"structured_annotations"]) -> None: ...
 
@@ -599,7 +599,7 @@ class Action(google.protobuf.message.Message):
         @property
         def annotations(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
         @property
-        def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
+        def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
             """Optional. If present, the location of `annotations[i]` is given by
             `annotation_locations[i]`.
             """
@@ -608,21 +608,21 @@ class Action(google.protobuf.message.Message):
         def doc(self) -> global___Documentation:
             """Documentation of the Param"""
         @property
-        def type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
+        def type_name(self) -> _dot_p4types_pb2.P4NamedType:
             """unset if not user-defined type"""
         @property
-        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
+        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
         def __init__(
             self,
             *,
             id: builtins.int = ...,
             name: builtins.str = ...,
             annotations: collections.abc.Iterable[builtins.str] | None = ...,
-            annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
+            annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
             bitwidth: builtins.int = ...,
             doc: global___Documentation | None = ...,
-            type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
-            structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
+            type_name: _dot_p4types_pb2.P4NamedType | None = ...,
+            structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["doc", b"doc", "type_name", b"type_name"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "bitwidth", b"bitwidth", "doc", b"doc", "id", b"id", "name", b"name", "structured_annotations", b"structured_annotations", "type_name", b"type_name"]) -> None: ...
@@ -779,7 +779,7 @@ class Counter(google.protobuf.message.Message):
     size: builtins.int
     """number of entries in the counter array"""
     @property
-    def index_type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
+    def index_type_name(self) -> _dot_p4types_pb2.P4NamedType:
         """unset if index is not user-defined type"""
     def __init__(
         self,
@@ -787,7 +787,7 @@ class Counter(google.protobuf.message.Message):
         preamble: global___Preamble | None = ...,
         spec: global___CounterSpec | None = ...,
         size: builtins.int = ...,
-        index_type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
+        index_type_name: _dot_p4types_pb2.P4NamedType | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["index_type_name", b"index_type_name", "preamble", b"preamble", "spec", b"spec"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["index_type_name", b"index_type_name", "preamble", b"preamble", "size", b"size", "spec", b"spec"]) -> None: ...
@@ -866,7 +866,7 @@ class Meter(google.protobuf.message.Message):
     size: builtins.int
     """number of entries in the meter array"""
     @property
-    def index_type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
+    def index_type_name(self) -> _dot_p4types_pb2.P4NamedType:
         """unset if index is not user-defined type"""
     def __init__(
         self,
@@ -874,7 +874,7 @@ class Meter(google.protobuf.message.Message):
         preamble: global___Preamble | None = ...,
         spec: global___MeterSpec | None = ...,
         size: builtins.int = ...,
-        index_type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
+        index_type_name: _dot_p4types_pb2.P4NamedType | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["index_type_name", b"index_type_name", "preamble", b"preamble", "spec", b"spec"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["index_type_name", b"index_type_name", "preamble", b"preamble", "size", b"size", "spec", b"spec"]) -> None: ...
@@ -937,26 +937,26 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
         @property
         def annotations(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
         @property
-        def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
+        def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
             """Optional. If present, the location of `annotations[i]` is given by
             `annotation_locations[i]`.
             """
         bitwidth: builtins.int
         @property
-        def type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
+        def type_name(self) -> _dot_p4types_pb2.P4NamedType:
             """unset if not user-defined type"""
         @property
-        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
+        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
         def __init__(
             self,
             *,
             id: builtins.int = ...,
             name: builtins.str = ...,
             annotations: collections.abc.Iterable[builtins.str] | None = ...,
-            annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
+            annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
             bitwidth: builtins.int = ...,
-            type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
-            structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
+            type_name: _dot_p4types_pb2.P4NamedType | None = ...,
+            structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["type_name", b"type_name"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "bitwidth", b"bitwidth", "id", b"id", "name", b"name", "structured_annotations", b"structured_annotations", "type_name", b"type_name"]) -> None: ...
@@ -1020,18 +1020,18 @@ class Register(google.protobuf.message.Message):
     @property
     def preamble(self) -> global___Preamble: ...
     @property
-    def type_spec(self) -> p4.config.v1.p4types_pb2.P4DataTypeSpec: ...
+    def type_spec(self) -> _dot_p4types_pb2.P4DataTypeSpec: ...
     size: builtins.int
     @property
-    def index_type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
+    def index_type_name(self) -> _dot_p4types_pb2.P4NamedType:
         """unset if index is not user-defined type"""
     def __init__(
         self,
         *,
         preamble: global___Preamble | None = ...,
-        type_spec: p4.config.v1.p4types_pb2.P4DataTypeSpec | None = ...,
+        type_spec: _dot_p4types_pb2.P4DataTypeSpec | None = ...,
         size: builtins.int = ...,
-        index_type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
+        index_type_name: _dot_p4types_pb2.P4NamedType | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["index_type_name", b"index_type_name", "preamble", b"preamble", "type_spec", b"type_spec"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["index_type_name", b"index_type_name", "preamble", b"preamble", "size", b"size", "type_spec", b"type_spec"]) -> None: ...
@@ -1047,12 +1047,12 @@ class Digest(google.protobuf.message.Message):
     @property
     def preamble(self) -> global___Preamble: ...
     @property
-    def type_spec(self) -> p4.config.v1.p4types_pb2.P4DataTypeSpec: ...
+    def type_spec(self) -> _dot_p4types_pb2.P4DataTypeSpec: ...
     def __init__(
         self,
         *,
         preamble: global___Preamble | None = ...,
-        type_spec: p4.config.v1.p4types_pb2.P4DataTypeSpec | None = ...,
+        type_spec: _dot_p4types_pb2.P4DataTypeSpec | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["preamble", b"preamble", "type_spec", b"type_spec"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["preamble", b"preamble", "type_spec", b"type_spec"]) -> None: ...

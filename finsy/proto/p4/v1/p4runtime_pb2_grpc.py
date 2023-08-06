@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from p4.v1 import p4runtime_pb2 as p4_dot_v1_dot_p4runtime__pb2
+from . import p4runtime_pb2 as p4_dot_v1_dot_p4runtime__pb2
 
 
 class P4RuntimeStub(object):
