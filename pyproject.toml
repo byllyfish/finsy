@@ -112,6 +112,7 @@ skip_glob = ["*_pb2.py", "*_pb2_grpc.py", ".venv*"]
 [tool.pylint.main]
 ignore-patterns = [".*_pb2\\.py", ".*_pb2_grpc\\.py"]
 ignore-paths = ["finsy/proto"]
+ignored-modules = ["finsy.proto"]
 
 [tool.pylint.basic]
 good-names = ["i", "j", "k", "v", "ex", "Run", "_", "m", "s", "ee", "up", "id", "vt"]
