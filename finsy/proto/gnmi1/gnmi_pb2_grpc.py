@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from gnmi1 import gnmi_pb2 as gnmi1_dot_gnmi__pb2
+from . import gnmi_pb2 as gnmi1_dot_gnmi__pb2
 
 
 class gNMIStub(object):

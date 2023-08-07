@@ -9,9 +9,9 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
-import google.rpc.status_pb2
-import p4.config.v1.p4info_pb2
-import p4.v1.p4data_pb2
+from ...google.rpc import status_pb2 as _dot_status_pb2
+from ..config.v1 import p4info_pb2 as _dot_p4info_pb2
+from . import p4data_pb2 as _dot_p4data_pb2
 import sys
 import typing
 
@@ -1209,13 +1209,13 @@ class RegisterEntry(google.protobuf.message.Message):
     @property
     def index(self) -> global___Index: ...
     @property
-    def data(self) -> p4.v1.p4data_pb2.P4Data: ...
+    def data(self) -> _dot_p4data_pb2.P4Data: ...
     def __init__(
         self,
         *,
         register_id: builtins.int = ...,
         index: global___Index | None = ...,
-        data: p4.v1.p4data_pb2.P4Data | None = ...,
+        data: _dot_p4data_pb2.P4Data | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["data", b"data", "index", b"index"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["data", b"data", "index", b"index", "register_id", b"register_id"]) -> None: ...
@@ -1435,7 +1435,7 @@ class DigestList(google.protobuf.message.Message):
     list_id: builtins.int
     """identifies a list of entries, used by receiver to ack"""
     @property
-    def data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.v1.p4data_pb2.P4Data]:
+    def data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4data_pb2.P4Data]:
         """List of entries: each call to the Digest<T>::pack() method corresponds to
         one entry and we can have as little as one entry.
         """
@@ -1448,7 +1448,7 @@ class DigestList(google.protobuf.message.Message):
         *,
         digest_id: builtins.int = ...,
         list_id: builtins.int = ...,
-        data: collections.abc.Iterable[p4.v1.p4data_pb2.P4Data] | None = ...,
+        data: collections.abc.Iterable[_dot_p4data_pb2.P4Data] | None = ...,
         timestamp: builtins.int = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["data", b"data", "digest_id", b"digest_id", "list_id", b"list_id", "timestamp", b"timestamp"]) -> None: ...
@@ -1504,7 +1504,7 @@ class MasterArbitrationUpdate(google.protobuf.message.Message):
         controllers.
         """
     @property
-    def status(self) -> google.rpc.status_pb2.Status:
+    def status(self) -> _dot_status_pb2.Status:
         """Switch populates this with OK for the client that is the primary, and
         with an error status for all other connected clients (at every primary
         client change). The controller does not populate this field.
@@ -1515,7 +1515,7 @@ class MasterArbitrationUpdate(google.protobuf.message.Message):
         device_id: builtins.int = ...,
         role: global___Role | None = ...,
         election_id: global___Uint128 | None = ...,
-        status: google.rpc.status_pb2.Status | None = ...,
+        status: _dot_status_pb2.Status | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["election_id", b"election_id", "role", b"role", "status", b"status"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["device_id", b"device_id", "election_id", b"election_id", "role", b"role", "status", b"status"]) -> None: ...
@@ -1860,7 +1860,7 @@ class ForwardingPipelineConfig(google.protobuf.message.Message):
     P4_DEVICE_CONFIG_FIELD_NUMBER: builtins.int
     COOKIE_FIELD_NUMBER: builtins.int
     @property
-    def p4info(self) -> p4.config.v1.p4info_pb2.P4Info: ...
+    def p4info(self) -> _dot_p4info_pb2.P4Info: ...
     p4_device_config: builtins.bytes
     """Target-specific P4 configuration."""
     @property
@@ -1868,7 +1868,7 @@ class ForwardingPipelineConfig(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        p4info: p4.config.v1.p4info_pb2.P4Info | None = ...,
+        p4info: _dot_p4info_pb2.P4Info | None = ...,
         p4_device_config: builtins.bytes = ...,
         cookie: global___ForwardingPipelineConfig.Cookie | None = ...,
     ) -> None: ...

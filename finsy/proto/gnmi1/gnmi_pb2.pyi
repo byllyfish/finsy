@@ -12,7 +12,7 @@ http://github.com/openconfig/reference/blob/master/rpc/gnmi
 """
 import builtins
 import collections.abc
-import gnmi1.gnmi_ext_pb2
+from . import gnmi_ext_pb2 as _dot_gnmi_ext_pb2
 import google.protobuf.any_pb2
 import google.protobuf.descriptor
 import google.protobuf.descriptor_pb2
@@ -467,7 +467,7 @@ class SubscribeRequest(google.protobuf.message.Message):
     def poll(self) -> global___Poll:
         """Trigger a polled update."""
     @property
-    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the SubscribeRequest. See the
         gNMI extension specification for further definition.
         """
@@ -476,7 +476,7 @@ class SubscribeRequest(google.protobuf.message.Message):
         *,
         subscribe: global___SubscriptionList | None = ...,
         poll: global___Poll | None = ...,
-        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["poll", b"poll", "request", b"request", "subscribe", b"subscribe"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["extension", b"extension", "poll", b"poll", "request", b"request", "subscribe", b"subscribe"]) -> None: ...
@@ -527,7 +527,7 @@ class SubscribeResponse(google.protobuf.message.Message):
     def error(self) -> global___Error:
         """Deprecated in favour of google.golang.org/genproto/googleapis/rpc/status"""
     @property
-    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the SubscribeResponse. See the
         gNMI extension specification for further definition.
         """
@@ -537,7 +537,7 @@ class SubscribeResponse(google.protobuf.message.Message):
         update: global___Notification | None = ...,
         sync_response: builtins.bool = ...,
         error: global___Error | None = ...,
-        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["error", b"error", "response", b"response", "sync_response", b"sync_response", "update", b"update"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["error", b"error", "extension", b"extension", "response", b"response", "sync_response", b"sync_response", "update", b"update"]) -> None: ...
@@ -739,7 +739,7 @@ class SetRequest(google.protobuf.message.Message):
         for details.
         """
     @property
-    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the SetRequest. See the
         gNMI extension specification for further definition.
         """
@@ -751,7 +751,7 @@ class SetRequest(google.protobuf.message.Message):
         replace: collections.abc.Iterable[global___Update] | None = ...,
         update: collections.abc.Iterable[global___Update] | None = ...,
         union_replace: collections.abc.Iterable[global___Update] | None = ...,
-        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["prefix", b"prefix"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["delete", b"delete", "extension", b"extension", "prefix", b"prefix", "replace", b"replace", "union_replace", b"union_replace", "update", b"update"]) -> None: ...
@@ -790,7 +790,7 @@ class SetResponse(google.protobuf.message.Message):
     timestamp: builtins.int
     """Timestamp of transaction (ns since epoch)."""
     @property
-    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the SetResponse. See the
         gNMI extension specification for further definition.
         """
@@ -801,7 +801,7 @@ class SetResponse(google.protobuf.message.Message):
         response: collections.abc.Iterable[global___UpdateResult] | None = ...,
         message: global___Error | None = ...,
         timestamp: builtins.int = ...,
-        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["message", b"message", "prefix", b"prefix"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["extension", b"extension", "message", b"message", "prefix", b"prefix", "response", b"response", "timestamp", b"timestamp"]) -> None: ...
@@ -942,7 +942,7 @@ class GetRequest(google.protobuf.message.Message):
     def use_models(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ModelData]:
         """The schema models to be used."""
     @property
-    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the GetRequest. See the
         gNMI extension specification for further definition.
         """
@@ -954,7 +954,7 @@ class GetRequest(google.protobuf.message.Message):
         type: global___GetRequest.DataType.ValueType = ...,
         encoding: global___Encoding.ValueType = ...,
         use_models: collections.abc.Iterable[global___ModelData] | None = ...,
-        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["prefix", b"prefix"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["encoding", b"encoding", "extension", b"extension", "path", b"path", "prefix", b"prefix", "type", b"type", "use_models", b"use_models"]) -> None: ...
@@ -981,7 +981,7 @@ class GetResponse(google.protobuf.message.Message):
     def error(self) -> global___Error:
         """Errors that occurred in the Get."""
     @property
-    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the GetResponse. See the
         gNMI extension specification for further definition.
         """
@@ -990,7 +990,7 @@ class GetResponse(google.protobuf.message.Message):
         *,
         notification: collections.abc.Iterable[global___Notification] | None = ...,
         error: global___Error | None = ...,
-        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["error", b"error"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["error", b"error", "extension", b"extension", "notification", b"notification"]) -> None: ...
@@ -1008,14 +1008,14 @@ class CapabilityRequest(google.protobuf.message.Message):
 
     EXTENSION_FIELD_NUMBER: builtins.int
     @property
-    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the CapabilityRequest. See the
         gNMI extension specification for further definition.
         """
     def __init__(
         self,
         *,
-        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["extension", b"extension"]) -> None: ...
 
@@ -1043,7 +1043,7 @@ class CapabilityResponse(google.protobuf.message.Message):
     gNMI_version: builtins.str
     """Supported gNMI version."""
     @property
-    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the CapabilityResponse. See the
         gNMI extension specification for further definition.
         """
@@ -1053,7 +1053,7 @@ class CapabilityResponse(google.protobuf.message.Message):
         supported_models: collections.abc.Iterable[global___ModelData] | None = ...,
         supported_encodings: collections.abc.Iterable[global___Encoding.ValueType] | None = ...,
         gNMI_version: builtins.str = ...,
-        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["extension", b"extension", "gNMI_version", b"gNMI_version", "supported_encodings", b"supported_encodings", "supported_models", b"supported_models"]) -> None: ...
 
