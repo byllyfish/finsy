@@ -4,7 +4,7 @@
       "name" : "scalars_0",
       "id" : 0,
       "fields" : [
-        ["userMetadata._ingress_metadata_nhop_ipv40", 32, false]
+        ["metadata._ingress_metadata_nhop_ipv40", 32, false]
       ]
     },
     {
@@ -177,7 +177,7 @@
       "name" : "deparser",
       "id" : 0,
       "source_info" : {
-        "filename" : "./parser.p4",
+        "filename" : "/root/parser.p4",
         "line" : 20,
         "column" : 8,
         "source_fragment" : "DeparserImpl"
@@ -194,7 +194,7 @@
       "name" : "calc",
       "id" : 0,
       "source_info" : {
-        "filename" : "./parser.p4",
+        "filename" : "/root/parser.p4",
         "line" : 33,
         "column" : 8,
         "source_fragment" : "update_checksum( ..."
@@ -279,7 +279,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 11,
             "column" : 8,
             "source_fragment" : "hdr.ethernet.srcAddr = smac"
@@ -301,7 +301,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 14,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -335,7 +335,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 37,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -357,7 +357,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 37,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -384,7 +384,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "userMetadata._ingress_metadata_nhop_ipv40"]
+              "value" : ["scalars", "metadata._ingress_metadata_nhop_ipv40"]
             },
             {
               "type" : "runtime_data",
@@ -392,7 +392,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 40,
             "column" : 8,
             "source_fragment" : "meta.ingress_metadata.nhop_ipv4 = nhop_ipv4"
@@ -411,7 +411,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 41,
             "column" : 8,
             "source_fragment" : "standard_metadata.egress_spec = port"
@@ -453,7 +453,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 42,
             "column" : 8,
             "source_fragment" : "hdr.ipv4.ttl = hdr.ipv4.ttl + 8w255"
@@ -484,7 +484,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 45,
             "column" : 8,
             "source_fragment" : "hdr.ethernet.dstAddr = dmac"
@@ -498,7 +498,7 @@
       "name" : "ingress",
       "id" : 0,
       "source_info" : {
-        "filename" : "simple_router.p4",
+        "filename" : "/root/simple_router.p4",
         "line" : 35,
         "column" : 8,
         "source_fragment" : "ingress"
@@ -509,7 +509,7 @@
           "name" : "ingress.ipv4_lpm",
           "id" : 0,
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 47,
             "column" : 10,
             "source_fragment" : "ipv4_lpm"
@@ -547,7 +547,7 @@
           "name" : "ingress.forward",
           "id" : 1,
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 59,
             "column" : 10,
             "source_fragment" : "forward"
@@ -556,7 +556,7 @@
             {
               "match_type" : "exact",
               "name" : "meta.ingress_metadata.nhop_ipv4",
-              "target" : ["scalars", "userMetadata._ingress_metadata_nhop_ipv40"],
+              "target" : ["scalars", "metadata._ingress_metadata_nhop_ipv40"],
               "mask" : null
             }
           ],
@@ -588,7 +588,7 @@
           "name" : "node_2",
           "id" : 0,
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 72,
             "column" : 12,
             "source_fragment" : "hdr.ipv4.isValid()"
@@ -613,7 +613,7 @@
       "name" : "egress",
       "id" : 1,
       "source_info" : {
-        "filename" : "simple_router.p4",
+        "filename" : "/root/simple_router.p4",
         "line" : 9,
         "column" : 8,
         "source_fragment" : "egress"
@@ -624,7 +624,7 @@
           "name" : "egress.send_frame",
           "id" : 2,
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 16,
             "column" : 10,
             "source_fragment" : "send_frame"
@@ -665,7 +665,7 @@
           "name" : "node_7",
           "id" : 1,
           "source_info" : {
-            "filename" : "simple_router.p4",
+            "filename" : "/root/simple_router.p4",
             "line" : 29,
             "column" : 12,
             "source_fragment" : "hdr.ipv4.isValid()"
@@ -692,7 +692,7 @@
       "name" : "cksum",
       "id" : 0,
       "source_info" : {
-        "filename" : "./parser.p4",
+        "filename" : "/root/parser.p4",
         "line" : 33,
         "column" : 8,
         "source_fragment" : "update_checksum( ..."
@@ -755,7 +755,7 @@
       ["standard_metadata", "priority"]
     ]
   ],
-  "program" : "./simple_router.p4i",
+  "program" : "/root/_out_/simple_router.p4i",
   "__meta__" : {
     "version" : [2, 23],
     "compiler" : "https://github.com/p4lang/p4c"

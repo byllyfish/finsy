@@ -668,6 +668,13 @@ actions {
 }
 actions {
   preamble {
+    id: 31618174
+    name: "egress.Int_sink.remove_sink_header"
+    alias: "remove_sink_header"
+  }
+}
+actions {
+  preamble {
     id: 24875660
     name: "egress.Int_sink.Int_report.send_report"
     alias: "send_report"
@@ -696,13 +703,6 @@ actions {
     id: 5
     name: "collector_port"
     bitwidth: 16
-  }
-}
-actions {
-  preamble {
-    id: 31618174
-    name: "egress.Int_sink.remove_sink_header"
-    alias: "remove_sink_header"
   }
 }
 registers {

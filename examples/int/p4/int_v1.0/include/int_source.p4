@@ -116,7 +116,7 @@ control Int_source(inout headers hdr, inout metadata meta, in ingress_intrinsic_
         #ifdef BMV2
         // in case of frame clone for the INT sink reporting
         // ingress timestamp is not available on Egress pipeline
-        meta.int_metadata.ingress_tstamp = standard_metadata.ingress_global_timestamp;
+        meta.int_metadata.ingress_tstamp = (bit<64>)standard_metadata.ingress_global_timestamp;
         meta.int_metadata.ingress_port = (bit<16>)standard_metadata.ingress_port;
         #elif TOFINO
         // I need to use bridge to pass customized metadata to egress pipeline
