@@ -119,7 +119,7 @@
       "name" : "deparser",
       "id" : 0,
       "source_info" : {
-        "filename" : "l2_switch.p4",
+        "filename" : "/root/l2_switch.p4",
         "line" : 97,
         "column" : 8,
         "source_fragment" : "DeparserImpl"
@@ -134,7 +134,7 @@
       "name" : "igPortsCounts",
       "id" : 0,
       "source_info" : {
-        "filename" : "l2_switch.p4",
+        "filename" : "/root/l2_switch.p4",
         "line" : 35,
         "column" : 44,
         "source_fragment" : "igPortsCounts"
@@ -146,7 +146,7 @@
       "name" : "egPortsCounts",
       "id" : 1,
       "source_info" : {
-        "filename" : "l2_switch.p4",
+        "filename" : "/root/l2_switch.p4",
         "line" : 36,
         "column" : 44,
         "source_fragment" : "egPortsCounts"
@@ -188,7 +188,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 41,
             "column" : 12,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -214,7 +214,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 43,
             "column" : 12,
             "source_fragment" : "egPortsCounts.count(standard_metadata.egress_port)"
@@ -242,7 +242,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 55,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -268,7 +268,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 58,
             "column" : 29,
             "source_fragment" : "hdr.ethernet.srcAddr"
@@ -287,7 +287,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 58,
             "column" : 51,
             "source_fragment" : "standard_metadata.ingress_port"
@@ -306,7 +306,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 58,
             "column" : 8,
             "source_fragment" : "digest<digest_t>(0, {hdr.ethernet.srcAddr, standard_metadata.ingress_port})"
@@ -337,7 +337,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 61,
             "column" : 8,
             "source_fragment" : "standard_metadata.egress_spec = eg_port"
@@ -368,7 +368,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 64,
             "column" : 8,
             "source_fragment" : "standard_metadata.mcast_grp = mgrp"
@@ -394,7 +394,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 91,
             "column" : 8,
             "source_fragment" : "igPortsCounts.count(standard_metadata.ingress_port)"
@@ -408,7 +408,7 @@
       "name" : "ingress",
       "id" : 0,
       "source_info" : {
-        "filename" : "l2_switch.p4",
+        "filename" : "/root/l2_switch.p4",
         "line" : 53,
         "column" : 8,
         "source_fragment" : "IngressImpl"
@@ -419,7 +419,7 @@
           "name" : "tbl_l2_switch91",
           "id" : 0,
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 91,
             "column" : 8,
             "source_fragment" : "igPortsCounts.count(standard_metadata.ingress_port)"
@@ -448,7 +448,7 @@
           "name" : "IngressImpl.smac",
           "id" : 1,
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 66,
             "column" : 10,
             "source_fragment" : "smac"
@@ -485,7 +485,7 @@
           "name" : "IngressImpl.dmac",
           "id" : 2,
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 78,
             "column" : 10,
             "source_fragment" : "dmac"
@@ -527,7 +527,7 @@
       "name" : "egress",
       "id" : 1,
       "source_info" : {
-        "filename" : "l2_switch.p4",
+        "filename" : "/root/l2_switch.p4",
         "line" : 38,
         "column" : 8,
         "source_fragment" : "EgressImpl"
@@ -538,7 +538,7 @@
           "name" : "tbl_l2_switch41",
           "id" : 3,
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 41,
             "column" : 12,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -567,7 +567,7 @@
           "name" : "tbl_l2_switch43",
           "id" : 4,
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 43,
             "column" : 12,
             "source_fragment" : "egPortsCounts.count(standard_metadata.egress_port)"
@@ -599,7 +599,7 @@
           "name" : "node_7",
           "id" : 0,
           "source_info" : {
-            "filename" : "l2_switch.p4",
+            "filename" : "/root/l2_switch.p4",
             "line" : 40,
             "column" : 12,
             "source_fragment" : "standard_metadata.egress_port == standard_metadata.ingress_port"
@@ -665,7 +665,7 @@
       ["standard_metadata", "priority"]
     ]
   ],
-  "program" : "./l2_switch.p4i",
+  "program" : "/root/_out_/l2_switch.p4i",
   "__meta__" : {
     "version" : [2, 23],
     "compiler" : "https://github.com/p4lang/p4c"

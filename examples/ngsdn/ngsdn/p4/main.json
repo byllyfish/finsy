@@ -1088,7 +1088,7 @@
       "name" : "deparser",
       "id" : 0,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 810,
         "column" : 8,
         "source_fragment" : "DeparserImpl"
@@ -1103,7 +1103,7 @@
       "name" : "ndp_reply_table_counter",
       "id" : 0,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 488,
         "column" : 8,
         "source_fragment" : "counters"
@@ -1115,7 +1115,7 @@
       "name" : "my_station_table_counter",
       "id" : 1,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 499,
         "column" : 8,
         "source_fragment" : "counters"
@@ -1127,7 +1127,7 @@
       "name" : "routing_v6_table_counter",
       "id" : 2,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 530,
         "column" : 6,
         "source_fragment" : "counters"
@@ -1139,7 +1139,7 @@
       "name" : "l2_exact_table_counter",
       "id" : 3,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 413,
         "column" : 8,
         "source_fragment" : "counters"
@@ -1151,7 +1151,7 @@
       "name" : "l2_ternary_table_counter",
       "id" : 4,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 437,
         "column" : 8,
         "source_fragment" : "counters"
@@ -1163,7 +1163,7 @@
       "name" : "acl_table_counter",
       "id" : 5,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 673,
         "column" : 8,
         "source_fragment" : "counters"
@@ -1177,7 +1177,7 @@
       "is_direct" : true,
       "binding" : "IngressPipeImpl.srv6_my_sid",
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 548,
         "column" : 50,
         "source_fragment" : "srv6_my_sid_table_counter"
@@ -1189,7 +1189,7 @@
       "is_direct" : true,
       "binding" : "IngressPipeImpl.srv6_transit",
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 604,
         "column" : 50,
         "source_fragment" : "srv6_transit_table_counter"
@@ -1202,7 +1202,7 @@
       "name" : "calc",
       "id" : 0,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 788,
         "column" : 8,
         "source_fragment" : "update_checksum(hdr.ndp.isValid(), ..."
@@ -1313,7 +1313,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 365,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -1335,7 +1335,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 365,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -1357,7 +1357,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 365,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -1379,7 +1379,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 365,
             "column" : 8,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -1410,7 +1410,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 397,
             "column" : 8,
             "source_fragment" : "standard_metadata.egress_spec = port_num"
@@ -1441,7 +1441,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 423,
             "column" : 8,
             "source_fragment" : "standard_metadata.mcast_grp = gid"
@@ -1470,7 +1470,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 424,
             "column" : 8,
             "source_fragment" : "local_metadata.is_multicast = true"
@@ -1501,7 +1501,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 466,
             "column" : 8,
             "source_fragment" : "hdr.ethernet.src_addr = target_mac"
@@ -1520,7 +1520,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 59,
             "column" : 33,
             "source_fragment" : "0x33_33_00_00_00_01; ..."
@@ -1539,7 +1539,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 468,
             "column" : 8,
             "source_fragment" : "ipv6_addr_t host_ipv6_tmp = hdr.ipv6.src_addr;"
@@ -1558,7 +1558,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 469,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.src_addr = hdr.ndp.target_ipv6_addr"
@@ -1577,7 +1577,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 470,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.dst_addr = host_ipv6_tmp"
@@ -1596,7 +1596,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 57,
             "column" : 31,
             "source_fragment" : "58; ..."
@@ -1615,7 +1615,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 62,
             "column" : 29,
             "source_fragment" : "136; ..."
@@ -1634,7 +1634,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 473,
             "column" : 8,
             "source_fragment" : "hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_OVERRIDE"
@@ -1653,7 +1653,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 64,
             "column" : 38,
             "source_fragment" : "2; ..."
@@ -1672,7 +1672,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 475,
             "column" : 8,
             "source_fragment" : "hdr.ndp.length = 1"
@@ -1691,7 +1691,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 476,
             "column" : 8,
             "source_fragment" : "hdr.ndp.target_mac_addr = target_mac"
@@ -1710,7 +1710,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 477,
             "column" : 8,
             "source_fragment" : "standard_metadata.egress_spec = standard_metadata.ingress_port"
@@ -1741,7 +1741,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 507,
             "column" : 8,
             "source_fragment" : "hdr.ethernet.src_addr = hdr.ethernet.dst_addr"
@@ -1760,7 +1760,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 508,
             "column" : 8,
             "source_fragment" : "hdr.ethernet.dst_addr = dmac"
@@ -1802,7 +1802,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 510,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.hop_limit = hdr.ipv6.hop_limit - 1"
@@ -1851,7 +1851,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 544,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.segment_left = hdr.srv6h.segment_left - 1"
@@ -1870,7 +1870,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 545,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.dst_addr = local_metadata.next_srv6_sid"
@@ -1905,7 +1905,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 583,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.dst_addr = s1"
@@ -1947,7 +1947,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 584,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.payload_len = hdr.ipv6.payload_len + 40"
@@ -1962,7 +1962,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 566,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.setValid()"
@@ -1981,7 +1981,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 567,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.next_hdr = hdr.ipv6.next_hdr"
@@ -2000,7 +2000,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 568,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.hdr_ext_len = num_segments * 2"
@@ -2019,7 +2019,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 569,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.routing_type = 4"
@@ -2038,7 +2038,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 570,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.segment_left = num_segments - 1"
@@ -2057,7 +2057,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 571,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.last_entry = num_segments - 1"
@@ -2076,7 +2076,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 572,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.flags = 0"
@@ -2095,7 +2095,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 573,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.tag = 0"
@@ -2114,7 +2114,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 56,
             "column" : 29,
             "source_fragment" : "43; ..."
@@ -2129,7 +2129,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 586,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[0].setValid()"
@@ -2148,7 +2148,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 587,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[0].segment_id = s2"
@@ -2163,7 +2163,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 588,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[1].setValid()"
@@ -2182,7 +2182,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 589,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[1].segment_id = s1"
@@ -2221,7 +2221,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 593,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.dst_addr = s1"
@@ -2263,7 +2263,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 594,
             "column" : 8,
             "source_fragment" : "hdr.ipv6.payload_len = hdr.ipv6.payload_len + 56"
@@ -2278,7 +2278,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 566,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.setValid()"
@@ -2297,7 +2297,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 567,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.next_hdr = hdr.ipv6.next_hdr"
@@ -2316,7 +2316,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 568,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.hdr_ext_len = num_segments * 2"
@@ -2335,7 +2335,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 569,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.routing_type = 4"
@@ -2354,7 +2354,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 570,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.segment_left = num_segments - 1"
@@ -2373,7 +2373,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 571,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.last_entry = num_segments - 1"
@@ -2392,7 +2392,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 572,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.flags = 0"
@@ -2411,7 +2411,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 573,
             "column" : 8,
             "source_fragment" : "hdr.srv6h.tag = 0"
@@ -2430,7 +2430,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 56,
             "column" : 29,
             "source_fragment" : "43; ..."
@@ -2445,7 +2445,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 596,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[0].setValid()"
@@ -2464,7 +2464,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 597,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[0].segment_id = s3"
@@ -2479,7 +2479,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 598,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[1].setValid()"
@@ -2498,7 +2498,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 599,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[1].segment_id = s2"
@@ -2513,7 +2513,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 600,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[2].setValid()"
@@ -2532,7 +2532,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 601,
             "column" : 8,
             "source_fragment" : "hdr.srv6_list[2].segment_id = s1"
@@ -2558,7 +2558,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 620,
             "column" : 6,
             "source_fragment" : "hdr.ipv6.next_hdr = hdr.srv6h.next_hdr"
@@ -2670,7 +2670,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 625,
             "column" : 6,
             "source_fragment" : "hdr.ipv6.payload_len = hdr.ipv6.payload_len - srv6h_size"
@@ -2685,7 +2685,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 627,
             "column" : 6,
             "source_fragment" : "hdr.srv6h.setInvalid()"
@@ -2700,7 +2700,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 629,
             "column" : 6,
             "source_fragment" : "hdr.srv6_list[0].setInvalid()"
@@ -2715,7 +2715,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 630,
             "column" : 6,
             "source_fragment" : "hdr.srv6_list[1].setInvalid()"
@@ -2730,7 +2730,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 631,
             "column" : 6,
             "source_fragment" : "hdr.srv6_list[2].setInvalid()"
@@ -2756,7 +2756,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 645,
             "column" : 8,
             "source_fragment" : "standard_metadata.egress_spec = 255"
@@ -2782,7 +2782,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 653,
             "column" : 8,
             "source_fragment" : "clone_preserving_field_list(CloneType.I2E, 99, 1)"
@@ -2808,7 +2808,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 687,
             "column" : 12,
             "source_fragment" : "standard_metadata.egress_spec = hdr.cpu_out.egress_port"
@@ -2823,7 +2823,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 688,
             "column" : 12,
             "source_fragment" : "hdr.cpu_out.setInvalid()"
@@ -2833,7 +2833,7 @@
           "op" : "exit",
           "parameters" : [],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 689,
             "column" : 12,
             "source_fragment" : "exit"
@@ -2859,7 +2859,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 677,
             "column" : 8,
             "source_fragment" : "local_metadata.ingress_port = standard_metadata.ingress_port"
@@ -2895,7 +2895,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 703,
             "column" : 16,
             "source_fragment" : "do_l3_l2 = false"
@@ -2931,7 +2931,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 692,
             "column" : 8,
             "source_fragment" : "bool do_l3_l2 = true;"
@@ -3034,7 +3034,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 720,
             "column" : 16,
             "source_fragment" : "hdr.ipv6.isValid() && my_station_table.apply().hit"
@@ -3070,7 +3070,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 720,
             "column" : 16,
             "source_fragment" : "hdr.ipv6.isValid() && my_station_table.apply().hit"
@@ -3092,7 +3092,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 764,
             "column" : 12,
             "source_fragment" : "hdr.cpu_in.setValid()"
@@ -3111,7 +3111,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 765,
             "column" : 12,
             "source_fragment" : "hdr.cpu_in.ingress_port = local_metadata.ingress_port"
@@ -3121,7 +3121,7 @@
           "op" : "exit",
           "parameters" : [],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 766,
             "column" : 12,
             "source_fragment" : "exit"
@@ -3143,7 +3143,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 775,
             "column" : 12,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -3157,7 +3157,7 @@
       "name" : "ingress",
       "id" : 0,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 359,
         "column" : 8,
         "source_fragment" : "IngressPipeImpl"
@@ -3168,7 +3168,7 @@
           "name" : "tbl_main677",
           "id" : 0,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 677,
             "column" : 36,
             "source_fragment" : "="
@@ -3197,7 +3197,7 @@
           "name" : "tbl_main687",
           "id" : 1,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 687,
             "column" : 42,
             "source_fragment" : "= hdr.cpu_out.egress_port; ..."
@@ -3226,7 +3226,7 @@
           "name" : "tbl_main692",
           "id" : 2,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 692,
             "column" : 8,
             "source_fragment" : "bool do_l3_l2 = true;"
@@ -3255,7 +3255,7 @@
           "name" : "IngressPipeImpl.ndp_reply_table",
           "id" : 3,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 480,
             "column" : 10,
             "source_fragment" : "ndp_reply_table"
@@ -3292,7 +3292,7 @@
           "name" : "tbl_main703",
           "id" : 4,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 703,
             "column" : 25,
             "source_fragment" : "="
@@ -3321,7 +3321,7 @@
           "name" : "IngressPipeImpl.my_station_table",
           "id" : 5,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 493,
             "column" : 10,
             "source_fragment" : "my_station_table"
@@ -3404,7 +3404,7 @@
           "name" : "tbl_main720",
           "id" : 8,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 720,
             "column" : 16,
             "source_fragment" : "hdr.ipv6.isValid() && my_station_table.apply().hit"
@@ -3433,7 +3433,7 @@
           "name" : "tbl_main720_0",
           "id" : 9,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 720,
             "column" : 16,
             "source_fragment" : "hdr.ipv6.isValid() && my_station_table.apply().hit"
@@ -3462,7 +3462,7 @@
           "name" : "IngressPipeImpl.srv6_my_sid",
           "id" : 10,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 549,
             "column" : 10,
             "source_fragment" : "srv6_my_sid"
@@ -3499,7 +3499,7 @@
           "name" : "tbl_srv6_pop",
           "id" : 11,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 725,
             "column" : 24,
             "source_fragment" : "srv6_pop()"
@@ -3528,7 +3528,7 @@
           "name" : "IngressPipeImpl.srv6_transit",
           "id" : 12,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 605,
             "column" : 10,
             "source_fragment" : "srv6_transit"
@@ -3566,7 +3566,7 @@
           "name" : "IngressPipeImpl.routing_v6_table",
           "id" : 13,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 512,
             "column" : 10,
             "source_fragment" : "routing_v6_table"
@@ -3598,7 +3598,7 @@
           "name" : "tbl_drop",
           "id" : 14,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 733,
             "column" : 46,
             "source_fragment" : "drop()"
@@ -3627,7 +3627,7 @@
           "name" : "IngressPipeImpl.l2_exact_table",
           "id" : 15,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 400,
             "column" : 10,
             "source_fragment" : "l2_exact_table"
@@ -3664,7 +3664,7 @@
           "name" : "IngressPipeImpl.l2_ternary_table",
           "id" : 16,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 427,
             "column" : 10,
             "source_fragment" : "l2_ternary_table"
@@ -3701,7 +3701,7 @@
           "name" : "IngressPipeImpl.acl_table",
           "id" : 17,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 656,
             "column" : 10,
             "source_fragment" : "acl_table"
@@ -3784,7 +3784,7 @@
           "name" : "IngressPipeImpl.ecmp_selector",
           "id" : 0,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 504,
             "column" : 57,
             "source_fragment" : "ecmp_selector"
@@ -3826,7 +3826,7 @@
           "name" : "node_3",
           "id" : 0,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 679,
             "column" : 12,
             "source_fragment" : "hdr.cpu_out.isValid()"
@@ -3849,7 +3849,7 @@
           "name" : "node_6",
           "id" : 1,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 694,
             "column" : 12,
             "source_fragment" : "hdr.icmpv6.isValid() && hdr.icmpv6.type == ICMP6_TYPE_NS"
@@ -3892,7 +3892,7 @@
           "name" : "node_9",
           "id" : 2,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 707,
             "column" : 12,
             "source_fragment" : "do_l3_l2"
@@ -3915,7 +3915,7 @@
           "name" : "node_10",
           "id" : 3,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 720,
             "column" : 16,
             "source_fragment" : "hdr.ipv6.isValid()"
@@ -3955,7 +3955,7 @@
           "name" : "node_18",
           "id" : 5,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 724,
             "column" : 24,
             "source_fragment" : "hdr.srv6h.isValid() && hdr.srv6h.segment_left == 0"
@@ -3998,7 +3998,7 @@
           "name" : "node_22",
           "id" : 6,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 733,
             "column" : 19,
             "source_fragment" : "hdr.ipv6.hop_limit == 0"
@@ -4026,7 +4026,7 @@
       "name" : "egress",
       "id" : 1,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 750,
         "column" : 8,
         "source_fragment" : "EgressPipeImpl"
@@ -4037,7 +4037,7 @@
           "name" : "tbl_main764",
           "id" : 18,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 764,
             "column" : 12,
             "source_fragment" : "hdr.cpu_in.setValid(); ..."
@@ -4066,7 +4066,7 @@
           "name" : "tbl_main775",
           "id" : 19,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 775,
             "column" : 12,
             "source_fragment" : "mark_to_drop(standard_metadata)"
@@ -4098,7 +4098,7 @@
           "name" : "node_29",
           "id" : 7,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 755,
             "column" : 12,
             "source_fragment" : "standard_metadata.egress_port == 255"
@@ -4124,7 +4124,7 @@
           "name" : "node_31",
           "id" : 8,
           "source_info" : {
-            "filename" : "main.p4",
+            "filename" : "/root/main.p4",
             "line" : 773,
             "column" : 12,
             "source_fragment" : "local_metadata.is_multicast == true && ..."
@@ -4171,7 +4171,7 @@
       "name" : "cksum",
       "id" : 0,
       "source_info" : {
-        "filename" : "main.p4",
+        "filename" : "/root/main.p4",
         "line" : 788,
         "column" : 8,
         "source_fragment" : "update_checksum(hdr.ndp.isValid(), ..."
@@ -4234,7 +4234,7 @@
       ["standard_metadata", "priority"]
     ]
   ],
-  "program" : "./main.p4i",
+  "program" : "/root/_out_/main.p4i",
   "__meta__" : {
     "version" : [2, 23],
     "compiler" : "https://github.com/p4lang/p4c"
