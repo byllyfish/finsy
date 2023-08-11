@@ -8,7 +8,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - uses: docker/login-action@v1
+    - uses: docker/login-action@v2
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -17,5 +17,5 @@ jobs:
       run: |
         name="ghcr.io/byllyfish/demonet"
         tag="$(date '+%y.%m')"
-        docker build --tag $name:$tag $name:latest ci/demonet/. 
+        docker build --tag $name:$tag --tag $name:latest ci/demonet/. 
         docker push $name
