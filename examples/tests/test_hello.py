@@ -84,7 +84,7 @@ async def test_read_tables(demonet):
 async def test_demo3(demonet, python):
     "Test the hello/demo3 example program."
     async with python(HELLO_DIR / "demo3.py") as demo3:
-        await asyncio.sleep(0.25)
+        await asyncio.sleep(0.5)
         await demonet.send("pingall")
         await demonet.send("pingall", expect="(6/6 received)")
         demo3.cancel()
