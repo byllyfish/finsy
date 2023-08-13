@@ -20,7 +20,6 @@ ARG MININET_DEPS="python3 net-tools iproute2 iputils-ping socat psmisc procps et
 ARG OTHER_DEPS="python3-venv"
 ARG STRATUM_DEPS="libjudydebian1"
 COPY --from=builder /output /usr/local/
-COPY --from=builder /mininet /mininet
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get -qq update \
     && apt-get -y --no-install-recommends install $BMV2_DEPS $MININET_DEPS $OTHER_DEPS $STRATUM_DEPS \
@@ -29,6 +28,5 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && ln -s /usr/local/stratum/etc /etc/stratum
 
 LABEL org.opencontainers.image.description="This image runs Mininet with a P4Runtime switch (bmv2 or stratum_bmv2)."
-ENV PATH=/mininet/bin:$PATH
 EXPOSE 50001-50999
-ENTRYPOINT ["mn", "--custom", "/mininet/custom/p4switch.py", "--switch", "bmv2", "--controller", "none"]
+ENTRYPOINT ["mn", "--custom", "/usr/local/mininet/custom/p4switch.py", "--switch", "bmv2", "--controller", "none"]
