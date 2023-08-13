@@ -1,4 +1,6 @@
-"Finsy is a P4Runtime framework for Python."
+"""
+.. include:: ../README.md
+"""
 
 # Copyright (c) 2022-2023 Bill Fisher
 #

@@ -32,7 +32,6 @@ class Controller:
     Each switch MUST have a unique name.
     """
 
-    _name: str  # used to name control_task
     _switches: dict[str, Switch]
     _removed: set[Switch]
     _task_count: CountdownFuture
@@ -40,8 +39,8 @@ class Controller:
     control_task: asyncio.Task[Any] | None = None
     "Keep track of controller's main task."
 
-    def __init__(self, switches: Iterable[Switch], *, name: str = "controller"):
-        self._name = name
+    def __init__(self, switches: Iterable[Switch] = ()):
+        "Initialize Controller with a list of switches."
         self._switches = {}
         self._removed = set()
         self._task_count = CountdownFuture()
@@ -73,7 +72,6 @@ class Controller:
         assert not self._removed
 
         self.control_task = asyncio.current_task()
-        # We do not rename the control task.. like in run().
         _CONTROLLER.set(self)
 
         try:
