@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Script to install bmv2 and mininet on an Ubuntu 2022.04 Docker Image.
+# Script to install bmv2, stratum_bmv2, and mininet on an Ubuntu 2022.04 Docker
+# Image.
 #
 # Usage:   ./build.sh
 #
@@ -130,6 +131,25 @@ copy_bmv2_files() {
     cp "${BMV2_LIB[@]}" "$output/lib"
 }
 
+# Copy stratum-bmv2 files to /output/stratum/{bin,lib} directories.
+copy_stratum_files() {
+    local output="$1"
+    cd "$WORK_DIR/stratum"
+    
+    dpkg-deb --extract stratum_bmv2_deb.deb .
+    mkdir -p "$output/stratum"
+    mv usr/bin "$output/stratum/bin"
+    mv usr/lib "$output/stratum/lib"
+    mv etc/stratum "$output/stratum/etc"
+    mv usr/share/doc "$output/stratum/doc"
+    mv libboost_* "$output/stratum/lib"
+    cat > "$output/bin/stratum_bmv2" <<'EOF' 
+#!/bin/sh
+LD_LIBRARY_PATH=/usr/local/stratum/lib exec /usr/local/stratum/bin/stratum_bmv2 "$@"
+EOF
+    chmod ugo+x "$output/bin/stratum_bmv2"
+}
+
 # Install Mininet to /output/mininet.
 install_mininet() {
     cd "$WORK_DIR"
@@ -174,6 +194,7 @@ install_bmv2
 install_mininet
 
 copy_bmv2_files /output
+copy_stratum_files /output
 
 log "Done."
 exit 0

@@ -9,6 +9,7 @@ For compatibility, this file MUST support BOTH Python 2.7 and Python 3+.
 import json
 import os.path
 
+from __main__ import SWITCHES
 from mininet.node import Host
 from mininet.nodelib import LinuxBridge
 from mininet.topo import Topo
@@ -134,7 +135,9 @@ class DemoTopo(Topo):
         for config in json_config:
             kind = config["kind"]
             if kind == "switch":
-                self.addSwitch(config["name"], **config["params"])
+                model = config.get("model")
+                cls = SWITCHES[model] if model else None
+                self.addSwitch(config["name"], cls=cls, **config["params"])
             elif kind == "host":
                 self.addHost(config["name"], cls=DemoHost, config=config)
                 if config["switch"]:
