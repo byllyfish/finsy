@@ -23,7 +23,7 @@ def test_config():
     )
 
     assert len(config.items) == 4
-    assert config.image() == dn.Image("docker.io/opennetworking/p4mn")
+    assert config.image() == dn.Image("ghcr.io/byllyfish/demonet:23.08")
     assert config.switch_count() == 1
 
     assert json.loads(config.to_json(indent=2)) == [
