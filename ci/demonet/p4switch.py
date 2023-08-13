@@ -101,7 +101,7 @@ class StratumSwitch(P4RuntimeSwitch):
     def switch_command(self) -> list[Any]:
         "Return command line to run the switch."
         # Stratum requires an initial dummy pipeline file.
-        initial_pipeline = Path("/root/dummy.json")
+        initial_pipeline = Path("/etc/stratum/dummy.json")
         assert initial_pipeline.exists()
 
         # Stratum configures the interfaces using a config file.

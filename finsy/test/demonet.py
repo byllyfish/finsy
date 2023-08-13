@@ -53,6 +53,7 @@ class Switch(Directive):
     name: str
     _: KW_ONLY
     kind: str = field(default="switch", init=False)
+    model: str = ""
     params: dict[str, Any] = field(default_factory=dict)
     commands: list[str] = field(default_factory=list)
 

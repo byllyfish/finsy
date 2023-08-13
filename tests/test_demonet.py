@@ -27,7 +27,13 @@ def test_config():
     assert config.switch_count() == 1
 
     assert json.loads(config.to_json(indent=2)) == [
-        {"name": "s1", "kind": "switch", "params": {}, "commands": []},
+        {
+            "name": "s1",
+            "kind": "switch",
+            "model": "",
+            "params": {},
+            "commands": [],
+        },
         {
             "name": "h1",
             "switch": "s1",

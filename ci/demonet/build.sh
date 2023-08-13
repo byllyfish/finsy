@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Script to install bmv2 and mininet on an Ubuntu 2022.04 Docker Image.
+# Script to install bmv2, stratum_bmv2, and mininet on an Ubuntu 2022.04 Docker
+# Image.
 #
 # Usage:   ./build.sh
 #
@@ -47,7 +48,6 @@ BMV2_LIB=(
 )
 
 MININET_VERSION="2.3.1b4"
-MININET_VENV="/mininet"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -130,9 +130,30 @@ copy_bmv2_files() {
     cp "${BMV2_LIB[@]}" "$output/lib"
 }
 
+# Copy stratum-bmv2 files to /output/stratum/{bin,lib} directories.
+copy_stratum_files() {
+    local output="$1"
+    cd "$WORK_DIR/stratum"
+    
+    dpkg-deb --extract stratum_bmv2_deb.deb .
+    mkdir -p "$output/stratum"
+    mv usr/bin "$output/stratum/bin"
+    mv usr/lib "$output/stratum/lib"
+    mv etc/stratum "$output/stratum/etc"
+    mv usr/share/doc "$output/stratum/doc"
+    mv libboost_* "$output/stratum/lib"
+    cat > "$output/bin/stratum_bmv2" <<'EOF' 
+#!/bin/sh
+LD_LIBRARY_PATH=/usr/local/stratum/lib exec /usr/local/stratum/bin/stratum_bmv2 "$@"
+EOF
+    chmod ugo+x "$output/bin/stratum_bmv2"
+}
+
 # Install Mininet to /output/mininet.
 install_mininet() {
+    local output="$1"
     cd "$WORK_DIR"
+
     if [ -d mininet ]; then 
         return 0
     fi
@@ -141,17 +162,26 @@ install_mininet() {
     git clone --branch "${MININET_VERSION}" --depth 1 "${MININET_GIT}"
     cd "mininet"
 
-    python3 -m venv "$MININET_VENV"
-    VIRTUAL_ENV="$MININET_VENV" "$MININET_VENV/bin/pip" install .
-    PREFIX="$MININET_VENV" PYTHON=python3 make install-mnexec
+    venv="$output/mininet"
+    python3 -m venv "$venv"
+    VIRTUAL_ENV="$venv" "$venv/bin/pip" install .
+    PREFIX="$venv" PYTHON=python3 make install-mnexec
 
-    mkdir "$MININET_VENV/custom"
-    cp "$WORK_DIR/p4switch.py" "$MININET_VENV/custom"
+    mkdir "$venv/custom"
+    cp "$WORK_DIR/p4switch.py" "$venv/custom"
 
     # Remove pip and activate scripts from venv. 
-    rm -rf $MININET_VENV/lib/python3.??/site-packages/pip*
-    rm -f $MININET_VENV/bin/pip*
-    rm -f $MININET_VENV/bin/[Aa]ctivate*
+    rm -rf $venv/lib/python3.??/site-packages/pip*
+    rm -f $venv/bin/pip*
+    rm -f $venv/bin/[Aa]ctivate*
+
+    # Fix up venv path: /output -> /usr/local
+    sed -i "s+#!$venv/bin/+#!/usr/local/mininet/bin/+" $venv/bin/mn
+
+    # Create symlinks for mn, mnexec.
+    mkdir -p "$output/bin"
+    ln -s /usr/local/mininet/bin/mn $output/bin/mn
+    ln -s /usr/local/mininet/bin/mnexec $output/bin/mnexec
 }
 
 # Log a message.
@@ -171,9 +201,10 @@ install_apt_prerequisites
 install_grpc
 install_pi
 install_bmv2
-install_mininet
 
+install_mininet /output
 copy_bmv2_files /output
+copy_stratum_files /output
 
 log "Done."
 exit 0
