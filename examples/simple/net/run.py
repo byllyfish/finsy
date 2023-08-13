@@ -3,7 +3,6 @@
 from finsy.test import demonet as dn
 
 DEMONET = [
-    dn.Image("docker.io/opennetworking/p4mn"),
     dn.Switch("s1"),
     dn.Host(
         "h1",

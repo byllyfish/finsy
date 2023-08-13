@@ -3,8 +3,7 @@
 from finsy.test import demonet as dn
 
 DEMONET = [
-    dn.Image("docker.io/opennetworking/mn-stratum"),
-    dn.Switch("s1"),
+    dn.Switch("s1", model="stratum"),
     dn.Host("h1", "s1"),
 ]
 
