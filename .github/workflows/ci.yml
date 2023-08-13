@@ -52,7 +52,7 @@ jobs:
   test-examples:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/byllyfish/demonet:23.07
+      image: ghcr.io/byllyfish/demonet:23.08
       options: --privileged
 
     steps:
@@ -73,7 +73,7 @@ jobs:
       - name: Run example tests with coverage
         run: |
           . venv/bin/activate
-          cd examples; PYTHONPATH=.. pytest -k simple --cov ../finsy --cov-report xml --cov-config ../.coveragerc
+          cd examples; PYTHONPATH=.. pytest --cov ../finsy --cov-report xml --cov-config ../.coveragerc
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
         with:

@@ -5,10 +5,9 @@ from finsy.test import demonet as dn
 SWITCH_PARAMS = {}  # {"loglevel": "trace"}
 
 DEMONET = [
-    dn.Image("docker.io/opennetworking/mn-stratum"),
-    dn.Switch("s1", params=SWITCH_PARAMS),
-    dn.Switch("s2", params=SWITCH_PARAMS),
-    dn.Switch("s3", params=SWITCH_PARAMS),
+    dn.Switch("s1", model="stratum", params=SWITCH_PARAMS),
+    dn.Switch("s2", model="stratum", params=SWITCH_PARAMS),
+    dn.Switch("s3", model="stratum", params=SWITCH_PARAMS),
     dn.Host(
         "h1",
         "s1",

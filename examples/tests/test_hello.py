@@ -50,17 +50,8 @@ async def test_demo2(demonet, python):
         demo2.cancel()
 
 
-async def test_demo3(demonet, python):
-    "Test the hello/demo3 example program."
-    async with python(HELLO_DIR / "demo3.py") as demo3:
-        await asyncio.sleep(0.25)
-        await demonet.send("pingall")
-        await demonet.send("pingall", expect="(6/6 received)")
-        demo3.cancel()
-
-
 async def test_read_tables(demonet):
-    "Read the state of the P4Runtime tables after running all the tests."
+    "Read the state of the P4Runtime tables after running demo2."
     expected_switch_states = {
         "127.0.0.1:50001": {
             "ipv4 ipv4_dst=10.0.0.1 forward(port=0x1)",
@@ -88,6 +79,15 @@ async def test_read_tables(demonet):
     for target, expected_state in expected_switch_states.items():
         actual_state = await testlib.read_p4_tables(target)
         assert actual_state == expected_state, f"{target} failed!"
+
+
+async def test_demo3(demonet, python):
+    "Test the hello/demo3 example program."
+    async with python(HELLO_DIR / "demo3.py") as demo3:
+        await asyncio.sleep(0.5)
+        await demonet.send("pingall")
+        await demonet.send("pingall", expect="(6/6 received)")
+        demo3.cancel()
 
 
 @pytest.mark.skipif(not testlib.has_pygraphviz(), reason="Requires pygraphviz")

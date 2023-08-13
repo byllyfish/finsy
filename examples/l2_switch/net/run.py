@@ -12,7 +12,6 @@ def linear(host_count: int):
 
 
 DEMONET = [
-    dn.Image("docker.io/opennetworking/p4mn"),
     *linear(3),
 ]
 

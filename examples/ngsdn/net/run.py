@@ -10,13 +10,11 @@ PROM_YML = Path(__file__).parent / "prometheus.yml"
 
 
 DEMONET = [
-    # Use stratum.
-    dn.Image("docker.io/opennetworking/mn-stratum"),
     # 2x2 fabric topology.
-    dn.Switch("leaf1", params=SWITCH_PARAMS),
-    dn.Switch("leaf2", params=SWITCH_PARAMS),
-    dn.Switch("spine1", params=SWITCH_PARAMS),
-    dn.Switch("spine2", params=SWITCH_PARAMS),
+    dn.Switch("leaf1", model="stratum", params=SWITCH_PARAMS),
+    dn.Switch("leaf2", model="stratum", params=SWITCH_PARAMS),
+    dn.Switch("spine1", model="stratum", params=SWITCH_PARAMS),
+    dn.Switch("spine2", model="stratum", params=SWITCH_PARAMS),
     dn.Link("spine1", "leaf1"),
     dn.Link("spine1", "leaf2"),
     dn.Link("spine2", "leaf1"),

@@ -29,6 +29,8 @@ except ImportError:
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
 
+DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet:23.08"
+
 
 class Directive:
     "Marker superclass for all Demo configuration directives."
@@ -148,7 +150,7 @@ class Config:
         if len(images) > 1:
             raise ValueError("There should only be one Image config.")
         if not images:
-            return Image("docker.io/opennetworking/p4mn")
+            return Image(DEFAULT_IMAGE)
         return images[0]
 
     def switch_count(self) -> int:
