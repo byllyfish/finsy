@@ -10,10 +10,11 @@ on:
 jobs:
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ "ubuntu-latest", "macos-latest" ]
         # Python 3.12: Waiting on https://github.com/grpc/grpc/issues/33063
         python-version: [ "3.10", "3.11" ]   #, "3.12-dev" ]
 
@@ -69,6 +70,9 @@ jobs:
         run: |
           . venv/bin/activate
           pytest
+      - name: Run example tests
+        run: |
+          . venv/bin/activate
           cd examples; PYTHONPATH=.. pytest -v -s
       - name: Run example tests with coverage (simple only)
         run: |
