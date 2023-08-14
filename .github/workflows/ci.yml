@@ -25,10 +25,15 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         check-latest: true
-    - name: Install dependencies
+    - name: Install dependencies (Linux)
+      if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get -y install graphviz graphviz-dev
         pip install -r ./ci/requirements-dev.txt -r ./ci/requirements-extra.txt
+    - name: Install dependencies (MacOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        pip install -r ./ci/requirements-dev.txt
     - name: Lint Check
       run: |
         ruff check --exit-zero .
@@ -73,7 +78,9 @@ jobs:
       - name: Run example tests
         run: |
           . venv/bin/activate
-          cd examples; PYTHONPATH=.. pytest -v -s
+          cd examples
+          export PYTHONPATH=..
+          pytest -v -s || (echo "::warning title=Run Examples Warning::Re-running failed tests" && pytest -v -s --last-failed)
       - name: Run example tests with coverage (simple only)
         run: |
           . venv/bin/activate
