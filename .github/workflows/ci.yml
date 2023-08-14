@@ -74,7 +74,7 @@ jobs:
       - name: Run tests
         run: |
           . venv/bin/activate
-          pytest
+          FINSY_TEST_NO_BENCHMARK=1 pytest
       - name: Run example tests
         run: |
           . venv/bin/activate
