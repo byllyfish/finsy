@@ -44,7 +44,7 @@ async def test_demo1(demonet, python):
 async def test_demo2(demonet, python):
     "Test the hello/demo2 example program."
     async with python(HELLO_DIR / "demo2.py") as demo2:
-        await asyncio.sleep(0.25)
+        await asyncio.sleep(0.5)
         await demonet.send("pingall")
         await demonet.send("pingall", expect="(6/6 received)")
         demo2.cancel()
