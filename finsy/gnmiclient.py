@@ -382,12 +382,16 @@ _StreamTypeAlias: TypeAlias = grpc.aio.StreamStreamCall[
 
 
 class GNMISubscription:
-    """Represents a gNMI subscription stream."""
+    """Represents a gNMI subscription stream.
+
+    Returned from `GNMIClient.subscribe()`.
+    """
 
     _client: GNMIClient
     _stream: _StreamTypeAlias | None
 
     def __init__(self, client: GNMIClient, prefix: GNMIPath | None = None):
+        "Initialize a GNMISubscription."
         self._client = client
         self._stream = None
         self._sublist = gnmi.SubscriptionList(

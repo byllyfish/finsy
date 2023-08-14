@@ -157,7 +157,7 @@ class Config:
         "Return the number of switches in the config."
         return sum(1 for item in self.items if isinstance(item, Switch))
 
-    def draw(self, filename: str):
+    def draw(self, filename: str) -> None:
         "Draw the network to `filename`."
         graph = self.to_graph()
         graph.layout()
@@ -212,7 +212,7 @@ class Config:
                 f"DemoNet can't serialize {type(obj).__name__!r}: {obj!r}"
             ) from ex
 
-    def to_graph(self):
+    def to_graph(self) -> "pgv.AGraph":
         "Create a pygraphviz Graph of the network."
         if pgv is None:
             raise RuntimeError("ERROR: pygraphviz is not installed.")
@@ -366,7 +366,7 @@ class DemoNet(_AContextHelper):
         assert self._prompt is not None
         print(await self._prompt.send("exit"))
 
-    async def run_interactively(self):
+    async def run_interactively(self) -> None:
         cmd = await self._mininet_command()
         await cmd.stdin(sh.INHERIT).stdout(sh.INHERIT).stderr(sh.INHERIT)
 
@@ -386,18 +386,18 @@ class DemoNet(_AContextHelper):
         container.
         """
         if sh.find_command("mn"):
-            return mininet_start(DEMONET_CONFIG=str(self._config_file))
+            return _mininet_start(DEMONET_CONFIG=str(self._config_file))
 
         image = self.config.image()
         switch_count = self.config.switch_count()
         container = f"mininet-{int(time.time()):x}"
 
-        await podman_check()
-        await podman_create(container, image.name, switch_count)
-        await podman_copy(_LOCAL_TOPO_PY, container, _IMAGE_TOPO_PY)
-        await podman_copy(self._config_file, container, _IMAGE_CONFIG)
+        await _podman_check()
+        await _podman_create(container, image.name, switch_count)
+        await _podman_copy(_LOCAL_TOPO_PY, container, _IMAGE_TOPO_PY)
+        await _podman_copy(self._config_file, container, _IMAGE_CONFIG)
 
-        return podman_start(container, DEMONET_CONFIG=str(_IMAGE_CONFIG))
+        return _podman_start(container, DEMONET_CONFIG=str(_IMAGE_CONFIG))
 
 
 _podman = Path("podman")
@@ -415,7 +415,7 @@ _IMAGE_TOPO_PY = Path("/tmp/demonet_topo.py")
 _IMAGE_CONFIG = Path("/tmp/demonet_config.json")
 
 
-async def podman_check():
+async def _podman_check():
     "Check the versions of podman/docker installed."
     global _podman
 
@@ -430,7 +430,7 @@ async def podman_check():
         raise RuntimeError(f"There is a problem using docker/podman: {cmd}")
 
 
-def extra_mininet_args(*, debug: bool, topo_py: Path):
+def _extra_mininet_args(*, debug: bool, topo_py: Path):
     return (
         "--custom",
         topo_py,
@@ -440,7 +440,7 @@ def extra_mininet_args(*, debug: bool, topo_py: Path):
     )
 
 
-def mininet_start(**env: str):
+def _mininet_start(**env: str):
     debug = bool(os.environ.get("DEMONET_DEBUG"))
 
     return (
@@ -452,14 +452,14 @@ def mininet_start(**env: str):
             "bmv2",
             "--controller",
             "none",
-            extra_mininet_args(debug=debug, topo_py=_LOCAL_TOPO_PY),
+            _extra_mininet_args(debug=debug, topo_py=_LOCAL_TOPO_PY),
         )
         .set(pty=True)
         .env(**env)
     )
 
 
-def podman_create(
+def _podman_create(
     container: str,
     image_slug: str,
     switch_count: int,
@@ -484,15 +484,15 @@ def podman_create(
         "--publish",
         f"{publish}:{publish}",
         image_slug,
-        extra_mininet_args(debug=debug, topo_py=_IMAGE_TOPO_PY),
+        _extra_mininet_args(debug=debug, topo_py=_IMAGE_TOPO_PY),
     )
 
 
-def podman_copy(src_path: Path, container: str, dest_path: Path) -> Command[str]:
+def _podman_copy(src_path: Path, container: str, dest_path: Path) -> Command[str]:
     return sh(_podman, "cp", src_path, f"{container}:{dest_path}")
 
 
-def podman_start(container: str, **env: str) -> Command[str]:
+def _podman_start(container: str, **env: str) -> Command[str]:
     return sh(_podman, "start", "-ai", container).set(pty=True).env(**env)
 
 
