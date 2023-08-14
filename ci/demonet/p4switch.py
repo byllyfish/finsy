@@ -119,6 +119,8 @@ class StratumSwitch(P4RuntimeSwitch):
             f"-cpu_port={self.cpu_port}",
             f"-external_stratum_urls=0.0.0.0:{self.grpc_port}",
             f"-bmv2_log_level={self.log_level}",
+            "-read_req_log_file=",
+            "-write_req_log_file=",
         ]
 
 
