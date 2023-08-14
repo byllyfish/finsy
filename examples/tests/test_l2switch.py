@@ -11,7 +11,7 @@ DEMONET = L2SWITCH_DIR / "net/run.py"
 async def test_demo(demonet, python):
     "Test the l2_switch/demo example program."
     async with python(L2SWITCH_DIR / "demo.py") as demo:
-        await asyncio.sleep(0.25)
+        await asyncio.sleep(0.5)
         await demonet.send("pingall", expect="(6/6 received)")
         demo.cancel()
 
