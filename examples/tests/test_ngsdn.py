@@ -26,7 +26,7 @@ async def test_ngsdn_oneshot(demonet, python):
 
 async def test_leaf2(demonet):
     "Test the packet log from leaf2."
-    await demonet.send("sh cat /tmp/leaf2/stratum_bmv2.log")
+    await demonet.send("sh cat /tmp/leaf2/log.txt")
 
 
 async def test_read_tables_oneshot(demonet, caplog):
@@ -154,8 +154,8 @@ async def test_ngsdn_actionprofile(demonet, python):
         await asyncio.sleep(2.0)
 
         # These are IPv6 pings.
-        await demonet.send("h1a ping -c 1 h3")
-        await demonet.send("h3 ping -c 1 h1a")
+        await demonet.send("h1a ping -c 2 h3")
+        await demonet.send("h3 ping -c 2 h1a")
         await demonet.send("h1a ping -c 1 h3", expect=" 0% packet loss")
 
         demo.cancel()

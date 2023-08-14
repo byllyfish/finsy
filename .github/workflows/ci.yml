@@ -69,11 +69,11 @@ jobs:
         run: |
           . venv/bin/activate
           pytest
-          cd examples; PYTHONPATH=.. pytest -v -s -k simple
-      - name: Run example tests with coverage
+          cd examples; PYTHONPATH=.. pytest -v -s
+      - name: Run example tests with coverage (simple only)
         run: |
           . venv/bin/activate
-          cd examples; PYTHONPATH=.. pytest --cov ../finsy --cov-report xml --cov-config ../.coveragerc
+          cd examples; PYTHONPATH=.. pytest -k simple --cov ../finsy --cov-report xml --cov-config ../.coveragerc
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
