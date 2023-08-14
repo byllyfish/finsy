@@ -1,5 +1,11 @@
 # Finsy Change Log
 
+## 0.18.0
+
+- Make all protobuf module imports relative.
+- Enable CI testing of example programs; re-compile all P4 sources.
+- Improve test coverage and fix lint issues.
+
 ## 0.17.0
 
 - The `Switch.delete_all` method no longer takes any arguments; use the new `Switch.delete_many` method for wildcard deletes instead.
