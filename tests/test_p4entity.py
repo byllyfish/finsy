@@ -403,6 +403,7 @@ def test_table_entry4():
         is_default_action=True,
         idle_timeout_ns=10_000_000_000_000,
         time_since_last_hit=20_000_000_000_000,
+        is_const=True,
     )
 
     msg = entry.encode(_SCHEMA)
@@ -421,6 +422,7 @@ def test_table_entry4():
             "priority": 10,
             "table_id": 37375156,
             "time_since_last_hit": {"elapsed_ns": "20000000000000"},
+            "is_const": True,
         }
     }
 

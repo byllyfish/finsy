@@ -635,6 +635,7 @@ class P4TableEntry(_P4Writable):
     idle_timeout_ns: int = 0
     time_since_last_hit: int | None = None
     metadata: bytes = b""
+    is_const: bool = False
 
     def __getitem__(self, key: str) -> Any:
         "Convenience accessor to retrieve a value from the `match` property."
@@ -697,6 +698,7 @@ class P4TableEntry(_P4Writable):
             idle_timeout_ns=self.idle_timeout_ns,
             time_since_last_hit=time_since_last_hit,
             metadata=self.metadata,
+            is_const=self.is_const,
         )
 
     def _encode_empty(self) -> p4r.TableEntry:
@@ -774,6 +776,7 @@ class P4TableEntry(_P4Writable):
             idle_timeout_ns=entry.idle_timeout_ns,
             time_since_last_hit=last_hit,
             metadata=entry.metadata,
+            is_const=entry.is_const,
         )
 
     def match_dict(

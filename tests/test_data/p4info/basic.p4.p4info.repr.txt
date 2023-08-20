@@ -257,6 +257,7 @@ P4Schema(
                 name="MyIngress.ipv4_meter",
                 unit=P4MeterUnit.PACKETS,
             ),
+            has_initial_entries=False,
             id=37375156,
             idle_timeout_behavior=P4IdleTimeoutBehavior.NO_TIMEOUT,
             is_const=False,

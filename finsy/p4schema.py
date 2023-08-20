@@ -885,6 +885,11 @@ class P4Table(_P4TopLevel[p4i.Table]):
         return self.pbuf.is_const_table
 
     @property
+    def has_initial_entries(self) -> bool:
+        "True if table has initial entries defined using the `entries` property."
+        return self.pbuf.has_initial_entries
+
+    @property
     def action_profile(self) -> "P4ActionProfile | None":
         "Optional reference to table's action profile."
         return self._action_profile
