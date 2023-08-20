@@ -101,9 +101,6 @@ class MACAddress:
     def __hash__(self) -> int:
         return hash(hex(self._mac))
 
-    def __reduce__(self):
-        return (self.__class__, (self._mac,))
-
 
 def _from_string(value: str) -> int:
     """Parse a MAC address string and return an integer representation.
