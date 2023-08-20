@@ -82,7 +82,7 @@ _LLDP_DST = b"\x01\x80\xc2\x00\x00\x00"
 def _encode_lldp(station_mac: fy.MACAddress, chassis_id: bytes, port_id: bytes):
     return b"".join(
         [
-            struct.pack("!6s6sH", _LLDP_DST, bytes(station_mac), 0x88CC),
+            struct.pack("!6s6sH", _LLDP_DST, station_mac.packed, 0x88CC),
             _encode_tlv(1, chassis_id),
             _encode_tlv(2, port_id),
             _encode_tlv(3, b"\x00\x01"),
