@@ -141,7 +141,7 @@ def _from_bytes(value: bytes) -> int:
     "Convert 6-bytes to integer."
     if len(value) != _BYTE_WIDTH:
         raise ValueError(f"invalid MAC address: {value!r}")
-    return int.from_bytes(value)
+    return int.from_bytes(value, byteorder="big")
 
 
 def _from_int(value: int) -> int:
@@ -158,4 +158,4 @@ def _to_string(value: int) -> str:
 
 def _to_bytes(value: int) -> bytes:
     "Convert integer MAC address value to bytes."
-    return value.to_bytes(_BYTE_WIDTH)  # big endian
+    return value.to_bytes(_BYTE_WIDTH, byteorder="big")
