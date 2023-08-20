@@ -1,6 +1,5 @@
 "Test the MACAddress class."
 
-
 import pytest
 
 from finsy import MACAddress
@@ -103,6 +102,9 @@ def test_lt():
     assert not a < b
     assert a < c
 
+    with pytest.raises(TypeError, match="not supported"):
+        assert a < 2
+
 
 def test_str():
     "Test the `__str__` method."
@@ -114,3 +116,14 @@ def test_repr():
     "Test the `__repr__` method."
     assert repr(MACAddress(1)) == "MACAddress('00:00:00:00:00:01')"
     assert repr(MACAddress(0xFFFFFFFFFFFF)) == "MACAddress('ff:ff:ff:ff:ff:ff')"
+
+
+def test_max_prefixlen():
+    "Test the `max_prefixlen` property."
+    assert MACAddress(1).max_prefixlen == 48
+
+
+def test_hash():
+    "Test the `__hash__` method."
+    assert hash(MACAddress(1)) == hash(MACAddress(1))
+    assert hash(MACAddress(1)) != hash(MACAddress(2))
