@@ -472,6 +472,7 @@ class Table(google.protobuf.message.Message):
     SIZE_FIELD_NUMBER: builtins.int
     IDLE_TIMEOUT_BEHAVIOR_FIELD_NUMBER: builtins.int
     IS_CONST_TABLE_FIELD_NUMBER: builtins.int
+    HAS_INITIAL_ENTRIES_FIELD_NUMBER: builtins.int
     OTHER_PROPERTIES_FIELD_NUMBER: builtins.int
     @property
     def preamble(self) -> global___Preamble: ...
@@ -503,7 +504,19 @@ class Table(google.protobuf.message.Message):
     idle_timeout_behavior: global___Table.IdleTimeoutBehavior.ValueType
     """is idle timeout supported for this table?"""
     is_const_table: builtins.bool
-    """table with static P4 entries, cannot be modified at runtime"""
+    """True if and only if the table's entries are immutable,
+    i.e. defined using the 'const entries' table property in the P4
+    source code, and thus entries cannot be deleted, modified, or
+    inserted at run time.
+    """
+    has_initial_entries: builtins.bool
+    """True if and only if the table has initial entries defined using
+    the 'entries' table property in the P4 source code, either with
+    or without the 'const' qualifier on 'entries', and there is at
+    least one entry in that list.  This field is false if the list of
+    entries is empty in the P4 source code.
+    Added in 1.4.0.
+    """
     @property
     def other_properties(self) -> google.protobuf.any_pb2.Any:
         """architecture-specific table properties which are not part of the core P4
@@ -521,10 +534,11 @@ class Table(google.protobuf.message.Message):
         size: builtins.int = ...,
         idle_timeout_behavior: global___Table.IdleTimeoutBehavior.ValueType = ...,
         is_const_table: builtins.bool = ...,
+        has_initial_entries: builtins.bool = ...,
         other_properties: google.protobuf.any_pb2.Any | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["other_properties", b"other_properties", "preamble", b"preamble"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["action_refs", b"action_refs", "const_default_action_id", b"const_default_action_id", "direct_resource_ids", b"direct_resource_ids", "idle_timeout_behavior", b"idle_timeout_behavior", "implementation_id", b"implementation_id", "is_const_table", b"is_const_table", "match_fields", b"match_fields", "other_properties", b"other_properties", "preamble", b"preamble", "size", b"size"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["action_refs", b"action_refs", "const_default_action_id", b"const_default_action_id", "direct_resource_ids", b"direct_resource_ids", "has_initial_entries", b"has_initial_entries", "idle_timeout_behavior", b"idle_timeout_behavior", "implementation_id", b"implementation_id", "is_const_table", b"is_const_table", "match_fields", b"match_fields", "other_properties", b"other_properties", "preamble", b"preamble", "size", b"size"]) -> None: ...
 
 global___Table = Table
 

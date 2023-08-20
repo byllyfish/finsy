@@ -365,6 +365,7 @@ class TableEntry(google.protobuf.message.Message):
     IDLE_TIMEOUT_NS_FIELD_NUMBER: builtins.int
     TIME_SINCE_LAST_HIT_FIELD_NUMBER: builtins.int
     METADATA_FIELD_NUMBER: builtins.int
+    IS_CONST_FIELD_NUMBER: builtins.int
     table_id: builtins.int
     @property
     def match(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___FieldMatch]: ...
@@ -432,6 +433,20 @@ class TableEntry(google.protobuf.message.Message):
         """
     metadata: builtins.bytes
     """Arbitrary metadata from the controller that is opaque to the target."""
+    is_const: builtins.bool
+    """True if and only if the entry cannot be deleted or modified,
+    i.e. any of the following:
+    + Any entry read from a table declared with `const entries`
+    + The default entry read from a table declared with `const
+      default_action`
+    + Any entry declared with `entries` without the `const` qualifier
+      before `entries`, where the individual entry has the `const`
+      qualifier on it in the P4 source code.
+    Note: Older P4Runtime API servers before the `is_const` field was
+    added to this message will not return a value for `is_const` in
+    the first two cases above, but newer P4Runtime API servers will.
+    Added in 1.4.0.
+    """
     def __init__(
         self,
         *,
@@ -447,9 +462,10 @@ class TableEntry(google.protobuf.message.Message):
         idle_timeout_ns: builtins.int = ...,
         time_since_last_hit: global___TableEntry.IdleTimeout | None = ...,
         metadata: builtins.bytes = ...,
+        is_const: builtins.bool = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["action", b"action", "counter_data", b"counter_data", "meter_config", b"meter_config", "meter_counter_data", b"meter_counter_data", "time_since_last_hit", b"time_since_last_hit"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["action", b"action", "controller_metadata", b"controller_metadata", "counter_data", b"counter_data", "idle_timeout_ns", b"idle_timeout_ns", "is_default_action", b"is_default_action", "match", b"match", "metadata", b"metadata", "meter_config", b"meter_config", "meter_counter_data", b"meter_counter_data", "priority", b"priority", "table_id", b"table_id", "time_since_last_hit", b"time_since_last_hit"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["action", b"action", "controller_metadata", b"controller_metadata", "counter_data", b"counter_data", "idle_timeout_ns", b"idle_timeout_ns", "is_const", b"is_const", "is_default_action", b"is_default_action", "match", b"match", "metadata", b"metadata", "meter_config", b"meter_config", "meter_counter_data", b"meter_counter_data", "priority", b"priority", "table_id", b"table_id", "time_since_last_hit", b"time_since_last_hit"]) -> None: ...
 
 global___TableEntry = TableEntry
 
