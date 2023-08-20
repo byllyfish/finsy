@@ -335,12 +335,8 @@ def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
             if bitwidth != value.max_prefixlen:
                 raise _invalid_err("lpm", bitwidth, value)
             return (encode_exact(value.network_address, bitwidth), value.prefixlen)
-        case IPv4Address() | IPv6Address():
+        case IPv4Address() | IPv6Address() | MACAddress():
             if bitwidth != value.max_prefixlen:
-                raise _invalid_err("lpm", bitwidth, value)
-            return (encode_exact(value, bitwidth), bitwidth)
-        case MACAddress():
-            if bitwidth != 48:  # MACAddress is missing max_prefixlen.
                 raise _invalid_err("lpm", bitwidth, value)
             return (encode_exact(value, bitwidth), bitwidth)
         case _:  # pyright: ignore[reportUnnecessaryComparison]
