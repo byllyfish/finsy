@@ -329,7 +329,7 @@ class P4TableMatch(dict[str, Any]):
         return " ".join(result)
 
 
-@dataclass
+@dataclass(init=False, slots=True)
 class P4TableAction:
     """Represents a P4Runtime Action reference.
 
@@ -458,7 +458,7 @@ class P4TableAction:
         return (weight, self)
 
 
-@dataclass
+@dataclass(slots=True)
 class P4IndirectAction:
     "Represents a P4Runtime indirect action."
 
@@ -556,7 +556,7 @@ class P4IndirectAction:
         return f"P4IndirectAction(group_id={self.group_id!r})"
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class P4MeterConfig:
     "Represents a P4Runtime MeterConfig."
 
@@ -567,7 +567,9 @@ class P4MeterConfig:
 
     def encode(self) -> p4r.MeterConfig:
         "Encode object as MeterConfig."
-        return p4r.MeterConfig(**self.__dict__)
+        return p4r.MeterConfig(
+            cir=self.cir, cburst=self.cburst, pir=self.pir, pburst=self.pburst
+        )
 
     @classmethod
     def decode(cls, msg: p4r.MeterConfig) -> Self:
@@ -575,7 +577,7 @@ class P4MeterConfig:
         return cls(cir=msg.cir, cburst=msg.cburst, pir=msg.pir, pburst=msg.pburst)
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class P4CounterData:
     "Represents a P4Runtime CounterData."
 
@@ -584,7 +586,9 @@ class P4CounterData:
 
     def encode(self) -> p4r.CounterData:
         "Encode object as CounterData."
-        return p4r.CounterData(**self.__dict__)
+        return p4r.CounterData(
+            byte_count=self.byte_count, packet_count=self.packet_count
+        )
 
     @classmethod
     def decode(cls, msg: p4r.CounterData) -> Self:
@@ -592,7 +596,7 @@ class P4CounterData:
         return cls(byte_count=msg.byte_count, packet_count=msg.packet_count)
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class P4MeterCounterData:
     "Represents a P4Runtime MeterCounterData."
 
@@ -619,7 +623,7 @@ class P4MeterCounterData:
 
 
 @decodable("table_entry")
-@dataclass
+@dataclass(slots=True)
 class P4TableEntry(_P4Writable):
     "Represents a P4Runtime TableEntry."
 
@@ -823,7 +827,7 @@ class P4TableEntry(_P4Writable):
 
 
 @decodable("register_entry")
-@dataclass
+@dataclass(slots=True)
 class P4RegisterEntry(_P4ModifyOnly):
     "Represents a P4Runtime RegisterEntry."
 
@@ -883,7 +887,7 @@ class P4RegisterEntry(_P4ModifyOnly):
 
 
 @decodable("multicast_group_entry")
-@dataclass
+@dataclass(slots=True)
 class P4MulticastGroupEntry(_P4Writable):
     "Represents a P4Runtime MulticastGroupEntry."
 
@@ -918,7 +922,7 @@ class P4MulticastGroupEntry(_P4Writable):
 
 
 @decodable("clone_session_entry")
-@dataclass
+@dataclass(slots=True)
 class P4CloneSessionEntry(_P4Writable):
     "Represents a P4Runtime CloneSessionEntry."
 
@@ -959,7 +963,7 @@ class P4CloneSessionEntry(_P4Writable):
 
 
 @decodable("digest_entry")
-@dataclass
+@dataclass(slots=True)
 class P4DigestEntry(_P4Writable):
     "Represents a P4Runtime DigestEntry."
 
@@ -1007,7 +1011,7 @@ class P4DigestEntry(_P4Writable):
 
 
 @decodable("action_profile_member")
-@dataclass
+@dataclass(slots=True)
 class P4ActionProfileMember(_P4Writable):
     "Represents a P4Runtime ActionProfileMember."
 
@@ -1063,7 +1067,7 @@ class P4ActionProfileMember(_P4Writable):
         return self.action.format_str(schema)
 
 
-@dataclass
+@dataclass(slots=True)
 class P4Member:
     "Represents an ActionProfileGroup Member."
 
@@ -1106,7 +1110,7 @@ class P4Member:
 
 
 @decodable("action_profile_group")
-@dataclass
+@dataclass(slots=True)
 class P4ActionProfileGroup(_P4Writable):
     "Represents a P4Runtime ActionProfileGroup."
 
@@ -1168,7 +1172,7 @@ class P4ActionProfileGroup(_P4Writable):
 
 
 @decodable("meter_entry")
-@dataclass
+@dataclass(slots=True)
 class P4MeterEntry(_P4ModifyOnly):
     "Represents a P4Runtime MeterEntry."
 
@@ -1241,7 +1245,7 @@ class P4MeterEntry(_P4ModifyOnly):
 
 
 @decodable("direct_meter_entry")
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, slots=True)
 class P4DirectMeterEntry(_P4ModifyOnly):
     "Represents a P4Runtime DirectMeterEntry."
 
@@ -1301,7 +1305,7 @@ class P4DirectMeterEntry(_P4ModifyOnly):
 
 
 @decodable("counter_entry")
-@dataclass
+@dataclass(slots=True)
 class P4CounterEntry(_P4ModifyOnly):
     "Represents a P4Runtime CounterEntry."
 
@@ -1371,7 +1375,7 @@ class P4CounterEntry(_P4ModifyOnly):
 
 
 @decodable("direct_counter_entry")
-@dataclass
+@dataclass(slots=True)
 class P4DirectCounterEntry(_P4ModifyOnly):
     "Represents a P4Runtime DirectCounterEntry."
 
@@ -1506,7 +1510,7 @@ class P4ValueSetMember(dict[str, Any]):
 
 
 @decodable("value_set_entry")
-@dataclass
+@dataclass(slots=True)
 class P4ValueSetEntry(_P4ModifyOnly):
     "Represents a P4Runtime ValueSetEntry."
 
@@ -1542,7 +1546,7 @@ class P4ValueSetEntry(_P4ModifyOnly):
 
 
 @decodable("packet")
-@dataclass
+@dataclass(slots=True)
 class P4PacketIn:
     "Represents a P4Runtime PacketIn."
 
@@ -1578,7 +1582,7 @@ class P4PacketIn:
         return f"P4PacketIn(payload=h'{self.payload.hex()}')"
 
 
-@dataclass
+@dataclass(slots=True)
 class P4PacketOut:
     "Represents a P4Runtime PacketOut."
 
@@ -1612,7 +1616,7 @@ class P4PacketOut:
 
 
 @decodable("digest")
-@dataclass
+@dataclass(slots=True)
 class P4DigestList:
     "Represents a P4Runtime DigestList."
 
@@ -1653,7 +1657,7 @@ class P4DigestList:
         return P4DigestListAck(self.digest_id, self.list_id)
 
 
-@dataclass
+@dataclass(slots=True)
 class P4DigestListAck:
     "Represents a P4Runtime DigestListAck."
 
@@ -1673,7 +1677,7 @@ class P4DigestListAck:
 
 
 @decodable("idle_timeout_notification")
-@dataclass
+@dataclass(slots=True)
 class P4IdleTimeoutNotification:
     "Represents a P4Runtime IdleTimeoutNotification."
 
