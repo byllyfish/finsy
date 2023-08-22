@@ -1,7 +1,7 @@
 # Switch Read/Write API
 
 The `Switch` class provides the API for interacting with P4Runtime switches. You will control 
-a Switch object with a `ready handler` function. The `ready handler` is an
+a Switch object with a "`ready handler`" function. The `ready handler` is an
 async function that is called when the switch is ready to accept commands.
 
 Your `ready handler` will typically write some control entities to the switch, then
@@ -37,10 +37,11 @@ async def ready(switch: Switch):
         await handle_packet(switch, packet)
 ```
 
-The Switch class provides a `create_task` method to start a managed task. Tasks allow you to perform
-concurrent opertions on the same switch. See the `Switch Tasks` design doc for more information.
-
-We will start by covering the `Switch.write` API.
+The Switch class provides a `switch.create_task` method to start a managed task.
+Tasks allow you to perform concurrent operations on the same switch. We could have
+written the last stanza above that reads packets in an infinite loop as a separate
+task. It's okay for the ready handler function to return early; any tasks it
+created will still run.
 
 ## Writes
 
@@ -137,18 +138,40 @@ await switch.write([P4PacketOut(b"payload", port=3)])
 You can include other entities in the same call. Any non-update objects (e.g. P4PacketIn, 
 P4DigestListAck) will be sent **before** the WriteRequest.
 
-## Listen for Events
+### Listen for Packets
 
-TODO
+To receive packets, use the async iterator `Switch.read_packets()`.
+In this example, `pkt` is a `P4PacketIn` object.
 
-## Read Entities
+`read_packets` can filter for a specific `eth_type`.
 
-TODO
+```python
+# Read packets filtering only for ARP (eth_type == 0x0806).
+async for pkt in switch.read_packets(eth_types={0x0806}):
+    # You can access the packet payload `pkt.payload` or any metadata value,
+    # e.g. `pkt['ingress_port']`
+    print(pkt.payload)
+    print(pkt['ingress_port'])
+```
 
-## Other Events
+### Listen for Digests
 
-TODO
+To receive digests, use the async iterator `Switch.read_digests`. You must specify 
+the name of the digest from your P4 program.
 
-## Errors
+```python
+async for digest in switch.read_digests("digest_t"):
+    # You can access the digest metadata e.g. `digest['ingress_port']`
+    # Your code may need to update table entries based on the digest data.
+    # To ack the digest, write `digest.ack()`.
+    await switch.write([entry, ...])
+    await switch.write([digest.ack()])
+```
 
-TODO
+To acknowledge the digest entry, you can write `digest.ack()`.
+
+### Other Events
+
+A P4 switch may report other events using the `EventEmitter` API. See
+the `SwitchEvent` class for the event types. Each switch has a `switch.ee`
+attribute that lets your code register for event callbacks.

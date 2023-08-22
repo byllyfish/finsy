@@ -55,12 +55,12 @@ targets `p4blob` is an amalgamation of several files.
 
 ## p4force (default = False)
 
-Setting `p4force` to true will force the pipeline to be uploaed to the switch, even if a pipeline with
+Setting `p4force` to true will force the pipeline to be uploaded to the switch, even if a pipeline with
 the same "cookie" is already configured. The default behavior is to check the current pipeline's cookie
 first.
 
-Forcing the pipeline to be uploaded will erase the forwarding state of the switch.
- 
+Forcing the pipeline to be uploaded will reset the forwarding state of the switch.
+
 ## device_id (default = 1)
 
 The Device ID to use in the P4Runtime protocol.
@@ -72,10 +72,8 @@ in use, the switch may probe for an unused election_id using values less than `i
 
 ## channel_credentials (default = None)
 
-The GRPC `ChannelCredentials` object to use. If `channel_credentials` is `None`, GRPC will use insecure, 
+The `GRPCCredentialsTLS` object to use. If `channel_credentials` is `None`, GRPC will use insecure, 
 plaintext connections for P4Runtime and gNMI.
-
-`channel_credentials` may be created with `grpc.ssl_channel_credentials(...)`.
 
 ## role_name (default = "")
 

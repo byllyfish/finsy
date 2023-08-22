@@ -4,7 +4,7 @@ This document describes the code conventions used in the Finsy project.
 
 ## Use pathlib for file system paths.
 
-Whenever a file sytem path is passed to an API, this project uses the builtin `Path` class. Finsy does
+Whenever a file system path is passed to an API, this project uses the builtin `Path` class. Finsy does
 not support passing a file path as a string.
 
 ```python
@@ -55,23 +55,6 @@ ack = p4r.DigestListAck(digest_id=1, list_id=2)
 info = p4i.PkgInfo(name="abc")
 ```
 
-If Finsy is imported first, other code that refers to `p4.v1.p4runtime_pb2` will still work, but
-it will use Finsy's included version of the protobuf classes. Finsy code must use the designated
-module aliases `p4r`, `p4d`, `p4i`, and `p4t`.
-
-## Using pyright with Finsy
-
-Finsy finesses the `sys.path` to import the protobuf classes. This will confuse pyright or
-other static type checkers. To make VSCode work, I've had luck with adding a config for pyright
-to my `pyproject.toml` file.
-
-```toml
-[tool.pyright]
-
-[[executionEnvironments]]
-root = ".venv/lib/python3.10/site-packages/finsy"
-extraPaths = [".venv/lib/python3.10/site-packages/finsy/proto"]
-```
-
-When developing finsy itself, there are options in the provided `.vscode/settings.json` file
-that tell VSCode where to look for types.
+Note: Finsy actually stores its P4Runtime protobuf files as `finsy.proto.p4.v1.p4runtime_pb2`.
+If your code accesses `p4.v1.p4runtime_pb2`, you will access the system-provided P4Runtime
+library, which is likely an older version.
