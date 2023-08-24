@@ -1,7 +1,7 @@
 # Switch Read/Write API
 
 The `Switch` class provides the API for interacting with P4Runtime switches. You will control 
-a Switch object with a "`ready handler`" function. The `ready handler` is an
+a Switch object with a "ready handler" function. The `ready handler` is an
 async function that is called when the switch is ready to accept commands.
 
 Your `ready handler` will typically write some control entities to the switch, then
@@ -47,23 +47,23 @@ created will still run.
 
 Use the `write()` method to write one or more P4Runtime updates and packets.
 
-A P4Runtime `Update` supports one of three operations: INSERT, MODIFY or DELETE.
+A P4Runtime update supports one of three operations: INSERT, MODIFY or DELETE.
 Some entities support all three operations. Other entities only support MODIFY.
 
 | Entity | Operations Permitted 
 | ------ | -------------------
-| P4TableEntry |  INSERT, MODIFY, DELETE
-| P4ActionProfileMember |  INSERT, MODIFY, DELETE
-| P4ActionProfileGroup |  INSERT, MODIFY, DELETE
-| P4MulticastGroupEntry |  INSERT, MODIFY, DELETE
-| P4CloneSessionEntry |  INSERT, MODIFY, DELETE
-| P4DigestEntry |  INSERT, MODIFY, DELETE
-| P4RegisterEntry | MODIFY
-| P4CounterEntry | MODIFY
-| P4DirectCounterEntry | MODIFY
-| P4MeterEntry | MODIFY
-| P4DirectMeterEntry | MODIFY
-| P4ValueSetEntry | MODIFY
+| `P4TableEntry` |  INSERT, MODIFY, DELETE
+| `P4ActionProfileMember` |  INSERT, MODIFY, DELETE
+| `P4ActionProfileGroup` |  INSERT, MODIFY, DELETE
+| `P4MulticastGroupEntry` |  INSERT, MODIFY, DELETE
+| `P4CloneSessionEntry` |  INSERT, MODIFY, DELETE
+| `P4DigestEntry` |  INSERT, MODIFY, DELETE
+| `P4RegisterEntry` | MODIFY
+| `P4CounterEntry` | MODIFY
+| `P4DirectCounterEntry` | MODIFY
+| `P4MeterEntry` | MODIFY
+| `P4DirectMeterEntry` | MODIFY
+| `P4ValueSetEntry` | MODIFY
 
 The `write()` method takes an optional keyword argument `atomicity` to specify the atomicity option.
 
@@ -135,10 +135,10 @@ Use the `write` method to send a packet.
 await switch.write([P4PacketOut(b"payload", port=3)])
 ```
 
-You can include other entities in the same call. Any non-update objects (e.g. P4PacketIn, 
+You can include other entities in the same call. Any non-update objects (e.g. P4PacketOut, 
 P4DigestListAck) will be sent **before** the WriteRequest.
 
-### Listen for Packets
+### Listening for Packets
 
 To receive packets, use the async iterator `Switch.read_packets()`.
 In this example, `pkt` is a `P4PacketIn` object.
@@ -154,7 +154,7 @@ async for pkt in switch.read_packets(eth_types={0x0806}):
     print(pkt['ingress_port'])
 ```
 
-### Listen for Digests
+### Listening for Digests
 
 To receive digests, use the async iterator `Switch.read_digests`. You must specify 
 the name of the digest from your P4 program.

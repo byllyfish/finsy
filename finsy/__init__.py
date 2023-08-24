@@ -1,5 +1,7 @@
 """
 .. include:: ../README.md
+
+# API Documentation
 """
 
 # Copyright (c) 2022-2023 Bill Fisher

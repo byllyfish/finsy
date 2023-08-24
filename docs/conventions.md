@@ -57,4 +57,4 @@ info = p4i.PkgInfo(name="abc")
 
 Note: Finsy actually stores its P4Runtime protobuf files as `finsy.proto.p4.v1.p4runtime_pb2`.
 If your code accesses `p4.v1.p4runtime_pb2`, you will access the system-provided P4Runtime
-library, which is likely an older version.
+library.
