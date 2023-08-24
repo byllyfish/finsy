@@ -10,9 +10,9 @@ a minimum, you need five files:
 - `server.crt` -- uniquely identifies the server, with SAN "reachable" from client.
 - `server.key` -- private key associated with `server.crt`. Keep secret!
 
-The `server.crt` certificate must have a SAN that matches the IP addresses
-used to connect (e.g. 127.0.0.1). Alternatively, the client can use the
-`target_name_override` option to force a match to the SAN.
+The `server.crt` certificate must have a `Subject Alternative Name` (SAN) that
+matches the IP addresses used to connect (e.g. 127.0.0.1). Alternatively, the
+client can use the `target_name_override` option to force a match to the SAN.
 
 Note: The script `finsy/tests/test_certs/make_certs.sh` produces certificate
 pairs for testing.
