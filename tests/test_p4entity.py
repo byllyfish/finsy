@@ -394,6 +394,7 @@ def test_table_entry4():
     entry = P4TableEntry(
         "ipv4_lpm",
         priority=10,
+        controller_metadata=11,
         meter_config=P4MeterConfig(cir=1, cburst=2, pir=3, pburst=4),
         counter_data=ctr_data,
         meter_counter_data=P4MeterCounterData(
@@ -409,6 +410,7 @@ def test_table_entry4():
     msg = entry.encode(_SCHEMA)
     assert pbuf.to_dict(msg) == {
         "table_entry": {
+            "controller_metadata": "11",
             "counter_data": {"byte_count": "5", "packet_count": "6"},
             "idle_timeout_ns": "10000000000000",
             "is_default_action": True,

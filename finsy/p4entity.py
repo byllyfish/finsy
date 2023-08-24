@@ -632,6 +632,7 @@ class P4TableEntry(_P4Writable):
     match: P4TableMatch | None = None
     action: P4TableAction | P4IndirectAction | None = None
     priority: int = 0
+    controller_metadata: int = 0
     meter_config: P4MeterConfig | None = None
     counter_data: P4CounterData | None = None
     meter_counter_data: P4MeterCounterData | None = None
@@ -695,6 +696,7 @@ class P4TableEntry(_P4Writable):
             match=match,
             action=action,
             priority=self.priority,
+            controller_metadata=self.controller_metadata,
             meter_config=meter_config,
             counter_data=counter_data,
             meter_counter_data=meter_counter_data,
@@ -773,6 +775,7 @@ class P4TableEntry(_P4Writable):
             match=match,
             action=action,
             priority=entry.priority,
+            controller_metadata=entry.controller_metadata,
             meter_config=meter_config,
             counter_data=counter_data,
             meter_counter_data=meter_counter_data,
