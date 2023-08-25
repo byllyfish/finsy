@@ -4,6 +4,9 @@
 def minimum_edit_distance(str1: str, str2: str) -> int:
     """Compute the minimum edit distance between two strings.
 
+    Computes the Levenshtein distance using the iterative Wagner-Fischer
+    algorithm.
+
     Reference:  https://en.wikipedia.org/wiki/Levenshtein_distance
       See "Iterative with two matrix rows"
       Replace `v1` accesses with `prev` to eliminate second row `v1`.
