@@ -35,13 +35,12 @@ from typing import (
     cast,
 )
 
-import pylev
-
 from finsy import p4values
 from finsy import pbuf as pbuf_util
 from finsy.grpcutil import GRPCStatusCode, _EnumBase
 from finsy.log import LOGGER
 from finsy.proto import p4d, p4i, p4r, p4t, rpc_code
+from finsy.util import minimum_edit_distance
 
 # Enums
 # ~~~~~
@@ -364,7 +363,7 @@ class P4EntityMap(Generic[_T]):
             raise ValueError(f"no {self._entry_type} with id={key!r}") from None
 
         def _lev(val: str) -> int:
-            return pylev.wfi_levenshtein(val, key)
+            return minimum_edit_distance(val, key)
 
         if not self._by_name:
             # No key's present at all? (e.g. action has no parameters)
