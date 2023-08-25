@@ -632,17 +632,6 @@ files = [
 ]
 
 [[package]]
-name = "pylev"
-version = "1.4.0"
-description = "A pure Python Levenshtein implementation that's not freaking GPL'd."
-optional = false
-python-versions = "*"
-files = [
-    {file = "pylev-1.4.0-py2.py3-none-any.whl", hash = "sha256:7b2e2aa7b00e05bb3f7650eb506fc89f474f70493271a35c242d9a92188ad3dd"},
-    {file = "pylev-1.4.0.tar.gz", hash = "sha256:9e77e941042ad3a4cc305dcdf2b2dec1aec2fbe3dd9015d2698ad02b173006d1"},
-]
-
-[[package]]
 name = "pylint"
 version = "2.17.5"
 description = "python code static checker"
@@ -919,4 +908,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "92b385d2dfee8e37381155452973e72231fa14918d2f2061492a49dd06c111d2"
+content-hash = "b3dc7826c7d6432a4fb09d373f1fd9c31feac872189ae689dc523b32d5f0ec98"
