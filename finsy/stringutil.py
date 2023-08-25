@@ -1,4 +1,4 @@
-"Implements various utility functions."
+"Implements string utility functions."
 
 # Copyright (c) 2022-2023 Bill Fisher
 #

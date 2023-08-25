@@ -40,7 +40,7 @@ from finsy import pbuf as pbuf_util
 from finsy.grpcutil import GRPCStatusCode, _EnumBase
 from finsy.log import LOGGER
 from finsy.proto import p4d, p4i, p4r, p4t, rpc_code
-from finsy.util import minimum_edit_distance
+from finsy.stringutil import minimum_edit_distance
 
 # Enums
 # ~~~~~

@@ -1,4 +1,4 @@
-from finsy.util import minimum_edit_distance
+from finsy.stringutil import minimum_edit_distance
 
 
 def test_minimum_edit_distance():
