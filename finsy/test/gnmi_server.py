@@ -24,6 +24,7 @@ from finsy import pbuf
 from finsy.proto import gnmi, gnmi_grpc
 
 # pyright: reportIncompatibleMethodOverride=false
+# pylint: disable=invalid-overridden-method,line-too-long
 
 
 class GNMIServer(gnmi_grpc.gNMIServicer):

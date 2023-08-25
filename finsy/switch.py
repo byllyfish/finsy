@@ -138,7 +138,8 @@ class ApiVersion(NamedTuple):
 
     def __str__(self) -> str:
         "Return the version string."
-        return ".".join(map(str, self[:3])) + self.extra
+        vers = self[:3]  # pylint: disable=unsubscriptable-object
+        return ".".join(map(str, vers)) + self.extra
 
 
 class Switch:
@@ -331,14 +332,14 @@ class Switch:
 
         if eth_types is None:
 
-            def _pkt_filter(payload: bytes) -> bool:
+            def _pkt_filter(_payload: bytes) -> bool:
                 return True
 
         else:
             _filter = {eth.to_bytes(2, "big") for eth in eth_types}
 
-            def _pkt_filter(payload: bytes) -> bool:
-                return payload[12:14] in _filter
+            def _pkt_filter(_payload: bytes) -> bool:
+                return _payload[12:14] in _filter
 
         queue = Queue[p4entity.P4PacketIn](queue_size)
         queue_filter = (_pkt_filter, queue)

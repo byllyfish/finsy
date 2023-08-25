@@ -3,7 +3,6 @@ from finsy.stringutil import minimum_edit_distance
 
 def test_minimum_edit_distance():
     "Test the `minimum_edit_distance` function."
-
     examples = [
         ("", "", 0),
         ("a", "a", 0),

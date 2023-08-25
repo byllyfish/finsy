@@ -30,16 +30,16 @@ def minimum_edit_distance(str1: str, str2: str) -> int:
 
     len1 = len(str1)
     len2 = len(str2)
-    v0 = list(range(len2 + 1))
+    row = list(range(len2 + 1))
 
-    for i in range(0, len1):
+    for i in range(len1):
         prev = i + 1
-        for j in range(0, len2):
-            min_cost = v0[j]
+        for j in range(len2):
+            min_cost = row[j]
             if str1[i] != str2[j]:
                 min_cost += 1
 
-                delete = v0[j + 1] + 1
+                delete = row[j + 1] + 1
                 if delete < min_cost:
                     min_cost = delete
 
@@ -47,9 +47,9 @@ def minimum_edit_distance(str1: str, str2: str) -> int:
                 if insert < min_cost:
                     min_cost = insert
 
-            v0[j] = prev
+            row[j] = prev
             prev = min_cost
 
-        v0[len2] = prev
+        row[len2] = prev
 
-    return v0[len2]
+    return row[len2]

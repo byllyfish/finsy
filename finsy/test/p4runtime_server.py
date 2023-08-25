@@ -1,3 +1,19 @@
+"P4Runtime server for testing."
+
+# Copyright (c) 2022-2023 Bill Fisher
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import argparse
 import asyncio
 import contextlib
@@ -13,6 +29,7 @@ from finsy.proto import p4r, p4r_grpc
 
 # FIXME: This module is not strictly typed yet.
 # pyright: reportUnknownMemberType=false, reportIncompatibleMethodOverride=false
+# pylint: disable=invalid-overridden-method
 
 _T = TypeVar("_T")
 
@@ -21,6 +38,7 @@ class _TaskSet(set[asyncio.Task[_T]]):
     "Keep fire-and-forget Tasks alive while task is running."
 
     def create_task(self, coro: Coroutine[Any, Any, _T]) -> asyncio.Task[_T]:
+        "Create a task and maintain refcount while it is running."
         task = asyncio.create_task(coro)
         self.add(task)
         task.add_done_callback(self.discard)

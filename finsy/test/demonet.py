@@ -335,9 +335,10 @@ class DemoNet(_AContextHelper):
         assert self._prompt is None
         cmd = await self._mininet_command()
 
-        # FIXME: Remove Runner wrapper on next line.
-        async with Runner(cmd.stdout(sh.CAPTURE)) as run:
-            self._prompt = Prompt(run, "mininet> ", normalize_newlines=True)
+        # The explicit `Runner` wrapper in the `async with` is necessary for
+        # compatibility with pytest-asyncio's way of running async fixtures.
+        async with Runner(cmd.stdout(sh.CAPTURE)) as runner:
+            self._prompt = Prompt(runner, "mininet> ", normalize_newlines=True)
             await self._read_welcome()
             await self._read_pids()
             yield self
@@ -356,8 +357,8 @@ class DemoNet(_AContextHelper):
     async def _read_pids(self):
         "Retrieve the PID's so we can do our own `mnexec`."
         dump = await self.send("dump")
-        for mo in PID_MATCH.finditer(dump):
-            name, pid = mo.groups()
+        for matched in PID_MATCH.finditer(dump):
+            name, pid = matched.groups()
             self._pids[name] = int(pid)
         print(self._pids)
 

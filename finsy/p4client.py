@@ -109,8 +109,8 @@ class P4RpcStatus:
     def _parse_error(details: Sequence[pbuf.PBAny]) -> dict[int, P4Error]:
         result: dict[int, P4Error] = {}
 
-        for i in range(len(details)):
-            err = pbuf.from_any(details[i], p4r.Error)
+        for i, detail in enumerate(details):
+            err = pbuf.from_any(detail, p4r.Error)
             if err.canonical_code != rpc_code.OK:
                 result[i] = P4Error(
                     GRPCStatusCode(err.canonical_code),
