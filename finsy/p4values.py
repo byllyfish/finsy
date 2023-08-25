@@ -562,14 +562,14 @@ def format_range(value: _RangeValue, bitwidth: int, format: DecodeFormat) -> str
 
 def encode_signed(value: int, bitwidth: int) -> bytes:
     "Encode a signed value."
-    MAX = (1 << (bitwidth - 1)) - 1
-    if value > MAX or value < -MAX - 1:
+    max_value = (1 << (bitwidth - 1)) - 1
+    if value > max_value or value < -max_value - 1:
         raise _invalid_err("signed", bitwidth, value)
 
     size = p4r_minimum_string_size(bitwidth)
     return p4r_truncate_signed(value.to_bytes(size, "big", signed=True))
 
 
-def decode_signed(data: bytes, bitwidth: int) -> int:
+def decode_signed(data: bytes, _bitwidth: int) -> int:
     "Decode a signed value."
     return int.from_bytes(data, "big", signed=True)

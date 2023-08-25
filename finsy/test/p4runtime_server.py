@@ -13,6 +13,7 @@ from finsy.proto import p4r, p4r_grpc
 
 # FIXME: This module is not strictly typed yet.
 # pyright: reportUnknownMemberType=false, reportIncompatibleMethodOverride=false
+# pylint: disable=invalid-overridden-method
 
 _T = TypeVar("_T")
 
