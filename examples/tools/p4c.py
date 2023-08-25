@@ -25,7 +25,7 @@ _INCLUDE_REGEX = re.compile(
     re.MULTILINE,
 )
 
-_DEST_ROOT = Path(f"/root")
+_DEST_ROOT = Path("/root")
 _DEFAULT_IMAGE = "docker.io/antoninbas/p4c-lite"
 
 
