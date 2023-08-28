@@ -137,7 +137,7 @@ class DemoTopo(Topo):
             if kind == "switch":
                 model = config.get("model")
                 cls = SWITCHES[model] if model else None
-                self.addSwitch(config["name"], cls=cls, **config["params"])
+                self.addSwitch(config["name"], cls=cls, config=config)
             elif kind == "host":
                 self.addHost(config["name"], cls=DemoHost, config=config)
                 if config["switch"]:

@@ -31,7 +31,6 @@ def test_config():
             "name": "s1",
             "kind": "switch",
             "model": "",
-            "params": {},
             "commands": [],
         },
         {

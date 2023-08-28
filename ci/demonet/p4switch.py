@@ -27,20 +27,12 @@ class P4RuntimeSwitch(Switch):
     _start_command: str = ""
     _base_grpc_port: ClassVar[int] = 50000
 
-    def __init__(
-        self,
-        name: str,
-        grpc_port: int = 0,
-        log_level: str = _DEFAULT_LOG_LEVEL,
-        cpu_port: int = _DEFAULT_CPU_PORT,
-        device_id: int = _DEFAULT_DEVICE_ID,
-        **kwargs,
-    ):
+    def __init__(self, name: str, config: dict[str, Any], **kwargs):
         super().__init__(name, **kwargs)
-        self.grpc_port = grpc_port or P4RuntimeSwitch._next_grpc_port()
-        self.log_level = log_level
-        self.cpu_port = cpu_port
-        self.device_id = device_id
+        self.grpc_port = config.get("grpc_port", 0) or P4RuntimeSwitch._next_grpc_port()
+        self.log_level = config.get("log_level", _DEFAULT_LOG_LEVEL)
+        self.cpu_port = config.get("cpu_port", _DEFAULT_CPU_PORT)
+        self.device_id = config.get("device_id", _DEFAULT_DEVICE_ID)
 
         self.temp_dir = _DEFAULT_TMP_DIR / name
         self.log_file = self.temp_dir / "log.txt"

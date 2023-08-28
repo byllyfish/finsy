@@ -2,12 +2,10 @@
 
 from finsy.test import demonet as dn
 
-SWITCH_PARAMS = {}  # {"loglevel": "trace"}
-
 DEMONET = [
-    dn.Switch("s1", model="stratum", params=SWITCH_PARAMS),
-    dn.Switch("s2", model="stratum", params=SWITCH_PARAMS),
-    dn.Switch("s3", model="stratum", params=SWITCH_PARAMS),
+    dn.Switch("s1", model="stratum"),
+    dn.Switch("s2", model="stratum"),
+    dn.Switch("s3", model="stratum"),
     dn.Host(
         "h1",
         "s1",

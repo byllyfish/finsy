@@ -56,7 +56,6 @@ class Switch(Directive):
     _: KW_ONLY
     kind: str = field(default="switch", init=False)
     model: str = ""
-    params: dict[str, Any] = field(default_factory=dict)
     commands: list[str] = field(default_factory=list)
 
 
@@ -341,6 +340,7 @@ class DemoNet(_AContextHelper):
             self._prompt = Prompt(runner, "mininet> ", normalize_newlines=True)
             await self._read_welcome()
             await self._read_pids()
+            await self._read_processes()
             yield self
 
             await self._read_exit()
@@ -361,6 +361,10 @@ class DemoNet(_AContextHelper):
             name, pid = matched.groups()
             self._pids[name] = int(pid)
         print(self._pids)
+
+    async def _read_processes(self):
+        "Retrieve the list of process command lines."
+        await self.send("sh ps axww")
 
     async def _read_exit(self):
         "Exit and collect exit message from Mininet."
