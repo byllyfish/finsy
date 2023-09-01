@@ -1,5 +1,6 @@
 import importlib.util
 import json
+from pathlib import Path
 
 import pytest
 
@@ -15,7 +16,7 @@ def test_config():
     "Test the DemoNet Config object."
     config = dn.Config(
         [
-            dn.Switch("s1"),
+            dn.Switch("s1", grpc_cafile=Path("cafile")),
             dn.Host("h1", "s1"),
             dn.Host("h2", ipv6="auto"),
             dn.Link("s1", "h2"),
@@ -25,13 +26,18 @@ def test_config():
     assert len(config.items) == 4
     assert config.image() == dn.Image("ghcr.io/byllyfish/demonet:23.08")
     assert config.switch_count() == 1
+    assert config.files == {Path("cafile")}
+    assert config.remote_files() == [
+        (Path("cafile"), Path("/tmp/cbaf9cdda9b4ba6fc8fc"))
+    ]
 
-    assert json.loads(config.to_json(indent=2)) == [
+    assert json.loads(config.to_json(remote=False, indent=2)) == [
         {
             "name": "s1",
             "kind": "switch",
             "model": "",
             "commands": [],
+            "grpc_cafile": "cafile",
         },
         {
             "name": "h1",
@@ -81,6 +87,24 @@ def test_config():
             "assigned_end_port": 0,
         },
     ]
+
+
+def test_config_remote():
+    "Test the DemoNet Config object."
+    cafile = Path("cafile.pem")
+    config = dn.Config(
+        [
+            dn.Switch("s1", grpc_cafile=cafile),
+        ]
+    )
+    assert config.files == {Path("cafile.pem")}
+
+    result = json.loads(config.to_json(remote=True, indent=2))
+    assert len(result) == 1
+
+    grpc_cafile = result[0]["grpc_cafile"]
+    assert grpc_cafile == "/tmp/45f775fb2e6946111ce5.pem"
+    assert config.remote_files() == [(Path("cafile.pem"), Path(grpc_cafile))]
 
 
 @pytest.mark.skipif(not _has_pygraphviz(), reason="requires pygraphviz")
