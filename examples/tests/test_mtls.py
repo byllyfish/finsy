@@ -52,7 +52,7 @@ async def test_mtls1(model):
             assert sw.is_up
 
 
-# FIXME: this test fails for stratum???
+# NOTE: This test fails for stratum. stratum doesn't check client certificates.
 @pytest.mark.parametrize("model", ["bmv2"])  # , "stratum"])
 async def test_mtls3_expired_client(model):
     "Test switches using mtls3_expired_client."
@@ -91,5 +91,25 @@ async def test_mtls_mismatched(model):
         await asyncio.sleep(0.25)
 
         with pytest.raises(fy.P4ClientError, match="Ssl handshake failed"):
+            async with fy.Switch("s1", "127.0.0.1:50001", opts) as sw:
+                pass
+
+
+# NOTE: This test fails for stratum. stratum doesn't check client certificates.
+@pytest.mark.parametrize("model", ["bmv2"])  # , "stratum"])
+async def test_tls_no_client_cert(model):
+    "Test switches using TLS without a client cert."
+    settings = {
+        "cacert": TEST_CERTS / "mtls1" / "ca.crt",
+        "cert": None,
+        "private_key": None,
+    }
+    creds = fy.GRPCCredentialsTLS(**settings)
+    opts = fy.SwitchOptions(channel_credentials=creds)
+
+    async with demonet(model, **tls_server("mtls1")) as net:
+        await asyncio.sleep(0.25)
+
+        with pytest.raises(fy.P4ClientError, match="Socket closed"):
             async with fy.Switch("s1", "127.0.0.1:50001", opts) as sw:
                 pass
