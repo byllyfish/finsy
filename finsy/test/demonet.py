@@ -454,7 +454,7 @@ _podman = Path("podman")
 
 _LOCAL_CONFIG_JSON = Path("/tmp/demonet_config.json")
 _LOCAL_TOPO_PY = Path(__file__).parent / "demonet_topo.py"
-_LOCAL_P4SWITCH_PY = Path(__file__).parent.parent.parent / "ci/demonet/p4switch.py"
+_LOCAL_P4SWITCH_PY = Path(__file__).parents[2] / "ci/demonet/p4switch.py"
 
 assert _LOCAL_TOPO_PY.exists()
 assert _LOCAL_P4SWITCH_PY.exists()

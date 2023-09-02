@@ -3,7 +3,7 @@ from pathlib import Path
 
 import testlib
 
-INT_DIR = Path(__file__).parent.parent / "int"
+INT_DIR = Path(__file__).parents[1] / "int"
 
 DEMONET = INT_DIR / "net/run.py"
 

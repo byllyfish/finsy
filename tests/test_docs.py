@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-DOCS = Path(__file__).parent.parent / "docs"
+DOCS = Path(__file__).parents[1] / "docs"
 
 DOC_FILES = [
     DOCS / "table_entry.md",

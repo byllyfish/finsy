@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 import testlib
 
-GNMI_DIR = Path(__file__).parent.parent / "gnmi"
+GNMI_DIR = Path(__file__).parents[1] / "gnmi"
 
 DEMONET = GNMI_DIR / "net/run.py"
 

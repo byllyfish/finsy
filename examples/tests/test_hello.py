@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 import testlib
 
-HELLO_DIR = Path(__file__).parent.parent / "hello"
+HELLO_DIR = Path(__file__).parents[1] / "hello"
 
 DEMONET = HELLO_DIR / "net/run.py"
 

@@ -6,7 +6,7 @@ import testlib
 
 import finsy as fy
 
-NGSDN_DIR = Path(__file__).parent.parent / "ngsdn"
+NGSDN_DIR = Path(__file__).parents[1] / "ngsdn"
 
 DEMONET = NGSDN_DIR / "net/run.py"
 

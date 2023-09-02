@@ -2,7 +2,7 @@ from pathlib import Path
 
 import testlib
 
-TUNNEL_DIR = Path(__file__).parent.parent / "tunnel"
+TUNNEL_DIR = Path(__file__).parents[1] / "tunnel"
 
 DEMONET = TUNNEL_DIR / "net/run.py"
 

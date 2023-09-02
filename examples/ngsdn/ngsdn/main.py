@@ -7,7 +7,7 @@ from finsy import Controller
 from .app import load_netcfg
 from .console import run_console
 
-NETCFG = Path(__file__).parent.parent / "netcfg.json"
+NETCFG = Path(__file__).parents[1] / "netcfg.json"
 
 
 async def main():

@@ -6,7 +6,7 @@ import pytest
 import finsy as fy
 from finsy.test import demonet as dn
 
-TEST_CERTS = Path(__file__).parent.parent.parent / "tests/test_certs"
+TEST_CERTS = Path(__file__).parents[2] / "tests/test_certs"
 
 
 def demonet(model: str, cacert: Path, cert: Path, private_key: Path):
