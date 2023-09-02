@@ -16,7 +16,7 @@ def test_config():
     "Test the DemoNet Config object."
     config = dn.Config(
         [
-            dn.Switch("s1", grpc_cafile=Path("cafile")),
+            dn.Switch("s1", grpc_cacert=Path("cafile")),
             dn.Host("h1", "s1"),
             dn.Host("h2", ipv6="auto"),
             dn.Link("s1", "h2"),
@@ -37,7 +37,9 @@ def test_config():
             "kind": "switch",
             "model": "",
             "commands": [],
-            "grpc_cafile": "cafile",
+            "grpc_cacert": "cafile",
+            "grpc_cert": None,
+            "grpc_private_key": None,
         },
         {
             "name": "h1",
@@ -94,7 +96,7 @@ def test_config_remote():
     cafile = Path("cafile.pem")
     config = dn.Config(
         [
-            dn.Switch("s1", grpc_cafile=cafile),
+            dn.Switch("s1", grpc_cacert=cafile),
         ]
     )
     assert config.files == {Path("cafile.pem")}
@@ -102,9 +104,9 @@ def test_config_remote():
     result = json.loads(config.to_json(remote=True, indent=2))
     assert len(result) == 1
 
-    grpc_cafile = result[0]["grpc_cafile"]
-    assert grpc_cafile == "/tmp/45f775fb2e6946111ce5.pem"
-    assert config.remote_files() == [(Path("cafile.pem"), Path(grpc_cafile))]
+    grpc_cacert = result[0]["grpc_cacert"]
+    assert grpc_cacert == "/tmp/45f775fb2e6946111ce5.pem"
+    assert config.remote_files() == [(Path("cafile.pem"), Path(grpc_cacert))]
 
 
 @pytest.mark.skipif(not _has_pygraphviz(), reason="requires pygraphviz")
