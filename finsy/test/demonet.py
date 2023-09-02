@@ -3,6 +3,8 @@
 import argparse
 import asyncio
 import contextlib
+import dataclasses
+import hashlib
 import json
 import os
 import re
@@ -32,6 +34,7 @@ IPV6_BASE = IPv6Network("fc00::/64")
 DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet:23.08"
 
 
+@dataclass
 class Directive:
     "Marker superclass for all Demo configuration directives."
 
@@ -56,8 +59,10 @@ class Switch(Directive):
     _: KW_ONLY
     kind: str = field(default="switch", init=False)
     model: str = ""
-    params: dict[str, Any] = field(default_factory=dict)
     commands: list[str] = field(default_factory=list)
+    grpc_cacert: Path | None = None
+    grpc_cert: Path | None = None
+    grpc_private_key: Path | None = None
 
 
 @dataclass
@@ -136,6 +141,7 @@ class Config:
     "Manages a DemoNet configuration."
 
     items: Sequence[Directive]
+    files: set[Path]
 
     def __init__(
         self,
@@ -143,6 +149,7 @@ class Config:
     ):
         self.items = items
         self._scan_directives()
+        self.files = self._scan_files()
 
     def image(self) -> Image:
         "Return the configured docker image, or the default image if none found."
@@ -168,8 +175,6 @@ class Config:
 
         This method modifies unset fields in the configuration. It is safe to do
         this more than once; this is an idempotent operation.
-
-        TODO: Make directives read-only and do copy-on-write for changes.
         """
         port_db = _ConfigPortDB()
         host_id = 1
@@ -197,8 +202,34 @@ class Config:
                     s.replace("$DEMONET_IP", _LOCAL_IP) for s in item.commands
                 ]
 
-    def to_json(self, **kwds: Any) -> str:
-        return json.dumps(self.items, default=Config._json_default, **kwds)
+    def _scan_files(self) -> set[Path]:
+        """Scan directives and collect list of unique files."""
+        result: set[Path] = set()
+
+        for item in self.items:
+            for field in dataclasses.fields(item):
+                # Only consider fields with `Path | None` type.
+                if field.type == (Path | None):
+                    value = getattr(item, field.name)
+                    if isinstance(value, Path):
+                        result.add(value)
+
+        return result
+
+    def remote_files(self) -> list[tuple[Path, Path]]:
+        """Return list of local -> remote path pairings."""
+        return [(path, _remote_path(path)) for path in self.files]
+
+    def to_json(self, *, remote: bool, **kwds: Any) -> str:
+        "Convert configuration directives to JSON."
+
+        def _default(obj: object):
+            if isinstance(obj, Path):
+                if remote:
+                    return str(_remote_path(obj))
+            return Config._json_default(obj)
+
+        return json.dumps(self.items, default=_default, **kwds)
 
     @staticmethod
     def _json_default(obj: object):
@@ -269,6 +300,11 @@ class Config:
         return graph
 
 
+def _remote_path(path: Path) -> Path:
+    digest = hashlib.sha1(bytes(path)).digest()[:10]
+    return Path(f"/tmp/{digest.hex()}{path.suffix}")
+
+
 PID_MATCH = re.compile(r"<\w+ (\w+):.* pid=(\d+)>", re.MULTILINE)
 
 
@@ -328,8 +364,7 @@ class DemoNet(_AContextHelper):
         else:
             self.config = Config(config)
         self._pids = {}
-        self._config_file = _LOCAL_TEMP_DIR / "demonet_config.json"
-        self._config_file.write_text(self.config.to_json())
+        self._config_file = _LOCAL_CONFIG_JSON
 
     async def _async_context_(self):
         assert self._prompt is None
@@ -341,6 +376,7 @@ class DemoNet(_AContextHelper):
             self._prompt = Prompt(runner, "mininet> ", normalize_newlines=True)
             await self._read_welcome()
             await self._read_pids()
+            await self._read_processes()
             yield self
 
             await self._read_exit()
@@ -361,6 +397,10 @@ class DemoNet(_AContextHelper):
             name, pid = matched.groups()
             self._pids[name] = int(pid)
         print(self._pids)
+
+    async def _read_processes(self):
+        "Retrieve the list of process command lines."
+        await self.send("sh ps axww")
 
     async def _read_exit(self):
         "Exit and collect exit message from Mininet."
@@ -387,23 +427,31 @@ class DemoNet(_AContextHelper):
         container.
         """
         if sh.find_command("mn"):
+            self._config_file.write_text(self.config.to_json(remote=False))
             return _mininet_start(DEMONET_CONFIG=str(self._config_file))
 
         image = self.config.image()
         switch_count = self.config.switch_count()
         container = f"mininet-{int(time.time()):x}"
+        self._config_file.write_text(self.config.to_json(remote=True))
 
         await _podman_check()
         await _podman_create(container, image.name, switch_count)
-        await _podman_copy(_LOCAL_TOPO_PY, container, _IMAGE_TOPO_PY)
-        await _podman_copy(self._config_file, container, _IMAGE_CONFIG)
 
-        return _podman_start(container, DEMONET_CONFIG=str(_IMAGE_CONFIG))
+        remote_files = self.config.remote_files()
+        remote_files += [
+            (_LOCAL_TOPO_PY, _IMAGE_TOPO_PY),
+            (self._config_file, _IMAGE_CONFIG_JSON),
+        ]
+        for local, remote in remote_files:
+            await _podman_copy(local, container, remote)
+
+        return _podman_start(container, DEMONET_CONFIG=str(_IMAGE_CONFIG_JSON))
 
 
 _podman = Path("podman")
 
-_LOCAL_TEMP_DIR = Path("/tmp")
+_LOCAL_CONFIG_JSON = Path("/tmp/demonet_config.json")
 _LOCAL_TOPO_PY = Path(__file__).parent / "demonet_topo.py"
 _LOCAL_P4SWITCH_PY = Path(__file__).parent.parent.parent / "ci/demonet/p4switch.py"
 
@@ -413,7 +461,7 @@ assert _LOCAL_P4SWITCH_PY.exists()
 PUBLISH_BASE = 50000
 
 _IMAGE_TOPO_PY = Path("/tmp/demonet_topo.py")
-_IMAGE_CONFIG = Path("/tmp/demonet_config.json")
+_IMAGE_CONFIG_JSON = Path("/tmp/demonet_config.json")
 
 
 async def _podman_check():

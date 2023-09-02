@@ -24,23 +24,22 @@ class P4RuntimeSwitch(Switch):
     device_id: int
     temp_dir: Path
     log_file: Path
+    grpc_cacert: Path | None
+    grpc_cert: Path | None
+    grpc_private_key: Path | None
+
     _start_command: str = ""
     _base_grpc_port: ClassVar[int] = 50000
 
-    def __init__(
-        self,
-        name: str,
-        grpc_port: int = 0,
-        log_level: str = _DEFAULT_LOG_LEVEL,
-        cpu_port: int = _DEFAULT_CPU_PORT,
-        device_id: int = _DEFAULT_DEVICE_ID,
-        **kwargs,
-    ):
+    def __init__(self, name: str, config: dict[str, Any], **kwargs):
         super().__init__(name, **kwargs)
-        self.grpc_port = grpc_port or P4RuntimeSwitch._next_grpc_port()
-        self.log_level = log_level
-        self.cpu_port = cpu_port
-        self.device_id = device_id
+        self.grpc_port = config.get("grpc_port", 0) or P4RuntimeSwitch._next_grpc_port()
+        self.log_level = config.get("log_level", _DEFAULT_LOG_LEVEL)
+        self.cpu_port = config.get("cpu_port", _DEFAULT_CPU_PORT)
+        self.device_id = config.get("device_id", _DEFAULT_DEVICE_ID)
+        self.grpc_cacert = config.get("grpc_cacert")
+        self.grpc_cert = config.get("grpc_cert")
+        self.grpc_private_key = config.get("grpc_private_key")
 
         self.temp_dir = _DEFAULT_TMP_DIR / name
         self.log_file = self.temp_dir / "log.txt"
@@ -110,6 +109,14 @@ class StratumSwitch(P4RuntimeSwitch):
             _stratum_chassis_config(self.name, self.device_id, self._get_interfaces())
         )
 
+        tls_config = []
+        if self.grpc_cert:
+            tls_config = [
+                f"-ca_cert_file={self.grpc_cacert}",
+                f"-server_cert_file={self.grpc_cert}",
+                f"-server_key_file={self.grpc_private_key}",
+            ]
+
         return [
             "stratum_bmv2",
             f"-device_id={self.device_id}",
@@ -121,6 +128,7 @@ class StratumSwitch(P4RuntimeSwitch):
             f"-bmv2_log_level={self.log_level}",
             "-read_req_log_file=",
             "-write_req_log_file=",
+            *tls_config,
         ]
 
 
@@ -129,7 +137,16 @@ class BMV2Switch(P4RuntimeSwitch):
 
     def switch_command(self) -> list[Any]:
         "Return command line to run the switch."
-        # TODO --grpc-server-ssl, --grpc-server-with-client-auth
+        tls_config = []
+        if self.grpc_cert:
+            tls_config = [
+                "--grpc-server-ssl",
+                "--grpc-server-with-client-auth",
+                ("--grpc-server-cacert", self.grpc_cacert),
+                ("--grpc-server-cert", self.grpc_cert),
+                ("--grpc-server-key", self.grpc_private_key),
+            ]
+
         return [
             "simple_switch_grpc",
             "--no-p4",
@@ -144,6 +161,7 @@ class BMV2Switch(P4RuntimeSwitch):
             self.cpu_port,
             "--grpc-server-addr",
             f"0.0.0.0:{self.grpc_port}",
+            *tls_config,
         ]
 
 

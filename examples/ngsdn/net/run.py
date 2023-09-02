@@ -4,17 +4,15 @@ from pathlib import Path
 
 from finsy.test import demonet as dn
 
-SWITCH_PARAMS = {"cpuport": 255, "loglevel": "trace"}
-
 PROM_YML = Path(__file__).parent / "prometheus.yml"
 
 
 DEMONET = [
     # 2x2 fabric topology.
-    dn.Switch("leaf1", model="stratum", params=SWITCH_PARAMS),
-    dn.Switch("leaf2", model="stratum", params=SWITCH_PARAMS),
-    dn.Switch("spine1", model="stratum", params=SWITCH_PARAMS),
-    dn.Switch("spine2", model="stratum", params=SWITCH_PARAMS),
+    dn.Switch("leaf1", model="stratum"),
+    dn.Switch("leaf2", model="stratum"),
+    dn.Switch("spine1", model="stratum"),
+    dn.Switch("spine2", model="stratum"),
     dn.Link("spine1", "leaf1"),
     dn.Link("spine1", "leaf2"),
     dn.Link("spine2", "leaf1"),
