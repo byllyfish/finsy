@@ -1014,7 +1014,8 @@ class Switch:
 
         try:
             await self._ports.subscribe(self._gnmi_client)
-            self.create_task(self._ports.listen(), background=True, name="_ports")
+            if self._ports:
+                self.create_task(self._ports.listen(), background=True, name="_ports")
 
         except GNMIClientError as ex:
             if ex.code != GRPCStatusCode.UNIMPLEMENTED:
