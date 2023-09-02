@@ -377,10 +377,11 @@ class DemoNet(_AContextHelper):
             await self._read_welcome()
             await self._read_pids()
             await self._read_processes()
-            yield self
-
-            await self._read_exit()
-            self._prompt = None
+            try:
+                yield self
+            finally:
+                await self._read_exit()
+                self._prompt = None
 
     async def _read_welcome(self):
         "Collect welcome message from Mininet."
