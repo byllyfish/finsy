@@ -80,7 +80,10 @@ class SwitchPortList:
         assert self._subscription is None
 
         self._ports = await self._get_ports(client)
-        self._subscription = await self._get_subscription(client)
+        if self._ports:
+            self._subscription = await self._get_subscription(client)
+        else:
+            LOGGER.warning("No switch ports exist")
 
     async def listen(self, switch: "_sw.Switch | None" = None) -> None:
         "Listen for switch port updates."

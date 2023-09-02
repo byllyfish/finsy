@@ -4,7 +4,7 @@ from pathlib import Path
 
 from finsy.test import demonet as dn
 
-CERT_DIR = Path(__file__).parent.parent.parent.parent / "tests/test_certs/mtls1"
+CERT_DIR = Path(__file__).parents[3] / "tests/test_certs/mtls1"
 
 CACERT = CERT_DIR / "ca.crt"
 CERT = CERT_DIR / "server.crt"

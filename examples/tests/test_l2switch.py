@@ -3,7 +3,7 @@ from pathlib import Path
 
 import testlib
 
-L2SWITCH_DIR = Path(__file__).parent.parent / "l2_switch"
+L2SWITCH_DIR = Path(__file__).parents[1] / "l2_switch"
 
 DEMONET = L2SWITCH_DIR / "net/run.py"
 

@@ -7,7 +7,7 @@ import testlib
 import finsy as fy
 from finsy import pbuf
 
-SIMPLE_DIR = Path(__file__).parent.parent / "simple"
+SIMPLE_DIR = Path(__file__).parents[1] / "simple"
 
 DEMONET = SIMPLE_DIR / "net/run.py"
 

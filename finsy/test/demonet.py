@@ -31,7 +31,7 @@ except ImportError:
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
 
-DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet:23.08"
+DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet:23.09"
 
 
 @dataclass
@@ -377,10 +377,11 @@ class DemoNet(_AContextHelper):
             await self._read_welcome()
             await self._read_pids()
             await self._read_processes()
-            yield self
-
-            await self._read_exit()
-            self._prompt = None
+            try:
+                yield self
+            finally:
+                await self._read_exit()
+                self._prompt = None
 
     async def _read_welcome(self):
         "Collect welcome message from Mininet."
@@ -453,7 +454,7 @@ _podman = Path("podman")
 
 _LOCAL_CONFIG_JSON = Path("/tmp/demonet_config.json")
 _LOCAL_TOPO_PY = Path(__file__).parent / "demonet_topo.py"
-_LOCAL_P4SWITCH_PY = Path(__file__).parent.parent.parent / "ci/demonet/p4switch.py"
+_LOCAL_P4SWITCH_PY = Path(__file__).parents[2] / "ci/demonet/p4switch.py"
 
 assert _LOCAL_TOPO_PY.exists()
 assert _LOCAL_P4SWITCH_PY.exists()

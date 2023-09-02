@@ -9,11 +9,11 @@ from pathlib import Path
 import finsy as fy
 
 # P4SRC is the path to the "p4" directory from the "hello" example.
-P4SRC = Path(__file__).parent.parent / "hello/p4"
+P4SRC = Path(__file__).parents[1] / "hello/p4"
 
 LOG = fy.LoggerAdapter(logging.getLogger("tls-demo1"))
 
-CERT_DIR = Path(__file__).parent.parent.parent / "tests/test_certs/mtls1"
+CERT_DIR = Path(__file__).parents[2] / "tests/test_certs/mtls1"
 
 CACERT = CERT_DIR / "ca.crt"
 CERT = CERT_DIR / "client.crt"

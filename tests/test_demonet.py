@@ -24,7 +24,7 @@ def test_config():
     )
 
     assert len(config.items) == 4
-    assert config.image() == dn.Image("ghcr.io/byllyfish/demonet:23.08")
+    assert config.image() == dn.Image(dn.DEFAULT_IMAGE)
     assert config.switch_count() == 1
     assert config.files == {Path("cafile")}
     assert config.remote_files() == [
