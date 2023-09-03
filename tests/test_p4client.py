@@ -1,5 +1,6 @@
 import asyncio
 import dataclasses
+from urllib.parse import urlparse
 
 import grpc
 import pytest
@@ -229,13 +230,18 @@ async def test_tls_client_call_creds(p4rt_secure_server):
     method_names = []
 
     def _creds(context, callback):
-        method_names.append(context.method_name)
+        # Be careful. This function is called in a *different* Python thread.
+        path = urlparse(context.service_url).path
+        method_names.append((path, context.method_name))
         callback([("x-credentials", "abc")], None)
 
-    creds = dataclasses.replace(CLIENT1_CREDS, call_credentials=[_creds])
+    creds = dataclasses.replace(CLIENT1_CREDS, call_credentials=_creds)
     client = P4Client(p4rt_secure_server[0], creds, wait_for_ready=False)
     async with client:
         await _check_arbitration_request(client)
         await client.request(p4r.CapabilitiesRequest())
 
-    assert method_names == ["StreamChannel", "Capabilities"]
+    assert method_names == [
+        ("/p4.v1.P4Runtime", "StreamChannel"),
+        ("/p4.v1.P4Runtime", "Capabilities"),
+    ]

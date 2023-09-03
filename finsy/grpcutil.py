@@ -115,10 +115,21 @@ class GRPCCredentialsTLS:
     "GRPC channel credentials for Transport Layer Security (TLS)."
 
     cacert: Path | bytes | None
+    """Certificate authority used to authenticate the certificate at the other
+    end of the connection."""
+
     cert: Path | bytes | None
+    "Certificate that identifies this side of the connection."
+
     private_key: Path | bytes | None
+    "Private key associated with this side's certificate identity."
+
     target_name_override: str = ""
-    call_credentials: list[grpc.AuthMetadataPlugin] | None = None
+    "Override the target name used for TLS host name checking (useful for testing)."
+
+    call_credentials: grpc.AuthMetadataPlugin | None = None
+    """Optional GRPC call credentials for the client channel. Be aware that the
+    auth plugin's callback takes place in a different thread."""
 
     def to_client_credentials(self) -> grpc.ChannelCredentials:
         "Create native SSL client credentials object."
@@ -156,10 +167,8 @@ class GRPCCredentialsTLS:
         if not self.call_credentials:
             return channel_cred
 
-        call_creds = [
-            grpc.metadata_call_credentials(cred) for cred in self.call_credentials
-        ]
-        return grpc.composite_channel_credentials(channel_cred, *call_creds)
+        call_cred = grpc.metadata_call_credentials(self.call_credentials)
+        return grpc.composite_channel_credentials(channel_cred, call_cred)
 
 
 def _coerce_tls_path(value: Path | bytes | None) -> bytes | None:
