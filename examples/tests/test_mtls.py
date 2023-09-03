@@ -45,7 +45,7 @@ async def test_mtls1(model):
     creds = fy.GRPCCredentialsTLS(**tls_client("mtls1"))
     opts = fy.SwitchOptions(channel_credentials=creds)
 
-    async with demonet(model, **tls_server("mtls1")) as net:
+    async with demonet(model, **tls_server("mtls1")):
         await asyncio.sleep(0.25)
 
         async with fy.Switch("s1", "127.0.0.1:50001", opts) as sw:
@@ -59,11 +59,11 @@ async def test_mtls3_expired_client(model):
     creds = fy.GRPCCredentialsTLS(**tls_client("mtls3_expired_client"))
     opts = fy.SwitchOptions(channel_credentials=creds)
 
-    async with demonet(model, **tls_server("mtls3_expired_client")) as net:
+    async with demonet(model, **tls_server("mtls3_expired_client")):
         await asyncio.sleep(0.25)
 
         with pytest.raises(fy.P4ClientError, match="Socket closed"):
-            async with fy.Switch("s1", "127.0.0.1:50001", opts) as sw:
+            async with fy.Switch("s1", "127.0.0.1:50001", opts):
                 pass
 
 
@@ -73,11 +73,11 @@ async def test_mtls4_expired_server(model):
     creds = fy.GRPCCredentialsTLS(**tls_client("mtls4_expired_server"))
     opts = fy.SwitchOptions(channel_credentials=creds)
 
-    async with demonet(model, **tls_server("mtls4_expired_server")) as net:
+    async with demonet(model, **tls_server("mtls4_expired_server")):
         await asyncio.sleep(0.25)
 
         with pytest.raises(fy.P4ClientError, match="Ssl handshake failed"):
-            async with fy.Switch("s1", "127.0.0.1:50001", opts) as sw:
+            async with fy.Switch("s1", "127.0.0.1:50001", opts):
                 pass
 
 
@@ -87,11 +87,11 @@ async def test_mtls_mismatched(model):
     creds = fy.GRPCCredentialsTLS(**tls_client("mtls1"))
     opts = fy.SwitchOptions(channel_credentials=creds)
 
-    async with demonet(model, **tls_server("mtls2")) as net:
+    async with demonet(model, **tls_server("mtls2")):
         await asyncio.sleep(0.25)
 
         with pytest.raises(fy.P4ClientError, match="Ssl handshake failed"):
-            async with fy.Switch("s1", "127.0.0.1:50001", opts) as sw:
+            async with fy.Switch("s1", "127.0.0.1:50001", opts):
                 pass
 
 
@@ -107,9 +107,9 @@ async def test_tls_no_client_cert(model):
     creds = fy.GRPCCredentialsTLS(**settings)
     opts = fy.SwitchOptions(channel_credentials=creds)
 
-    async with demonet(model, **tls_server("mtls1")) as net:
+    async with demonet(model, **tls_server("mtls1")):
         await asyncio.sleep(0.25)
 
         with pytest.raises(fy.P4ClientError, match="Socket closed"):
-            async with fy.Switch("s1", "127.0.0.1:50001", opts) as sw:
+            async with fy.Switch("s1", "127.0.0.1:50001", opts):
                 pass

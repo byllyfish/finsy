@@ -63,7 +63,9 @@ class GRPCStatusCode(_EnumBase):
     def from_status_code(cls, val: grpc.StatusCode) -> Self:
         "Create corresponding GRPCStatusCode from a grpc.StatusCode object."
         assert isinstance(val, grpc.StatusCode)
-        return GRPCStatusCode(val.value[0])
+        return GRPCStatusCode(
+            val.value[0]  # pyright: ignore[reportUnknownArgumentType]
+        )
 
     @staticmethod
     def _validate_enum() -> None:
@@ -167,8 +169,15 @@ class GRPCCredentialsTLS:
         if not self.call_credentials:
             return channel_cred
 
-        call_cred = grpc.metadata_call_credentials(self.call_credentials)
-        return grpc.composite_channel_credentials(channel_cred, call_cred)
+        call_cred = (
+            grpc.metadata_call_credentials(  # pyright: ignore[reportUnknownMemberType]
+                self.call_credentials
+            )
+        )
+        return grpc.composite_channel_credentials(  # pyright: ignore[reportUnknownMemberType]
+            channel_cred,
+            call_cred,
+        )
 
 
 def _coerce_tls_path(value: Path | bytes | None) -> bytes | None:

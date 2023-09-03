@@ -31,14 +31,14 @@ async def _run_command(controller: fy.Controller, cmd: list[str]):
         print(f"unknown command: {cmd[0]!r}")
 
 
-async def _help(_controller: fy.Controller, args: list[str]):
+async def _help(_controller: fy.Controller, args: list[str]) -> None:
     "Display list of commands."
     for cmd, func in _COMMANDS.items():
         doc = func.__doc__ or ""
         print(f"{cmd:<14} - {doc.strip()}")
 
 
-async def _devices(controller: fy.Controller, args: list[str]):
+async def _devices(controller: fy.Controller, args: list[str]) -> None:
     "Display list of switches."
     for switch in controller:
         status = "UP" if switch.is_up else "DOWN"
@@ -46,7 +46,7 @@ async def _devices(controller: fy.Controller, args: list[str]):
         print(f"{switch.name:<16} {status:>4} {primary:<7}  {switch.address}")
 
 
-async def _p4info(controller: fy.Controller, args: list[str]):
+async def _p4info(controller: fy.Controller, args: list[str]) -> None:
     "Display the P4Info for a switch."
     match args:
         case [device_name]:
@@ -61,7 +61,7 @@ async def _p4info(controller: fy.Controller, args: list[str]):
     print(switch.p4info)
 
 
-async def _table(controller: fy.Controller, args: list[str]):
+async def _table(controller: fy.Controller, args: list[str]) -> None:
     "Display the contents of a P4 table."
     match args:
         case [device_name, table_name]:
@@ -81,7 +81,7 @@ async def _table(controller: fy.Controller, args: list[str]):
             print(table.priority, table.match_str(), "->", table.action_str())
 
 
-async def _srv6_insert(controller: fy.Controller, args: list[str]):
+async def _srv6_insert(controller: fy.Controller, args: list[str]) -> None:
     "Insert source route entry into srv6_transit table."
     match args:
         case [device_name, s1, s2, s3]:
@@ -111,7 +111,7 @@ async def _srv6_insert(controller: fy.Controller, args: list[str]):
         raise ValueError(f"Switch {switch.name!r} is not primary.")
 
 
-async def _srv6_clear(controller: fy.Controller, args: list[str]):
+async def _srv6_clear(controller: fy.Controller, args: list[str]) -> None:
     "Clear all entries in srv6_transit table."
     match args:
         case [device]:
