@@ -222,3 +222,20 @@ def test_client_error():
     assert err.is_not_found_only
     assert not err.is_election_id_used
     assert not err.is_pipeline_missing
+
+
+async def test_tls_client_call_creds(p4rt_secure_server):
+    "Test TLS P4Client with a call credential object."
+    method_names = []
+
+    def _creds(context, callback):
+        method_names.append(context.method_name)
+        callback([("x-credentials", "abc")], None)
+
+    creds = dataclasses.replace(CLIENT1_CREDS, call_credentials=[_creds])
+    client = P4Client(p4rt_secure_server[0], creds, wait_for_ready=False)
+    async with client:
+        await _check_arbitration_request(client)
+        await client.request(p4r.CapabilitiesRequest())
+
+    assert method_names == ["StreamChannel", "Capabilities"]

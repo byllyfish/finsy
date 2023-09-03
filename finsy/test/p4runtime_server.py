@@ -191,6 +191,12 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
             p4r.CapabilitiesRequest, p4r.CapabilitiesResponse
         ],
     ) -> p4r.CapabilitiesResponse:
+        metadata = context.invocation_metadata()
+        if metadata:
+            for datum in metadata:
+                if not datum[0].startswith("x-"):
+                    continue
+                LOGGER.debug(f"Server request with x-metadata: {datum!r}")
         return p4r.CapabilitiesResponse(p4runtime_api_version=self._api_version)
 
     async def GetForwardingPipelineConfig(
