@@ -63,7 +63,9 @@ class GRPCStatusCode(_EnumBase):
     def from_status_code(cls, val: grpc.StatusCode) -> Self:
         "Create corresponding GRPCStatusCode from a grpc.StatusCode object."
         assert isinstance(val, grpc.StatusCode)
-        return GRPCStatusCode(val.value[0])
+        return GRPCStatusCode(
+            val.value[0]  # pyright: ignore[reportUnknownArgumentType]
+        )
 
     @staticmethod
     def _validate_enum() -> None:
@@ -115,9 +117,21 @@ class GRPCCredentialsTLS:
     "GRPC channel credentials for Transport Layer Security (TLS)."
 
     cacert: Path | bytes | None
+    """Certificate authority used to authenticate the certificate at the other
+    end of the connection."""
+
     cert: Path | bytes | None
+    "Certificate that identifies this side of the connection."
+
     private_key: Path | bytes | None
+    "Private key associated with this side's certificate identity."
+
     target_name_override: str = ""
+    "Override the target name used for TLS host name checking (useful for testing)."
+
+    call_credentials: grpc.AuthMetadataPlugin | None = None
+    """Optional GRPC call credentials for the client channel. Be aware that the
+    auth plugin's callback takes place in a different thread."""
 
     def to_client_credentials(self) -> grpc.ChannelCredentials:
         "Create native SSL client credentials object."
@@ -125,14 +139,19 @@ class GRPCCredentialsTLS:
         certificate_chain = _coerce_tls_path(self.cert)
         private_key = _coerce_tls_path(self.private_key)
 
-        return grpc.ssl_channel_credentials(  # pyright: ignore[reportUnknownMemberType]
-            root_certificates=root_certificates,
-            private_key=private_key,
-            certificate_chain=certificate_chain,
+        return self._compose_credentials(
+            grpc.ssl_channel_credentials(  # pyright: ignore[reportUnknownMemberType]
+                root_certificates=root_certificates,
+                private_key=private_key,
+                certificate_chain=certificate_chain,
+            )
         )
 
     def to_server_credentials(self) -> grpc.ServerCredentials:
-        "Create native SSL server credentials object."
+        """Create native SSL server credentials object.
+
+        On the server side, we ignore the `call_credentials`.
+        """
         root_certificates = _coerce_tls_path(self.cacert)
         certificate_chain = _coerce_tls_path(self.cert)
         private_key = _coerce_tls_path(self.private_key)
@@ -141,6 +160,23 @@ class GRPCCredentialsTLS:
             private_key_certificate_chain_pairs=[(private_key, certificate_chain)],
             root_certificates=root_certificates,
             require_client_auth=True,
+        )
+
+    def _compose_credentials(
+        self, channel_cred: grpc.ChannelCredentials
+    ) -> grpc.ChannelCredentials:
+        "Compose call credentials with channel credentials."
+        if not self.call_credentials:
+            return channel_cred
+
+        call_cred = (
+            grpc.metadata_call_credentials(  # pyright: ignore[reportUnknownMemberType]
+                self.call_credentials
+            )
+        )
+        return grpc.composite_channel_credentials(  # pyright: ignore[reportUnknownMemberType]
+            channel_cred,
+            call_cred,
         )
 
 

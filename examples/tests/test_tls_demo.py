@@ -1,8 +1,6 @@
 import asyncio
 from pathlib import Path
 
-import pytest
-
 TLSDEMO_DIR = Path(__file__).parents[1] / "tls_demo"
 
 DEMONET = TLSDEMO_DIR / "net/run.py"

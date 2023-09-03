@@ -207,10 +207,10 @@ class Config:
         result: set[Path] = set()
 
         for item in self.items:
-            for field in dataclasses.fields(item):
+            for fld in dataclasses.fields(item):
                 # Only consider fields with `Path | None` type.
-                if field.type == (Path | None):
-                    value = getattr(item, field.name)
+                if fld.type == (Path | None):
+                    value = getattr(item, fld.name)
                     if isinstance(value, Path):
                         result.add(value)
 
