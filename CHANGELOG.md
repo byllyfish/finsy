@@ -1,5 +1,17 @@
 # Finsy Change Log
 
+## 0.19.0
+
+- Update P4Runtime/P4Info protobuf files; add support for `has_initial_entries` and `is_const`.
+- Add support for grpc call credentials.
+- Add support for deprecated `controller_metadata` (#192).
+- Fix missing imports for `P4MeterEntry`, `P4DirectMeterEntry` and `P4ValueSetEntry`.
+- Entity classes now use `slots`.
+- Add support for testing GRPC channels that use TLS in `demonet`.
+- Use included MACAddress class.
+- Remove dependency on pylev.
+- Update project dependencies.
+
 ## 0.18.0
 
 - Make all protobuf module imports relative.
