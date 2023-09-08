@@ -15,13 +15,16 @@ P4INFO = Path("example.p4info.txt")
 
 ## Protobuf Classes
 
-Finsy depends on protobuf-defined classes for gNMI and P4Runtime. The protobuf classes are compiled and 
-included as part of the Finsy framework. Finsy also includes `.pyi` files containing type hints for the 
-protobuf classes. The type hints are available to the IDE for auto-completion support in the editor.
+Finsy depends on protobuf-defined classes for P4Runtime and gNMI. The protobuf classes are compiled and 
+included as part of the Finsy framework. Finsy relies on the HEAD versions of the protobuf definitions;
+these are more current than the published, release versions.
 
-Always use the qualified syntax, e.g. `prefix.ClassName` instead of just `ClassName`.  In a few cases, 
-Finsy defines wrapper classes with the same name as the protobuf class. By including the prefix, we
-can distinguish them.
+Finsy includes `.pyi` files containing type hints for the protobuf classes. The type hints are
+available to the IDE for auto-completion support in the editor.
+
+When referring to protobuf classes, always use the qualified syntax, e.g. `prefix.ClassName` instead
+of just `ClassName`. For example, refer to the P4Runtime protobuf class `TableEntry` as `p4r.TableEntry`
+in source files.
 
 ### gNMI
 

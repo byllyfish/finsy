@@ -67,7 +67,7 @@ When running a Switch under a Controller, Finsy uses `wait_for_ready` to
 establish connections. This setting tells `grpc-core` to continuously re-connect
 after a failed connection attempt. In this situation, Finsy will NOT raise an
 exception even when there is a TLS issue. However, `grpc-core` will log any
-errors to standard error. It is a good idea to alway capture standard error
+errors to standard error. It is a good idea to capture standard error
 when running a Finsy Controller.
 
 To troubleshoot TLS issues, increase the GRPC logging verbosity. Run your 

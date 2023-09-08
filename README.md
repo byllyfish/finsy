@@ -122,9 +122,9 @@ arbitration completed, and pipeline configured as specified in `SwitchOptions`.
 Here is an example skeleton program. The `ready handler` is named `ready()`.
 
 ```python
-async def ready(switch: Switch):
+async def ready(switch: fy.Switch):
     # Check if switch is the primary. If not, we may want to proceed
-    # in a read-only mode. In this example, ignore switch if it's a backup.
+    # in read-only mode. In this example, ignore switch if it's a backup.
     if not switch.is_primary:
         return
 
@@ -173,8 +173,6 @@ Some entities support all three operations. Other entities only support MODIFY.
 | `P4DirectMeterEntry` | MODIFY
 | `P4ValueSetEntry` | MODIFY
 
-The `write()` method takes an optional keyword argument `atomicity` to specify the atomicity option.
-
 #### Insert/Modify/Delete Updates
 
 To specify the operation, use a unary `+` (insert), `~` (modify), or `-` (delete). If you
@@ -184,15 +182,15 @@ Here is an example showing how to insert and delete two different entities in th
 
 ```python
 await switch.write([
-    +P4TableEntry(          # unary + means insert
+    +fy.P4TableEntry(          # unary + means insert
         "ipv4", 
-        match=P4TableMatch(dest="192.168.1.0/24"),
-        action=P4TableAction("forward", port=1),
+        match=fy.P4TableMatch(dest="192.168.1.0/24"),
+        action=fy.P4TableAction("forward", port=1),
     ),
-    -P4TableEntry(          # unary - means delete
+    -fy.P4TableEntry(          # unary - means delete
         "ipv4", 
-        match=P4TableMatch(dest="192.168.2.0/24"),
-        action=P4TableAction("forward", port=2),
+        match=fy.P4TableMatch(dest="192.168.2.0/24"),
+        action=fy.P4TableAction("forward", port=2),
     ),
 ])
 ```
@@ -204,8 +202,8 @@ If you are performing the **same** operation on all entities, you can use the Sw
 
 ```python
 await switch.insert([
-    P4MulticastGroupEntry(1, replicas=[1, 2, 3]),
-    P4MulticastGroupEntry(2, replicas=[4, 5, 6]),
+    fy.P4MulticastGroupEntry(1, replicas=[1, 2, 3]),
+    fy.P4MulticastGroupEntry(2, replicas=[4, 5, 6]),
 ])
 ```
 
@@ -216,9 +214,9 @@ optionally use `~`.)
 
 ```python
 await switch.write([
-    P4RegisterEntry("reg1", index=0, data=0),
-    P4RegisterEntry("reg1", index=1, data=1),
-    P4RegisterEntry("reg1", index=2, data=2),
+    fy.P4RegisterEntry("reg1", index=0, data=0),
+    fy.P4RegisterEntry("reg1", index=1, data=1),
+    fy.P4RegisterEntry("reg1", index=2, data=2),
 ])
 ```
 
@@ -226,9 +224,9 @@ You can also use the `modify` method:
 
 ```python
 await switch.modify([
-    P4RegisterEntry("reg1", index=0, data=0),
-    P4RegisterEntry("reg1", index=1, data=1),
-    P4RegisterEntry("reg1", index=2, data=2),
+    fy.P4RegisterEntry("reg1", index=0, data=0),
+    fy.P4RegisterEntry("reg1", index=1, data=1),
+    fy.P4RegisterEntry("reg1", index=2, data=2),
 ])
 ```
 
@@ -240,7 +238,7 @@ return an error.
 Use the `write` method to send a packet.
 
 ```
-await switch.write([P4PacketOut(b"payload", port=3)])
+await switch.write([fy.P4PacketOut(b"a payload.....", port=3)])
 ```
 
 You can include other entities in the same call. Any non-update objects (e.g. P4PacketOut, 
@@ -283,9 +281,6 @@ To acknowledge the digest entry, you can write `digest.ack()`.
 A P4 switch may report other events using the `EventEmitter` API. See
 the `SwitchEvent` class for the event types. Each switch has a `switch.ee`
 attribute that lets your code register for event callbacks.
-
-
-
 
 
 ## Development and Testing

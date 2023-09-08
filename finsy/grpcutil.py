@@ -69,6 +69,7 @@ class GRPCStatusCode(_EnumBase):
 
     @staticmethod
     def _validate_enum() -> None:
+        "Verify that GRPCStatusCode covers every possible grpc.StatusCode."
         for value in grpc.StatusCode:
             assert GRPCStatusCode[value.name].value == value.value[0], value.name
 
