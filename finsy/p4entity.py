@@ -29,7 +29,7 @@ from typing import (
 
 from typing_extensions import Self
 
-from finsy import p4values
+from finsy import p4values, pbuf
 from finsy.log import LOGGER
 from finsy.p4schema import (
     P4Action,
@@ -1709,3 +1709,32 @@ class P4IdleTimeoutNotification:
     def __iter__(self) -> Iterator[P4TableEntry]:
         "Iterate over table entries."
         return iter(self.table_entry)
+
+
+@decodable("extern_entry")
+@dataclass(kw_only=True, slots=True)
+class P4ExternEntry(_P4Writable):
+    "Represents a P4Runtime ExternEntry."
+
+    extern_type_id: int  # FIXME: make these str...
+    extern_id: int
+    entry: pbuf.PBAny
+
+    def encode(self, _schema: P4Schema) -> p4r.Entity:
+        "Encode ExternEntry data as protobuf."
+        entry = p4r.ExternEntry(
+            extern_type_id=self.extern_type_id,
+            extern_id=self.extern_id,
+            entry=self.entry,
+        )
+        return p4r.Entity(extern_entry=entry)
+
+    @classmethod
+    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
+        "Decode protobuf to ExternEntry data."
+        entry = msg.extern_entry
+        return cls(
+            extern_type_id=entry.extern_type_id,
+            extern_id=entry.extern_id,
+            entry=entry.entry,
+        )

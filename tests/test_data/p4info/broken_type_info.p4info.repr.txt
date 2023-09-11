@@ -8,6 +8,7 @@ P4Schema(
     direct_counters=[],
     direct_meters=[],
     exists=True,
+    externs=[],
     is_authoritative=False,
     meters=[],
     name="",

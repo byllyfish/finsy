@@ -837,3 +837,24 @@ def test_p4schemacache():
     del schema
     del schemas
     assert len(cache) == 0
+
+
+def test_p4info_externs():
+    "Test externs in P4Schema."
+    p4 = P4Schema(Path(P4INFO_TEST_DIR, "externs.p4info.txt"))
+
+    assert len(p4.externs) == 4
+    assert [ex.id for ex in p4.externs] == [1, 2, 1, 2]
+    assert p4.externs.get(("", "")) is None
+
+    extern1 = p4.externs[("x", "instance1")]
+    assert extern1.id == 1
+    assert extern1.name == "instance1"
+    assert extern1.extern_type_name == "x"
+    assert extern1.extern_type_id == 1
+
+    extern2 = p4.externs.get(("x", "instance2"))
+    assert extern2.id == 2
+    assert extern2.name == "instance2"
+    assert extern2.extern_type_name == "x"
+    assert extern2.extern_type_id == 1

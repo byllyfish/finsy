@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from pathlib import Path
 
 import pytest
@@ -14,6 +15,7 @@ from finsy.p4entity import (
     P4DigestListAck,
     P4DirectCounterEntry,
     P4DirectMeterEntry,
+    P4ExternEntry,
     P4IdleTimeoutNotification,
     P4IndirectAction,
     P4Member,
@@ -1294,3 +1296,40 @@ def test_value_set_entry1():
 
     assert entry.members[0].value == 1
     assert entry.members[1].value == 2
+
+
+def test_extern_entry0():
+    "Test that P4ExternEntry class requires keyword arguments."
+    with pytest.raises(TypeError, match="keyword-only"):
+        P4ExternEntry()  # pyright: ignore[reportGeneralTypeIssues]
+
+
+def test_extern_entry1():
+    "Test P4ExternEntry."
+    any_data = pbuf.to_any(p4r.CounterData(byte_count=1, packet_count=2))
+
+    entry = P4ExternEntry(
+        extern_type_id=1,
+        extern_id=2,
+        entry=any_data,
+    )
+
+    msg = entry.encode(_SCHEMA)
+    assert pbuf.to_dict(msg) == {
+        "extern_entry": {
+            "entry": OrderedDict(
+                [
+                    ("@type", "type.googleapis.com/p4.v1.CounterData"),
+                    ("byte_count", "1"),
+                    ("packet_count", "2"),
+                ]
+            ),
+            "extern_id": 2,
+            "extern_type_id": 1,
+        }
+    }
+    assert entry == P4ExternEntry.decode(msg, _SCHEMA)
+
+    assert entry.extern_type_id == 1
+    assert entry.extern_id == 2
+    assert entry.entry == any_data
