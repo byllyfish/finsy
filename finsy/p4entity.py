@@ -1716,25 +1716,27 @@ class P4IdleTimeoutNotification:
 class P4ExternEntry(_P4Writable):
     "Represents a P4Runtime ExternEntry."
 
-    extern_type_id: int  # FIXME: make these str...
-    extern_id: int
+    extern_type_id: str
+    extern_id: str
     entry: pbuf.PBAny
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
+    def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode ExternEntry data as protobuf."
+        extern = schema.externs[self.extern_type_id, self.extern_id]
         entry = p4r.ExternEntry(
-            extern_type_id=self.extern_type_id,
-            extern_id=self.extern_id,
+            extern_type_id=extern.extern_type_id,
+            extern_id=extern.id,
             entry=self.entry,
         )
         return p4r.Entity(extern_entry=entry)
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to ExternEntry data."
         entry = msg.extern_entry
+        extern = schema.externs[entry.extern_type_id, entry.extern_id]
         return cls(
-            extern_type_id=entry.extern_type_id,
-            extern_id=entry.extern_id,
+            extern_type_id=extern.extern_type_name,
+            extern_id=extern.name,
             entry=entry.entry,
         )

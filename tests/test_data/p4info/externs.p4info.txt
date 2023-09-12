@@ -25,7 +25,7 @@ externs {
   }
 }
 externs {
-  extern_type_id: 1
+  extern_type_id: 2
   extern_type_name: "y"
   instances {
     preamble {

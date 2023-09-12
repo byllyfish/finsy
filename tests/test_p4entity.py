@@ -1306,15 +1306,20 @@ def test_extern_entry0():
 
 def test_extern_entry1():
     "Test P4ExternEntry."
+    schema = P4Schema(_P4INFO_TEST_DIR / "externs.p4info.txt")
     any_data = pbuf.to_any(p4r.CounterData(byte_count=1, packet_count=2))
 
     entry = P4ExternEntry(
-        extern_type_id=1,
-        extern_id=2,
+        extern_type_id="x",
+        extern_id="instance2",
         entry=any_data,
     )
 
-    msg = entry.encode(_SCHEMA)
+    assert entry.extern_type_id == "x"
+    assert entry.extern_id == "instance2"
+    assert entry.entry == any_data
+
+    msg = entry.encode(schema)
     assert pbuf.to_dict(msg) == {
         "extern_entry": {
             "entry": OrderedDict(
@@ -1328,8 +1333,4 @@ def test_extern_entry1():
             "extern_type_id": 1,
         }
     }
-    assert entry == P4ExternEntry.decode(msg, _SCHEMA)
-
-    assert entry.extern_type_id == 1
-    assert entry.extern_id == 2
-    assert entry.entry == any_data
+    assert entry == P4ExternEntry.decode(msg, schema)

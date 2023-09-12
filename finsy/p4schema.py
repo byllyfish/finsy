@@ -2119,16 +2119,23 @@ class P4ExternMap:
     """Stores (type_name, name) -> P4ExternInstance mapping."""
 
     _by_name: dict[tuple[str, str], P4ExternInstance]
+    _by_id: dict[tuple[int, int], P4ExternInstance]
 
     def __init__(self):
         self._by_name = {}
+        self._by_id = {}
 
-    def get(self, key: tuple[str, str]) -> P4ExternInstance | None:
+    def get(self, key: tuple[str, str] | tuple[int, int]) -> P4ExternInstance | None:
         "Retrieve item by name. Return None if not found."
+        if isinstance(key[0], int):
+            return self._by_id.get(key)
         return self._by_name.get(key)
 
     def __getitem__(self, key: tuple[str, str]) -> P4ExternInstance:
-        return self._by_name[key]
+        value = self.get(key)
+        if value is None:
+            self._key_error(key)
+        return value
 
     def __iter__(self) -> Iterator[P4ExternInstance]:
         return iter(self._by_name.values())
@@ -2140,10 +2147,25 @@ class P4ExternMap:
         return f"[{', '.join([repr(item) for item in self])}]"
 
     def _add(self, instance: P4ExternInstance):
-        "Add extern instance by (type_name, name)."
-        key = (instance.extern_type_name, instance.name)
-        assert key not in self._by_name
-        self._by_name[key] = instance
+        "Add extern instance by (type_name, name) and (type_id, id)."
+        key1 = (instance.extern_type_name, instance.name)
+        key2 = (instance.extern_type_id, instance.id)
+
+        if key1 in self._by_name:
+            raise ValueError(f"extern name already exists: {key1!r}")
+        self._by_name[key1] = instance
+
+        if key2 in self._by_id:
+            raise ValueError(f"extern id already exists: {key2!r}")
+        self._by_id[key2] = instance
+
+    def _key_error(self, key: tuple[str, str] | tuple[int, int]):
+        "Raise an exception to indicate key is missing."
+        if len(key) != 2:
+            raise TypeError(f"invalid key for P4ExternMap: {key!r}")
+        raise ValueError(
+            f"no extern with extern_type_id={key[0]!r}, extern_id={key[1]!r}"
+        ) from None
 
 
 def _make_alias(name: str) -> str:
