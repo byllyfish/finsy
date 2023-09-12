@@ -166,6 +166,7 @@ Some entities support all three operations. Other entities only support MODIFY.
 | `P4MulticastGroupEntry` |  INSERT, MODIFY, DELETE
 | `P4CloneSessionEntry` |  INSERT, MODIFY, DELETE
 | `P4DigestEntry` |  INSERT, MODIFY, DELETE
+| `P4ExternEntry` | INSERT, MODIFY, DELETE
 | `P4RegisterEntry` | MODIFY
 | `P4CounterEntry` | MODIFY
 | `P4DirectCounterEntry` | MODIFY

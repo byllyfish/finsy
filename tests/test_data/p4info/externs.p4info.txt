@@ -1,0 +1,52 @@
+externs {
+  extern_type_id: 1
+  extern_type_name: "x"
+  instances {
+    preamble {
+      id: 1
+      name: "instance1"
+      alias: "i1"
+    }
+    info {
+      type_url: "type.googleapis.com/p4.config.v1.PkgInfo"
+      value: "\n\003x.1"
+    }
+  }
+  instances {
+    preamble {
+      id: 2
+      name: "instance2"
+      alias: "i2"
+    }
+    info {
+      type_url: "type.googleapis.com/p4.config.v1.PkgInfo"
+      value: "\n\003x.2"
+    }
+  }
+}
+externs {
+  extern_type_id: 2
+  extern_type_name: "y"
+  instances {
+    preamble {
+      id: 1
+      name: "instance1"
+      alias: "i1"
+    }
+    info {
+      type_url: "type.googleapis.com/p4.config.v1.PkgInfo"
+      value: "\n\003x.1"
+    }
+  }
+  instances {
+    preamble {
+      id: 2
+      name: "instance2"
+      alias: "i2"
+    }
+    info {
+      type_url: "type.googleapis.com/p4.config.v1.PkgInfo"
+      value: "\n\003x.2"
+    }
+  }
+}

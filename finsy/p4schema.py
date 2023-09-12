@@ -188,6 +188,11 @@ class _ReprMixin:
             if not name.startswith("_") and name not in _EXEMPT_PROPERTIES
         ]
 
+        if cls.__name__ == "P4ExternInstance":
+            # Do not include "info" because the repr of a `PBAny` is not
+            # legal python syntax.
+            properties.remove("info")
+
         attrs = [f"{name}={getattr(self, name)!r}" for name in properties]
         return f"{cls.__name__}({', '.join(attrs)})"
 
@@ -401,6 +406,7 @@ class _P4Defs:
     registers: P4EntityMap["P4Register"]
     digests: P4EntityMap["P4Digest"]
     value_sets: P4EntityMap["P4ValueSet"]
+    externs: "P4ExternMap"
     type_info: "P4TypeInfo"
 
     def __init__(self, p4info: p4i.P4Info):
@@ -416,6 +422,7 @@ class _P4Defs:
         self.registers = P4EntityMap("P4Register")
         self.digests = P4EntityMap("P4Digest")
         self.value_sets = P4EntityMap("P4ValueSet")
+        self.externs = P4ExternMap()
         self.type_info = P4TypeInfo(p4info.type_info)
 
         for name, cls in [
@@ -448,6 +455,16 @@ class _P4Defs:
         ):
             for obj in iterable:
                 obj._finish_init(self)
+
+        for extern in p4info.externs:
+            for instance in extern.instances:
+                self.externs._add(
+                    P4ExternInstance(
+                        instance,
+                        extern.extern_type_id,
+                        extern.extern_type_name,
+                    )
+                )
 
 
 def _blob_bytes(blob: Path | bytes | SupportsBytes | None) -> bytes:
@@ -622,6 +639,11 @@ class P4Schema(_ReprMixin):
     def type_info(self) -> "P4TypeInfo":
         "Type Info object."
         return self._p4defs.type_info
+
+    @property
+    def externs(self) -> "P4ExternMap":
+        "Collection of P4 extern instances."
+        return self._p4defs.externs
 
     @staticmethod
     def current() -> "P4Schema":
@@ -2057,6 +2079,93 @@ class P4ValueSet(_P4TopLevel[p4i.ValueSet]):
     def size(self) -> int:
         "Size of the value set."
         return self.pbuf.size
+
+
+class P4ExternInstance(_P4TopLevel[p4i.ExternInstance]):
+    """Represents ExternInstance in schema.
+
+    A P4ExternInstance stores the `extern_type_id` and `extern_type_name` of
+    the Extern that wraps it.
+    """
+
+    _extern_type_id: int
+    _extern_type_name: str
+
+    def __init__(
+        self,
+        pbuf: p4i.ExternInstance,
+        extern_type_id: int,
+        extern_type_name: str,
+    ):
+        super().__init__(pbuf)
+        self._extern_type_id = extern_type_id
+        self._extern_type_name = extern_type_name
+
+    @property
+    def extern_type_id(self) -> int:
+        return self._extern_type_id
+
+    @property
+    def extern_type_name(self) -> str:
+        return self._extern_type_name
+
+    @property
+    def info(self) -> pbuf_util.PBAny:
+        "Information specific to the extern type."
+        return self.pbuf.info
+
+
+class P4ExternMap:
+    """Stores (type_name, name) -> P4ExternInstance mapping."""
+
+    _by_name: dict[tuple[str, str], P4ExternInstance]
+    _by_id: dict[tuple[int, int], P4ExternInstance]
+
+    def __init__(self):
+        self._by_name = {}
+        self._by_id = {}
+
+    def get(self, key: tuple[str, str] | tuple[int, int]) -> P4ExternInstance | None:
+        "Retrieve item by name. Return None if not found."
+        if isinstance(key[0], int):
+            return self._by_id.get(key)
+        return self._by_name.get(key)
+
+    def __getitem__(self, key: tuple[str, str]) -> P4ExternInstance:
+        value = self.get(key)
+        if value is None:
+            self._key_error(key)
+        return value
+
+    def __iter__(self) -> Iterator[P4ExternInstance]:
+        return iter(self._by_name.values())
+
+    def __len__(self) -> int:
+        return len(self._by_name)
+
+    def __repr__(self) -> str:
+        return f"[{', '.join([repr(item) for item in self])}]"
+
+    def _add(self, instance: P4ExternInstance):
+        "Add extern instance by (type_name, name) and (type_id, id)."
+        key1 = (instance.extern_type_name, instance.name)
+        key2 = (instance.extern_type_id, instance.id)
+
+        if key1 in self._by_name:
+            raise ValueError(f"extern name already exists: {key1!r}")
+        self._by_name[key1] = instance
+
+        if key2 in self._by_id:
+            raise ValueError(f"extern id already exists: {key2!r}")
+        self._by_id[key2] = instance
+
+    def _key_error(self, key: tuple[str, str] | tuple[int, int]):
+        "Raise an exception to indicate key is missing."
+        if len(key) != 2:
+            raise TypeError(f"invalid key for P4ExternMap: {key!r}")
+        raise ValueError(
+            f"no extern with extern_type_id={key[0]!r}, extern_id={key[1]!r}"
+        ) from None
 
 
 def _make_alias(name: str) -> str:

@@ -840,6 +840,7 @@ P4Schema(
     ],
     direct_meters=[],
     exists=True,
+    externs=[],
     is_authoritative=False,
     meters=[],
     name="",

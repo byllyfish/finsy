@@ -518,6 +518,7 @@ P4Schema(
         )
     ],
     exists=True,
+    externs=[],
     is_authoritative=False,
     meters=[],
     name="",
