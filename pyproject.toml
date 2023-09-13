@@ -30,7 +30,7 @@ protobuf = "^4.24.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.1"
-black = "^23.7.0"
+black = "^23.9.1"
 pytest-asyncio = "^0.21.1"
 mypy = "^1.5.1"
 pdoc = "^14.0.0"
@@ -39,7 +39,7 @@ pytest-cov = "^4.1.0"
 pylint = "^2.17.5"
 shellous = "^0.29.0"
 prometheus-client = "^0.17.1"
-ruff = "^0.0.287"
+ruff = "^0.0.289"
 
 [tool.poetry.group.extra.dependencies]
 pygraphviz = "^1.11"
@@ -92,7 +92,7 @@ reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']
-required-version = "23.7.0"
+required-version = "23.9.1"
 force-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 #************
