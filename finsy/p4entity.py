@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import abc
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
 from typing import (
@@ -164,16 +165,38 @@ def encode_updates(
     return [_encode_update(val, schema) for val in flatten(values)]
 
 
-class P4Entity:
-    "Abstract marker superclass for P4Entity subclasses."
+class P4Entity(abc.ABC):
+    """Abstract base class for P4Entity subclasses.
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
+    All entities have `encode` and `decode` methods.
+
+    The `encode` method is used to encode the entity to a Protobuf message. The
+    `decode` method is a class method that decodes a Protobuf message and
+    returns the entity object.
+    """
+
+    @abc.abstractmethod
+    def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode object as an entity."
-        raise NotImplementedError()  # pragma: no cover
+
+    @classmethod
+    @abc.abstractmethod
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+        "Decode Protobuf to entity object."
 
 
 class _P4Writable(P4Entity):
-    "Abstract base class for entities that support insert/modify/delete."
+    """Abstract base class for entities that support insert/modify/delete.
+
+    A writable entity can specify the type of update by using a unary operator.
+
+    1. `+` means INSERT.
+    2. `-` means DELETE.
+    3. `~` means MODIFY.
+
+    Note: For efficiency, this class just mutates itself! This is safe as long
+    as entities are used only once.
+    """
 
     _update_type: P4UpdateType = P4UpdateType.UNSPECIFIED
 
@@ -189,29 +212,24 @@ class _P4Writable(P4Entity):
         self._update_type = P4UpdateType.MODIFY
         return self
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
-        "Encode object as an entity."
-        raise NotImplementedError()  # pragma: no cover
-
     def encode_update(self, schema: P4Schema) -> p4r.Update:
-        "Encode object as an update or stream request."
+        "Encode object as a Protobuf Update message."
         if self._update_type == P4UpdateType.UNSPECIFIED:
             raise ValueError(f"unspecified update type (+, ~, -): {self!r}")
         return p4r.Update(type=self._update_type.vt(), entity=self.encode(schema))
 
 
 class _P4ModifyOnly(P4Entity):
-    "Abstract base class for entities that only support modify (no insert/delete)."
+    """Abstract base class for entities that only support modify.
+
+    You can use `~` to indicate MODIFY, but this is optional.
+    """
 
     def __invert__(self) -> Self:
         return self
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
-        "Encode object as an entity."
-        raise NotImplementedError()  # pragma: no cover
-
     def encode_update(self, schema: P4Schema) -> p4r.Update:
-        "Encode object as an update or stream request."
+        "Encode object as a Protobuf Update message."
         return p4r.Update(type=P4UpdateType.MODIFY.vt(), entity=self.encode(schema))
 
 
@@ -263,7 +281,7 @@ def decode_watch_port(watch_port: bytes) -> int:
 
 
 class P4TableMatch(dict[str, Any]):
-    "Represents a sequence of P4Runtime FieldMatch."
+    """Represents a set of P4Runtime field matches."""
 
     def encode(self, table: P4Table) -> list[p4r.FieldMatch]:
         "Encode TableMatch data as protobuf."
@@ -331,13 +349,47 @@ class P4TableMatch(dict[str, Any]):
 
 @dataclass(init=False, slots=True)
 class P4TableAction:
-    """Represents a P4Runtime Action reference.
+    """Represents a P4Runtime Action reference for a direct table.
 
-    e.g. P4TableAction("ipv4_forward", port=1)
+    Attributes:
+        name (str): the name of the action.
+        args (dict[str, Any]): the action's arguments as a dictionary.
+
+    Example:
+        If the name of the action is "ipv4_forward" and it takes a single
+        "port" parameter, you can construct the action as:
+
+        ```
+        action = P4TableAction("ipv4_forward", port=1)
+        ```
+
+    Reference "9.1.2 Action Specification":
+        The Action Protobuf has fields: (action_id, params). Finsy translates
+        `name` to the appropriate `action_id` as determined by P4Info. It also
+        translates each named argument in `args` to the appropriate `param_id`.
+
+    See Also:
+        To specify an action for an indirect table, use `P4IndirectAction`.
+        Note that P4TableAction will automatically be promoted to an "indirect"
+        action if needed.
+
+    Operators:
+        A `P4TableAction` supports the multiplication operator (*) for
+        constructing "weighted actions". A weighted action is used in specifying
+        indirect actions. Here is an action with a weight of 3:
+
+        ```
+        weighted_action = 3 * P4TableAction("ipv4_forward", port=1)
+        ```
+
+        To specify a weight with a `watch_port`, use a tuple `(weight, port)`.
+        The weight is always a positive integer.
     """
 
     name: str
+    "The name of the action."
     args: dict[str, Any]
+    "The action's arguments as a dictionary."
 
     def __init__(self, __name: str, /, **args: Any):
         self.name = __name
@@ -379,7 +431,6 @@ class P4TableAction:
 
     def encode_action(self, schema: P4Schema | P4Table) -> p4r.Action:
         "Encode Action data as protobuf."
-        # TODO: Make sure that action is normal `Action`.
         action = schema.actions[self.name]
         return self._encode_action(action)
 
@@ -394,7 +445,7 @@ class P4TableAction:
             raise ValueError(f"{action.alias!r}: {ex}") from ex
 
         # Check for missing action parameters. We always accept an action with
-        # no parameters.
+        # no parameters (for wildcard ReadRequests).
         param_count = len(params)
         if param_count > 0 and param_count != len(aps):
             self._fail_missing_params(action)
@@ -433,7 +484,17 @@ class P4TableAction:
         return cls(action.alias, **args)
 
     def format_str(self, schema: P4Schema | P4Table) -> str:
-        """Format the table action as a human-readable string."""
+        """Format the table action as a human-readable string.
+
+        The result is formatted to look like a function call:
+
+        ```
+        name(param1=value1, ...)
+        ```
+
+        Where `name` is the action name, and `(param<N>, value<N>)` are the
+        action parameters. The format of `value<N>` is schema-dependent.
+        """
         aps = schema.actions[self.name].params
         args = [
             f"{key}={aps[key].format_param(value)}" for key, value in self.args.items()
@@ -460,23 +521,71 @@ class P4TableAction:
 
 @dataclass(slots=True)
 class P4IndirectAction:
-    "Represents a P4Runtime indirect action."
+    """Represents a P4Runtime Action reference for an indirect table.
+
+    An indirect action can be either:
+
+    1. a "one-shot" action (action_set)
+    2. a reference to an action profile member (member_id)
+    3. a reference to an action profile group (group_id)
+
+    Only one of action_set, member_id or group_id may be configured. The other
+    values must be None.
+
+    Attributes:
+        action_set: sequence of weighted actions for one-shot
+        member_id: id of member
+        group_id: id of group
+
+    Examples:
+
+    ```python
+    # Construct a one-shot action profile.
+    one_shot = P4IndirectAction(
+        2 * P4TableAction("forward", port=1),
+        1 * P4TableAction("forward", port=2),
+    )
+
+    # Refer to an action profile member by ID.
+    member_action = P4IndirectAction(member_id=1)
+
+    # Refer to an action profile group by ID.
+    group_action = P4IndirectAction(group_id=2)
+    ```
+
+    References:
+        - "9.1.2. Action Specification",
+        - "9.2.3. One Shot Action Selector Programming":
+    """
 
     action_set: Sequence[P4WeightedAction] | None = None
+    "Sequence of weighted actions defining one-shot action profile."
     _: KW_ONLY
     member_id: int | None = None
     group_id: int | None = None
 
+    def __post_init__(self):
+        if not self._check_invariant():
+            raise ValueError(
+                "exactly one of action_set, member_id, or group_id must be set"
+            )
+
+    def _check_invariant(self) -> bool:
+        "Return true if instance satisfies class invariant."
+        if self.action_set is not None:
+            return self.member_id is None and self.group_id is None
+        if self.member_id is not None:
+            return self.group_id is None
+        return self.group_id is not None
+
     def encode_table_action(self, table: P4Table) -> p4r.TableAction:
         "Encode object as a TableAction."
         if self.action_set is not None:
-            assert self.member_id is None and self.group_id is None
             return p4r.TableAction(
                 action_profile_action_set=self.encode_action_set(table)
             )
 
         if self.member_id is not None:
-            assert self.group_id is None
             return p4r.TableAction(action_profile_member_id=self.member_id)
 
         assert self.group_id is not None
@@ -528,7 +637,6 @@ class P4IndirectAction:
     def format_str(self, table: P4Table) -> str:
         """Format the indirect table action as a human-readable string."""
         if self.action_set is not None:
-            assert self.member_id is None and self.group_id is None
             weighted_actions = [
                 f"{weight}*{action.format_str(table)}"
                 for weight, action in self.action_set
@@ -796,7 +904,7 @@ class P4TableEntry(_P4Writable):
 
         If `wildcard` is None, only include match fields that have values. If
         `wildcard` is set, include all field names but replace unset values with
-        given wildcard (e.g. "*")
+        given wildcard value (e.g. "*")
         """
         if schema is None:
             schema = P4Schema.current()
@@ -898,7 +1006,7 @@ class P4MulticastGroupEntry(_P4Writable):
     _: KW_ONLY
     replicas: Sequence[_ReplicaType] = ()
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
+    def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode MulticastGroupEntry data as protobuf."
         entry = p4r.MulticastGroupEntry(
             multicast_group_id=self.multicast_group_id,
@@ -911,7 +1019,7 @@ class P4MulticastGroupEntry(_P4Writable):
         )
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to MulticastGroupEntry data."
         entry = msg.packet_replication_engine_entry.multicast_group_entry
         return cls(
@@ -935,7 +1043,7 @@ class P4CloneSessionEntry(_P4Writable):
     packet_length_bytes: int = 0
     replicas: Sequence[_ReplicaType] = ()
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
+    def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode CloneSessionEntry data as protobuf."
         entry = p4r.CloneSessionEntry(
             session_id=self.session_id,
@@ -950,7 +1058,7 @@ class P4CloneSessionEntry(_P4Writable):
         )
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to CloneSessionEntry data."
         entry = msg.packet_replication_engine_entry.clone_session_entry
         return cls(

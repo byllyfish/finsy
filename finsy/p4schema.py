@@ -2128,14 +2128,14 @@ class P4ExternMap:
     def get(self, key: tuple[str, str] | tuple[int, int]) -> P4ExternInstance | None:
         "Retrieve item by name. Return None if not found."
         if isinstance(key[0], int):
-            return self._by_id.get(key)
-        return self._by_name.get(key)
+            return self._by_id.get(key)  # pyright: ignore[reportGeneralTypeIssues]
+        return self._by_name.get(key)  # pyright: ignore[reportGeneralTypeIssues]
 
-    def __getitem__(self, key: tuple[str, str]) -> P4ExternInstance:
+    def __getitem__(self, key: tuple[str, str] | tuple[int, int]) -> P4ExternInstance:
         value = self.get(key)
         if value is None:
             self._key_error(key)
-        return value
+        return value  # pyright: ignore[reportGeneralTypeIssues]
 
     def __iter__(self) -> Iterator[P4ExternInstance]:
         return iter(self._by_name.values())
