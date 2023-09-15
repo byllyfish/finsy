@@ -1,0 +1,21 @@
+{
+    "version": "0.2",
+    "language": "en-US",
+    "dictionaries": ["python", "softwareTerms"],
+    "words": [
+        "finsy",
+        "protobuf",
+        "pbuf",
+        "oneof",
+        "cburst",
+        "pburst"
+    ],
+    "ignorePaths": [
+        "tests/**"
+    ],
+    "ignoreRegExpList": [
+        "# pylint:.*",
+        "`[a-z]+`",
+        "__[a-z]+__"
+    ]
+}

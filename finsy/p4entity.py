@@ -43,7 +43,7 @@ from finsy.p4schema import (
 from finsy.proto import p4r
 
 
-class _SupportsDecode(Protocol):
+class _SupportsDecodeEntity(Protocol):
     @classmethod
     def decode(
         cls,
@@ -66,9 +66,9 @@ class _SupportsEncodeUpdate(Protocol):
         ...  # pragma: no cover
 
 
-_DECODER: dict[str, _SupportsDecode] = {}
+_DECODER: dict[str, _SupportsDecodeEntity] = {}
 
-_D = TypeVar("_D", bound=_SupportsDecode)
+_D = TypeVar("_D", bound=_SupportsDecodeEntity)
 
 
 def decodable(key: str) -> Callable[[_D], _D]:
@@ -89,8 +89,8 @@ def decode_entity(msg: p4r.Entity, schema: P4Schema) -> Any:
         raise ValueError("missing entity")
 
     if key == "packet_replication_engine_entry":
-        submsg = msg.packet_replication_engine_entry
-        key = submsg.WhichOneof("type")
+        sub_msg = msg.packet_replication_engine_entry
+        key = sub_msg.WhichOneof("type")
         if key is None:
             raise ValueError("missing packet_replication_engine type")
 
@@ -106,7 +106,7 @@ def decode_stream(msg: p4r.StreamMessageResponse, schema: P4Schema) -> Any:
     return _DECODER[key].decode(msg, schema)
 
 
-# Recursive typedefs.
+# Recursive type vars.
 P4EntityList = p4r.Entity | _SupportsEncodeEntity | Iterable["P4EntityList"]
 P4UpdateList = (
     p4r.Update
@@ -281,10 +281,70 @@ def decode_watch_port(watch_port: bytes) -> int:
 
 
 class P4TableMatch(dict[str, Any]):
-    """Represents a set of P4Runtime field matches."""
+    """Represents a set of P4Runtime field matches.
+
+    Each match field is stored as a dictionary key, where the key is the name
+    of the match field. The field's value should be appropriate for the type
+    of match (EXACT, LPM, TERNARY, etc.)
+
+    You will construct a match the same as any dictionary.
+
+    Example:
+    ```
+    # Keyword arguments:
+    match = P4TableMatch(ipv4_dst="10.0.0.1")
+
+    # Dictionary argument:
+    match = P4TableMatch({"ipv4_dst": "10.0.0.1"})
+
+    # List of 2-tuples:
+    match = P4TableMatch([("ipv4_dst", "10.0.0.1")])
+    ```
+
+    P4TableMatch is implemented as a subclass of `dict`. It supports all of the
+    standard dictionary methods:
+    ```
+    match = P4TableMatch()
+    match["ipv4_dst"] = "10.0.0.1"
+    assert len(match) == 1
+    ```
+
+    Reference "9.1.1 Match Format":
+        Each match field is translated to a FieldMatch Protobuf message by
+        translating the entry key to a `field_id`. The type of match (EXACT,
+        LPM, TERNARY, OPTIONAL, or RANGE) is determined by the P4Info, and the
+        value is converted to the Protobuf representation.
+
+    Supported String Values:
+    ```
+    EXACT: "255", "0xFF", "10.0.0.1", "2000::1", "00:00:00:00:00:01"
+
+    LPM: "255/8", "0xFF/8", "10.0.0.1/32", "2000::1/128",
+            "00:00:00:00:00:01/48"
+        (+ all exact formats are promoted to all-1 masks)
+
+    TERNARY: "255/&255", "0xFF/&0xFF", "10.0.0.1/&255.255.255.255",
+        "2000::1/&128", "00:00:00:00:00:01/&48"
+        (+ all exact formats are promoted to all-1 masks)
+        (+ all lpm formats are promoted to the specified contiguous mask)
+
+    RANGE: "0...255", "0x00...0xFF", "10.0.0.1...10.0.0.9",
+        "2000::1...2001::9", "00:00:00:00:00:01...00:00:00:00:00:09"
+        (+ all exact formats are promoted to single-value ranges)
+
+    OPTIONAL: Same as exact format.
+    ```
+
+    See the `p4values.py` module for all supported value classes.
+
+    TODO:
+        - Change range delimiter to '-' (and drop '-' delimited MAC's).
+        - Consider supporting ternary values with just '/' (and drop support
+          for decimal masks; mask must be hexadecimal number).
+    """
 
     def encode(self, table: P4Table) -> list[p4r.FieldMatch]:
-        "Encode TableMatch data as protobuf."
+        "Encode TableMatch data as a list of Protobuf fields."
         result: list[p4r.FieldMatch] = []
         match_fields = table.match_fields
 
@@ -300,7 +360,7 @@ class P4TableMatch(dict[str, Any]):
 
     @classmethod
     def decode(cls, msgs: Iterable[p4r.FieldMatch], table: P4Table) -> Self:
-        "Decode protobuf to TableMatch data."
+        "Decode Protobuf fields as TableMatch data."
         result = {}
         match_fields = table.match_fields
 
@@ -316,7 +376,14 @@ class P4TableMatch(dict[str, Any]):
         *,
         wildcard: str | None = None,
     ) -> dict[str, str]:
-        """Format the table match fields as a human-readable dictionary."""
+        """Format the table match fields as a human-readable dictionary.
+
+        The result is a dictionary showing the TableMatch data for fields
+        included in the match. If `wildcard` is specified, all fields defined
+        in P4Info will be included with their value set to the wildcard string.
+
+        Values are formatted using the format/type specified in P4Info.
+        """
         result: dict[str, str] = {}
 
         for fld in table.match_fields:
@@ -334,7 +401,17 @@ class P4TableMatch(dict[str, Any]):
         *,
         wildcard: str | None = None,
     ) -> str:
-        """Format the table match fields as a human-readable string."""
+        """Format the table match fields as a human-readable string.
+
+        The result is a string showing the TableMatch data for fields included
+        in the match. If `wildcard` is specified, all fields defined in P4Info
+        will be included with their value set to the wildcard string.
+
+        All fields are formatted as "name=value" and they are delimited by
+        spaces.
+
+        Values are formatted using the format/type specified in P4Info.
+        """
         result: list[str] = []
 
         for fld in table.match_fields:
@@ -1672,9 +1749,9 @@ class P4PacketIn:
         cpm = schema.controller_packet_metadata.get("packet_in")
         if cpm is None:
             # There is no controller metadata. Warn if message has any.
-            pktmeta = packet.metadata
-            if pktmeta:
-                LOGGER.warning("P4PacketIn unexpected metadata: %r", pktmeta)
+            pkt_meta = packet.metadata
+            if pkt_meta:
+                LOGGER.warning("P4PacketIn unexpected metadata: %r", pkt_meta)
             return cls(packet.payload, metadata={})
 
         return cls(
