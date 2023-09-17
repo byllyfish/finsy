@@ -595,6 +595,10 @@ class P4TableAction:
             raise NotImplementedError("expected P4Weight")
         return (weight, self)
 
+    def __call__(self, **params: Any) -> Self:
+        "Return a new action with the updated parameters."
+        return self.__class__(self.name, **(self.args | params))
+
 
 @dataclass(slots=True)
 class P4IndirectAction:
@@ -632,7 +636,10 @@ class P4IndirectAction:
 
     References:
         - "9.1.2. Action Specification",
-        - "9.2.3. One Shot Action Selector Programming":
+        - "9.2.3. One Shot Action Selector Programming"
+
+    TODO: Refactor into three classes? P4OneShotAction, P4MemberAction, and
+        P4GroupAction.
     """
 
     action_set: Sequence[P4WeightedAction] | None = None

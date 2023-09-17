@@ -75,8 +75,8 @@ class DemoRoleApp:
         return [
             fy.P4TableEntry(
                 "ipv4",
-                match=fy.P4TableMatch(ipv4_dst=addr),
-                action=fy.P4TableAction("forward", port=port),
+                match=fy.match(ipv4_dst=addr),
+                action=fy.action("forward", port=port),
             ),
         ]
 

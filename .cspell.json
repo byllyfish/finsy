@@ -8,7 +8,8 @@
         "pbuf",
         "oneof",
         "cburst",
-        "pburst"
+        "pburst",
+        "gnmi",
     ],
     "ignorePaths": [
         "tests/**"

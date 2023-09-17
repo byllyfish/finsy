@@ -144,6 +144,18 @@ def test_table_match5():
     assert match == P4TableMatch.decode(msgs, table)
 
 
+def test_table_match_dict():
+    "Test TableMatch class with dict methods."
+    match1 = P4TableMatch({"x.y": 1})
+    match2 = P4TableMatch([("x.y", 1)])
+    match3 = P4TableMatch(**{"x.y": 1})
+    assert match1 == match2 == match3
+
+    assert len(match1) == 1
+    assert list(match1.items()) == [("x.y", 1)]
+    assert match1["x.y"] == 1
+
+
 def test_table_action1():
     "Test TableAction class."
     action = P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=1)
@@ -188,6 +200,19 @@ def test_table_action4():
 
     with pytest.raises(ValueError, match="no action parameter named 'extra'"):
         action.encode_table_action(table)
+
+
+def test_table_action_call():
+    "Test TableAction with __call__ syntax."
+    action = P4TableAction("forward")
+
+    action1 = action(dst=1)
+    assert action == P4TableAction("forward")  # no change to original
+    assert action1 == P4TableAction("forward", dst=1)
+
+    action2 = action1(port=2)
+    assert action1 == P4TableAction("forward", dst=1)  # no change to original
+    assert action2 == P4TableAction("forward", port=2, dst=1)
 
 
 def test_indirect_action1():
