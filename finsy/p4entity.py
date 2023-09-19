@@ -615,8 +615,8 @@ class P4IndirectAction:
 
     Attributes:
         action_set: sequence of weighted actions for one-shot
-        member_id: id of member
-        group_id: id of group
+        member_id: ID of action profile member
+        group_id: ID of action profile group
 
     Examples:
 
@@ -646,7 +646,9 @@ class P4IndirectAction:
     "Sequence of weighted actions defining one-shot action profile."
     _: KW_ONLY
     member_id: int | None = None
+    "ID of action profile member."
     group_id: int | None = None
+    "ID of action profile group."
 
     def __post_init__(self):
         if not self._check_invariant():
@@ -750,12 +752,28 @@ class P4IndirectAction:
 
 @dataclass(kw_only=True, slots=True)
 class P4MeterConfig:
-    "Represents a P4Runtime MeterConfig."
+    """Represents a P4Runtime MeterConfig.
+
+    Attributes:
+        cir (int): Committed information rate (units/sec).
+        cburst (int): Committed burst size.
+        pir (int): Peak information rate (units/sec).
+        pburst (int): Peak burst size.
+
+    Example:
+    ```
+    config = P4MeterConfig(cir=10, cburst=20, pir=10, pburst=20)
+    ```
+    """
 
     cir: int
+    "Committed information rate (units/sec)."
     cburst: int
+    "Committed burst size."
     pir: int
+    "Peak information rate (units/sec)."
     pburst: int
+    "Peak burst size."
 
     def encode(self) -> p4r.MeterConfig:
         "Encode object as MeterConfig."
@@ -771,10 +789,17 @@ class P4MeterConfig:
 
 @dataclass(kw_only=True, slots=True)
 class P4CounterData:
-    "Represents a P4Runtime CounterData."
+    """Represents a P4Runtime object that keeps statistics of bytes and packets.
+
+    Attributes:
+        byte_count (int): the number of octets
+        packet_count (int): the number of packets
+    """
 
     byte_count: int = 0
+    "The number of octets."
     packet_count: int = 0
+    "The number of packets."
 
     def encode(self) -> p4r.CounterData:
         "Encode object as CounterData."
@@ -790,11 +815,20 @@ class P4CounterData:
 
 @dataclass(kw_only=True, slots=True)
 class P4MeterCounterData:
-    "Represents a P4Runtime MeterCounterData."
+    """Represents a P4Runtime MeterCounterData that stores per-color counters.
+
+    Attributes:
+        green (CounterData): counter of packets marked GREEN.
+        yellow (CounterData): counter of packets marked YELLOW.
+        red (CounterData): counter of packets marked RED.
+    """
 
     green: P4CounterData
+    "Counter of packets marked GREEN."
     yellow: P4CounterData
+    "Counter of packets marked YELLOW."
     red: P4CounterData
+    "Counter of packets marked RED."
 
     def encode(self) -> p4r.MeterCounterData:
         "Encode object as MeterCounterData."
@@ -817,22 +851,92 @@ class P4MeterCounterData:
 @decodable("table_entry")
 @dataclass(slots=True)
 class P4TableEntry(_P4Writable):
-    "Represents a P4Runtime TableEntry."
+    """Represents a P4Runtime table entry.
+
+    Attributes:
+        table_id (str): Name of the table.
+        match (P4TableMatch | None): Entry's match fields.
+        action (P4TableAction | P4IndirectAction | None): Entry's action.
+        is_default_action (bool): True if entry is the default table entry.
+        priority (int): Priority of a table entry when match implies TCAM lookup.
+        metadata (bytes): Arbitrary controller cookie (1.2.0).
+        controller_metadata (int): Deprecated controller cookie (< 1.2.0).
+        meter_config (P4MeterConfig | None): Meter configuration.
+        counter_data (P4CounterData | None): Counter data for table entry.
+        meter_counter_data (P4MeterCounterData | None): Meter counter data (1.4.0).
+        idle_timeout_ns (int): Idle timeout in nanoseconds.
+        time_since_last_hit (int | None): Nanoseconds since entry last matched.
+        is_const (bool): True if entry is constant (1.4.0).
+
+    The most commonly used fields are table_id, match, action, is_default_action,
+    and priority. See the P4Runtime Spec for usage examples regarding the other
+    attributes.
+
+    When writing a P4TableEntry, you can specify the type of update using '+',
+    '-', and '~'.
+
+    Examples:
+    ```
+    # Specify all tables when using "read".
+    entry = fy.P4TableEntry()
+
+    # Specify the table named "ipv4" when using "read".
+    entry = fy.P4TableEntry("ipv4")
+
+    # Specify the default entry in the "ipv4" table when using "read".
+    entry = fy.P4TableEntry("ipv4", is_default_action=True)
+
+    # Insert an entry into the "ipv4" table.
+    update = +fy.P4TableEntry(
+        "ipv4",
+        match=fy.match(ipv4_dst="10.0.0.0/8"),
+        action=fy.action("forward", port=1),
+    )
+
+    # Modify the default action in the "ipv4" table.
+    update = ~fy.P4TableEntry(
+        "ipv4",
+        action=fy.action("forward", port=5),
+        is_default_action=True
+    )
+    ```
+
+    Operators:
+        You can retrieve a match field from a table entry using `[]`. For
+        example, `entry["ipv4_dst"]` is the same as `entry.match["ipv4_dst"]`.
+
+    Formatting Helpers:
+        The `match_str` and `action_str` methods provide P4Info-aware formatting
+        of the match and action attributes.
+    """
 
     table_id: str = ""
+    "Name of the table."
     _: KW_ONLY
     match: P4TableMatch | None = None
+    "Entry's match fields."
     action: P4TableAction | P4IndirectAction | None = None
-    priority: int = 0
-    controller_metadata: int = 0
-    meter_config: P4MeterConfig | None = None
-    counter_data: P4CounterData | None = None
-    meter_counter_data: P4MeterCounterData | None = None
+    "Entry's action."
     is_default_action: bool = False
-    idle_timeout_ns: int = 0
-    time_since_last_hit: int | None = None
+    "True if entry is the default table entry."
+    priority: int = 0
+    "Priority of a table entry when match implies TCAM lookup."
     metadata: bytes = b""
+    "Arbitrary controller cookie. (1.2.0)."
+    controller_metadata: int = 0
+    "Deprecated controller cookie (< 1.2.0)."
+    meter_config: P4MeterConfig | None = None
+    "Meter configuration."
+    counter_data: P4CounterData | None = None
+    "Counter data for table entry."
+    meter_counter_data: P4MeterCounterData | None = None
+    "Meter counter data (1.4.0)."
+    idle_timeout_ns: int = 0
+    "Idle timeout in nanoseconds."
+    time_since_last_hit: int | None = None
+    "Nanoseconds since entry last matched."
     is_const: bool = False
+    "True if entry is constant (1.4.0)."
 
     def __getitem__(self, key: str) -> Any:
         "Convenience accessor to retrieve a value from the `match` property."

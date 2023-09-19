@@ -3,13 +3,14 @@
     "language": "en-US",
     "dictionaries": ["python", "softwareTerms"],
     "words": [
+        "coro",
         "finsy",
         "protobuf",
         "pbuf",
         "oneof",
         "cburst",
         "pburst",
-        "gnmi",
+        "gnmi"
     ],
     "ignorePaths": [
         "tests/**"
