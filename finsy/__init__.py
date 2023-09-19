@@ -23,7 +23,7 @@ __version__ = "0.19.0"
 import sys
 
 if sys.version_info < (3, 10):  # pragma: no cover
-    raise RuntimeError("Requires Python 3.10+.")
+    raise RuntimeError("Requires Python 3.10 or later.")
 
 from .controller import Controller
 from .gnmiclient import GNMIClient, GNMISubscription, GNMIUpdate
@@ -63,6 +63,12 @@ from .ports import SwitchPort, SwitchPortList
 from .runner import run
 from .switch import Switch, SwitchEvent, SwitchOptions
 
+match = P4TableMatch
+"`match` is an alias for P4TableMatch."
+
+action = P4TableAction
+"`action` is an alias for P4TableAction."
+
 __all__ = [
     "run",
     "Controller",
@@ -92,8 +98,10 @@ __all__ = [
     "P4PacketIn",
     "P4PacketOut",
     "P4RegisterEntry",
+    "action",
     "P4TableAction",
     "P4TableEntry",
+    "match",
     "P4TableMatch",
     "P4ValueSetEntry",
     "P4ConfigAction",

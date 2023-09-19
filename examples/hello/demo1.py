@@ -33,7 +33,7 @@ async def ready_handler(sw: fy.Switch):
             # Modify default table entry to flood all unmatched packets.
             ~fy.P4TableEntry(
                 "ipv4",
-                action=fy.P4TableAction("flood"),
+                action=fy.action("flood"),
                 is_default_action=True,
             ),
         ]

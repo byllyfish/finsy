@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import abc
 import collections.abc
 from dataclasses import KW_ONLY, dataclass
 from typing import (
@@ -42,7 +43,7 @@ from finsy.p4schema import (
 from finsy.proto import p4r
 
 
-class _SupportsDecode(Protocol):
+class _SupportsDecodeEntity(Protocol):
     @classmethod
     def decode(
         cls,
@@ -65,9 +66,9 @@ class _SupportsEncodeUpdate(Protocol):
         ...  # pragma: no cover
 
 
-_DECODER: dict[str, _SupportsDecode] = {}
+_DECODER: dict[str, _SupportsDecodeEntity] = {}
 
-_D = TypeVar("_D", bound=_SupportsDecode)
+_D = TypeVar("_D", bound=_SupportsDecodeEntity)
 
 
 def decodable(key: str) -> Callable[[_D], _D]:
@@ -88,8 +89,8 @@ def decode_entity(msg: p4r.Entity, schema: P4Schema) -> Any:
         raise ValueError("missing entity")
 
     if key == "packet_replication_engine_entry":
-        submsg = msg.packet_replication_engine_entry
-        key = submsg.WhichOneof("type")
+        sub_msg = msg.packet_replication_engine_entry
+        key = sub_msg.WhichOneof("type")
         if key is None:
             raise ValueError("missing packet_replication_engine type")
 
@@ -105,7 +106,7 @@ def decode_stream(msg: p4r.StreamMessageResponse, schema: P4Schema) -> Any:
     return _DECODER[key].decode(msg, schema)
 
 
-# Recursive typedefs.
+# Recursive type vars.
 P4EntityList = p4r.Entity | _SupportsEncodeEntity | Iterable["P4EntityList"]
 P4UpdateList = (
     p4r.Update
@@ -164,16 +165,38 @@ def encode_updates(
     return [_encode_update(val, schema) for val in flatten(values)]
 
 
-class P4Entity:
-    "Abstract marker superclass for P4Entity subclasses."
+class P4Entity(abc.ABC):
+    """Abstract base class for P4Entity subclasses.
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
+    All entities have `encode` and `decode` methods.
+
+    The `encode` method is used to encode the entity to a Protobuf message. The
+    `decode` method is a class method that decodes a Protobuf message and
+    returns the entity object.
+    """
+
+    @abc.abstractmethod
+    def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode object as an entity."
-        raise NotImplementedError()  # pragma: no cover
+
+    @classmethod
+    @abc.abstractmethod
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
+        "Decode Protobuf to entity object."
 
 
 class _P4Writable(P4Entity):
-    "Abstract base class for entities that support insert/modify/delete."
+    """Abstract base class for entities that support insert/modify/delete.
+
+    A writable entity can specify the type of update by using a unary operator.
+
+    1. `+` means INSERT.
+    2. `-` means DELETE.
+    3. `~` means MODIFY.
+
+    Note: For efficiency, this class just mutates itself! This is safe as long
+    as entities are used only once.
+    """
 
     _update_type: P4UpdateType = P4UpdateType.UNSPECIFIED
 
@@ -189,29 +212,24 @@ class _P4Writable(P4Entity):
         self._update_type = P4UpdateType.MODIFY
         return self
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
-        "Encode object as an entity."
-        raise NotImplementedError()  # pragma: no cover
-
     def encode_update(self, schema: P4Schema) -> p4r.Update:
-        "Encode object as an update or stream request."
+        "Encode object as a Protobuf Update message."
         if self._update_type == P4UpdateType.UNSPECIFIED:
             raise ValueError(f"unspecified update type (+, ~, -): {self!r}")
         return p4r.Update(type=self._update_type.vt(), entity=self.encode(schema))
 
 
 class _P4ModifyOnly(P4Entity):
-    "Abstract base class for entities that only support modify (no insert/delete)."
+    """Abstract base class for entities that only support modify.
+
+    You can use `~` to indicate MODIFY, but this is optional.
+    """
 
     def __invert__(self) -> Self:
         return self
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
-        "Encode object as an entity."
-        raise NotImplementedError()  # pragma: no cover
-
     def encode_update(self, schema: P4Schema) -> p4r.Update:
-        "Encode object as an update or stream request."
+        "Encode object as a Protobuf Update message."
         return p4r.Update(type=P4UpdateType.MODIFY.vt(), entity=self.encode(schema))
 
 
@@ -263,10 +281,70 @@ def decode_watch_port(watch_port: bytes) -> int:
 
 
 class P4TableMatch(dict[str, Any]):
-    "Represents a sequence of P4Runtime FieldMatch."
+    """Represents a set of P4Runtime field matches.
+
+    Each match field is stored as a dictionary key, where the key is the name
+    of the match field. The field's value should be appropriate for the type
+    of match (EXACT, LPM, TERNARY, etc.)
+
+    You will construct a match the same as any dictionary.
+
+    Example:
+    ```
+    # Keyword arguments:
+    match = P4TableMatch(ipv4_dst="10.0.0.1")
+
+    # Dictionary argument:
+    match = P4TableMatch({"ipv4_dst": "10.0.0.1"})
+
+    # List of 2-tuples:
+    match = P4TableMatch([("ipv4_dst", "10.0.0.1")])
+    ```
+
+    P4TableMatch is implemented as a subclass of `dict`. It supports all of the
+    standard dictionary methods:
+    ```
+    match = P4TableMatch()
+    match["ipv4_dst"] = "10.0.0.1"
+    assert len(match) == 1
+    ```
+
+    Reference "9.1.1 Match Format":
+        Each match field is translated to a FieldMatch Protobuf message by
+        translating the entry key to a `field_id`. The type of match (EXACT,
+        LPM, TERNARY, OPTIONAL, or RANGE) is determined by the P4Info, and the
+        value is converted to the Protobuf representation.
+
+    Supported String Values:
+    ```
+    EXACT: "255", "0xFF", "10.0.0.1", "2000::1", "00:00:00:00:00:01"
+
+    LPM: "255/8", "0xFF/8", "10.0.0.1/32", "2000::1/128",
+            "00:00:00:00:00:01/48"
+        (+ all exact formats are promoted to all-1 masks)
+
+    TERNARY: "255/&255", "0xFF/&0xFF", "10.0.0.1/&255.255.255.255",
+        "2000::1/&128", "00:00:00:00:00:01/&48"
+        (+ all exact formats are promoted to all-1 masks)
+        (+ all lpm formats are promoted to the specified contiguous mask)
+
+    RANGE: "0...255", "0x00...0xFF", "10.0.0.1...10.0.0.9",
+        "2000::1...2001::9", "00:00:00:00:00:01...00:00:00:00:00:09"
+        (+ all exact formats are promoted to single-value ranges)
+
+    OPTIONAL: Same as exact format.
+    ```
+
+    See the `p4values.py` module for all supported value classes.
+
+    TODO:
+        - Change range delimiter to '-' (and drop '-' delimited MAC's).
+        - Consider supporting ternary values with just '/' (and drop support
+          for decimal masks; mask must be hexadecimal number).
+    """
 
     def encode(self, table: P4Table) -> list[p4r.FieldMatch]:
-        "Encode TableMatch data as protobuf."
+        "Encode TableMatch data as a list of Protobuf fields."
         result: list[p4r.FieldMatch] = []
         match_fields = table.match_fields
 
@@ -282,7 +360,7 @@ class P4TableMatch(dict[str, Any]):
 
     @classmethod
     def decode(cls, msgs: Iterable[p4r.FieldMatch], table: P4Table) -> Self:
-        "Decode protobuf to TableMatch data."
+        "Decode Protobuf fields as TableMatch data."
         result = {}
         match_fields = table.match_fields
 
@@ -298,7 +376,14 @@ class P4TableMatch(dict[str, Any]):
         *,
         wildcard: str | None = None,
     ) -> dict[str, str]:
-        """Format the table match fields as a human-readable dictionary."""
+        """Format the table match fields as a human-readable dictionary.
+
+        The result is a dictionary showing the TableMatch data for fields
+        included in the match. If `wildcard` is specified, all fields defined
+        in P4Info will be included with their value set to the wildcard string.
+
+        Values are formatted using the format/type specified in P4Info.
+        """
         result: dict[str, str] = {}
 
         for fld in table.match_fields:
@@ -316,7 +401,17 @@ class P4TableMatch(dict[str, Any]):
         *,
         wildcard: str | None = None,
     ) -> str:
-        """Format the table match fields as a human-readable string."""
+        """Format the table match fields as a human-readable string.
+
+        The result is a string showing the TableMatch data for fields included
+        in the match. If `wildcard` is specified, all fields defined in P4Info
+        will be included with their value set to the wildcard string.
+
+        All fields are formatted as "name=value" and they are delimited by
+        spaces.
+
+        Values are formatted using the format/type specified in P4Info.
+        """
         result: list[str] = []
 
         for fld in table.match_fields:
@@ -331,13 +426,47 @@ class P4TableMatch(dict[str, Any]):
 
 @dataclass(init=False, slots=True)
 class P4TableAction:
-    """Represents a P4Runtime Action reference.
+    """Represents a P4Runtime Action reference for a direct table.
 
-    e.g. P4TableAction("ipv4_forward", port=1)
+    Attributes:
+        name (str): the name of the action.
+        args (dict[str, Any]): the action's arguments as a dictionary.
+
+    Example:
+        If the name of the action is "ipv4_forward" and it takes a single
+        "port" parameter, you can construct the action as:
+
+        ```
+        action = P4TableAction("ipv4_forward", port=1)
+        ```
+
+    Reference "9.1.2 Action Specification":
+        The Action Protobuf has fields: (action_id, params). Finsy translates
+        `name` to the appropriate `action_id` as determined by P4Info. It also
+        translates each named argument in `args` to the appropriate `param_id`.
+
+    See Also:
+        To specify an action for an indirect table, use `P4IndirectAction`.
+        Note that P4TableAction will automatically be promoted to an "indirect"
+        action if needed.
+
+    Operators:
+        A `P4TableAction` supports the multiplication operator (*) for
+        constructing "weighted actions". A weighted action is used in specifying
+        indirect actions. Here is an action with a weight of 3:
+
+        ```
+        weighted_action = 3 * P4TableAction("ipv4_forward", port=1)
+        ```
+
+        To specify a weight with a `watch_port`, use a tuple `(weight, port)`.
+        The weight is always a positive integer.
     """
 
     name: str
+    "The name of the action."
     args: dict[str, Any]
+    "The action's arguments as a dictionary."
 
     def __init__(self, __name: str, /, **args: Any):
         self.name = __name
@@ -379,7 +508,6 @@ class P4TableAction:
 
     def encode_action(self, schema: P4Schema | P4Table) -> p4r.Action:
         "Encode Action data as protobuf."
-        # TODO: Make sure that action is normal `Action`.
         action = schema.actions[self.name]
         return self._encode_action(action)
 
@@ -394,7 +522,7 @@ class P4TableAction:
             raise ValueError(f"{action.alias!r}: {ex}") from ex
 
         # Check for missing action parameters. We always accept an action with
-        # no parameters.
+        # no parameters (for wildcard ReadRequests).
         param_count = len(params)
         if param_count > 0 and param_count != len(aps):
             self._fail_missing_params(action)
@@ -433,7 +561,17 @@ class P4TableAction:
         return cls(action.alias, **args)
 
     def format_str(self, schema: P4Schema | P4Table) -> str:
-        """Format the table action as a human-readable string."""
+        """Format the table action as a human-readable string.
+
+        The result is formatted to look like a function call:
+
+        ```
+        name(param1=value1, ...)
+        ```
+
+        Where `name` is the action name, and `(param<N>, value<N>)` are the
+        action parameters. The format of `value<N>` is schema-dependent.
+        """
         aps = schema.actions[self.name].params
         args = [
             f"{key}={aps[key].format_param(value)}" for key, value in self.args.items()
@@ -457,26 +595,83 @@ class P4TableAction:
             raise NotImplementedError("expected P4Weight")
         return (weight, self)
 
+    def __call__(self, **params: Any) -> Self:
+        "Return a new action with the updated parameters."
+        return self.__class__(self.name, **(self.args | params))
+
 
 @dataclass(slots=True)
 class P4IndirectAction:
-    "Represents a P4Runtime indirect action."
+    """Represents a P4Runtime Action reference for an indirect table.
+
+    An indirect action can be either:
+
+    1. a "one-shot" action (action_set)
+    2. a reference to an action profile member (member_id)
+    3. a reference to an action profile group (group_id)
+
+    Only one of action_set, member_id or group_id may be configured. The other
+    values must be None.
+
+    Attributes:
+        action_set: sequence of weighted actions for one-shot
+        member_id: ID of action profile member
+        group_id: ID of action profile group
+
+    Examples:
+
+    ```python
+    # Construct a one-shot action profile.
+    one_shot = P4IndirectAction(
+        2 * P4TableAction("forward", port=1),
+        1 * P4TableAction("forward", port=2),
+    )
+
+    # Refer to an action profile member by ID.
+    member_action = P4IndirectAction(member_id=1)
+
+    # Refer to an action profile group by ID.
+    group_action = P4IndirectAction(group_id=2)
+    ```
+
+    References:
+        - "9.1.2. Action Specification",
+        - "9.2.3. One Shot Action Selector Programming"
+
+    TODO: Refactor into three classes? P4OneShotAction, P4MemberAction, and
+        P4GroupAction.
+    """
 
     action_set: Sequence[P4WeightedAction] | None = None
+    "Sequence of weighted actions defining one-shot action profile."
     _: KW_ONLY
     member_id: int | None = None
+    "ID of action profile member."
     group_id: int | None = None
+    "ID of action profile group."
+
+    def __post_init__(self):
+        if not self._check_invariant():
+            raise ValueError(
+                "exactly one of action_set, member_id, or group_id must be set"
+            )
+
+    def _check_invariant(self) -> bool:
+        "Return true if instance satisfies class invariant."
+        if self.action_set is not None:
+            return self.member_id is None and self.group_id is None
+        if self.member_id is not None:
+            return self.group_id is None
+        return self.group_id is not None
 
     def encode_table_action(self, table: P4Table) -> p4r.TableAction:
         "Encode object as a TableAction."
         if self.action_set is not None:
-            assert self.member_id is None and self.group_id is None
             return p4r.TableAction(
                 action_profile_action_set=self.encode_action_set(table)
             )
 
         if self.member_id is not None:
-            assert self.group_id is None
             return p4r.TableAction(action_profile_member_id=self.member_id)
 
         assert self.group_id is not None
@@ -528,7 +723,6 @@ class P4IndirectAction:
     def format_str(self, table: P4Table) -> str:
         """Format the indirect table action as a human-readable string."""
         if self.action_set is not None:
-            assert self.member_id is None and self.group_id is None
             weighted_actions = [
                 f"{weight}*{action.format_str(table)}"
                 for weight, action in self.action_set
@@ -558,12 +752,28 @@ class P4IndirectAction:
 
 @dataclass(kw_only=True, slots=True)
 class P4MeterConfig:
-    "Represents a P4Runtime MeterConfig."
+    """Represents a P4Runtime MeterConfig.
+
+    Attributes:
+        cir (int): Committed information rate (units/sec).
+        cburst (int): Committed burst size.
+        pir (int): Peak information rate (units/sec).
+        pburst (int): Peak burst size.
+
+    Example:
+    ```
+    config = P4MeterConfig(cir=10, cburst=20, pir=10, pburst=20)
+    ```
+    """
 
     cir: int
+    "Committed information rate (units/sec)."
     cburst: int
+    "Committed burst size."
     pir: int
+    "Peak information rate (units/sec)."
     pburst: int
+    "Peak burst size."
 
     def encode(self) -> p4r.MeterConfig:
         "Encode object as MeterConfig."
@@ -579,10 +789,17 @@ class P4MeterConfig:
 
 @dataclass(kw_only=True, slots=True)
 class P4CounterData:
-    "Represents a P4Runtime CounterData."
+    """Represents a P4Runtime object that keeps statistics of bytes and packets.
+
+    Attributes:
+        byte_count (int): the number of octets
+        packet_count (int): the number of packets
+    """
 
     byte_count: int = 0
+    "The number of octets."
     packet_count: int = 0
+    "The number of packets."
 
     def encode(self) -> p4r.CounterData:
         "Encode object as CounterData."
@@ -598,11 +815,20 @@ class P4CounterData:
 
 @dataclass(kw_only=True, slots=True)
 class P4MeterCounterData:
-    "Represents a P4Runtime MeterCounterData."
+    """Represents a P4Runtime MeterCounterData that stores per-color counters.
+
+    Attributes:
+        green (CounterData): counter of packets marked GREEN.
+        yellow (CounterData): counter of packets marked YELLOW.
+        red (CounterData): counter of packets marked RED.
+    """
 
     green: P4CounterData
+    "Counter of packets marked GREEN."
     yellow: P4CounterData
+    "Counter of packets marked YELLOW."
     red: P4CounterData
+    "Counter of packets marked RED."
 
     def encode(self) -> p4r.MeterCounterData:
         "Encode object as MeterCounterData."
@@ -625,22 +851,92 @@ class P4MeterCounterData:
 @decodable("table_entry")
 @dataclass(slots=True)
 class P4TableEntry(_P4Writable):
-    "Represents a P4Runtime TableEntry."
+    """Represents a P4Runtime table entry.
+
+    Attributes:
+        table_id (str): Name of the table.
+        match (P4TableMatch | None): Entry's match fields.
+        action (P4TableAction | P4IndirectAction | None): Entry's action.
+        is_default_action (bool): True if entry is the default table entry.
+        priority (int): Priority of a table entry when match implies TCAM lookup.
+        metadata (bytes): Arbitrary controller cookie (1.2.0).
+        controller_metadata (int): Deprecated controller cookie (< 1.2.0).
+        meter_config (P4MeterConfig | None): Meter configuration.
+        counter_data (P4CounterData | None): Counter data for table entry.
+        meter_counter_data (P4MeterCounterData | None): Meter counter data (1.4.0).
+        idle_timeout_ns (int): Idle timeout in nanoseconds.
+        time_since_last_hit (int | None): Nanoseconds since entry last matched.
+        is_const (bool): True if entry is constant (1.4.0).
+
+    The most commonly used fields are table_id, match, action, is_default_action,
+    and priority. See the P4Runtime Spec for usage examples regarding the other
+    attributes.
+
+    When writing a P4TableEntry, you can specify the type of update using '+',
+    '-', and '~'.
+
+    Examples:
+    ```
+    # Specify all tables when using "read".
+    entry = fy.P4TableEntry()
+
+    # Specify the table named "ipv4" when using "read".
+    entry = fy.P4TableEntry("ipv4")
+
+    # Specify the default entry in the "ipv4" table when using "read".
+    entry = fy.P4TableEntry("ipv4", is_default_action=True)
+
+    # Insert an entry into the "ipv4" table.
+    update = +fy.P4TableEntry(
+        "ipv4",
+        match=fy.match(ipv4_dst="10.0.0.0/8"),
+        action=fy.action("forward", port=1),
+    )
+
+    # Modify the default action in the "ipv4" table.
+    update = ~fy.P4TableEntry(
+        "ipv4",
+        action=fy.action("forward", port=5),
+        is_default_action=True
+    )
+    ```
+
+    Operators:
+        You can retrieve a match field from a table entry using `[]`. For
+        example, `entry["ipv4_dst"]` is the same as `entry.match["ipv4_dst"]`.
+
+    Formatting Helpers:
+        The `match_str` and `action_str` methods provide P4Info-aware formatting
+        of the match and action attributes.
+    """
 
     table_id: str = ""
+    "Name of the table."
     _: KW_ONLY
     match: P4TableMatch | None = None
+    "Entry's match fields."
     action: P4TableAction | P4IndirectAction | None = None
-    priority: int = 0
-    controller_metadata: int = 0
-    meter_config: P4MeterConfig | None = None
-    counter_data: P4CounterData | None = None
-    meter_counter_data: P4MeterCounterData | None = None
+    "Entry's action."
     is_default_action: bool = False
-    idle_timeout_ns: int = 0
-    time_since_last_hit: int | None = None
+    "True if entry is the default table entry."
+    priority: int = 0
+    "Priority of a table entry when match implies TCAM lookup."
     metadata: bytes = b""
+    "Arbitrary controller cookie. (1.2.0)."
+    controller_metadata: int = 0
+    "Deprecated controller cookie (< 1.2.0)."
+    meter_config: P4MeterConfig | None = None
+    "Meter configuration."
+    counter_data: P4CounterData | None = None
+    "Counter data for table entry."
+    meter_counter_data: P4MeterCounterData | None = None
+    "Meter counter data (1.4.0)."
+    idle_timeout_ns: int = 0
+    "Idle timeout in nanoseconds."
+    time_since_last_hit: int | None = None
+    "Nanoseconds since entry last matched."
     is_const: bool = False
+    "True if entry is constant (1.4.0)."
 
     def __getitem__(self, key: str) -> Any:
         "Convenience accessor to retrieve a value from the `match` property."
@@ -796,7 +1092,7 @@ class P4TableEntry(_P4Writable):
 
         If `wildcard` is None, only include match fields that have values. If
         `wildcard` is set, include all field names but replace unset values with
-        given wildcard (e.g. "*")
+        given wildcard value (e.g. "*")
         """
         if schema is None:
             schema = P4Schema.current()
@@ -898,7 +1194,7 @@ class P4MulticastGroupEntry(_P4Writable):
     _: KW_ONLY
     replicas: Sequence[_ReplicaType] = ()
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
+    def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode MulticastGroupEntry data as protobuf."
         entry = p4r.MulticastGroupEntry(
             multicast_group_id=self.multicast_group_id,
@@ -911,7 +1207,7 @@ class P4MulticastGroupEntry(_P4Writable):
         )
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to MulticastGroupEntry data."
         entry = msg.packet_replication_engine_entry.multicast_group_entry
         return cls(
@@ -935,7 +1231,7 @@ class P4CloneSessionEntry(_P4Writable):
     packet_length_bytes: int = 0
     replicas: Sequence[_ReplicaType] = ()
 
-    def encode(self, _schema: P4Schema) -> p4r.Entity:
+    def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode CloneSessionEntry data as protobuf."
         entry = p4r.CloneSessionEntry(
             session_id=self.session_id,
@@ -950,7 +1246,7 @@ class P4CloneSessionEntry(_P4Writable):
         )
 
     @classmethod
-    def decode(cls, msg: p4r.Entity, _schema: P4Schema) -> Self:
+    def decode(cls, msg: p4r.Entity, schema: P4Schema) -> Self:
         "Decode protobuf to CloneSessionEntry data."
         entry = msg.packet_replication_engine_entry.clone_session_entry
         return cls(
@@ -1564,9 +1860,9 @@ class P4PacketIn:
         cpm = schema.controller_packet_metadata.get("packet_in")
         if cpm is None:
             # There is no controller metadata. Warn if message has any.
-            pktmeta = packet.metadata
-            if pktmeta:
-                LOGGER.warning("P4PacketIn unexpected metadata: %r", pktmeta)
+            pkt_meta = packet.metadata
+            if pkt_meta:
+                LOGGER.warning("P4PacketIn unexpected metadata: %r", pkt_meta)
             return cls(packet.payload, metadata={})
 
         return cls(

@@ -846,6 +846,8 @@ def test_p4info_externs():
     assert len(p4.externs) == 4
     assert [ex.id for ex in p4.externs] == [1, 2, 1, 2]
     assert p4.externs.get(("", "")) is None
+    with pytest.raises(ValueError, match="no extern"):
+        p4.externs["", ""]
 
     extern1 = p4.externs[("x", "instance1")]
     assert extern1.id == 1
@@ -854,6 +856,7 @@ def test_p4info_externs():
     assert extern1.extern_type_id == 1
 
     extern2 = p4.externs.get(("x", "instance2"))
+    assert extern2 is not None
     assert extern2.id == 2
     assert extern2.name == "instance2"
     assert extern2.extern_type_name == "x"
