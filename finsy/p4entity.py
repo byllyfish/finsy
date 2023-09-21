@@ -30,7 +30,7 @@ from typing import (
 
 from typing_extensions import Self
 
-from finsy import p4values, pbuf
+from finsy import p4values, pbutil
 from finsy.log import LOGGER
 from finsy.p4schema import (
     P4Action,
@@ -2014,7 +2014,7 @@ class P4ExternEntry(_P4Writable):
 
     extern_type_id: str
     extern_id: str
-    entry: pbuf.PBAny
+    entry: pbutil.PBAny
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode ExternEntry data as protobuf."

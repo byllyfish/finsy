@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import grpc
 import pytest
 
-from finsy import GRPCStatusCode, P4Client, P4ClientError, P4Error, pbuf
+from finsy import GRPCStatusCode, P4Client, P4ClientError, P4Error, pbutil
 from finsy.proto import U128, p4r, rpc_status
 from finsy.test.p4runtime_server import P4RuntimeServer
 
@@ -170,7 +170,7 @@ async def _check_arbitration_request(client: P4Client):
         )
     )
     reply = await client.receive()
-    assert pbuf.to_dict(reply) == {
+    assert pbutil.to_dict(reply) == {
         "arbitration": {"device_id": "1", "election_id": {"low": "1"}}
     }
 
@@ -181,13 +181,13 @@ def test_client_error():
         code=GRPCStatusCode.UNKNOWN,
         message="inner message",
         details=[
-            pbuf.to_any(
+            pbutil.to_any(
                 p4r.Error(
                     canonical_code=GRPCStatusCode.NOT_FOUND,
                     message="sub message",
                 )
             ),
-            pbuf.to_any(
+            pbutil.to_any(
                 p4r.Error(
                     canonical_code=GRPCStatusCode.OK,
                     message="okay",

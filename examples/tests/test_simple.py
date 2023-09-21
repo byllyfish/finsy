@@ -5,7 +5,7 @@ import pytest
 import testlib
 
 import finsy as fy
-from finsy import pbuf
+from finsy import pbutil
 
 SIMPLE_DIR = Path(__file__).parents[1] / "simple"
 
@@ -64,7 +64,7 @@ async def test_too_many_entries(demonet, caplog):
         ex = exinfo.value
         assert ex.code == fy.GRPCStatusCode.UNKNOWN
         assert len(ex.details) == 1
-        assert pbuf.to_dict(ex.details[1024].subvalue) == {
+        assert pbutil.to_dict(ex.details[1024].subvalue) == {
             "type": "INSERT",
             "entity": {
                 "table_entry": {

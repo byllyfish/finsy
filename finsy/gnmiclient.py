@@ -23,7 +23,7 @@ from typing import Any, AsyncIterator, Iterator, Sequence, TypeAlias, cast
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 from typing_extensions import Self
 
-from finsy import pbuf
+from finsy import pbutil
 from finsy.gnmipath import GNMIPath
 from finsy.grpcutil import GRPC_EOF, GRPCCredentialsTLS, GRPCStatusCode, grpc_channel
 from finsy.log import LOGGER
@@ -371,9 +371,9 @@ class GNMIClient:
 
         return reply.timestamp
 
-    def _log_msg(self, msg: "pbuf.PBMessage"):
+    def _log_msg(self, msg: "pbutil.PBMessage"):
         "Log a gNMI message."
-        pbuf.log_msg(self._channel, msg, None)
+        pbutil.log_msg(self._channel, msg, None)
 
 
 _StreamTypeAlias: TypeAlias = grpc.aio.StreamStreamCall[

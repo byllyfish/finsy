@@ -5,7 +5,7 @@ from typing import Any
 import pytest
 
 import finsy.p4schema as p4s
-from finsy import pbuf
+from finsy import pbutil
 from finsy.proto import p4d
 from finsy.test.p4typefactory import P4TypeFactory
 
@@ -37,7 +37,7 @@ def check_roundtrip(
 def test_bool(type_factory: P4TypeFactory):
     "Test P4BoolType."
     bool_t = type_factory.bool_type()
-    assert pbuf.to_dict(bool_t.data_type_spec) == {"bool": {}}
+    assert pbutil.to_dict(bool_t.data_type_spec) == {"bool": {}}
 
     check_roundtrip(bool_t, True, "1801")
     check_roundtrip(bool_t, False, "1800")
@@ -51,7 +51,7 @@ def test_bool(type_factory: P4TypeFactory):
 def test_u32(type_factory: P4TypeFactory):
     "Test bits<32>."
     u32_t = type_factory.bits_type(32)
-    assert pbuf.to_dict(u32_t.data_type_spec) == {
+    assert pbutil.to_dict(u32_t.data_type_spec) == {
         "bitstring": {
             "bit": {"bitwidth": 32},
         }
@@ -76,7 +76,7 @@ def test_u32(type_factory: P4TypeFactory):
 def test_u13(type_factory: P4TypeFactory):
     "Test bits<13>."
     u13_t = type_factory.bits_type(13)
-    assert pbuf.to_dict(u13_t.data_type_spec) == {
+    assert pbutil.to_dict(u13_t.data_type_spec) == {
         "bitstring": {
             "bit": {"bitwidth": 13},
         }
@@ -98,7 +98,7 @@ def test_u13(type_factory: P4TypeFactory):
 def test_u3(type_factory: P4TypeFactory):
     "Test bits<3>."
     u3_t = type_factory.bits_type(3)
-    assert pbuf.to_dict(u3_t.data_type_spec) == {
+    assert pbutil.to_dict(u3_t.data_type_spec) == {
         "bitstring": {
             "bit": {"bitwidth": 3},
         }
@@ -117,7 +117,7 @@ def test_u3(type_factory: P4TypeFactory):
 def test_i32(type_factory: P4TypeFactory):
     "Test int<32>."
     i32_t = type_factory.bits_type(32, signed=True)
-    assert pbuf.to_dict(i32_t.data_type_spec) == {
+    assert pbutil.to_dict(i32_t.data_type_spec) == {
         "bitstring": {
             "int": {"bitwidth": 32},
         }
@@ -160,7 +160,7 @@ def test_i32(type_factory: P4TypeFactory):
 def test_i13(type_factory: P4TypeFactory):
     "Test int<13>."
     i13_t = type_factory.bits_type(13, signed=True)
-    assert pbuf.to_dict(i13_t.data_type_spec) == {
+    assert pbutil.to_dict(i13_t.data_type_spec) == {
         "bitstring": {
             "int": {"bitwidth": 13},
         }
@@ -196,7 +196,7 @@ def test_i13(type_factory: P4TypeFactory):
 def test_i3(type_factory: P4TypeFactory):
     "Test int<3>."
     i3_t = type_factory.bits_type(3, signed=True)
-    assert pbuf.to_dict(i3_t.data_type_spec) == {
+    assert pbutil.to_dict(i3_t.data_type_spec) == {
         "bitstring": {
             "int": {"bitwidth": 3},
         }
@@ -226,7 +226,7 @@ def test_i3(type_factory: P4TypeFactory):
 def test_vb32(type_factory: P4TypeFactory):
     "Test varbit<32>."
     vb32_t = type_factory.bits_type(32, varbit=True)
-    assert pbuf.to_dict(vb32_t.data_type_spec) == {
+    assert pbutil.to_dict(vb32_t.data_type_spec) == {
         "bitstring": {
             "varbit": {"max_bitwidth": 32},
         }
@@ -258,7 +258,7 @@ def test_vb32(type_factory: P4TypeFactory):
 def test_vb13(type_factory: P4TypeFactory):
     "Test varbit<13>."
     vb13_t = type_factory.bits_type(13, varbit=True)
-    assert pbuf.to_dict(vb13_t.data_type_spec) == {
+    assert pbutil.to_dict(vb13_t.data_type_spec) == {
         "bitstring": {
             "varbit": {"max_bitwidth": 13},
         }
@@ -284,7 +284,7 @@ def test_vb13(type_factory: P4TypeFactory):
 def test_vb3(type_factory: P4TypeFactory):
     "Test varbit<3>."
     vb3_t = type_factory.bits_type(3, varbit=True)
-    assert pbuf.to_dict(vb3_t.data_type_spec) == {
+    assert pbutil.to_dict(vb3_t.data_type_spec) == {
         "bitstring": {
             "varbit": {"max_bitwidth": 3},
         }
@@ -310,7 +310,7 @@ def test_tuple_type(type_factory: P4TypeFactory):
     u8_t = type_factory.bits_type(8)
     tup = type_factory.tuple_type(u4_t, u8_t)
 
-    assert pbuf.to_dict(tup.data_type_spec) == {
+    assert pbutil.to_dict(tup.data_type_spec) == {
         "tuple": {
             "members": [
                 {"bitstring": {"bit": {"bitwidth": 4}}},
@@ -338,7 +338,7 @@ def test_struct_type(type_factory: P4TypeFactory):
     u8_t = type_factory.bits_type(8)
     struct = type_factory.struct_type("s", a=u4_t, b=u8_t)
 
-    assert pbuf.to_dict(struct.data_type_spec) == {"struct": {"name": "s"}}
+    assert pbutil.to_dict(struct.data_type_spec) == {"struct": {"name": "s"}}
 
     check_roundtrip(struct, {"a": 0, "b": 0}, "2a0a0a030a01000a030a0100")
     check_roundtrip(struct, {"a": 10, "b": 100}, "2a0a0a030a010a0a030a0164")
@@ -360,7 +360,7 @@ def test_tuple_of_structs_type(type_factory: P4TypeFactory):
     struct = type_factory.struct_type("s", a=u4_t, b=u8_t)
     tup = type_factory.tuple_type(struct, struct)
 
-    assert pbuf.to_dict(tup.data_type_spec) == {
+    assert pbutil.to_dict(tup.data_type_spec) == {
         "tuple": {"members": [{"struct": {"name": "s"}}, {"struct": {"name": "s"}}]}
     }
 

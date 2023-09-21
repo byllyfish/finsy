@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from finsy import p4values, pbuf
+from finsy import p4values, pbutil
 from finsy.p4schema import (
     P4ActionParam,
     P4BitsType,
@@ -232,7 +232,9 @@ def test_p4bitstype():
     assert bits.bitwidth == 8
     assert not bits.signed and not bits.varbit
     assert bits.type_name == "u8"
-    assert pbuf.to_dict(bits.data_type_spec) == {"bitstring": {"bit": {"bitwidth": 8}}}
+    assert pbutil.to_dict(bits.data_type_spec) == {
+        "bitstring": {"bit": {"bitwidth": 8}}
+    }
 
     assert bits.encode_bytes(0) == b"\x00"
     assert bits.decode_bytes(b"\x00") == 0
@@ -241,11 +243,11 @@ def test_p4bitstype():
     assert bits.decode_bytes(b"\xFF") == 255
 
     data = bits.encode_data(0)
-    assert pbuf.to_dict(data) == {"bitstring": "AA=="}
+    assert pbutil.to_dict(data) == {"bitstring": "AA=="}
     assert bits.decode_data(data) == 0
 
     data = bits.encode_data(255)
-    assert pbuf.to_dict(data) == {"bitstring": "/w=="}
+    assert pbutil.to_dict(data) == {"bitstring": "/w=="}
     assert bits.decode_data(data) == 255
 
     # Test invalid data value.
@@ -265,7 +267,9 @@ def test_p4bitstype_signed():
     assert bits.bitwidth == 8
     assert bits.signed and not bits.varbit
     assert bits.type_name == "s8"
-    assert pbuf.to_dict(bits.data_type_spec) == {"bitstring": {"int": {"bitwidth": 8}}}
+    assert pbutil.to_dict(bits.data_type_spec) == {
+        "bitstring": {"int": {"bitwidth": 8}}
+    }
 
     assert bits.encode_bytes(-128) == b"\x80"
     assert bits.decode_bytes(b"\x80") == -128
@@ -274,11 +278,11 @@ def test_p4bitstype_signed():
     assert bits.decode_bytes(b"\x7F") == 127
 
     data = bits.encode_data(-128)
-    assert pbuf.to_dict(data) == {"bitstring": "gA=="}
+    assert pbutil.to_dict(data) == {"bitstring": "gA=="}
     assert bits.decode_data(data) == -128
 
     data = bits.encode_data(127)
-    assert pbuf.to_dict(data) == {"bitstring": "fw=="}
+    assert pbutil.to_dict(data) == {"bitstring": "fw=="}
     assert bits.decode_data(data) == 127
 
     # Test invalid data value.
@@ -298,7 +302,7 @@ def test_p4bitstype_varbit():
     assert bits.bitwidth == 8
     assert not bits.signed and bits.varbit
     assert bits.type_name == "vb8"
-    assert pbuf.to_dict(bits.data_type_spec) == {
+    assert pbutil.to_dict(bits.data_type_spec) == {
         "bitstring": {"varbit": {"max_bitwidth": 8}}
     }
 
@@ -309,11 +313,11 @@ def test_p4bitstype_varbit():
     assert bits.decode_bytes(b"\xFF") == 255
 
     data = bits.encode_data((0, 8))
-    assert pbuf.to_dict(data) == {"varbit": {"bitstring": "AA==", "bitwidth": 8}}
+    assert pbutil.to_dict(data) == {"varbit": {"bitstring": "AA==", "bitwidth": 8}}
     assert bits.decode_data(data) == (0, 8)
 
     data = bits.encode_data((255, 8))
-    assert pbuf.to_dict(data) == {"varbit": {"bitstring": "/w==", "bitwidth": 8}}
+    assert pbutil.to_dict(data) == {"varbit": {"bitstring": "/w==", "bitwidth": 8}}
     assert bits.decode_data(data) == (255, 8)
 
     # Test invalid data value.
@@ -333,14 +337,14 @@ def test_p4booltype():
     "Test P4BoolType."
     bool_type = P4BoolType(p4t.P4BoolType())
     assert bool_type.type_name == "bool"
-    assert pbuf.to_dict(bool_type.data_type_spec) == {"bool": {}}
+    assert pbutil.to_dict(bool_type.data_type_spec) == {"bool": {}}
 
     data = bool_type.encode_data(True)
-    assert pbuf.to_dict(data) == {"bool": True}
+    assert pbutil.to_dict(data) == {"bool": True}
     assert bool_type.decode_data(data) is True
 
     data = bool_type.encode_data(False)
-    assert pbuf.to_dict(data) == {"bool": False}
+    assert pbutil.to_dict(data) == {"bool": False}
     assert bool_type.decode_data(data) is False
 
 
@@ -375,7 +379,7 @@ def test_p4headertype():
 
     # Test valid header.
     data = header.encode_data({"a": 0})
-    assert pbuf.to_dict(data) == {
+    assert pbutil.to_dict(data) == {
         "header": {
             "bitstrings": ["AA=="],
             "is_valid": True,
@@ -385,7 +389,7 @@ def test_p4headertype():
 
     # Test !is_valid header.
     data = header.encode_data({})
-    assert pbuf.to_dict(data) == {"header": {}}
+    assert pbutil.to_dict(data) == {"header": {}}
     assert header.decode_data(data) == {}
 
     # Test header with missing field "a".
@@ -410,14 +414,14 @@ def test_p4headeruniontype():
     assert union_type.type_name == "HU"
 
     data = union_type.encode_union({"A": {"a": 0}})
-    assert pbuf.to_dict(data) == {
+    assert pbutil.to_dict(data) == {
         "valid_header": {"bitstrings": ["AA=="], "is_valid": True},
         "valid_header_name": "A",
     }
     assert union_type.decode_union(data) == {"A": {"a": 0}}
 
     data = union_type.encode_data({"A": {"a": 0}})
-    assert pbuf.to_dict(data) == {
+    assert pbutil.to_dict(data) == {
         "header_union": {
             "valid_header": {"bitstrings": ["AA=="], "is_valid": True},
             "valid_header_name": "A",
@@ -427,7 +431,7 @@ def test_p4headeruniontype():
 
     # Empty union.
     data = union_type.encode_data({})
-    assert pbuf.to_dict(data) == {"header_union": {}}
+    assert pbutil.to_dict(data) == {"header_union": {}}
     assert union_type.decode_data(data) == {}
 
     with pytest.raises(ValueError, match="P4HeaderUnion: wrong header"):
@@ -451,7 +455,7 @@ def test_p4headerstacktype():
     assert stack_type.type_name == "A[2]"
 
     data = stack_type.encode_data([{"a": 1}, {"a": 2}])
-    assert pbuf.to_dict(data) == {
+    assert pbutil.to_dict(data) == {
         "header_stack": {
             "entries": [
                 {"bitstrings": ["AQ=="], "is_valid": True},
@@ -485,7 +489,7 @@ def test_p4headerunionstacktype():
     assert stack.type_name == "U[2]"
 
     data = stack.encode_data([{"A": {"a": 0}}, {"B": {"b": 1}}])
-    assert pbuf.to_dict(data) == {
+    assert pbutil.to_dict(data) == {
         "header_union_stack": {
             "entries": [
                 {
@@ -525,7 +529,7 @@ def test_p4structtype():
     assert struct.type_name == "S"
 
     data = struct.encode_data({"a": 1, "b": {"h": 2}})
-    assert pbuf.to_dict(data) == {
+    assert pbutil.to_dict(data) == {
         "struct": {
             "members": [
                 {"bitstring": "AQ=="},
@@ -555,7 +559,7 @@ def test_p4tupletype():
     assert tple.type_name == "tuple[u8, H]"
 
     data = tple.encode_data((1, {"h": 2}))
-    assert pbuf.to_dict(data) == {
+    assert pbutil.to_dict(data) == {
         "tuple": {
             "members": [
                 {"bitstring": "AQ=="},
@@ -591,11 +595,11 @@ def test_p4newtype_sdnstring():
     assert newtype.type_name == "some_name"
 
     data = newtype.encode_data("xyz")
-    assert pbuf.to_dict(data) == {"bitstring": "eHl6"}
+    assert pbutil.to_dict(data) == {"bitstring": "eHl6"}
     assert newtype.decode_data(data) == "xyz"
 
     data = newtype.encode_data(b"xyz")
-    assert pbuf.to_dict(data) == {"bitstring": "eHl6"}
+    assert pbutil.to_dict(data) == {"bitstring": "eHl6"}
     assert newtype.decode_data(data) == "xyz"
 
     assert repr(newtype) == "P4NewType(sdn_string, uri='abc', type_name='some_name')"
@@ -617,7 +621,7 @@ def test_p4newtype_sdnbitwidth():
     assert newtype.type_name == "some_name"
 
     data = newtype.encode_data(128)
-    assert pbuf.to_dict(data) == {"bitstring": "gA=="}
+    assert pbutil.to_dict(data) == {"bitstring": "gA=="}
     assert newtype.decode_data(data) == 128
 
     assert (
@@ -637,7 +641,7 @@ def test_p4newtype_original_type():
     assert newtype.type_name == "some_name"
 
     data = newtype.encode_data(128)
-    assert pbuf.to_dict(data) == {"bitstring": "gA=="}
+    assert pbutil.to_dict(data) == {"bitstring": "gA=="}
     assert newtype.decode_data(data) == 128
 
     assert (
@@ -658,7 +662,7 @@ def test_p4matchfield_exact():
 
     field_p4 = field.encode_field("10.0.0.1")
     assert field_p4 is not None
-    assert pbuf.to_dict(field_p4) == {
+    assert pbutil.to_dict(field_p4) == {
         "field_id": 1,
         "exact": {"value": "CgAAAQ=="},
     }
@@ -683,7 +687,7 @@ def test_p4matchfield_lpm():
 
     field_p4 = field.encode_field("10.0.0.0/8")
     assert field_p4 is not None
-    assert pbuf.to_dict(field_p4) == {
+    assert pbutil.to_dict(field_p4) == {
         "field_id": 1,
         "lpm": {"prefix_len": 8, "value": "CgAAAA=="},
     }
@@ -711,7 +715,7 @@ def test_p4matchfield_ternary():
 
     field_p4 = field.encode_field("10.0.0.0/255.0.0.0")
     assert field_p4 is not None
-    assert pbuf.to_dict(field_p4) == {
+    assert pbutil.to_dict(field_p4) == {
         "field_id": 1,
         "ternary": {"mask": "/wAAAA==", "value": "CgAAAA=="},
     }
@@ -740,7 +744,7 @@ def test_p4matchfield_range():
 
     field_p4 = field.encode_field((23, 25))
     assert field_p4 is not None
-    assert pbuf.to_dict(field_p4) == {
+    assert pbutil.to_dict(field_p4) == {
         "field_id": 1,
         "range": {"high": "GQ==", "low": "Fw=="},
     }
@@ -748,7 +752,7 @@ def test_p4matchfield_range():
     field_p4 = field.encode_field("10.0.0.0 ... 10.0.0.5")
     assert field_p4 is not None
 
-    assert pbuf.to_dict(field_p4) == {
+    assert pbutil.to_dict(field_p4) == {
         "field_id": 1,
         "range": {"high": "CgAABQ==", "low": "CgAAAA=="},
     }
@@ -778,7 +782,7 @@ def test_p4matchfield_optional():
     field_p4 = field.encode_field("10.0.0.1")
     assert field_p4 is not None
 
-    assert pbuf.to_dict(field_p4) == {
+    assert pbutil.to_dict(field_p4) == {
         "field_id": 1,
         "optional": {"value": "CgAAAQ=="},
     }
@@ -809,7 +813,7 @@ def test_p4actionparam():
     # Skipping param._finish_init(...)
 
     data = param.encode_param(1024)
-    assert pbuf.to_dict(data) == {"param_id": 1, "value": "BAA="}
+    assert pbutil.to_dict(data) == {"param_id": 1, "value": "BAA="}
     assert param.decode_param(data) == 1024
     assert param.format_param(1024) == "0x400"
 

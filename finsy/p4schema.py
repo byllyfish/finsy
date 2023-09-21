@@ -35,12 +35,10 @@ from typing import (
     cast,
 )
 
-from finsy import p4values
-from finsy import pbuf as pbuf_util
+from finsy import p4values, pbutil, stringutil
 from finsy.grpcutil import GRPCStatusCode, _EnumBase
 from finsy.log import LOGGER
 from finsy.proto import p4d, p4i, p4r, p4t, rpc_code
-from finsy.stringutil import minimum_edit_distance
 
 # Enums
 # ~~~~~
@@ -368,7 +366,7 @@ class P4EntityMap(Generic[_T]):
             raise ValueError(f"no {self._entry_type} with id={key!r}") from None
 
         def _lev(val: str) -> int:
-            return minimum_edit_distance(val, key)
+            return stringutil.minimum_edit_distance(val, key)
 
         if not self._by_name:
             # No key's present at all? (e.g. action has no parameters)
@@ -2110,7 +2108,7 @@ class P4ExternInstance(_P4TopLevel[p4i.ExternInstance]):
         return self._extern_type_name
 
     @property
-    def info(self) -> pbuf_util.PBAny:
+    def info(self) -> pbutil.PBAny:
         "Information specific to the extern type."
         return self.pbuf.info
 
@@ -2215,7 +2213,7 @@ class P4SchemaCache:
             return None, P4SchemaCache.EMPTY_P4DEFS, 0
 
         if isinstance(p4info_ptr, Path):
-            p4info = pbuf_util.from_text(p4info_ptr.read_text(), p4i.P4Info)
+            p4info = pbutil.from_text(p4info_ptr.read_text(), p4i.P4Info)
         else:
             p4info = p4info_ptr
 

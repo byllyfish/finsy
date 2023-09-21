@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from finsy import pbuf
+from finsy import pbutil
 from finsy.gnmistring import parse, to_str
 from finsy.proto import gnmi
 
@@ -368,7 +368,7 @@ def _test_parse(value, expected):
 
     # Parse string value and compare it to expected `gnmi.Path` representaion.
     result = parse(value)
-    assert pbuf.to_dict(result) == expected
+    assert pbutil.to_dict(result) == expected
 
     # Test roundtrip back to canonical string value.
     if roundtrip in ("", "/"):
@@ -380,7 +380,7 @@ def _test_parse(value, expected):
     # Parse canonical value if different.
     if roundtrip != value:
         result = parse(roundtrip)
-        assert pbuf.to_dict(result) == expected
+        assert pbutil.to_dict(result) == expected
 
 
 @pytest.mark.parametrize(["value", "expected"], _VALID_PATHS1.items())
@@ -439,7 +439,7 @@ def test_unicode_roundtrip():
 def test_to_str():
     "Test how `to_str` escapes control and Unicode characters (in name)."
     value = "".join(chr(i) for i in range(260))
-    path = pbuf.from_dict(
+    path = pbutil.from_dict(
         {
             "elem": [
                 {"name": value},
@@ -459,7 +459,7 @@ def test_to_str():
 def test_to_str_for_key():
     "Test how `to_str` escapes control and Unicode characters (in key)."
     value = "".join(chr(i) for i in range(260))
-    path = pbuf.from_dict(
+    path = pbutil.from_dict(
         {
             "elem": [
                 {
@@ -482,7 +482,7 @@ def test_to_str_for_key():
 def test_to_str_for_val():
     "Test how `to_str` escapes control and Unicode characters (in val)."
     value = "".join(chr(i) for i in range(260))
-    path = pbuf.from_dict(
+    path = pbutil.from_dict(
         {
             "elem": [
                 {

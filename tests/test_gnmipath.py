@@ -1,13 +1,13 @@
 import pytest
 
-from finsy import pbuf
+from finsy import pbutil
 from finsy.gnmipath import GNMIPath
 
 
 def test_path_basics():
     path1 = GNMIPath("interfaces/interface[a=A][b=B]/state/counters")
 
-    assert pbuf.to_dict(path1.path) == {
+    assert pbutil.to_dict(path1.path) == {
         "elem": [
             {"name": "interfaces"},
             {"name": "interface", "key": {"a": "A", "b": "B"}},
@@ -114,7 +114,7 @@ def test_path_origin():
     assert path1.origin == "abc"
     assert path1.target == "def"
 
-    assert pbuf.to_dict(path1.path) == {
+    assert pbutil.to_dict(path1.path) == {
         "elem": [{"name": "interfaces"}],
         "origin": "abc",
         "target": "def",

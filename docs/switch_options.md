@@ -12,7 +12,7 @@ SwitchOptions(
     initial_election_id: int = 10, 
     channel_credentials: GRPCCredentialsTLS | None = None, 
     role_name: str = "",
-    role_config: pbuf.PBMessage | None = None,
+    role_config: pbutil.PBMessage | None = None,
     ready_handler: Optional[Callable[[ForwardRef('Switch')], Coroutine[Any, Any, NoneType]]] = None,
     fail_fast: bool = False,
     configuration: Any = None,
