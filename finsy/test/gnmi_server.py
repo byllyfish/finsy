@@ -20,7 +20,7 @@ from typing import AsyncIterator
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 
-from finsy import pbuf
+from finsy import pbutil
 from finsy.proto import gnmi, gnmi_grpc
 
 # pyright: reportIncompatibleMethodOverride=false
@@ -65,9 +65,9 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
         "Handle gNMI GetRequest."
         if len(request.path) == 1:
             if not request.path[0].elem and request.type == gnmi.GetRequest.CONFIG:
-                return pbuf.from_text(_GNMI_CONFIG_STRATUM, gnmi.GetResponse)
+                return pbutil.from_text(_GNMI_CONFIG_STRATUM, gnmi.GetResponse)
 
-        return pbuf.from_text(_GNMI_INTERFACE_STUFF, gnmi.GetResponse)
+        return pbutil.from_text(_GNMI_INTERFACE_STUFF, gnmi.GetResponse)
 
     async def Set(
         self,
@@ -105,7 +105,7 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
         ],
     ) -> gnmi.CapabilityResponse:
         "Handle the capability request."
-        return pbuf.from_text(_GNMI_CAPABILITIES, gnmi.CapabilityResponse)
+        return pbutil.from_text(_GNMI_CAPABILITIES, gnmi.CapabilityResponse)
 
     async def Subscribe(
         self,
@@ -122,15 +122,15 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
                     if mode == gnmi.SubscriptionMode.SAMPLE:
                         for reply in _GNMI_SUBSCRIBE_RESPONSES_SAMPLE:
                             await asyncio.sleep(0.1)
-                            yield pbuf.from_text(reply, gnmi.SubscribeResponse)
+                            yield pbutil.from_text(reply, gnmi.SubscribeResponse)
                     else:
                         for reply in _GNMI_SUBSCRIBE_RESPONSES_INITIAL:
-                            yield pbuf.from_text(reply, gnmi.SubscribeResponse)
+                            yield pbutil.from_text(reply, gnmi.SubscribeResponse)
                         yield gnmi.SubscribeResponse(sync_response=True)
                         if msg.subscribe.mode != gnmi.SubscriptionList.ONCE:
                             await asyncio.sleep(0.2)
                             for reply in _GNMI_SUBSCRIBE_RESPONSES_UPDATES:
-                                yield pbuf.from_text(reply, gnmi.SubscribeResponse)
+                                yield pbutil.from_text(reply, gnmi.SubscribeResponse)
                     await asyncio.sleep(5.0)
                 case "poll":  # not supported
                     raise RuntimeError("not supported")

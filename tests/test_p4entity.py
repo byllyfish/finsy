@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from finsy import pbuf
+from finsy import pbutil
 from finsy.p4entity import (
     P4ActionProfileGroup,
     P4ActionProfileMember,
@@ -60,14 +60,14 @@ def test_flatten():
 def test_replica1():
     "Test encode_replica and decode_replica functions."
     msg = encode_replica(1)
-    assert pbuf.to_dict(msg) == {"egress_port": 1}
+    assert pbutil.to_dict(msg) == {"egress_port": 1}
     assert decode_replica(msg) == (1, 0)
 
 
 def test_replica2():
     "Test encode_replica and decode_replica functions"
     msg = encode_replica((1, 2))
-    assert pbuf.to_dict(msg) == {"egress_port": 1, "instance": 2}
+    assert pbutil.to_dict(msg) == {"egress_port": 1, "instance": 2}
     assert decode_replica(msg) == (1, 2)
 
 
@@ -84,7 +84,7 @@ def test_table_match1():
     table = _SCHEMA.tables["ipv4_lpm"]
     msgs = match.encode(table)
 
-    assert [pbuf.to_dict(msg) for msg in msgs] == [
+    assert [pbutil.to_dict(msg) for msg in msgs] == [
         {
             "field_id": 1,
             "lpm": {"prefix_len": 24, "value": "CgAAAA=="},
@@ -108,7 +108,7 @@ def test_table_match3():
     table = _SCHEMA.tables["ipv4_lpm"]
     msgs = match.encode(table)
 
-    assert [pbuf.to_dict(msg) for msg in msgs] == []
+    assert [pbutil.to_dict(msg) for msg in msgs] == []
     assert match == P4TableMatch.decode(msgs, table)
 
 
@@ -118,7 +118,7 @@ def test_table_match4():
     table = _SCHEMA.tables["ipv4_lpm"]
     msgs = match.encode(table)
 
-    assert [pbuf.to_dict(msg) for msg in msgs] == [
+    assert [pbutil.to_dict(msg) for msg in msgs] == [
         {
             "field_id": 1,
             "lpm": {"prefix_len": 32, "value": "AQ=="},
@@ -135,7 +135,7 @@ def test_table_match5():
     match = P4TableMatch(mirror_port="ethernet1/0")
     msgs = match.encode(table)
 
-    assert [pbuf.to_dict(msg) for msg in msgs] == [
+    assert [pbutil.to_dict(msg) for msg in msgs] == [
         {
             "field_id": 1,
             "exact": {"value": "ZXRoZXJuZXQxLzA="},
@@ -162,7 +162,7 @@ def test_table_action1():
     table = _SCHEMA.tables["ipv4_lpm"]
     msg = action.encode_table_action(table)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "action": {
             "action_id": 28792405,
             "params": [
@@ -226,7 +226,7 @@ def test_indirect_action1():
     table = _SCHEMA.tables["ipv4_lpm"]
 
     msg = action.encode_table_action(table)
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "action_profile_action_set": {
             "action_profile_actions": [
                 {
@@ -273,7 +273,7 @@ def test_indirect_action2():
     table = _SCHEMA.tables["ipv4_lpm"]
 
     msg = action.encode_table_action(table)
-    assert pbuf.to_dict(msg) == {"action_profile_group_id": 123}
+    assert pbutil.to_dict(msg) == {"action_profile_group_id": 123}
 
     assert action == P4TableAction.decode_table_action(msg, table)
 
@@ -287,7 +287,7 @@ def test_indirect_action3():
     table = _SCHEMA.tables["ipv4_lpm"]
 
     msg = action.encode_table_action(table)
-    assert pbuf.to_dict(msg) == {"action_profile_member_id": 345}
+    assert pbutil.to_dict(msg) == {"action_profile_member_id": 345}
 
     assert action == P4TableAction.decode_table_action(msg, table)
 
@@ -305,7 +305,7 @@ def test_indirect_action4():
     table = _SCHEMA.tables["ipv4_lpm"]
 
     msg = action.encode_table_action(table)
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "action_profile_action_set": {
             "action_profile_actions": [
                 {
@@ -341,13 +341,13 @@ def test_indirect_action5():
 
     action1 = P4IndirectAction(group_id=123)
     msg1 = action1.encode_table_action(table)
-    assert pbuf.to_dict(msg1) == {"action_profile_group_id": 123}
+    assert pbutil.to_dict(msg1) == {"action_profile_group_id": 123}
     assert action1 == P4TableAction.decode_table_action(msg1, table)
     assert action1.format_str(table) == "@hashed_selector[0x7b]"
 
     action2 = P4IndirectAction(member_id=456)
     msg1 = action2.encode_table_action(table)
-    assert pbuf.to_dict(msg1) == {"action_profile_member_id": 456}
+    assert pbutil.to_dict(msg1) == {"action_profile_member_id": 456}
     assert action2 == P4TableAction.decode_table_action(msg1, table)
     assert action2.format_str(table) == "@hashed_selector[[0x1c8]]"
 
@@ -370,7 +370,7 @@ def test_table_entry1():
     entry = P4TableEntry()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"table_entry": {}}
+    assert pbutil.to_dict(msg) == {"table_entry": {}}
     assert entry == P4TableEntry.decode(msg, _SCHEMA)
 
 
@@ -379,7 +379,7 @@ def test_table_entry2():
     entry = P4TableEntry("ipv4_lpm")
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"table_entry": {"table_id": 37375156}}
+    assert pbutil.to_dict(msg) == {"table_entry": {"table_id": 37375156}}
     assert entry == P4TableEntry.decode(msg, _SCHEMA)
 
 
@@ -392,7 +392,7 @@ def test_table_entry3():
     )
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "table_entry": {
             "action": {
                 "action": {
@@ -435,7 +435,7 @@ def test_table_entry4():
     )
 
     msg = entry.encode(_SCHEMA)
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "table_entry": {
             "controller_metadata": "11",
             "counter_data": {"byte_count": "5", "packet_count": "6"},
@@ -468,7 +468,7 @@ def test_table_entry_indirect():
     )
     msg = entry.encode(schema)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "table_entry": {
             "action": {
                 "action_profile_action_set": {
@@ -547,7 +547,7 @@ def test_table_entry_action_id():
         action=P4TableAction("ipv4_forward"),
     )
     msg = entry.encode(_SCHEMA)
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "table_entry": {
             "action": {"action": {"action_id": 28792405}},
             "table_id": 37375156,
@@ -565,7 +565,7 @@ def test_table_update_action_id():
     msg = entry.encode_update(_SCHEMA)
 
     # Encode the message, but the P4Runtime server will not accept this.
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "type": "INSERT",
         "entity": {
             "table_entry": {
@@ -615,7 +615,7 @@ def test_decode_stream1():
 
 def test_decode_stream2():
     "Test decode_stream function."
-    msg = pbuf.from_text(
+    msg = pbutil.from_text(
         r"""
         packet {
             payload: "abc"
@@ -645,7 +645,7 @@ def test_encode_updates1():
         encode_updates([entry1], _SCHEMA)
 
     result = encode_updates([+entry1, -entry2, ~entry3], _SCHEMA)
-    assert [pbuf.to_dict(msg) for msg in result] == [
+    assert [pbutil.to_dict(msg) for msg in result] == [
         {"entity": {"table_entry": {"table_id": 37375156}}, "type": "INSERT"},
         {"entity": {"table_entry": {"table_id": 37375156}}, "type": "DELETE"},
         {"entity": {"table_entry": {"table_id": 37375156}}, "type": "MODIFY"},
@@ -659,7 +659,7 @@ def test_encode_updates2():
     entry3 = P4RegisterEntry("counter_bloom_filter", index=3, data=3)
 
     result = encode_updates([entry1, ~entry2, ~entry3], _SCHEMA)
-    assert [pbuf.to_dict(msg) for msg in result] == [
+    assert [pbutil.to_dict(msg) for msg in result] == [
         {
             "entity": {
                 "register_entry": {
@@ -703,7 +703,7 @@ def test_encode_updates4():
     "Test encode_updates with a single non-iterable argument."
     entry = P4TableEntry("ipv4_lpm")
     result = encode_updates(+entry, _SCHEMA)
-    assert [pbuf.to_dict(msg) for msg in result] == [
+    assert [pbutil.to_dict(msg) for msg in result] == [
         {
             "entity": {"table_entry": {"table_id": 37375156}},
             "type": "INSERT",
@@ -716,7 +716,7 @@ def test_action_profile_member1():
     entry = P4ActionProfileMember()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"action_profile_member": {}}
+    assert pbutil.to_dict(msg) == {"action_profile_member": {}}
     assert entry == P4ActionProfileMember.decode(msg, _SCHEMA)
 
 
@@ -730,7 +730,7 @@ def test_action_profile_member2():
     )
     msg = entry.encode(schema)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "action_profile_member": {
             "action": {"action_id": 17183246},
             "action_profile_id": 291115404,
@@ -759,7 +759,7 @@ def test_action_profile_group1():
     entry = P4ActionProfileGroup()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"action_profile_group": {}}
+    assert pbutil.to_dict(msg) == {"action_profile_group": {}}
     assert entry == P4ActionProfileGroup.decode(msg, _SCHEMA)
 
 
@@ -777,7 +777,7 @@ def test_action_profile_group2():
     )
     msg = entry.encode(schema)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "action_profile_group": {
             "action_profile_id": 291115404,
             "group_id": 2,
@@ -816,13 +816,13 @@ def test_member():
     member1 = P4Member(1, weight=2)
     msg = member1.encode()
 
-    assert pbuf.to_dict(msg) == {"member_id": 1, "weight": 2}
+    assert pbutil.to_dict(msg) == {"member_id": 1, "weight": 2}
     assert member1 == P4Member.decode(msg)
 
     member2 = P4Member(member_id=2, weight=(4, 3))
     msg = member2.encode()
 
-    assert pbuf.to_dict(msg) == {"member_id": 2, "watch_port": "Aw==", "weight": 4}
+    assert pbutil.to_dict(msg) == {"member_id": 2, "watch_port": "Aw==", "weight": 4}
     assert member2 == P4Member.decode(msg)
 
 
@@ -831,7 +831,7 @@ def test_meter_entry1():
     entry = P4MeterEntry()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"meter_entry": {}}
+    assert pbutil.to_dict(msg) == {"meter_entry": {}}
     assert entry == P4MeterEntry.decode(msg, _SCHEMA)
 
 
@@ -849,7 +849,7 @@ def test_meter_entry2():
     )
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "meter_entry": {
             "config": {"cburst": "2", "cir": "1", "pburst": "4", "pir": "3"},
             "counter_data": {
@@ -869,7 +869,7 @@ def test_direct_meter_entry1():
     entry = P4DirectMeterEntry()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"direct_meter_entry": {}}
+    assert pbutil.to_dict(msg) == {"direct_meter_entry": {}}
     assert entry == P4DirectMeterEntry.decode(msg, _SCHEMA)
 
 
@@ -894,7 +894,7 @@ def test_direct_meter_entry2():
     )
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "direct_meter_entry": {
             "config": {
                 "cburst": "2",
@@ -923,7 +923,7 @@ def test_counter_entry1():
     entry = P4CounterEntry()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"counter_entry": {}}
+    assert pbutil.to_dict(msg) == {"counter_entry": {}}
     assert entry == P4CounterEntry.decode(msg, _SCHEMA)
 
 
@@ -939,7 +939,7 @@ def test_counter_entry2():
     assert entry.packet_count == 2
 
     msg = entry.encode(_SCHEMA)
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "counter_entry": {
             "counter_id": 307710742,
             "data": {"byte_count": "1", "packet_count": "2"},
@@ -955,7 +955,7 @@ def test_direct_counter_entry1():
     assert entry.table_id == ""
 
     msg = entry.encode(_SCHEMA)
-    assert pbuf.to_dict(msg) == {"direct_counter_entry": {"table_entry": {}}}
+    assert pbutil.to_dict(msg) == {"direct_counter_entry": {"table_entry": {}}}
 
     entry_decode = P4DirectCounterEntry(table_entry=P4TableEntry())
     assert entry_decode == P4DirectCounterEntry.decode(msg, _SCHEMA)
@@ -978,7 +978,7 @@ def test_direct_counter_entry2():
     assert entry.packet_count == 2
 
     msg = entry.encode(_SCHEMA)
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "direct_counter_entry": {
             "data": {"byte_count": "1", "packet_count": "2"},
             "table_entry": {
@@ -1010,7 +1010,7 @@ def test_direct_counter_entry3():
     assert entry.data is None
 
     msg = entry.encode(_SCHEMA)
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "direct_counter_entry": {
             "table_entry": {"table_id": 37375156},
         }
@@ -1029,7 +1029,7 @@ def test_register_entry0():
     entry = P4RegisterEntry()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"register_entry": {}}
+    assert pbutil.to_dict(msg) == {"register_entry": {}}
     assert entry == P4RegisterEntry.decode(msg, _SCHEMA)
 
 
@@ -1038,7 +1038,7 @@ def test_register_entry1():
     entry = P4RegisterEntry("counter_bloom_filter", index=1, data=1)
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "register_entry": {
             "data": {"bitstring": "AQ=="},
             "index": {"index": "1"},
@@ -1053,7 +1053,7 @@ def test_register_entry2():
     entry = P4RegisterEntry("counter_bloom_filter", data=1)
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "register_entry": {
             "data": {"bitstring": "AQ=="},
             "register_id": 369140025,
@@ -1067,7 +1067,7 @@ def test_multicast_group_entry1():
     entry = P4MulticastGroupEntry()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "packet_replication_engine_entry": {
             "multicast_group_entry": {},
         }
@@ -1080,7 +1080,7 @@ def test_clone_session_entry1():
     entry = P4CloneSessionEntry()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "packet_replication_engine_entry": {
             "clone_session_entry": {},
         }
@@ -1093,7 +1093,7 @@ def test_digest_entry1():
     entry = P4DigestEntry()
     msg = entry.encode(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {"digest_entry": {}}
+    assert pbutil.to_dict(msg) == {"digest_entry": {}}
     assert entry == P4DigestEntry.decode(msg, _SCHEMA)
 
 
@@ -1108,7 +1108,7 @@ def test_digest_entry2():
     )
     msg = entry.encode(schema)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "digest_entry": {
             "config": {
                 "ack_timeout_ns": "3",
@@ -1126,7 +1126,7 @@ def test_packet_out1():
     entry = P4PacketOut(b"abc", egress_port=1, _pad=0)
     msg = entry.encode_update(_SCHEMA)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "packet": {
             "metadata": [
                 {"metadata_id": 1, "value": "AQ=="},
@@ -1169,7 +1169,7 @@ def test_packet_out4():
 
 def test_packet_in1():
     "Test P4PacketIn class with no metadata."
-    data = pbuf.from_text(
+    data = pbutil.from_text(
         r"""
         packet {
             payload: "abc"
@@ -1187,7 +1187,7 @@ def test_packet_in1():
 
 def test_packet_in2():
     "Test P4PacketIn class with metadata."
-    data = pbuf.from_text(
+    data = pbutil.from_text(
         r"""
         packet {
             payload: "abc"
@@ -1230,7 +1230,7 @@ def test_digest_list1():
 def test_digest_list2():
     "Test P4DigestList."
     schema = P4Schema(_P4INFO_TEST_DIR / "layer2.p4.p4info.txt")
-    msg = pbuf.from_text(
+    msg = pbutil.from_text(
         r"""
         digest {
             digest_id: 401827287
@@ -1247,7 +1247,7 @@ def test_digest_list2():
 
 def test_idle_timeout_notification1():
     "Test P4IdleTimeoutNotification."
-    data = pbuf.from_dict(
+    data = pbutil.from_dict(
         {
             "idle_timeout_notification": {
                 "table_entry": [
@@ -1286,7 +1286,7 @@ def test_digest_list_ack1():
     ack = P4DigestListAck("Digest_t", 1)
     msg = ack.encode_update(schema)
 
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "digest_ack": {
             "digest_id": 401827287,
             "list_id": "1",
@@ -1308,7 +1308,7 @@ def test_value_set_entry1():
     )
 
     msg = entry.encode(_SCHEMA)
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "value_set_entry": {
             "members": [
                 {"match": [{"exact": {"value": "AQ=="}, "field_id": 1}]},
@@ -1332,7 +1332,7 @@ def test_extern_entry0():
 def test_extern_entry1():
     "Test P4ExternEntry."
     schema = P4Schema(_P4INFO_TEST_DIR / "externs.p4info.txt")
-    any_data = pbuf.to_any(p4r.CounterData(byte_count=1, packet_count=2))
+    any_data = pbutil.to_any(p4r.CounterData(byte_count=1, packet_count=2))
 
     entry = P4ExternEntry(
         extern_type_id="x",
@@ -1345,7 +1345,7 @@ def test_extern_entry1():
     assert entry.entry == any_data
 
     msg = entry.encode(schema)
-    assert pbuf.to_dict(msg) == {
+    assert pbutil.to_dict(msg) == {
         "extern_entry": {
             "entry": OrderedDict(
                 [

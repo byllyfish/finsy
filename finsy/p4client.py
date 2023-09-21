@@ -21,7 +21,7 @@ from typing import Any, AsyncIterator, Callable, Sequence, TypeAlias, cast, over
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 from typing_extensions import Self
 
-from finsy import pbuf
+from finsy import pbutil
 from finsy.grpcutil import (
     GRPC_EOF,
     GRPCCredentialsTLS,
@@ -62,7 +62,7 @@ class P4Error:
     message: str
     space: str
     code: int
-    subvalue: pbuf.PBMessage | None = None
+    subvalue: pbutil.PBMessage | None = None
 
 
 @dataclass
@@ -106,11 +106,11 @@ class P4RpcStatus:
         )
 
     @staticmethod
-    def _parse_error(details: Sequence[pbuf.PBAny]) -> dict[int, P4Error]:
+    def _parse_error(details: Sequence[pbutil.PBAny]) -> dict[int, P4Error]:
         result: dict[int, P4Error] = {}
 
         for i, detail in enumerate(details):
-            err = pbuf.from_any(detail, p4r.Error)
+            err = pbutil.from_any(detail, p4r.Error)
             if err.canonical_code != rpc_code.OK:
                 result[i] = P4Error(
                     GRPCStatusCode(err.canonical_code),
@@ -135,7 +135,7 @@ class P4ClientError(Exception):
         error: grpc.RpcError,
         operation: str,
         *,
-        msg: pbuf.PBMessage | None = None,
+        msg: pbutil.PBMessage | None = None,
         schema: P4Schema | None = None,
     ):
         super().__init__()
@@ -194,7 +194,7 @@ class P4ClientError(Exception):
             and _NO_PIPELINE_CONFIG.search(self.message) is not None
         )
 
-    def _attach_details(self, msg: pbuf.PBMessage):
+    def _attach_details(self, msg: pbutil.PBMessage):
         "Attach the subvalue(s) from the message that caused the error."
         if isinstance(msg, p4r.WriteRequest):
             for key, value in self.details.items():
@@ -207,7 +207,7 @@ class P4ClientError(Exception):
             def _show(value: P4Error):
                 s = repr(value)
                 if self._schema:
-                    s = pbuf.log_annotate(s, self._schema)
+                    s = pbutil.log_annotate(s, self._schema)
                 s = s.replace("\n}\n)", "\n})")  # tidy multiline repr
                 return s.replace("\n", "\n" + " " * 6)  # indent 6 spaces
 
@@ -244,7 +244,7 @@ class P4Client:
     _channel: grpc.aio.Channel | None = None
     _stub: p4r_grpc.P4RuntimeStub | None = None
     _stream: _P4StreamTypeAlias | None = None
-    _complete_request: Callable[[pbuf.PBMessage], None] | None = None
+    _complete_request: Callable[[pbutil.PBMessage], None] | None = None
 
     _schema: P4Schema | None = None
     "Annotate log messages using this optional P4Info schema."
@@ -276,7 +276,7 @@ class P4Client:
         self,
         *,
         schema: P4Schema | None = None,
-        complete_request: Callable[[pbuf.PBMessage], None] | None = None,
+        complete_request: Callable[[pbutil.PBMessage], None] | None = None,
     ) -> None:
         """Open the client channel.
 
@@ -373,7 +373,7 @@ class P4Client:
     async def request(self, msg: p4r.CapabilitiesRequest) -> p4r.CapabilitiesResponse:
         ...  # pragma: no cover
 
-    async def request(self, msg: pbuf.PBMessage) -> pbuf.PBMessage:
+    async def request(self, msg: pbutil.PBMessage) -> pbutil.PBMessage:
         "Send a unary-unary P4Runtime request and wait for the response."
         assert self._stub is not None
 
@@ -420,6 +420,6 @@ class P4Client:
         except grpc.RpcError as ex:
             raise P4ClientError(ex, msg_type) from None
 
-    def _log_msg(self, msg: pbuf.PBMessage) -> None:
+    def _log_msg(self, msg: pbutil.PBMessage) -> None:
         "Log a P4Runtime request or response."
-        pbuf.log_msg(self._channel, msg, self._schema)
+        pbutil.log_msg(self._channel, msg, self._schema)

@@ -40,7 +40,7 @@ from typing import (
 import pyee
 from typing_extensions import Self
 
-from finsy import p4entity, pbuf
+from finsy import p4entity, pbutil
 from finsy.futures import CountdownFuture
 from finsy.gnmiclient import GNMIClient, GNMIClientError
 from finsy.grpcutil import GRPCCredentialsTLS, GRPCStatusCode
@@ -100,7 +100,7 @@ class SwitchOptions:
     role_name: str = ""
     "P4Runtime role configuration."
 
-    role_config: pbuf.PBMessage | None = None
+    role_config: pbutil.PBMessage | None = None
     "P4Runtime role configuration."
 
     ready_handler: Callable[["Switch"], Coroutine[Any, Any, None]] | None = None
@@ -863,7 +863,7 @@ class Switch:
         assert self._p4client is not None
 
         # Log the message at the ERROR level.
-        pbuf.log_msg(self._p4client.channel, msg, self.p4info, level=logging.ERROR)
+        pbutil.log_msg(self._p4client.channel, msg, self.p4info, level=logging.ERROR)
 
         self.ee.emit(SwitchEvent.STREAM_ERROR, self, msg)
 

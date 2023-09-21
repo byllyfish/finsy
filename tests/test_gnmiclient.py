@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from finsy import pbuf
+from finsy import pbutil
 from finsy.gnmiclient import GNMIClient, GNMIPath, gnmi_update
 
 
@@ -131,4 +131,4 @@ def test_gnmi_update():
 
     path = GNMIPath("path")
     for val, result in examples:
-        assert pbuf.to_dict(gnmi_update(path, val).val) == result
+        assert pbutil.to_dict(gnmi_update(path, val).val) == result

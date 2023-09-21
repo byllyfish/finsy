@@ -17,7 +17,7 @@
 # pyright: reportPrivateUsage=false
 
 import finsy.switch as _sw  # break circular import
-from finsy import pbuf
+from finsy import pbutil
 from finsy.grpcutil import GRPCStatusCode
 from finsy.log import LOGGER
 from finsy.p4client import P4ClientError, P4RpcStatus
@@ -43,7 +43,7 @@ class Arbitrator:
         self,
         initial_election_id: int,
         role_name: str = "",
-        role_config: pbuf.PBMessage | None = None,
+        role_config: pbutil.PBMessage | None = None,
     ):
         self.initial_election_id = initial_election_id
         self.election_id = initial_election_id
@@ -126,7 +126,7 @@ class Arbitrator:
         self.is_primary = False
         self.primary_id = _NOT_ASSIGNED
 
-    def complete_request(self, msg: pbuf.PBMessage) -> None:
+    def complete_request(self, msg: pbutil.PBMessage) -> None:
         "Complete request with role/election_id information."
         if isinstance(msg, p4r.ReadRequest):
             if self.role is not None:
@@ -222,7 +222,7 @@ class Arbitrator:
 
 def _create_role(
     role_name: str,
-    role_config: pbuf.PBMessage | None,
+    role_config: pbutil.PBMessage | None,
 ) -> p4r.Role | None:
     "Create a new P4Runtime Role object."
     if not role_name and role_config is None:
@@ -233,8 +233,8 @@ def _create_role(
 
     return p4r.Role(
         name=role_name,
-        # [2021-10-18] If I remove the `pbuf.to_any()` and try
+        # [2021-10-18] If I remove the `pbutil.to_any()` and try
         # to set the message field `config=role_config`, I get a segmentation
         # fault on MacOS. [protobuf 4.21.7]
-        config=pbuf.to_any(role_config),
+        config=pbutil.to_any(role_config),
     )
