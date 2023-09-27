@@ -341,6 +341,9 @@ class P4TableMatch(dict[str, Any]):
         - Change range delimiter to '-' (and drop '-' delimited MAC's).
         - Consider supporting ternary values with just '/' (and drop support
           for decimal masks; mask must be hexadecimal number).
+
+    See Also:
+        - P4TableEntry
     """
 
     def encode(self, table: P4Table) -> list[p4r.FieldMatch]:
@@ -461,6 +464,9 @@ class P4TableAction:
 
         To specify a weight with a `watch_port`, use a tuple `(weight, port)`.
         The weight is always a positive integer.
+
+    See Also:
+        - P4TableEntry
     """
 
     name: str
@@ -640,6 +646,9 @@ class P4IndirectAction:
 
     TODO: Refactor into three classes? P4OneShotAction, P4MemberAction, and
         P4GroupAction.
+
+    See Also:
+        - P4TableEntry
     """
 
     action_set: Sequence[P4WeightedAction] | None = None
@@ -764,6 +773,11 @@ class P4MeterConfig:
     ```
     config = P4MeterConfig(cir=10, cburst=20, pir=10, pburst=20)
     ```
+
+    See Also:
+        - P4TableEntry
+        - P4MeterEntry
+        - P4DirectMeterEntry
     """
 
     cir: int
@@ -794,6 +808,12 @@ class P4CounterData:
     Attributes:
         byte_count (int): the number of octets
         packet_count (int): the number of packets
+
+    See Also:
+        - P4TableEntry
+        - P4MeterCounterData
+        - P4CounterEntry
+        - P4DirectCounterEntry
     """
 
     byte_count: int = 0
@@ -818,9 +838,14 @@ class P4MeterCounterData:
     """Represents a P4Runtime MeterCounterData that stores per-color counters.
 
     Attributes:
-        green (CounterData): counter of packets marked GREEN.
-        yellow (CounterData): counter of packets marked YELLOW.
-        red (CounterData): counter of packets marked RED.
+        green (CounterData): counter data for packets marked GREEN.
+        yellow (CounterData): counter data for packets marked YELLOW.
+        red (CounterData): counter data for packets marked RED.
+
+    See Also:
+        - P4TableEntry
+        - P4MeterEntry
+        - P4DirectMeterEntry
     """
 
     green: P4CounterData
@@ -1368,7 +1393,11 @@ class P4ActionProfileMember(_P4Writable):
 
 @dataclass(slots=True)
 class P4Member:
-    "Represents an ActionProfileGroup Member."
+    """Represents an ActionProfileGroup Member.
+
+    See Also:
+        - P4ActionProfileGroup
+    """
 
     member_id: int
     _: KW_ONLY
@@ -1757,6 +1786,9 @@ class P4ValueSetMember(dict[str, Any]):
     """Represents a sequence of P4Runtime FieldMatch in a ValueSet.
 
     To access an unnamed, singular value, use `member.value`.
+
+    See Also:
+        - P4ValueSetEntry
     """
 
     def __init__(
