@@ -27,9 +27,66 @@ from finsy.switch import Switch, SwitchEvent, SwitchFailFastError
 
 
 class Controller:
-    """A Controller is a collection of switches.
+    """A Controller manages a variable number of concurrent `Switch` objects.
 
-    Each switch MUST have a unique name.
+    You can think of it as a collection of Switches.
+
+    Each Switch in the Controller is uniquely identified by its name. You are
+    not permitted to have two or more switches with the same name.
+
+    Example:
+
+    ```python
+    switches = [
+        fy.Switch("sw1", "127.0.0.1:50001"),
+        fy.Switch("sw2", "127.0.0.1:50001"),
+    ]
+    controller = fy.Controller(switches)
+    await controller.run()
+    ```
+
+    A Controller can be running or stopped. There are two ways to run a
+    Controller. You can use the `Controller.run()` method, or you can use
+    a Controller as an async context manager. The example above shows
+    `run()` which runs until cancelled, here is the same example as a context
+    manager:
+
+    ```python
+    switches = [
+        fy.Switch("sw1", "127.0.0.1:50001"),
+        fy.Switch("sw2", "127.0.0.1:50001"),
+    ]
+    controller = fy.Controller(switches)
+    async with controller:
+        # Let controller run for 60 seconds.
+        await asyncio.sleep(60)
+    ```
+
+    You can `add` or `remove` switches regardless of whether a Controller is
+    running or not. If the Controller is not running, adding or removing a Switch is
+    instantaneous. If the Controller is running, adding a Switch will start
+    it running asynchronously. Removing a Switch will schedule the Switch to stop,
+    but defer actual removal until the Switch has stopped asynchronously.
+
+    When a switch starts inside a Controller, it fires the `CONTROLLER_ENTER`
+    event. When a switch stops inside a Controller, it fires the `CONTROLLER_LEAVE`
+    event.
+
+    A Controller supports these methods to access its contents:
+
+    - len(controller): Return number of switches in the controller.
+    - controller[name]: Return the switch with the given name.
+    - controller.get(name): Return the switch with the given name, or None if not found.
+
+    You can iterate over the switches in a Controller using a for loop:
+
+    ```python
+    for switch in controller:
+        print(switch.name)
+    ```
+
+    Any Switch running in a controller can retrieve its Controller object using
+    the `Controller.current()` method.
     """
 
     _switches: dict[str, Switch]
