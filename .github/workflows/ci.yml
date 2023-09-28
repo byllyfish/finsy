@@ -29,7 +29,7 @@ jobs:
     - name: Install dependencies (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
-        sudo apt-get -y install graphviz graphviz-dev
+        sudo apt-get -y install graphviz graphviz-dev valgrind
         pip install -r ./ci/requirements-dev.txt -r ./ci/requirements-extra.txt
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macos-latest'
@@ -55,6 +55,15 @@ jobs:
     - name: Type Check
       run: |
         PYTHONPATH=. pyright --ignoreexternal --verifytypes finsy || echo "Not yet 100%."
+    - name: MemCheck Tests (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        # TODO: fix controller_ctxt test by implementing API that returns future.
+        FINSY_TEST_NO_BENCHMARK=1 valgrind pytest -k 'not test_p4info_repr and not test_controller_ctxt'
+    - name: MemCheck Tests (MacOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        MallocScribble=1 GRPC_VERBOSITY=debug GRPC_TRACE=all,-timer,-timer_check FINSY_TEST_NO_BENCHMARK=1 pytest -k 'not test_p4info_repr'
 
   test-examples:
     runs-on: ubuntu-latest
