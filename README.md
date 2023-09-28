@@ -158,37 +158,37 @@ Use the `write()` method to write one or more P4Runtime updates and packets.
 A P4Runtime update supports one of three operations: INSERT, MODIFY or DELETE.
 Some entities support all three operations. Other entities only support MODIFY.
 
-| Entity | Operations Permitted 
-| ------ | -------------------
-| `P4TableEntry` |  INSERT, MODIFY, DELETE
-| `P4ActionProfileMember` |  INSERT, MODIFY, DELETE
-| `P4ActionProfileGroup` |  INSERT, MODIFY, DELETE
-| `P4MulticastGroupEntry` |  INSERT, MODIFY, DELETE
-| `P4CloneSessionEntry` |  INSERT, MODIFY, DELETE
-| `P4DigestEntry` |  INSERT, MODIFY, DELETE
-| `P4ExternEntry` | INSERT, MODIFY, DELETE
-| `P4RegisterEntry` | MODIFY
-| `P4CounterEntry` | MODIFY
-| `P4DirectCounterEntry` | MODIFY
-| `P4MeterEntry` | MODIFY
-| `P4DirectMeterEntry` | MODIFY
-| `P4ValueSetEntry` | MODIFY
+| Entity | Operations Permitted | Related Classes
+| ------ | -------------------- | ------
+| `P4TableEntry` |  INSERT, MODIFY, DELETE | `P4TableMatch`, `P4TableAction`, `P4IndirectAction`, `P4MeterConfig`, `P4CounterData`, `P4MeterCounterData` |
+| `P4ActionProfileMember` |  INSERT, MODIFY, DELETE | |
+| `P4ActionProfileGroup` |  INSERT, MODIFY, DELETE | `P4Member` |
+| `P4MulticastGroupEntry` |  INSERT, MODIFY, DELETE | |
+| `P4CloneSessionEntry` |  INSERT, MODIFY, DELETE | |
+| `P4DigestEntry` |  INSERT, MODIFY, DELETE | |
+| `P4ExternEntry` | INSERT, MODIFY, DELETE | |
+| `P4RegisterEntry` | MODIFY | |
+| `P4CounterEntry` | MODIFY | `P4CounterData` |
+| `P4DirectCounterEntry` | MODIFY | `P4CounterData` |
+| `P4MeterEntry` | MODIFY | `P4MeterConfig`, `P4MeterCounterData` |
+| `P4DirectMeterEntry` | MODIFY |
+| `P4ValueSetEntry` | MODIFY | `P4ValueSetMember` |
 
 #### Insert/Modify/Delete Updates
 
-To specify the operation, use a unary `+` (insert), `~` (modify), or `-` (delete). If you
+To specify the operation, use a unary `+` (INSERT), `~` (MODIFY), or `-` (DELETE). If you
 do not specify the operation, `write` will raise a `ValueError` exception.
 
 Here is an example showing how to insert and delete two different entities in the same WriteRequest.
 
 ```python
 await switch.write([
-    +fy.P4TableEntry(          # unary + means insert
+    +fy.P4TableEntry(          # unary + means INSERT
         "ipv4", 
         match=fy.P4TableMatch(dest="192.168.1.0/24"),
         action=fy.P4TableAction("forward", port=1),
     ),
-    -fy.P4TableEntry(          # unary - means delete
+    -fy.P4TableEntry(          # unary - means DELETE
         "ipv4", 
         match=fy.P4TableMatch(dest="192.168.2.0/24"),
         action=fy.P4TableAction("forward", port=2),
@@ -276,6 +276,18 @@ async for digest in switch.read_digests("digest_t"):
 ```
 
 To acknowledge the digest entry, you can write `digest.ack()`.
+
+### Listening for Idle Timeouts
+
+To receive idle timeout notifications, use the async iterator `Switch.read_idle_timeouts`.
+You will receive a `P4IdleTimeoutNotification` which contains multiple table
+entries -- one for each entry that timed out.
+
+```python
+async for timeout in switch.read_idle_timeouts():
+    for entry in timeout.table_entry:
+        print(timeout.timestamp, entry)
+```
 
 #### Other Events
 
