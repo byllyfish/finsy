@@ -70,7 +70,7 @@ async def test_controller_ctxt(p4rt_server_target: str):
         for name in names:
             sw = controller[name]
             controller.remove(sw)
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.01)
 
         assert len(controller) == 0
         assert len(controller._removed) == 0
