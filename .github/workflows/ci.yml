@@ -58,8 +58,7 @@ jobs:
     - name: MemCheck Tests (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
-        # TODO: fix controller_ctxt test by implementing API that returns future.
-        FINSY_TEST_NO_BENCHMARK=1 valgrind pytest -k 'not test_p4info_repr and not test_controller_ctxt'
+        FINSY_TEST_NO_BENCHMARK=1 valgrind pytest -k 'not test_p4info_repr'
     - name: MemCheck Tests (MacOS)
       if: matrix.os == 'macos-latest'
       run: |
