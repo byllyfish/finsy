@@ -90,7 +90,7 @@ class Controller:
     """
 
     _switches: dict[str, Switch]
-    _removed: set[Switch]
+    _pending_removal: set[Switch]
     _task_count: CountdownFuture
 
     control_task: asyncio.Task[Any] | None = None
@@ -99,7 +99,7 @@ class Controller:
     def __init__(self, switches: Iterable[Switch] = ()):
         "Initialize Controller with a list of switches."
         self._switches = {}
-        self._removed = set()
+        self._pending_removal = set()
         self._task_count = CountdownFuture()
 
         for switch in switches:
@@ -126,7 +126,7 @@ class Controller:
         "Run the controller as a context manager (see also run())."
         assert not self.running, "Controller.__aenter__ is not re-entrant"
         assert self._task_count.value() == 0
-        assert not self._removed
+        assert not self._pending_removal
 
         self.control_task = asyncio.current_task()
         _CONTROLLER.set(self)
@@ -177,7 +177,7 @@ class Controller:
         if self.running:
             self._start_switch(switch)
 
-    def remove(self, switch: Switch) -> None:
+    def remove(self, switch: Switch) -> asyncio.Event:
         """Remove a switch from the controller.
 
         If the controller is running, tell the switch to stop and schedule it
@@ -189,10 +189,23 @@ class Controller:
 
         del self._switches[name]
 
+        event = asyncio.Event()
         if self.running:
+            # When controller is running, event will complete when switch
+            # is actually stopped.
             self._stop_switch(switch)
-            self._removed.add(switch)
-            switch.ee.once(SwitchEvent.CONTROLLER_LEAVE, self._removed.discard)  # type: ignore
+            self._pending_removal.add(switch)
+
+            def _controller_leave(sw: Switch):
+                self._pending_removal.discard(sw)
+                event.set()
+
+            switch.ee.once(SwitchEvent.CONTROLLER_LEAVE, _controller_leave)  # type: ignore
+        else:
+            # When controller is not running, event completes immediately.
+            event.set()
+
+        return event
 
     def _start_switch(self, switch: Switch):
         "Start the switch's control task."

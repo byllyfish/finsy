@@ -69,8 +69,37 @@ async def test_controller_ctxt(p4rt_server_target: str):
 
         for name in names:
             sw = controller[name]
-            controller.remove(sw)
-            await asyncio.sleep(0.01)
+            event = controller.remove(sw)
+            await event.wait()
+            assert event.is_set()
 
         assert len(controller) == 0
-        assert len(controller._removed) == 0
+        assert len(controller._pending_removal) == 0
+
+
+def test_controller_sync():
+    "Test that add/remove still work in synchronous land."
+    N = 3
+    NAMES = {"sw0", "sw1", "sw2"}
+
+    controller = Controller([])
+    assert len(controller) == 0
+    assert not controller.running
+
+    for i in range(N):
+        sw = Switch(f"sw{i}", "127.0.0.1:50001")
+        controller.add(sw)
+        assert controller.get(f"sw{i}") is sw
+
+    assert len(controller) == N
+
+    names = {sw.name for sw in controller}
+    assert names == NAMES
+
+    for name in names:
+        sw = controller[name]
+        event = controller.remove(sw)
+        assert event.is_set()
+
+    assert len(controller) == 0
+    assert len(controller._pending_removal) == 0
