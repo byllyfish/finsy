@@ -1,5 +1,14 @@
 # Finsy Change Log
 
+## 0.20.0
+
+- Add support for `P4ExternEntry`.
+- Add `Match`, `Action` and `IndirectAction` as aliases for `P4TableMatch`, `P4TableAction`, and `P4IndirectAction`.
+- The `Controller.remove` method now returns an `asyncio.Event` to signal when a Switch is fully removed.
+- Rename the internal `pbuf.py` module to `pbutil.py`.
+- Add a CI step to run tests under valgrind/extra-logging to stress test C-based grpc underpinnings.
+- Update project dependencies.
+
 ## 0.19.0
 
 - Update P4Runtime/P4Info protobuf files; add support for `has_initial_entries` and `is_const`.
