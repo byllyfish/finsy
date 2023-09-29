@@ -914,14 +914,14 @@ class P4TableEntry(_P4Writable):
     # Insert an entry into the "ipv4" table.
     update = +fy.P4TableEntry(
         "ipv4",
-        match=fy.match(ipv4_dst="10.0.0.0/8"),
-        action=fy.action("forward", port=1),
+        match=fy.Match(ipv4_dst="10.0.0.0/8"),
+        action=fy.Action("forward", port=1),
     )
 
     # Modify the default action in the "ipv4" table.
     update = ~fy.P4TableEntry(
         "ipv4",
-        action=fy.action("forward", port=5),
+        action=fy.Action("forward", port=5),
         is_default_action=True
     )
     ```
