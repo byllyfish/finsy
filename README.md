@@ -66,7 +66,7 @@ async def ready_handler(sw: fy.Switch):
             # Modify (~) default table entry to flood all unmatched packets.
             ~fy.P4TableEntry(
                 "ipv4",
-                action=fy.P4TableAction("flood"),
+                action=fy.Action("flood"),
                 is_default_action=True,
             ),
         ]
@@ -160,7 +160,7 @@ Some entities support all three operations. Other entities only support MODIFY.
 
 | Entity | Operations Permitted | Related Classes
 | ------ | -------------------- | ------
-| `P4TableEntry` |  INSERT, MODIFY, DELETE | `P4TableMatch`, `P4TableAction`, `P4IndirectAction`, `P4MeterConfig`, `P4CounterData`, `P4MeterCounterData` |
+| `P4TableEntry` |  INSERT, MODIFY, DELETE | `Match`, `Action`, `IndirectAction`, `P4MeterConfig`, `P4CounterData`, `P4MeterCounterData` |
 | `P4ActionProfileMember` |  INSERT, MODIFY, DELETE | |
 | `P4ActionProfileGroup` |  INSERT, MODIFY, DELETE | `P4Member` |
 | `P4MulticastGroupEntry` |  INSERT, MODIFY, DELETE | |
