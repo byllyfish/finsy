@@ -201,14 +201,20 @@ class _P4Writable(P4Entity):
     _update_type: P4UpdateType = P4UpdateType.UNSPECIFIED
 
     def __pos__(self) -> Self:
+        if self._update_type != P4UpdateType.UNSPECIFIED:
+            raise ValueError(f"update type already specified")
         self._update_type = P4UpdateType.INSERT
         return self
 
     def __neg__(self) -> Self:
+        if self._update_type != P4UpdateType.UNSPECIFIED:
+            raise ValueError(f"update type already specified")
         self._update_type = P4UpdateType.DELETE
         return self
 
     def __invert__(self) -> Self:
+        if self._update_type != P4UpdateType.UNSPECIFIED:
+            raise ValueError(f"update type already specified")
         self._update_type = P4UpdateType.MODIFY
         return self
 
