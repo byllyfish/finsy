@@ -201,14 +201,20 @@ class _P4Writable(P4Entity):
     _update_type: P4UpdateType = P4UpdateType.UNSPECIFIED
 
     def __pos__(self) -> Self:
+        if self._update_type != P4UpdateType.UNSPECIFIED:
+            raise ValueError(f"update type already specified")
         self._update_type = P4UpdateType.INSERT
         return self
 
     def __neg__(self) -> Self:
+        if self._update_type != P4UpdateType.UNSPECIFIED:
+            raise ValueError(f"update type already specified")
         self._update_type = P4UpdateType.DELETE
         return self
 
     def __invert__(self) -> Self:
+        if self._update_type != P4UpdateType.UNSPECIFIED:
+            raise ValueError(f"update type already specified")
         self._update_type = P4UpdateType.MODIFY
         return self
 
@@ -914,14 +920,14 @@ class P4TableEntry(_P4Writable):
     # Insert an entry into the "ipv4" table.
     update = +fy.P4TableEntry(
         "ipv4",
-        match=fy.match(ipv4_dst="10.0.0.0/8"),
-        action=fy.action("forward", port=1),
+        match=fy.Match(ipv4_dst="10.0.0.0/8"),
+        action=fy.Action("forward", port=1),
     )
 
     # Modify the default action in the "ipv4" table.
     update = ~fy.P4TableEntry(
         "ipv4",
-        action=fy.action("forward", port=5),
+        action=fy.Action("forward", port=5),
         is_default_action=True
     )
     ```

@@ -63,11 +63,14 @@ from .ports import SwitchPort, SwitchPortList
 from .runner import run
 from .switch import Switch, SwitchEvent, SwitchOptions
 
-match = P4TableMatch
-"`match` is an alias for P4TableMatch."
+Match = P4TableMatch
+"`Match` is an alias for P4TableMatch."
 
-action = P4TableAction
-"`action` is an alias for P4TableAction."
+Action = P4TableAction
+"`Action` is an alias for P4TableAction."
+
+IndirectAction = P4IndirectAction
+"`IndirectAction` is an alias for P4IndirectAction."
 
 __all__ = [
     "run",
@@ -89,6 +92,7 @@ __all__ = [
     "P4DirectMeterEntry",
     "P4Error",
     "P4ExternEntry",
+    "IndirectAction",  # alias for P4IndirectAction
     "P4IndirectAction",
     "P4Member",
     "P4MeterConfig",
@@ -98,10 +102,10 @@ __all__ = [
     "P4PacketIn",
     "P4PacketOut",
     "P4RegisterEntry",
-    "action",
+    "Action",  # alias for P4TableAction
     "P4TableAction",
     "P4TableEntry",
-    "match",
+    "Match",  # alias for P4TableMatch
     "P4TableMatch",
     "P4ValueSetEntry",
     "P4ConfigAction",

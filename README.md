@@ -66,7 +66,7 @@ async def ready_handler(sw: fy.Switch):
             # Modify (~) default table entry to flood all unmatched packets.
             ~fy.P4TableEntry(
                 "ipv4",
-                action=fy.P4TableAction("flood"),
+                action=fy.Action("flood"),
                 is_default_action=True,
             ),
         ]
@@ -160,7 +160,7 @@ Some entities support all three operations. Other entities only support MODIFY.
 
 | Entity | Operations Permitted | Related Classes
 | ------ | -------------------- | ------
-| `P4TableEntry` |  INSERT, MODIFY, DELETE | `P4TableMatch`, `P4TableAction`, `P4IndirectAction`, `P4MeterConfig`, `P4CounterData`, `P4MeterCounterData` |
+| `P4TableEntry` |  INSERT, MODIFY, DELETE | `Match`, `Action`, `IndirectAction`, `P4MeterConfig`, `P4CounterData`, `P4MeterCounterData` |
 | `P4ActionProfileMember` |  INSERT, MODIFY, DELETE | |
 | `P4ActionProfileGroup` |  INSERT, MODIFY, DELETE | `P4Member` |
 | `P4MulticastGroupEntry` |  INSERT, MODIFY, DELETE | |
@@ -185,13 +185,13 @@ Here is an example showing how to insert and delete two different entities in th
 await switch.write([
     +fy.P4TableEntry(          # unary + means INSERT
         "ipv4", 
-        match=fy.P4TableMatch(dest="192.168.1.0/24"),
-        action=fy.P4TableAction("forward", port=1),
+        match=fy.Match(dest="192.168.1.0/24"),
+        action=fy.Action("forward", port=1),
     ),
     -fy.P4TableEntry(          # unary - means DELETE
         "ipv4", 
-        match=fy.P4TableMatch(dest="192.168.2.0/24"),
-        action=fy.P4TableAction("forward", port=2),
+        match=fy.Match(dest="192.168.2.0/24"),
+        action=fy.Action("forward", port=2),
     ),
 ])
 ```
