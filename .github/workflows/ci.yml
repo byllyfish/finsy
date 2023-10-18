@@ -29,6 +29,7 @@ jobs:
     - name: Install dependencies (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
+        sudo apt-get update -qq
         sudo apt-get -y install graphviz graphviz-dev valgrind
         pip install -r ./ci/requirements-dev.txt -r ./ci/requirements-extra.txt
     - name: Install dependencies (MacOS)
