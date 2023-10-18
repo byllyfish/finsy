@@ -37,7 +37,7 @@ pdoc = "^14.0.0"
 pyright = "^1.1.325"
 pytest-cov = "^4.1.0"
 pylint = "^3.0.1"
-shellous = "^0.30.0"
+shellous = "^0.31.1"
 prometheus-client = "^0.17.1"
 ruff = "^0.1.0"
 

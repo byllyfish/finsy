@@ -736,13 +736,13 @@ testing-integration = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "jar
 
 [[package]]
 name = "shellous"
-version = "0.30.0"
+version = "0.31.1"
 description = "Async Processes and Pipelines"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "shellous-0.30.0-py3-none-any.whl", hash = "sha256:bb16fed154325a702946f5f121230190244e71dcc75067ed5c15fecdb27c456b"},
-    {file = "shellous-0.30.0.tar.gz", hash = "sha256:e439a68730e3f403b35036cee369ed8283dd3a368b7d8d485f86beaa891189a8"},
+    {file = "shellous-0.31.1-py3-none-any.whl", hash = "sha256:0279290dbfd230d79633ff397f19b1734cb1fdc2cccfaeb39ca8b5de0e3e2730"},
+    {file = "shellous-0.31.1.tar.gz", hash = "sha256:2f48b4bfe75756d71ea4f112f634f3848c2043f6db53d811bd6a0cbf7753b57f"},
 ]
 
 [[package]]
@@ -781,4 +781,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "62ccee507df5602b85be47696e01eb65b3f11fa99a82f973555087f628c1e35f"
+content-hash = "3b663e68063bbc0a5bf61e8638b10380cb8e19f7b104cd13dd5e8ff4428d6fc0"
