@@ -16,8 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ "ubuntu-latest", "macos-latest" ]
-        # Python 3.12: Waiting on https://github.com/grpc/grpc/issues/33063
-        python-version: [ "3.10", "3.11" ]   #, "3.12-dev" ]
+        python-version: [ "3.10", "3.11", "3.12" ]
 
     steps:
     - uses: actions/checkout@v3
@@ -29,6 +28,7 @@ jobs:
     - name: Install dependencies (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
+        sudo apt-get update -qq
         sudo apt-get -y install graphviz graphviz-dev valgrind
         pip install -r ./ci/requirements-dev.txt -r ./ci/requirements-extra.txt
     - name: Install dependencies (MacOS)

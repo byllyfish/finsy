@@ -373,7 +373,11 @@ class DemoNet(_AContextHelper):
         # The explicit `Runner` wrapper in the `async with` is necessary for
         # compatibility with pytest-asyncio's way of running async fixtures.
         async with Runner(cmd.stdout(sh.CAPTURE)) as runner:
-            self._prompt = Prompt(runner, "mininet> ", normalize_newlines=True)
+            self._prompt = Prompt(
+                runner,
+                default_prompt="mininet> ",
+                normalize_newlines=True,
+            )
             await self._read_welcome()
             await self._read_pids()
             await self._read_processes()
