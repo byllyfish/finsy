@@ -31,7 +31,7 @@ except ImportError:
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
 
-DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet:23.09"
+DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet:23.10"
 
 
 @dataclass
