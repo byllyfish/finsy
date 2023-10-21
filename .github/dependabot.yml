@@ -9,3 +9,18 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+
+  - package-ecosystem: docker
+    directory: /ci/demonet
+    schedule:
+      interval: daily
+
+  - package-ecosystem: pip
+    directory: /ci
+    schedule:
+      interval: daily
