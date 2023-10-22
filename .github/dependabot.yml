@@ -1,26 +1,24 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# Reference:
+#   https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
 version: 2
 updates:
-  - package-ecosystem: "pip"
-    directory: "/" # Location of package manifests
+  - package-ecosystem: pip
+    directory: /     # pyproject.toml, poetry.lock
     schedule:
-      interval: "weekly"
+      interval: weekly
+
+  - package-ecosystem: pip
+    directory: /ci   # requirements.txt et al.
+    schedule:
+      interval: weekly
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
 
   - package-ecosystem: docker
     directory: /ci/demonet
     schedule:
-      interval: daily
-
-  - package-ecosystem: pip
-    directory: /ci
-    schedule:
-      interval: daily
+      interval: weekly
