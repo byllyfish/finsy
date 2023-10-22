@@ -1,4 +1,4 @@
 # python dependencies for `protoc.sh` script.
-grpcio-tools==1.58.0
+grpcio-tools==1.59.0
 github-clone==1.2.0
 mypy-protobuf==3.5.0
