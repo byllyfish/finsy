@@ -23,25 +23,27 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-grpcio = "^1.57.0"
+# Core dependencies.
+grpcio = "^1.59.0"
 parsy = "^2.1.0"
-pyee = "^11.0.0"
-protobuf = "^4.24.2"
+protobuf = "^4.24.4"
+pyee = "^11.0.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.1"
 black = "23.10.0"
-pytest-asyncio = "^0.21.1"
-mypy = "^1.5.1"
-pdoc = "^14.0.0"
-pyright = "^1.1.325"
-pytest-cov = "^4.1.0"
-pylint = "^3.0.1"
-shellous = "^0.31.1"
+mypy = "^1.6.1"
+pdoc = "^14.1.0"
 prometheus-client = "^0.17.1"
-ruff = "^0.1.0"
+pylint = "^3.0.2"
+pyright = "^1.1.332"
+pytest = "^7.4.2"
+pytest-asyncio = "^0.21.1"
+pytest-cov = "^4.1.0"
+ruff = "^0.1.1"
+shellous = "^0.31.1"
 
 [tool.poetry.group.extra.dependencies]
+# Used for demonet only.
 pygraphviz = "^1.11"
 
 [build-system]
