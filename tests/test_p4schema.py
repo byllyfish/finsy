@@ -1,4 +1,5 @@
 import difflib
+import os
 import subprocess
 from dataclasses import dataclass
 from ipaddress import IPv4Address, IPv4Network
@@ -29,6 +30,11 @@ from finsy.p4schema import (
 from finsy.proto import p4i, p4t
 
 P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
+
+
+def _coverage():
+    "Return true if we are running under coverage."
+    return os.environ.get("COVERAGE_RUN", None) is not None
 
 
 @dataclass
@@ -148,6 +154,7 @@ def test_p4info_actions():
     assert p4.actions[21257015] is noaction
 
 
+@pytest.mark.skipif(_coverage(), reason="code coverage")
 @pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
 def test_p4info_repr(p4info_file):
     "Test output of P4Schema repr function."
@@ -180,9 +187,11 @@ def _format_source_code(source):
         input=source,
         stderr=subprocess.DEVNULL,  # comment out this line to see error msgs!
         encoding="utf-8",
+        timeout=20.0,
     )
 
 
+@pytest.mark.skipif(_coverage(), reason="code coverage")
 @pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
 def test_p4info_str(p4info_file):
     "Test output of P4Schema description files."
