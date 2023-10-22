@@ -2,7 +2,7 @@
 
 FROM docker.io/opennetworking/mn-stratum AS stratum
 
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:22.04@sha256:2b7412e6465c3c7fc5bb21d3e6f1917c167358449fecac8176c6e496e5c1f05f AS builder
 WORKDIR /root
 COPY build.sh p4switch.py ./
 COPY --from=stratum /stratum_bmv2_deb.deb \
@@ -14,7 +14,7 @@ COPY --from=stratum /stratum_bmv2_deb.deb \
   ./stratum/
 RUN ./build.sh
 
-FROM ubuntu:22.04
+FROM ubuntu:22.04@sha256:2b7412e6465c3c7fc5bb21d3e6f1917c167358449fecac8176c6e496e5c1f05f
 ARG BMV2_DEPS="libpcap0.8 libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-thread1.74.0"
 ARG MININET_DEPS="python3 net-tools iproute2 iputils-ping socat psmisc procps ethtool iperf tcpdump telnet"
 ARG OTHER_DEPS="python3-venv"
