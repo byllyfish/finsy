@@ -38,11 +38,11 @@ jobs:
       run: |
         sudo apt-get update -qq
         sudo apt-get -y install graphviz graphviz-dev valgrind
-        pip install -r ./ci/requirements-dev.txt -r ./ci/requirements-extra.txt
+        pip install --require-hashes -r ./ci/requirements-dev.txt -r ./ci/requirements-extra.txt
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macos-latest'
       run: |
-        pip install -r ./ci/requirements-dev.txt
+        pip install --require-hashes -r ./ci/requirements-dev.txt
     - name: Lint Check
       run: |
         ruff check --exit-zero .
@@ -92,7 +92,7 @@ jobs:
           mn --version
           python3 -m venv venv
           . venv/bin/activate
-          pip install --no-cache-dir -r ./ci/requirements-dev.txt
+          pip install --require-hashes --no-cache-dir -r ./ci/requirements-dev.txt
       - name: Run tests
         run: |
           . venv/bin/activate
