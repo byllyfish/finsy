@@ -67,10 +67,6 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         FINSY_TEST_NO_BENCHMARK=1 valgrind pytest -k 'not test_p4info_repr'
-    - name: MemCheck Tests (MacOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        MallocScribble=1 GRPC_VERBOSITY=debug GRPC_TRACE=all,-timer,-timer_check FINSY_TEST_NO_BENCHMARK=1 pytest -k 'not test_p4info_repr'
 
   test-examples:
     runs-on: ubuntu-latest
