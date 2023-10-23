@@ -22,8 +22,6 @@ _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'gnmi1.gnmi_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
-  google_dot_protobuf_dot_descriptor__pb2.FileOptions.RegisterExtension(gnmi_service)
-
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\025com.github.gnmi.protoB\tGnmiProtoP\001Z%github.com/openconfig/gnmi/proto/gnmi\312>\0060.10.0'
   _UPDATE.fields_by_name['value']._options = None

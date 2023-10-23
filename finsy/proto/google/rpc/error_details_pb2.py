@@ -20,7 +20,6 @@ _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'google.rpc.error_details_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
-
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\016com.google.rpcB\021ErrorDetailsProtoP\001Z?google.golang.org/genproto/googleapis/rpc/errdetails;errdetails\242\002\003RPC'
   _ERRORINFO_METADATAENTRY._options = None

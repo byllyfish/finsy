@@ -21,7 +21,6 @@ _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'google.rpc.context.attribute_context_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
-
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\026com.google.rpc.contextB\025AttributeContextProtoP\001ZUgoogle.golang.org/genproto/googleapis/rpc/context/attribute_context;attribute_context\370\001\001'
   _ATTRIBUTECONTEXT_PEER_LABELSENTRY._options = None

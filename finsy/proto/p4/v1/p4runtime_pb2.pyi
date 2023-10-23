@@ -1103,16 +1103,22 @@ class MulticastGroupEntry(google.protobuf.message.Message):
 
     MULTICAST_GROUP_ID_FIELD_NUMBER: builtins.int
     REPLICAS_FIELD_NUMBER: builtins.int
+    METADATA_FIELD_NUMBER: builtins.int
     multicast_group_id: builtins.int
     @property
     def replicas(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Replica]: ...
+    metadata: builtins.bytes
+    """Arbitrary metadata from the controller that is opaque to the target.
+    Added in 1.4.0.
+    """
     def __init__(
         self,
         *,
         multicast_group_id: builtins.int = ...,
         replicas: collections.abc.Iterable[global___Replica] | None = ...,
+        metadata: builtins.bytes = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["multicast_group_id", b"multicast_group_id", "replicas", b"replicas"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["metadata", b"metadata", "multicast_group_id", b"multicast_group_id", "replicas", b"replicas"]) -> None: ...
 
 global___MulticastGroupEntry = MulticastGroupEntry
 

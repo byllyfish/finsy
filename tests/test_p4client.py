@@ -108,7 +108,10 @@ async def test_tls_client_vs_tls_server_missing_client_cert(p4rt_secure_server):
         p4rt_secure_server[0], CLIENT1_MISSING_CREDS, wait_for_ready=False
     )
     async with client:
-        with pytest.raises(P4ClientError, match="UNAVAILABLE:.*: Socket closed"):
+        with pytest.raises(
+            P4ClientError,
+            match="UNAVAILABLE:.*: (?:Socket closed|recvmsg:Connection reset by peer)",
+        ):
             await _check_arbitration_request(client)
 
 
