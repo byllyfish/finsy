@@ -85,7 +85,7 @@ class CountdownFuture:
             raise
 
     async def _wait_cancelled(self) -> None:
-        assert self._future and self._future.cancelled()
+        assert self._future
 
         while True:
             if self._counter <= 0:
