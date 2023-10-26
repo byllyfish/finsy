@@ -154,7 +154,6 @@ def test_p4info_actions():
     assert p4.actions[21257015] is noaction
 
 
-@pytest.mark.skipif(_coverage(), reason="code coverage")
 @pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
 def test_p4info_repr(p4info_file):
     "Test output of P4Schema repr function."
@@ -166,7 +165,13 @@ def test_p4info_repr(p4info_file):
     else:
         p4_orig_lines = []
 
-    p4_repr = _format_source_code(repr(p4))
+    p4_repr = repr(p4)
+    # Skip the rest of this test under code coverage. I'm seeing weird failures
+    # in CI, and it may just be coverage/subprocess issue. -bf
+    if _coverage():
+        return
+
+    p4_repr = _format_source_code(p4_repr)
     result = difflib.unified_diff(
         p4_orig_lines,
         p4_repr.splitlines(),
@@ -191,7 +196,6 @@ def _format_source_code(source):
     )
 
 
-@pytest.mark.skipif(_coverage(), reason="code coverage")
 @pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
 def test_p4info_str(p4info_file):
     "Test output of P4Schema description files."
