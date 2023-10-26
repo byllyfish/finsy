@@ -1075,6 +1075,31 @@ def test_multicast_group_entry1():
     assert entry == P4MulticastGroupEntry.decode(msg, _SCHEMA)
 
 
+def test_multicast_group_entry2():
+    "Test P4MulticastEntry."
+    entry = P4MulticastGroupEntry(
+        1,
+        replicas=((1, 0), (2, 1), (2, 2)),
+        metadata=b"abc",
+    )
+    msg = entry.encode(_SCHEMA)
+
+    assert pbutil.to_dict(msg) == {
+        "packet_replication_engine_entry": {
+            "multicast_group_entry": {
+                "multicast_group_id": 1,
+                "replicas": [
+                    {"egress_port": 1},
+                    {"egress_port": 2, "instance": 1},
+                    {"egress_port": 2, "instance": 2},
+                ],
+                "metadata": "YWJj",
+            }
+        }
+    }
+    assert entry == P4MulticastGroupEntry.decode(msg, _SCHEMA)
+
+
 def test_clone_session_entry1():
     "Test P4CloneSessionEntry."
     entry = P4CloneSessionEntry()

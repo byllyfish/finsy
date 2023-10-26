@@ -1224,12 +1224,14 @@ class P4MulticastGroupEntry(_P4Writable):
     multicast_group_id: int = 0
     _: KW_ONLY
     replicas: Sequence[_ReplicaType] = ()
+    metadata: bytes = b""
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode MulticastGroupEntry data as protobuf."
         entry = p4r.MulticastGroupEntry(
             multicast_group_id=self.multicast_group_id,
             replicas=[encode_replica(replica) for replica in self.replicas],
+            metadata=self.metadata,
         )
         return p4r.Entity(
             packet_replication_engine_entry=p4r.PacketReplicationEngineEntry(
@@ -1244,6 +1246,7 @@ class P4MulticastGroupEntry(_P4Writable):
         return cls(
             multicast_group_id=entry.multicast_group_id,
             replicas=tuple(decode_replica(replica) for replica in entry.replicas),
+            metadata=entry.metadata,
         )
 
     def replicas_str(self) -> str:
