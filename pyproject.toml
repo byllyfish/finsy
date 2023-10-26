@@ -23,6 +23,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
+
 # Core dependencies.
 grpcio = "^1.59.0"
 parsy = "^2.1.0"
@@ -42,8 +43,10 @@ pytest-cov = "^4.1.0"
 ruff = "^0.1.1"
 shellous = "^0.31.1"
 
-[tool.poetry.group.extra.dependencies]
-# Used for demonet only.
+[tool.poetry.group.demonet]
+optional = true
+
+[tool.poetry.group.demonet.dependencies]
 pygraphviz = "^1.11"
 
 [build-system]

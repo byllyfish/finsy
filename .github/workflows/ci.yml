@@ -38,7 +38,7 @@ jobs:
       run: |
         sudo apt-get update -qq
         sudo apt-get -y install graphviz graphviz-dev valgrind
-        pip install --require-hashes -r ./ci/requirements-dev.txt -r ./ci/requirements-extra.txt
+        pip install --require-hashes -r ./ci/requirements-dev.txt -r ./ci/requirements-demonet.txt
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macos-latest'
       run: |

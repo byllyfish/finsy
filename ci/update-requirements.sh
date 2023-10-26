@@ -17,7 +17,7 @@ poetry export >> ./ci/requirements.txt
 echo "$HEADER" > ./ci/requirements-dev.txt
 poetry export --with dev >> ./ci/requirements-dev.txt
 
-echo "$HEADER" > ./ci/requirements-extra.txt
-poetry export --only extra >> ./ci/requirements-extra.txt
+echo "$HEADER" > ./ci/requirements-demonet.txt
+poetry export --only demonet >> ./ci/requirements-demonet.txt
 
 exit 0
