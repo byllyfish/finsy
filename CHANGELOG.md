@@ -1,5 +1,12 @@
 # Finsy Change Log
 
+## 0.21.0
+
+- Update P4Runtime protobuf files.
+- Add the `metadata` property to `P4MulticastGroupEntry`.
+- Update project dependencies. Add support for Python 3.12.
+- Apply security best practices to CI builds.
+
 ## 0.20.0
 
 - Add support for `P4ExternEntry`.
