@@ -42,7 +42,7 @@ pytest = "^7.4.3"
 pytest-asyncio = "^0.21.1"
 pytest-cov = "^4.1.0"
 ruff = "^0.1.6"
-shellous = "^0.31.1"
+shellous = "^0.32.0"
 
 [tool.poetry.group.demonet]
 optional = true
