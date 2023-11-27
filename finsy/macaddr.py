@@ -16,8 +16,6 @@
 
 import functools
 
-from typing_extensions import Self
-
 _BYTE_WIDTH = 6
 _BIT_WIDTH = _BYTE_WIDTH * 8
 
@@ -81,13 +79,12 @@ class MACAddress:
     def __int__(self) -> int:
         return self._mac
 
-    def __eq__(self, rhs: Self) -> bool:
-        try:
-            return self._mac == rhs._mac
-        except AttributeError:
+    def __eq__(self, rhs: object) -> bool:
+        if not isinstance(rhs, MACAddress):
             return NotImplemented
+        return self._mac == rhs._mac
 
-    def __lt__(self, rhs: Self) -> bool:
+    def __lt__(self, rhs: object) -> bool:
         if not isinstance(rhs, MACAddress):
             return NotImplemented
         return self._mac < rhs._mac

@@ -17,8 +17,6 @@
 import itertools
 from typing import Any, overload
 
-from typing_extensions import Self
-
 from finsy import gnmistring
 from finsy.proto import gnmi
 
@@ -61,7 +59,7 @@ class GNMIPath:
 
     def __init__(
         self,
-        path: gnmi.Path | str | Self = "",
+        path: "gnmi.Path | str | GNMIPath" = "",
         *,
         origin: str = "",
         target: str = "",
@@ -102,7 +100,7 @@ class GNMIPath:
         "Return the path's target."
         return self.path.target
 
-    def set(self, __elem: str | int | None = None, **kwds: Any) -> Self:
+    def set(self, __elem: str | int | None = None, **kwds: Any) -> "GNMIPath":
         "Construct a new GNMIPath with keys set for the given elem."
         if __elem is None:
             return self._rekey(kwds)
@@ -118,7 +116,7 @@ class GNMIPath:
         keys.update({key: str(val) for key, val in kwds.items()})
         return result
 
-    def copy(self) -> Self:
+    def copy(self) -> "GNMIPath":
         "Return a copy of the path."
         return GNMIPath(_copy_path(self.path))
 
@@ -127,13 +125,13 @@ class GNMIPath:
         ...  # pragma: no cover
 
     @overload
-    def __getitem__(self, key: slice) -> Self:
+    def __getitem__(self, key: slice) -> "GNMIPath":
         ...  # pragma: no cover
 
     def __getitem__(
         self,
         key: int | str | tuple[int | str, str] | slice,
-    ) -> str | Self:
+    ) -> "str | GNMIPath":
         "Return the specified element or key value."
         match key:
             case int(idx):
@@ -155,7 +153,7 @@ class GNMIPath:
             case other:  # pyright: ignore[reportUnnecessaryComparison]
                 raise TypeError(f"invalid key type: {other!r}")
 
-    def __eq__(self, rhs: Self) -> bool:
+    def __eq__(self, rhs: Any) -> bool:
         "Return True if path's are equal."
         if not isinstance(rhs, GNMIPath):
             return False
@@ -187,7 +185,7 @@ class GNMIPath:
         "Return the length of the path."
         return len(self.path.elem)
 
-    def __truediv__(self, rhs: Self | str) -> Self:
+    def __truediv__(self, rhs: "GNMIPath | str") -> "GNMIPath":
         "Append values to end of path."
         if not isinstance(rhs, GNMIPath):
             rhs = GNMIPath(rhs)
@@ -199,14 +197,16 @@ class GNMIPath:
         )
         return GNMIPath(result)
 
-    def __rtruediv__(self, lhs: str) -> Self:
+    def __rtruediv__(self, lhs: str) -> "GNMIPath":
         "Prepend values to the beginning of the path."
         path = GNMIPath(lhs)
 
         result = gnmi.Path(elem=itertools.chain(path.path.elem, self.path.elem))
         return GNMIPath(result)
 
-    def _slice(self, start: int | None, stop: int | None, step: int | None) -> Self:
+    def _slice(
+        self, start: int | None, stop: int | None, step: int | None
+    ) -> "GNMIPath":
         "Return specified slice of GNMIPath."
         if start is None:
             start = 0
@@ -226,7 +226,7 @@ class GNMIPath:
 
         return GNMIPath(path)
 
-    def _rekey(self, keys: dict[str, Any]) -> Self:
+    def _rekey(self, keys: dict[str, Any]) -> "GNMIPath":
         """Construct a new path with specified keys replaced."""
         if not keys:
             raise ValueError("empty keys")

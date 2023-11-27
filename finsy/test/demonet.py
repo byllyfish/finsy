@@ -16,8 +16,7 @@ from pathlib import Path
 from types import TracebackType
 from typing import Any, ClassVar, Sequence
 
-from shellous import Command, Runner, sh
-from shellous.prompt import Prompt
+from shellous import Command, Prompt, sh
 
 from finsy import MACAddress
 
@@ -31,7 +30,8 @@ except ImportError:
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
 
-DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet:23.10"
+# tag=23.11
+DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet@sha256:58f8d839f532b81e2996296a392b9540e9dd3d8abe6ba5499e45d4224080792c"
 
 
 @dataclass
@@ -368,16 +368,10 @@ class DemoNet(_AContextHelper):
 
     async def _async_context_(self):
         assert self._prompt is None
-        cmd = await self._mininet_command()
 
-        # The explicit `Runner` wrapper in the `async with` is necessary for
-        # compatibility with pytest-asyncio's way of running async fixtures.
-        async with Runner(cmd.stdout(sh.CAPTURE)) as runner:
-            self._prompt = Prompt(
-                runner,
-                default_prompt="mininet> ",
-                normalize_newlines=True,
-            )
+        cmd = await self._mininet_command()
+        async with cmd.prompt("mininet> ", normalize_newlines=True) as cli:
+            self._prompt = cli
             await self._read_welcome()
             await self._read_pids()
             await self._read_processes()
@@ -390,7 +384,7 @@ class DemoNet(_AContextHelper):
     async def _read_welcome(self):
         "Collect welcome message from Mininet."
         assert self._prompt is not None
-        welcome = await self._prompt.receive()
+        welcome, _ = await self._prompt.expect()
         if welcome.startswith("Error:"):
             raise RuntimeError(welcome)
         print(welcome)
@@ -410,7 +404,7 @@ class DemoNet(_AContextHelper):
     async def _read_exit(self):
         "Exit and collect exit message from Mininet."
         assert self._prompt is not None
-        print(await self._prompt.send("exit"))
+        print(await self._prompt.command("exit"))
 
     async def run_interactively(self) -> None:
         cmd = await self._mininet_command()
@@ -418,7 +412,7 @@ class DemoNet(_AContextHelper):
 
     async def send(self, cmdline: str, *, expect: str = "") -> str:
         assert self._prompt is not None
-        result = await self._prompt.send(cmdline)
+        result = await self._prompt.command(cmdline)
         print(result)
         if expect:
             assert expect in result

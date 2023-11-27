@@ -103,7 +103,7 @@ def test_lt():
     assert a < c
 
     with pytest.raises(TypeError, match="not supported"):
-        assert a < 2  # pyright: ignore[reportGeneralTypeIssues]
+        assert a < 2
 
 
 def test_str():

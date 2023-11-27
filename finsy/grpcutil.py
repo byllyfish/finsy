@@ -17,10 +17,9 @@
 import enum
 from dataclasses import dataclass
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
-from typing_extensions import Self
 
 from finsy.log import LOGGER
 from finsy.proto import rpc_code
@@ -60,18 +59,19 @@ class GRPCStatusCode(_EnumBase):
     DATA_LOSS = rpc_code.DATA_LOSS
 
     @classmethod
-    def from_status_code(cls, val: grpc.StatusCode) -> Self:
+    def from_status_code(cls, val: grpc.StatusCode) -> "GRPCStatusCode":
         "Create corresponding GRPCStatusCode from a grpc.StatusCode object."
-        assert isinstance(val, grpc.StatusCode)
-        return GRPCStatusCode(
-            val.value[0]  # pyright: ignore[reportUnknownArgumentType]
-        )
+        n: Any = val.value[0]  # pyright: ignore[reportUnknownMemberType]
+        assert isinstance(n, int)
+        return GRPCStatusCode(n)
 
     @staticmethod
     def _validate_enum() -> None:
         "Verify that GRPCStatusCode covers every possible grpc.StatusCode."
         for value in grpc.StatusCode:
-            assert GRPCStatusCode[value.name].value == value.value[0], value.name
+            n: Any = value.value[0]  # pyright: ignore[reportUnknownMemberType]
+            assert isinstance(n, int)
+            assert GRPCStatusCode[value.name].value == n, value.name
 
 
 # Check GRPCStatusCode against grpc.StatusCode.
