@@ -1,5 +1,10 @@
 # Finsy Change Log
 
+## 0.22.0
+
+- Update project dependencies.
+- Fix some typing warnings from pyright.
+
 ## 0.21.0
 
 - Update P4Runtime protobuf files.
