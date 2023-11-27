@@ -17,7 +17,7 @@
 import enum
 from dataclasses import dataclass
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 
@@ -61,9 +61,7 @@ class GRPCStatusCode(_EnumBase):
     @classmethod
     def from_status_code(cls, val: grpc.StatusCode) -> "GRPCStatusCode":
         "Create corresponding GRPCStatusCode from a grpc.StatusCode object."
-        n = val.value[
-            0
-        ]  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
+        n: Any = val.value[0]  # pyright: ignore[reportUnknownMemberType]
         assert isinstance(n, int)
         return GRPCStatusCode(n)
 
@@ -71,9 +69,7 @@ class GRPCStatusCode(_EnumBase):
     def _validate_enum() -> None:
         "Verify that GRPCStatusCode covers every possible grpc.StatusCode."
         for value in grpc.StatusCode:
-            n = value.value[
-                0
-            ]  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
+            n: Any = value.value[0]  # pyright: ignore[reportUnknownMemberType]
             assert isinstance(n, int)
             assert GRPCStatusCode[value.name].value == n, value.name
 
