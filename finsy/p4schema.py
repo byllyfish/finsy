@@ -29,6 +29,7 @@ from typing import (
     Iterator,
     Mapping,
     NamedTuple,
+    NoReturn,
     Sequence,
     SupportsBytes,
     TypeVar,
@@ -361,7 +362,7 @@ class P4EntityMap(Generic[_T]):
             raise ValueError(r"name already exists: {name!r}")
         self._by_name[name] = entity
 
-    def _key_error(self, key: str | int):
+    def _key_error(self, key: str | int) -> NoReturn:
         if isinstance(key, int):
             raise ValueError(f"no {self._entry_type} with id={key!r}") from None
 

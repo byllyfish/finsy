@@ -22,6 +22,10 @@ from typing import Any, Coroutine
 from finsy.p4schema import P4SchemaCache
 
 
+def _sigterm_cancel_task(task: asyncio.Task[Any]) -> None:
+    task.cancel()
+
+
 async def _finsy_boilerplate(coro: Coroutine[Any, Any, None]):
     "Wrap main async function and implement boilerplate."
 
@@ -34,7 +38,7 @@ async def _finsy_boilerplate(coro: Coroutine[Any, Any, None]):
     # Boilerplate to shutdown cleanly upon SIGTERM signal.
     asyncio.get_running_loop().add_signal_handler(
         signal.SIGTERM,
-        lambda task: task.cancel(),
+        _sigterm_cancel_task,
         asyncio.current_task(),
     )
 
