@@ -404,7 +404,7 @@ class DemoNet(_AContextHelper):
     async def _read_exit(self):
         "Exit and collect exit message from Mininet."
         assert self._prompt is not None
-        print(await self._prompt.command("exit"))
+        print(await self._prompt.command("exit", allow_eof=True))
 
     async def run_interactively(self) -> None:
         cmd = await self._mininet_command()
