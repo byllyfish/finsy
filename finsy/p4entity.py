@@ -370,7 +370,7 @@ class P4TableMatch(dict[str, Any]):
     @classmethod
     def decode(cls, msgs: Iterable[p4r.FieldMatch], table: P4Table) -> Self:
         "Decode Protobuf fields as TableMatch data."
-        result = {}
+        result: dict[str, Any] = {}
         match_fields = table.match_fields
 
         for field in msgs:
@@ -1839,7 +1839,7 @@ class P4ValueSetMember(dict[str, Any]):
     @classmethod
     def decode(cls, msgs: Iterable[p4r.FieldMatch], value_set: P4ValueSet) -> Self:
         "Decode protobuf to P4ValueSetMember data."
-        result = {}
+        result: dict[str, Any] = {}
         match = value_set.match
 
         for field in msgs:
