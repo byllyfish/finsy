@@ -8,6 +8,7 @@ extensions defined outside of this package.
 """
 import builtins
 import google.protobuf.descriptor
+import google.protobuf.duration_pb2
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import sys
@@ -59,6 +60,7 @@ class Extension(google.protobuf.message.Message):
     REGISTERED_EXT_FIELD_NUMBER: builtins.int
     MASTER_ARBITRATION_FIELD_NUMBER: builtins.int
     HISTORY_FIELD_NUMBER: builtins.int
+    COMMIT_FIELD_NUMBER: builtins.int
     @property
     def registered_ext(self) -> global___RegisteredExtension:
         """A registered extension."""
@@ -70,16 +72,20 @@ class Extension(google.protobuf.message.Message):
     @property
     def history(self) -> global___History:
         """History extension."""
+    @property
+    def commit(self) -> global___Commit:
+        """Commit confirmed extension."""
     def __init__(
         self,
         *,
         registered_ext: global___RegisteredExtension | None = ...,
         master_arbitration: global___MasterArbitration | None = ...,
         history: global___History | None = ...,
+        commit: global___Commit | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["ext", b"ext"]) -> typing_extensions.Literal["registered_ext", "master_arbitration", "history"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["commit", b"commit", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["commit", b"commit", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["ext", b"ext"]) -> typing_extensions.Literal["registered_ext", "master_arbitration", "history", "commit"] | None: ...
 
 global___Extension = Extension
 
@@ -221,3 +227,102 @@ class TimeRange(google.protobuf.message.Message):
     def ClearField(self, field_name: typing_extensions.Literal["end", b"end", "start", b"start"]) -> None: ...
 
 global___TimeRange = TimeRange
+
+@typing_extensions.final
+class Commit(google.protobuf.message.Message):
+    """Commit confirmed extension allows automated revert of the configuration after
+    certain duration if an explicit confirmation is not issued. It allows explicit
+    cancellation of the commit during the rollback window. There cannot be more
+    than one commit active at a given time.
+    The document about gNMI commit confirmed can be found at
+    https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-commit-confirmed.md
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ID_FIELD_NUMBER: builtins.int
+    COMMIT_FIELD_NUMBER: builtins.int
+    CONFIRM_FIELD_NUMBER: builtins.int
+    CANCEL_FIELD_NUMBER: builtins.int
+    id: builtins.str
+    """ID is provided by the client during the commit request. During confirm and cancel
+    actions the provided ID should match the ID provided during commit.
+    If ID is not passed in any actions server shall return error.
+    Required.
+    """
+    @property
+    def commit(self) -> global___CommitRequest:
+        """commit action creates a new commit. If a commit is on-going, server returns error."""
+    @property
+    def confirm(self) -> global___CommitConfirm:
+        """confirm action will confirm an on-going commit, the ID provided during confirm
+        should match the on-going commit ID.
+        """
+    @property
+    def cancel(self) -> global___CommitCancel:
+        """cancel action will cancel an on-going commit, the ID provided during cancel
+        should match the on-going commit ID.
+        """
+    def __init__(
+        self,
+        *,
+        id: builtins.str = ...,
+        commit: global___CommitRequest | None = ...,
+        confirm: global___CommitConfirm | None = ...,
+        cancel: global___CommitCancel | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "id", b"id"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["action", b"action"]) -> typing_extensions.Literal["commit", "confirm", "cancel"] | None: ...
+
+global___Commit = Commit
+
+@typing_extensions.final
+class CommitRequest(google.protobuf.message.Message):
+    """CommitRequest is used to create a new confirmed commit. It hold additional
+    parameter requried for commit action.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ROLLBACK_DURATION_FIELD_NUMBER: builtins.int
+    @property
+    def rollback_duration(self) -> google.protobuf.duration_pb2.Duration:
+        """Maximum duration to wait for a confirmaton before reverting the commit."""
+    def __init__(
+        self,
+        *,
+        rollback_duration: google.protobuf.duration_pb2.Duration | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["rollback_duration", b"rollback_duration"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["rollback_duration", b"rollback_duration"]) -> None: ...
+
+global___CommitRequest = CommitRequest
+
+@typing_extensions.final
+class CommitConfirm(google.protobuf.message.Message):
+    """CommitConfirm is used to confirm an on-going commit. It hold additional
+    parameter requried for confirm action.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___CommitConfirm = CommitConfirm
+
+@typing_extensions.final
+class CommitCancel(google.protobuf.message.Message):
+    """CommitCancel is used to cancel an on-going commit. It hold additional
+    parameter requried for cancel action.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___CommitCancel = CommitCancel
