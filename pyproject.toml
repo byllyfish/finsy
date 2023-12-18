@@ -32,7 +32,7 @@ protobuf = "^4.25.1"
 pyee = "^11.1.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "23.11.0"
+black = "23.12.0"
 mypy = "^1.7.1"
 pdoc = "^14.1.0"
 prometheus-client = "^0.19.0"
