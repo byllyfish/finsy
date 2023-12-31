@@ -39,8 +39,8 @@ jobs:
         sudo apt-get update -qq
         sudo apt-get -y install graphviz graphviz-dev valgrind
         pip install --require-hashes -r ./ci/requirements-dev.txt -r ./ci/requirements-demonet.txt
-    - name: Install dependencies (MacOS)
-      if: matrix.os == 'macos-latest'
+    - name: Install dependencies (MacOS/Windows)
+      if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
       run: |
         pip install --require-hashes -r ./ci/requirements-dev.txt
     - name: Lint Check
@@ -70,6 +70,7 @@ jobs:
 
   test-examples:
     runs-on: ubuntu-latest
+    needs: build
     container:
       image: ghcr.io/byllyfish/demonet:23.11
       options: --privileged
