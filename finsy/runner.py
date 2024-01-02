@@ -17,6 +17,7 @@
 import asyncio
 import logging
 import signal
+import sys
 from typing import Any, Coroutine
 
 from finsy.p4schema import P4SchemaCache
@@ -35,12 +36,13 @@ async def _finsy_boilerplate(coro: Coroutine[Any, Any, None]):
         format="%(created).03f %(levelname)s %(name)s %(message)s",
     )
 
-    # Boilerplate to shutdown cleanly upon SIGTERM signal.
-    asyncio.get_running_loop().add_signal_handler(
-        signal.SIGTERM,
-        _sigterm_cancel_task,
-        asyncio.current_task(),
-    )
+    if sys.platform != "win32":
+        # Boilerplate to shutdown cleanly upon SIGTERM signal.
+        asyncio.get_running_loop().add_signal_handler(
+            signal.SIGTERM,
+            _sigterm_cancel_task,
+            asyncio.current_task(),
+        )
 
     # Enable caching of P4Info definitions.
     with P4SchemaCache():
