@@ -9,7 +9,7 @@ TEST_DIR = Path(__file__).parent / "test_data/p4testgen"
 def test_p4testgen_testcase_0():
     "Test a p4testgen testcase file."
     path = TEST_DIR / "hello_0.proto.txt"
-    testcase = pbutil.from_text(path.read_text(), p4testgen.TestCase)
+    testcase = pbutil.from_text(path.read_text("utf-8"), p4testgen.TestCase)
 
     assert isinstance(testcase.input_packet.packet, bytes)
     assert len(testcase.input_packet.packet) == 929
@@ -24,7 +24,7 @@ def test_p4testgen_testcase_0():
 def test_p4testgen_testcase_13():
     "Test a p4testgen testcase file."
     path = TEST_DIR / "hello_13.proto.txt"
-    testcase = pbutil.from_text(path.read_text(), p4testgen.TestCase)
+    testcase = pbutil.from_text(path.read_text("utf-8"), p4testgen.TestCase)
 
     assert isinstance(testcase.input_packet.packet, bytes)
     assert len(testcase.input_packet.packet) == 8193

@@ -105,7 +105,7 @@ def test_config_remote():
     assert len(result) == 1
 
     grpc_cacert = result[0]["grpc_cacert"]
-    assert grpc_cacert == "/tmp/45f775fb2e6946111ce5.pem"
+    assert Path(grpc_cacert) == Path("/tmp/45f775fb2e6946111ce5.pem")
     assert config.remote_files() == [(Path("cafile.pem"), Path(grpc_cacert))]
 
 

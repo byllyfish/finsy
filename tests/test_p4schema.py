@@ -161,7 +161,7 @@ def test_p4info_repr(p4info_file):
 
     p4_orig = Path(p4info_file).with_suffix(".repr.txt")
     if p4_orig.exists():
-        p4_orig_lines = p4_orig.read_text().splitlines()
+        p4_orig_lines = p4_orig.read_text("utf-8").splitlines()
     else:
         p4_orig_lines = []
 
@@ -203,7 +203,7 @@ def test_p4info_str(p4info_file):
 
     p4_orig = Path(p4info_file).with_suffix(".str.txt")
     if p4_orig.exists():
-        p4_orig_lines = p4_orig.read_text().splitlines()
+        p4_orig_lines = p4_orig.read_text("utf-8").splitlines()
     else:
         p4_orig_lines = []
 

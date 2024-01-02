@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ "ubuntu-latest", "macos-latest" ]  # TODO: "windows-latest"
+        os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
         python-version: [ "3.10", "3.11", "3.12" ]
 
     steps:
@@ -95,9 +95,12 @@ jobs:
           . venv/bin/activate
           pip install --require-hashes --no-cache-dir -r ./ci/requirements-dev.txt
       - name: Run tests
+        env:
+          FINSY_TEST_NO_BENCHMARK: 1
+          PYTHONWARNDEFAULTENCODING: 1
         run: |
           . venv/bin/activate
-          FINSY_TEST_NO_BENCHMARK=1 pytest
+          pytest
       - name: Run example tests
         run: |
           . venv/bin/activate

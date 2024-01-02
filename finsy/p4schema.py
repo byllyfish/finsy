@@ -2214,7 +2214,7 @@ class P4SchemaCache:
             return None, P4SchemaCache.EMPTY_P4DEFS, 0
 
         if isinstance(p4info_ptr, Path):
-            p4info = pbutil.from_text(p4info_ptr.read_text(), p4i.P4Info)
+            p4info = pbutil.from_text(p4info_ptr.read_text("utf-8"), p4i.P4Info)
         else:
             p4info = p4info_ptr
 

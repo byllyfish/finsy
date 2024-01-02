@@ -18,7 +18,7 @@ def test_docs(path: Path):
     parser = doctest.DocTestParser()
     runner = doctest.DocTestRunner()
 
-    test = parser.get_doctest(path.read_text(), {}, path.name, None, None)
+    test = parser.get_doctest(path.read_text("utf-8"), {}, path.name, None, None)
     for ex in test.examples:
         # P4Runtime text representation always adds an extra blank line at the
         # end. Make sure we match '<BLANKLINE>' because '\n' ends the pattern.
