@@ -64,8 +64,15 @@ def test_switch3(unused_tcp_target: str):
 
     sw1 = Switch("sw1", unused_tcp_target, options)
 
+    async def _run(sw: Switch):
+        try:
+            await sw.run()
+        finally:
+            # Give extra clean up time under code coverage (Windows).
+            await asyncio.sleep(0.5)
+
     with pytest.raises(asyncio.TimeoutError):
-        asyncio.run(asyncio.wait_for(sw1.run(), 2.0))
+        asyncio.run(asyncio.wait_for(_run(sw1), 2.0))
 
 
 async def test_switch4(p4rt_server_target: str):
