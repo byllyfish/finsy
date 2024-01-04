@@ -421,11 +421,14 @@ class DemoNet(_AContextHelper):
     async def _mininet_command(self):
         """Return a command to run Mininet.
 
-        If Mininet is installed locally, we return a command to run the local
-        version. Otherwise, we set up a Docker image to run Mininet in a
+        If we are running inside the DEMONET docker image, return a command
+        to start Mininet directly. We determine whether we are in the image
+        by looking for the `mn` command and the installed `p4switch.py` file.
+
+        Otherwise, we set up a DEMONET Docker image to run Mininet in a
         container.
         """
-        if sh.find_command("mn"):
+        if sh.find_command("mn") and _IMAGE_P4SWITCH_PY.exists():
             self._config_file.write_text(self.config.to_json(remote=False))
             return _mininet_start(DEMONET_CONFIG=str(self._config_file))
 
@@ -452,13 +455,11 @@ _podman = Path("podman")
 
 _LOCAL_CONFIG_JSON = Path("/tmp/demonet_config.json")
 _LOCAL_TOPO_PY = Path(__file__).parent / "demonet_topo.py"
-_LOCAL_P4SWITCH_PY = Path(__file__).parents[2] / "ci/demonet/p4switch.py"
-
 assert _LOCAL_TOPO_PY.exists()
-assert _LOCAL_P4SWITCH_PY.exists()
 
 PUBLISH_BASE = 50000
 
+_IMAGE_P4SWITCH_PY = Path("/usr/local/mininet/custom/p4switch.py")
 _IMAGE_TOPO_PY = Path("/tmp/demonet_topo.py")
 _IMAGE_CONFIG_JSON = Path("/tmp/demonet_config.json")
 
@@ -495,7 +496,7 @@ def _mininet_start(**env: str):
         sh(
             "mn",
             "--custom",
-            _LOCAL_P4SWITCH_PY,
+            _IMAGE_P4SWITCH_PY,
             "--switch",
             "bmv2",
             "--controller",
