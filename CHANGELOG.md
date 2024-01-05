@@ -1,5 +1,12 @@
 # Finsy Change Log
 
+## 0.23.0
+
+- The Demonet class will only run Mininet locally if it detects the script is running inside the special DEMONET docker image.
+- Add CI support for Windows.
+- Update development dependencies.
+- Update publish.yml CI action to use trusted publishing.
+
 ## 0.22.0
 
 - Update project dependencies.
