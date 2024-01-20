@@ -29,27 +29,27 @@ python = "^3.10"
 # Core dependencies.
 grpcio = "^1.60.0"
 parsy = "^2.1.0"
-protobuf = "^4.25.1"
+protobuf = "^4.25.2"
 pyee = "^11.1.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "23.12.1"
-mypy = "^1.7.1"
-pdoc = "^14.1.0"
+mypy = "^1.8.0"
+pdoc = "^14.4.0"
 prometheus-client = "^0.19.0"
-pylint = "^3.0.2"
-pyright = "^1.1.339"
-pytest = "^7.4.3"
+pylint = "^3.0.3"
+pyright = "^1.1.347"
+pytest = "^7.4.4"
 pytest-asyncio = "0.21.1"  # FIXME
 pytest-cov = "^4.1.0"
-ruff = "^0.1.7"
+ruff = "^0.1.14"
 shellous = "^0.34.0"
 
 [tool.poetry.group.demonet]
 optional = true
 
 [tool.poetry.group.demonet.dependencies]
-pygraphviz = "^1.11"
+pygraphviz = "^1.12"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
