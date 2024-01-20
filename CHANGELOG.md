@@ -1,5 +1,10 @@
 # Finsy Change Log
 
+
+## UNRELEASED
+
+- Update protobuf dependency and development dependencies.
+
 ## 0.23.0
 
 - The Demonet class will only run Mininet locally if it detects the script is running inside the special DEMONET docker image.
