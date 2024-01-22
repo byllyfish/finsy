@@ -30,8 +30,8 @@ except ImportError:
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
 
-# tag=23.11
-DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet@sha256:58f8d839f532b81e2996296a392b9540e9dd3d8abe6ba5499e45d4224080792c"
+# tag=24.01
+DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet@sha256:b2a702c00cde41734d2ddaed94e86bee79208a74f4fba252bebb8fe3804f79bb"
 
 
 @dataclass
