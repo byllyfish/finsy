@@ -29,8 +29,6 @@ def _sigterm_cancel_task(task: asyncio.Task[Any]) -> None:
 
 async def _finsy_boilerplate(coro: Coroutine[Any, Any, None]):
     "Wrap main async function and implement boilerplate."
-
-    # Activate logging.
     logging.basicConfig(
         level=logging.INFO,
         format="%(created).03f %(levelname)s %(name)s %(message)s",
@@ -38,10 +36,12 @@ async def _finsy_boilerplate(coro: Coroutine[Any, Any, None]):
 
     if sys.platform != "win32":
         # Boilerplate to shutdown cleanly upon SIGTERM signal.
+        current_task = asyncio.current_task()
+        assert current_task is not None
         asyncio.get_running_loop().add_signal_handler(
             signal.SIGTERM,
             _sigterm_cancel_task,
-            asyncio.current_task(),
+            current_task,
         )
 
     # Enable caching of P4Info definitions.

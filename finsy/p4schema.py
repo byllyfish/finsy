@@ -221,7 +221,7 @@ class _P4AnnoMixin:
     _annotations: list["P4Annotation"]
 
     def __init__(self, pbuf: Any):
-        super().__init__(pbuf)  # pyright: ignore[reportGeneralTypeIssues]
+        super().__init__(pbuf)  # pyright: ignore[reportCallIssue]
         self._annotations = _parse_annotations(pbuf)
 
     @property
@@ -2127,14 +2127,14 @@ class P4ExternMap:
     def get(self, key: tuple[str, str] | tuple[int, int]) -> P4ExternInstance | None:
         "Retrieve item by name. Return None if not found."
         if isinstance(key[0], int):
-            return self._by_id.get(key)  # pyright: ignore[reportGeneralTypeIssues]
-        return self._by_name.get(key)  # pyright: ignore[reportGeneralTypeIssues]
+            return self._by_id.get(key)  # pyright: ignore[reportArgumentType]
+        return self._by_name.get(key)  # pyright: ignore[reportArgumentType]
 
     def __getitem__(self, key: tuple[str, str] | tuple[int, int]) -> P4ExternInstance:
         value = self.get(key)
         if value is None:
             self._key_error(key)
-        return value  # pyright: ignore[reportGeneralTypeIssues]
+        return value  # pyright: ignore[reportReturnType]
 
     def __iter__(self) -> Iterator[P4ExternInstance]:
         return iter(self._by_name.values())

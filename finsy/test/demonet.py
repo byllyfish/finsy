@@ -237,7 +237,7 @@ class Config:
             return str(obj)
 
         try:
-            return asdict(obj)  # pyright: ignore[reportGeneralTypeIssues]
+            return asdict(obj)  # pyright: ignore[reportArgumentType]
         except TypeError as ex:
             raise ValueError(
                 f"DemoNet can't serialize {type(obj).__name__!r}: {obj!r}"
@@ -249,7 +249,7 @@ class Config:
             raise RuntimeError("ERROR: pygraphviz is not installed.")
 
         graph = pgv.AGraph(
-            **_PyGraphStyle.graph,  # pyright: ignore[reportGeneralTypeIssues]
+            **_PyGraphStyle.graph,  # pyright: ignore[reportArgumentType]
         )
 
         for item in self.items:

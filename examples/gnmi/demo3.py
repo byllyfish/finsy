@@ -26,11 +26,13 @@ async def main():
             print(f"initial: {update.path['name']} is {update.value}")
 
         # Run a background task to toggle the interface status.
-        _task = asyncio.create_task(toggle_enabled(names))
+        task = asyncio.create_task(toggle_enabled(names))
 
-        # Listen for status updates.
+        # Listen for status updates (infinite loop).
         async for update in sub.updates():
             print(f"update:  {update.path['name']} is {update.value}")
+
+        task.cancel()
 
 
 async def toggle_enabled(names: list[str]):
