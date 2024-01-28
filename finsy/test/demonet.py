@@ -14,16 +14,37 @@ from dataclasses import KW_ONLY, asdict, dataclass, field
 from ipaddress import IPv4Network, IPv6Network
 from pathlib import Path
 from types import TracebackType
-from typing import Any, ClassVar, Sequence
+from typing import Any, ClassVar, Protocol, Sequence
 
 from shellous import Command, Prompt, sh
 
 from finsy import MACAddress
 
-try:
-    import pygraphviz as pgv  # type: ignore
-except ImportError:
-    pgv = None
+
+class GraphAPI(Protocol):
+    """Protocol implemented by pygraphviz Graph.
+
+    pygraphviz is an optional dependency; this Protocol facilitates typing.
+    """
+
+    def __init__(self, **attr: Any):
+        ...
+
+    def add_node(self, n: Any, **attr: Any) -> None:
+        ...
+
+    def add_edge(self, u: Any, v: Any, **attr: Any) -> None:
+        ...
+
+    def layout(self) -> None:
+        ...
+
+    def draw(self, path: str | None) -> bytes | None:
+        ...
+
+    def to_string(self) -> str:
+        ...
+
 
 # pyright: reportUnknownMemberType=false
 
@@ -237,20 +258,20 @@ class Config:
             return str(obj)
 
         try:
-            return asdict(obj)  # pyright: ignore[reportGeneralTypeIssues]
+            return asdict(obj)  # pyright: ignore[reportArgumentType]
         except TypeError as ex:
             raise ValueError(
                 f"DemoNet can't serialize {type(obj).__name__!r}: {obj!r}"
             ) from ex
 
-    def to_graph(self) -> "pgv.AGraph":
+    def to_graph(self) -> GraphAPI:
         "Create a pygraphviz Graph of the network."
-        if pgv is None:
-            raise RuntimeError("ERROR: pygraphviz is not installed.")
+        try:
+            import pygraphviz as pgv  # type: ignore
+        except ImportError:
+            raise RuntimeError("ERROR: pygraphviz is not installed.") from None
 
-        graph = pgv.AGraph(
-            **_PyGraphStyle.graph,  # pyright: ignore[reportGeneralTypeIssues]
-        )
+        graph = pgv.AGraph(**_PyGraphStyle.graph)
 
         for item in self.items:
             match item:
@@ -611,7 +632,7 @@ _LOCAL_IP = _get_local_ipv4_address()
 class _PyGraphStyle:
     "Style defaults for different graphviz elements."
 
-    graph: ClassVar[dict[str, str]] = dict(
+    graph: ClassVar[dict[str, Any]] = dict(
         bgcolor="lightblue",
         margin="0",
         pad="0.25",

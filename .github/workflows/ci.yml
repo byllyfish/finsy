@@ -6,7 +6,10 @@ name: ci
 on:
   push:
     branches: [ "*" ]
-
+  schedule:
+    # Every day at 2:34.
+    - cron: '34 2 * * *'
+  
 permissions:
   contents: read
 

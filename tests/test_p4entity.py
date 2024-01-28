@@ -1351,7 +1351,7 @@ def test_value_set_entry1():
 def test_extern_entry0():
     "Test that P4ExternEntry class requires keyword arguments."
     with pytest.raises(TypeError, match="keyword-only"):
-        P4ExternEntry()  # pyright: ignore[reportGeneralTypeIssues]
+        P4ExternEntry()  # pyright: ignore[reportCallIssue]
 
 
 def test_extern_entry1():
