@@ -354,24 +354,24 @@ class P4Client:
         return msg
 
     @overload
-    async def request(self, msg: p4r.WriteRequest) -> p4r.WriteResponse:
-        ...  # pragma: no cover
+    async def request(
+        self, msg: p4r.WriteRequest
+    ) -> p4r.WriteResponse: ...  # pragma: no cover
 
     @overload
     async def request(
         self, msg: p4r.GetForwardingPipelineConfigRequest
-    ) -> p4r.GetForwardingPipelineConfigResponse:
-        ...  # pragma: no cover
+    ) -> p4r.GetForwardingPipelineConfigResponse: ...  # pragma: no cover
 
     @overload
     async def request(
         self, msg: p4r.SetForwardingPipelineConfigRequest
-    ) -> p4r.SetForwardingPipelineConfigResponse:
-        ...  # pragma: no cover
+    ) -> p4r.SetForwardingPipelineConfigResponse: ...  # pragma: no cover
 
     @overload
-    async def request(self, msg: p4r.CapabilitiesRequest) -> p4r.CapabilitiesResponse:
-        ...  # pragma: no cover
+    async def request(
+        self, msg: p4r.CapabilitiesRequest
+    ) -> p4r.CapabilitiesResponse: ...  # pragma: no cover
 
     async def request(self, msg: pbutil.PBMessage) -> pbutil.PBMessage:
         "Send a unary-unary P4Runtime request and wait for the response."

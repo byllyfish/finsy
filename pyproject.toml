@@ -33,7 +33,7 @@ protobuf = "^4.25.2"
 pyee = "^11.1.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "23.12.1"
+black = "24.1.1"
 mypy = "^1.8.0"
 pdoc = "^14.4.0"
 prometheus-client = "^0.19.0"
@@ -99,7 +99,7 @@ reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']
-required-version = "23.12.1"
+required-version = "24.1.1"
 force-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 #************
