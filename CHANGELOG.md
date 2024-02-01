@@ -1,9 +1,11 @@
 # Finsy Change Log
 
 
-## UNRELEASED
+## 0.24.0
 
 - Update protobuf dependency and development dependencies.
+- Update the demonet image tag used for testing to 24.01.
+- Update black formatter to 24.1.1 and re-format source code.
 
 ## 0.23.0
 
