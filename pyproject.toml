@@ -42,7 +42,7 @@ pyright = "^1.1.349"
 pytest = "^7.4.4"
 pytest-asyncio = "0.21.1"  # FIXME
 pytest-cov = "^4.1.0"
-ruff = "^0.1.15"
+ruff = ">=0.1.15,<0.3.0"
 shellous = "^0.34.0"
 
 [tool.poetry.group.demonet]
