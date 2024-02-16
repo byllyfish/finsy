@@ -59,7 +59,7 @@ async def test_wrong_tls_client_vs_tls_server_wait_for_ready(p4rt_secure_server)
 
 
 # On Windows, the "Socket closed" message is "End of TCP stream".
-_UNAVAILABLE1 = "UNAVAILABLE:.*: (?:Socket closed|End of TCP stream)"
+_UNAVAILABLE1 = "UNAVAILABLE:.*: (?:Socket closed|End of TCP stream|recvmsg:Connection reset by peer)"
 # On Windows, the "Connection reset by peer" message is "Connection aborted".
 _UNAVAILABLE2 = "UNAVAILABLE:.*: (?:Socket closed|End of TCP stream|recvmsg:Connection reset by peer|Connection aborted|Connection reset)"
 
