@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     container:
-      image: ghcr.io/byllyfish/demonet:23.11
+      image: ghcr.io/byllyfish/demonet:24.01
       options: --privileged
 
     steps:
