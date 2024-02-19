@@ -122,3 +122,4 @@ jobs:
           token: ${{ secrets.FINSY_CODECOV_TOKEN }}
           directory: ./examples/
           root_dir: ${{ github.workspace }}
+          verbose: true
