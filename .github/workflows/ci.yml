@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     container:
-      image: ghcr.io/byllyfish/demonet:23.11
+      image: ghcr.io/byllyfish/demonet:24.01
       options: --privileged
 
     steps:
@@ -117,8 +117,10 @@ jobs:
           . venv/bin/activate
           cd examples; PYTHONPATH=.. COVERAGE_RUN=true pytest -k simple --cov ../finsy --cov-report xml --cov-config ../.coveragerc
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@e0b68c6749509c5f83f984dd99a76a1c1a231044 # v4.0.1
+        # Revert codecov-action here due to failure running in container with v4.0.1.
+        uses: codecov/codecov-action@4fe8c5f003fae66aa5ebb77cfd3e7bfbbda0b6b0 # v3.1.5
         with:
           token: ${{ secrets.FINSY_CODECOV_TOKEN }}
           directory: ./examples/
           root_dir: ${{ github.workspace }}
+          verbose: true
