@@ -36,7 +36,7 @@ pyee = "^11.1.0"
 black = "24.2.0"
 mypy = "^1.8.0"
 pdoc = "^14.4.0"
-prometheus-client = "^0.19.0"
+prometheus-client = ">=0.19,<0.21"
 pylint = "^3.0.3"
 pyright = "^1.1.349"
 pytest = "^7.4.4"  # TODO
