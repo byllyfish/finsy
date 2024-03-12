@@ -244,6 +244,7 @@ class Commit(google.protobuf.message.Message):
     COMMIT_FIELD_NUMBER: builtins.int
     CONFIRM_FIELD_NUMBER: builtins.int
     CANCEL_FIELD_NUMBER: builtins.int
+    SET_ROLLBACK_DURATION_FIELD_NUMBER: builtins.int
     id: builtins.str
     """ID is provided by the client during the commit request. During confirm and cancel
     actions the provided ID should match the ID provided during commit.
@@ -263,6 +264,12 @@ class Commit(google.protobuf.message.Message):
         """cancel action will cancel an on-going commit, the ID provided during cancel
         should match the on-going commit ID.
         """
+    @property
+    def set_rollback_duration(self) -> global___CommitSetRollbackDuration:
+        """set rollback duration action sets the rollback duration of an on-going commit
+        to a new value.
+        The ID provided with the Commit message should match the on-going commit ID.
+        """
     def __init__(
         self,
         *,
@@ -270,10 +277,11 @@ class Commit(google.protobuf.message.Message):
         commit: global___CommitRequest | None = ...,
         confirm: global___CommitConfirm | None = ...,
         cancel: global___CommitCancel | None = ...,
+        set_rollback_duration: global___CommitSetRollbackDuration | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "id", b"id"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["action", b"action"]) -> typing_extensions.Literal["commit", "confirm", "cancel"] | None: ...
+    def HasField(self, field_name: typing_extensions.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "set_rollback_duration", b"set_rollback_duration"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "id", b"id", "set_rollback_duration", b"set_rollback_duration"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["action", b"action"]) -> typing_extensions.Literal["commit", "confirm", "cancel", "set_rollback_duration"] | None: ...
 
 global___Commit = Commit
 
@@ -326,3 +334,25 @@ class CommitCancel(google.protobuf.message.Message):
     ) -> None: ...
 
 global___CommitCancel = CommitCancel
+
+@typing_extensions.final
+class CommitSetRollbackDuration(google.protobuf.message.Message):
+    """CommitSetRollbackDuration is used to set the existing rollback duration value
+    of an on-going commit to a new desired value.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ROLLBACK_DURATION_FIELD_NUMBER: builtins.int
+    @property
+    def rollback_duration(self) -> google.protobuf.duration_pb2.Duration:
+        """Maximum duration to wait for a confirmaton before reverting the commit."""
+    def __init__(
+        self,
+        *,
+        rollback_duration: google.protobuf.duration_pb2.Duration | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["rollback_duration", b"rollback_duration"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["rollback_duration", b"rollback_duration"]) -> None: ...
+
+global___CommitSetRollbackDuration = CommitSetRollbackDuration
