@@ -2,7 +2,7 @@
 
 FROM docker.io/opennetworking/mn-stratum:latest@sha256:3dc917d59ed173fd56bd6c27067e40219005718a175ef77e43c99ce54ef16a1e AS stratum
 
-FROM ubuntu:22.04@sha256:cb2af41f42b9c9bc9bcdc7cf1735e3c4b3d95b2137be86fd940373471a34c8b0 AS builder
+FROM ubuntu:22.04@sha256:aa772c98400ef833586d1d517d3e8de670f7e712bf581ce6053165081773259d AS builder
 WORKDIR /root
 COPY build.sh p4switch.py ./
 COPY --from=stratum /stratum_bmv2_deb.deb \
@@ -14,10 +14,10 @@ COPY --from=stratum /stratum_bmv2_deb.deb \
   ./stratum/
 RUN ./build.sh
 
-FROM ubuntu:22.04@sha256:cb2af41f42b9c9bc9bcdc7cf1735e3c4b3d95b2137be86fd940373471a34c8b0
+FROM ubuntu:22.04@sha256:aa772c98400ef833586d1d517d3e8de670f7e712bf581ce6053165081773259d
 ARG BMV2_DEPS="libpcap0.8 libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-thread1.74.0"
 ARG MININET_DEPS="python3 net-tools iproute2 iputils-ping socat psmisc procps ethtool iperf tcpdump telnet"
-ARG OTHER_DEPS="python3-venv"
+ARG OTHER_DEPS="python3-venv gpg"
 ARG STRATUM_DEPS="libjudydebian1"
 COPY --from=builder /output /usr/local/
 RUN export DEBIAN_FRONTEND=noninteractive \
