@@ -95,6 +95,7 @@ jobs:
         run: |
           . /etc/os-release
           echo "$PRETTY_NAME"
+          apt-get update -qq && apt-get -y install git
           mn --version
           python3 -m venv venv
           . venv/bin/activate
