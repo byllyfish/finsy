@@ -29,21 +29,21 @@ python = "^3.10"
 # Core dependencies.
 grpcio = "^1.62.1"
 parsy = "^2.1.0"
-protobuf = "^4.25.3"
+protobuf = "^5.26.0"
 pyee = "^11.1.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "24.2.0"
+black = "24.3.0"
 mypy = "^1.9.0"
 pdoc = "^14.4.0"
 prometheus-client = "^0.20.0"
 pylint = "^3.1.0"
-pyright = "^1.1.353"
+pyright = "^1.1.354"
 pytest = "^7.4.4"  # TODO
 pytest-asyncio = "0.21.1"  # TODO
 pytest-cov = "^4.1.0"
-ruff = "^0.3.2"
-shellous = "^0.35.0"
+ruff = "^0.3.3"
+shellous = "^0.36.0"
 
 [tool.poetry.group.demonet]
 optional = true
@@ -99,7 +99,7 @@ reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']
-required-version = "24.2.0"
+required-version = "24.3.0"
 force-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 #************
