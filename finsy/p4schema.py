@@ -684,6 +684,7 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
     _structs: dict[str, "P4StructType"]
     _header_unions: dict[str, "P4HeaderUnionType"]
     _new_types: dict[str, "P4NewType"]
+    _serializable_enums: dict[str, "P4SerializableEnumType"]
 
     def __init__(self, pbuf: p4t.P4TypeInfo):
         super().__init__(pbuf)
@@ -702,6 +703,10 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
         }
         self._new_types = {
             name: P4NewType(name, item) for name, item in _sort_map(pbuf.new_types)
+        }
+        self._serializable_enums = {
+            name: P4SerializableEnumType(name, item)
+            for name, item in _sort_map(pbuf.serializable_enums)
         }
 
         for item in (self._structs, self._header_unions, self._new_types):
@@ -727,6 +732,11 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
     def new_types(self) -> dict[str, "P4NewType"]:
         "Collection of P4NewType."
         return self._new_types
+
+    @property
+    def serializable_enums(self) -> dict[str, "P4SerializableEnumType"]:
+        "Collection of P4SerializableEnumType."
+        return self._serializable_enums
 
     def __getitem__(self, name: str) -> "P4Type":
         "Retrieve a named type used in a match-field or action-param."
@@ -1978,6 +1988,47 @@ class P4NewType(_P4Bridged[p4t.P4NewTypeSpec]):
         return f"{result}, type_name={self.type_name!r})"
 
 
+class P4SerializableEnumType(_P4Bridged[p4t.P4SerializableEnumTypeSpec]):
+    "Represents P4SerializableEnumTypeSpec."
+
+    _type_name: str
+
+    def __init__(self, type_name: str, pbuf: p4t.P4SerializableEnumTypeSpec):
+        super().__init__(pbuf)
+        self._type_name = type_name
+
+    @property
+    def type_name(self) -> str:
+        "Type name."
+        return self._type_name
+
+    @property
+    def data_type_spec(self) -> p4t.P4DataTypeSpec:
+        "Protobuf type specification."
+        return p4t.P4DataTypeSpec(
+            serializable_enum=p4t.P4NamedType(name=self._type_name)
+        )
+
+    @property
+    def bitwidth(self) -> int:
+        return self.pbuf.underlying_type.bitwidth
+
+    @property
+    def members(self) -> dict[str, int]:
+        return {
+            member.name: p4values.decode_enum(member.value, self.bitwidth)
+            for member in self.pbuf.members
+        }
+
+    def encode_data(self, value: Any) -> p4d.P4Data:
+        "Encode value as P4Data protobuf."
+        return p4d.P4Data(enum_value=p4values.encode_enum(value, self.bitwidth))
+
+    def decode_data(self, data: p4d.P4Data) -> Any:
+        "Decode value from P4Data protobuf."
+        return p4values.decode_enum(data.enum_value, self.bitwidth)
+
+
 P4Type = (
     P4BitsType
     | P4BoolType
@@ -1988,6 +2039,7 @@ P4Type = (
     | P4HeaderStackType
     | P4HeaderUnionStackType
     | P4NewType
+    | P4SerializableEnumType
 )
 
 
@@ -2011,7 +2063,9 @@ def _parse_type_spec(type_spec: p4t.P4DataTypeSpec, type_info: P4TypeInfo) -> P4
             result = P4HeaderUnionStackType(type_spec.header_union_stack, type_info)
         case "new_type":
             result = type_info.new_types[type_spec.new_type.name]
-        # TODO: "enum", "error", "serializable_enum"
+        case "serializable_enum":
+            result = type_info.serializable_enums[type_spec.serializable_enum.name]
+        # TODO: "enum", "error"
         case other:
             raise ValueError(f"unknown type_spec: {other!r}")
     return result

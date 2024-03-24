@@ -2410,7 +2410,9 @@ P4Schema(
             size=512,
         ),
     ],
-    type_info=P4TypeInfo(header_unions={}, headers={}, new_types={}, structs={}),
+    type_info=P4TypeInfo(
+        header_unions={}, headers={}, new_types={}, serializable_enums={}, structs={}
+    ),
     value_sets=[],
     version="",
 )

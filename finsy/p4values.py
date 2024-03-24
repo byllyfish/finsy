@@ -573,3 +573,24 @@ def encode_signed(value: int, bitwidth: int) -> bytes:
 def decode_signed(data: bytes, _bitwidth: int) -> int:
     "Decode a signed value."
     return int.from_bytes(data, "big", signed=True)
+
+
+def encode_enum(value: int, bitwidth: int) -> bytes:
+    """Encode a P4R enum member into byte encoding."""
+    if value >= (1 << bitwidth) or value < 0:
+        raise _invalid_err("enum", bitwidth, value)
+
+    size = p4r_minimum_string_size(bitwidth)
+    return p4r_truncate(value.to_bytes(size, "big"))
+
+
+def decode_enum(data: bytes, bitwidth: int) -> int:
+    """Decode a P4R enum member as an unsigned integer."""
+    if not data or bitwidth <= 0:
+        raise _invalid_err("enum", bitwidth, data)
+
+    value = int.from_bytes(data, "big")
+    if value >= (1 << bitwidth):
+        raise _invalid_err("enum", bitwidth, data)
+
+    return value

@@ -1938,6 +1938,7 @@ P4Schema(
                 sdn_string, uri="", type_name="wcmp_group_id_t"
             ),
         },
+        serializable_enums={},
         structs={},
     ),
     value_sets=[],

@@ -135,6 +135,7 @@ P4Schema(
             ),
         },
         new_types={},
+        serializable_enums={},
         structs={
             "S1": P4StructType(
                 annotations=[],
