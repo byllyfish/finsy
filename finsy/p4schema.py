@@ -1992,10 +1992,15 @@ class P4SerializableEnumType(_P4Bridged[p4t.P4SerializableEnumTypeSpec]):
     "Represents P4SerializableEnumTypeSpec."
 
     _type_name: str
+    _members: dict[str, int]
 
     def __init__(self, type_name: str, pbuf: p4t.P4SerializableEnumTypeSpec):
         super().__init__(pbuf)
         self._type_name = type_name
+        self._members = {
+            member.name: p4values.decode_enum(member.value, self.bitwidth)
+            for member in self.pbuf.members
+        }
 
     @property
     def type_name(self) -> str:
@@ -2015,10 +2020,7 @@ class P4SerializableEnumType(_P4Bridged[p4t.P4SerializableEnumTypeSpec]):
 
     @property
     def members(self) -> dict[str, int]:
-        return {
-            member.name: p4values.decode_enum(member.value, self.bitwidth)
-            for member in self.pbuf.members
-        }
+        return self._members
 
     def encode_data(self, value: Any) -> p4d.P4Data:
         "Encode value as P4Data protobuf."
@@ -2027,6 +2029,10 @@ class P4SerializableEnumType(_P4Bridged[p4t.P4SerializableEnumTypeSpec]):
     def decode_data(self, data: p4d.P4Data) -> Any:
         "Decode value from P4Data protobuf."
         return p4values.decode_enum(data.enum_value, self.bitwidth)
+
+    def __getitem__(self, key: str) -> int:
+        "Shorthand for `enum.members[key]`."
+        return self._members[key]
 
 
 P4Type = (
