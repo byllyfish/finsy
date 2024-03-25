@@ -70,9 +70,11 @@ class Switch(Directive):
     kind: str = field(default="switch", init=False)
     model: str = ""
     commands: list[str] = field(default_factory=list)
+    cpu_port: int | None = None
     grpc_cacert: Path | None = None
     grpc_cert: Path | None = None
     grpc_private_key: Path | None = None
+    log_level: str | None = None
 
 
 @dataclass

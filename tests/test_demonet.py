@@ -37,9 +37,11 @@ def test_config():
             "kind": "switch",
             "model": "",
             "commands": [],
+            "cpu_port": None,
             "grpc_cacert": "cafile",
             "grpc_cert": None,
             "grpc_private_key": None,
+            "log_level": None,
         },
         {
             "name": "h1",
