@@ -740,7 +740,7 @@ class P4TypeInfo(_P4Bridged[p4t.P4TypeInfo]):
 
     def __getitem__(self, name: str) -> "P4Type":
         "Retrieve a named type used in a match-field or action-param."
-        for search in (self._new_types, self._structs):
+        for search in (self._new_types, self._structs, self._serializable_enums):
             result = search.get(name)
             if result is not None:
                 return result
