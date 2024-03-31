@@ -87,6 +87,7 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
             for task in self._tasks:
                 task.cancel()
             await self._server.stop(None)  # no grace period; finish all handlers
+            await asyncio.sleep(0.010)  # give a little time to clean up tasks
             self._stream_context = None
             self._server = None
             LOGGER.debug("P4RuntimeServer: server stopped: %s", self._listen_addr)

@@ -1,3 +1,4 @@
+import gc
 import os
 
 import pytest
@@ -55,6 +56,8 @@ async def p4rt_server_target(unused_tcp_target):
         server = P4RuntimeServer(target)
         async with server.run():
             yield target
+        server = None
+        gc.collect()  # run GC collection here
 
 
 @pytest.fixture
