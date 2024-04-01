@@ -57,7 +57,7 @@ jobs:
         pyright || echo "Errors ignored for now."
     - name: Run Tests
       run: |
-        pytest
+        GRPC_VERBOSITY=INFO pytest
     - name: Run Code Coverage
       run: |
         FINSY_TEST_NO_BENCHMARK=1 COVERAGE_RUN=true pytest --cov finsy

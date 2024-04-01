@@ -274,6 +274,7 @@ P4Schema(
         header_unions={},
         headers={},
         new_types={},
+        serializable_enums={},
         structs={
             "Digest_t": P4StructType(
                 annotations=[],

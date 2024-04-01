@@ -1,3 +1,4 @@
+import gc
 import os
 
 import pytest
@@ -33,6 +34,8 @@ async def gnmi_server_target(unused_tcp_target):
         server = GNMIServer(target)
         async with server.run():
             yield target
+        server = None
+        gc.collect()
 
 
 @pytest.fixture
@@ -55,6 +58,8 @@ async def p4rt_server_target(unused_tcp_target):
         server = P4RuntimeServer(target)
         async with server.run():
             yield target
+        server = None
+        gc.collect()  # run GC collection here
 
 
 @pytest.fixture
@@ -63,3 +68,5 @@ async def p4rt_secure_server(unused_tcp_target):
     server = P4RuntimeServer(unused_tcp_target, credentials=SERVER1_CREDS)
     async with server.run():
         yield (unused_tcp_target, CLIENT1_CREDS)
+    server = None
+    gc.collect()

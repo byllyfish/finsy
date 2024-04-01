@@ -279,7 +279,9 @@ P4Schema(
             size=1024,
         )
     ],
-    type_info=P4TypeInfo(header_unions={}, headers={}, new_types={}, structs={}),
+    type_info=P4TypeInfo(
+        header_unions={}, headers={}, new_types={}, serializable_enums={}, structs={}
+    ),
     value_sets=[
         P4ValueSet(
             alias="pvs",

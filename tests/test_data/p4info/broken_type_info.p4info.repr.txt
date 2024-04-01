@@ -19,6 +19,7 @@ P4Schema(
         header_unions={},
         headers={},
         new_types={},
+        serializable_enums={},
         structs={
             "S1": P4StructType(
                 annotations=[],

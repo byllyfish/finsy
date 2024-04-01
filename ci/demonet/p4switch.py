@@ -33,10 +33,10 @@ class P4RuntimeSwitch(Switch):
 
     def __init__(self, name: str, config: dict[str, Any], **kwargs):
         super().__init__(name, **kwargs)
-        self.grpc_port = config.get("grpc_port", 0) or P4RuntimeSwitch._next_grpc_port()
-        self.log_level = config.get("log_level", _DEFAULT_LOG_LEVEL)
-        self.cpu_port = config.get("cpu_port", _DEFAULT_CPU_PORT)
-        self.device_id = config.get("device_id", _DEFAULT_DEVICE_ID)
+        self.grpc_port = config.get("grpc_port") or P4RuntimeSwitch._next_grpc_port()
+        self.log_level = config.get("log_level") or _DEFAULT_LOG_LEVEL
+        self.cpu_port = config.get("cpu_port") or _DEFAULT_CPU_PORT
+        self.device_id = config.get("device_id") or _DEFAULT_DEVICE_ID
         self.grpc_cacert = config.get("grpc_cacert")
         self.grpc_cert = config.get("grpc_cert")
         self.grpc_private_key = config.get("grpc_private_key")

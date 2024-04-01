@@ -1,6 +1,7 @@
 "Implement P4TypeFactory helper."
 
 import finsy.p4schema as sch
+from finsy.p4values import encode_enum
 from finsy.proto import p4t
 
 
@@ -13,7 +14,7 @@ class P4TypeFactory:
         bool_t = factory.bool_type()
         uint8_t = factory.bits_type(8)
         my_struct = factory.struct_type("my_struct", x=bool_t, y=uint8_t)
-
+        my_enum = factory.serializable_enum("my_enum", 32, X=1, Y=2)
         data = my_struct.encode_data({"x": True, "y": 100})
         print(data)
     """
@@ -75,4 +76,27 @@ class P4TypeFactory:
         )
         self._type_info.structs[__name] = result
         result._finish_init(self._type_info)  # pyright: ignore[reportPrivateUsage]
+        return result
+
+    def serializable_enum_type(
+        self,
+        __name: str,
+        __bitwidth: int,
+        **members: int,
+    ) -> sch.P4SerializableEnumType:
+        "Construct a `serializable_enum` type."
+        result = sch.P4SerializableEnumType(
+            __name,
+            p4t.P4SerializableEnumTypeSpec(
+                underlying_type=p4t.P4BitTypeSpec(bitwidth=__bitwidth),
+                members=[
+                    p4t.P4SerializableEnumTypeSpec.Member(
+                        name=name,
+                        value=encode_enum(value, __bitwidth),
+                    )
+                    for name, value in members.items()
+                ],
+            ),
+        )
+        self._type_info.serializable_enums[__name] = result
         return result

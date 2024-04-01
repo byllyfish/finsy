@@ -71,22 +71,23 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         self._stream_queue = asyncio.Queue()
         self._credentials = credentials
 
-    def __del__(self) -> None:
-        LOGGER.debug("P4RuntimeServer: destroy server: %s", self._listen_addr)
-
     @contextlib.asynccontextmanager
     async def run(self):
         "Run server inside an async context manager."
         self._server = self._create_server()
         try:
             await self._server.start()
+            LOGGER.debug("P4RuntimeServer: server started: %s", self._listen_addr)
             yield self
 
         finally:
             for task in self._tasks:
                 task.cancel()
-            await self._server.stop(0)
+            await self._server.stop(None)  # no grace period; finish all handlers
+            await asyncio.sleep(0.010)  # give a little time to clean up tasks
+            self._stream_context = None
             self._server = None
+            LOGGER.debug("P4RuntimeServer: server stopped: %s", self._listen_addr)
 
     def _create_server(self) -> grpc.aio.Server:
         "Create AIO server."
@@ -143,6 +144,10 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         while True:
             try:
                 request = await self._stream_context.read()
+            except asyncio.CancelledError:
+                LOGGER.debug("_stream_read cancelled")
+                self._stream_context = None
+                raise
             except Exception as ex:
                 LOGGER.debug("_stream_read ex=%r", ex)
                 request = GRPC_EOF

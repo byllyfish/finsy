@@ -368,3 +368,32 @@ def test_tuple_of_structs_type(type_factory: P4TypeFactory):
     check_roundtrip(
         tup, value, "221c0a0c2a0a0a030a01000a030a01000a0c2a0a0a030a010a0a030a0164"
     )
+
+
+def test_tuple_of_serializable_enums(type_factory: P4TypeFactory):
+    "Test a 2-tuple of serializable_enums."
+    e1 = type_factory.serializable_enum_type("e1", 32, E1A=1, E1B=2, E1C=3)
+    assert e1.type_name == "e1"
+    assert e1.bitwidth == 32
+    assert e1.members == {"E1A": 1, "E1B": 2, "E1C": 3}
+
+    e2 = type_factory.serializable_enum_type("e2", 8, E2A=0, E2B=1)
+    tup = type_factory.tuple_type(e1, e2)
+
+    assert pbutil.to_dict(tup.data_type_spec) == {
+        "tuple": {
+            "members": [
+                {"serializable_enum": {"name": "e1"}},
+                {"serializable_enum": {"name": "e2"}},
+            ]
+        }
+    }
+
+    value = (e1["E1B"], e2["E2B"])
+    check_roundtrip(tup, value, "220a0a036201020a03620101")
+
+
+def test_invalid_serializable_enum(type_factory: P4TypeFactory):
+    "Test an invalid serializable_enum (signed member)."
+    with pytest.raises(ValueError, match="invalid ENUM value"):
+        type_factory.serializable_enum_type("einvalid", 32, a=0, b=1, c=-1)

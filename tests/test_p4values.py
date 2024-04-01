@@ -297,6 +297,61 @@ def test_decode_exact_sdnstring():
         assert p4values.decode_exact(value, 0) == result
 
 
+def test_encode_enum_valid():
+    "Test the encode_enum function."
+    valid = [
+        (0, 1, b"\x00"),
+        (1, 1, b"\x01"),
+        (0xFF, 8, b"\xFF"),
+    ]
+
+    for value, bitwidth, data in valid:
+        assert p4values.encode_enum(value, bitwidth) == data
+
+
+def test_encode_enum_invalid():
+    "Test the encode_enum function."
+    invalid = [
+        (-1, 1),
+        (2, 1),
+        (0xFF, 7),
+    ]
+
+    for value, bitwidth in invalid:
+        with pytest.raises(ValueError, match="invalid ENUM"):
+            p4values.encode_enum(value, bitwidth)
+
+
+def test_decode_enum_valid():
+    "Test the decode_enum function."
+    valid = [
+        (b"\x00", 1, 0),
+        (b"\x01", 1, 1),
+        (b"\x0F", 4, 0x0F),
+        (b"abcd", 31, 0x61626364),
+    ]
+
+    for data, bitwidth, result in valid:
+        assert p4values.decode_enum(data, bitwidth) == result
+
+
+def test_decode_enum_invalid():
+    "Test the decode_enum function."
+    invalid = [
+        (b"", 1),
+        (b"\x00", 0),
+        (b"\x01", 0),
+        (b"\x02", 1),
+        (b"abcd", 30),
+        (b"\x00", -1),
+    ]
+
+    for data, bitwidth in invalid:
+        with pytest.raises(ValueError, match="invalid ENUM"):
+            p4values.decode_enum(data, bitwidth)
+            print(data, bitwidth)
+
+
 def test_encode_lpm_exact():
     "Test the encode_lpm function."
     data = [
