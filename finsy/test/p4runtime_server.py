@@ -71,9 +71,6 @@ class P4RuntimeServer(p4r_grpc.P4RuntimeServicer):
         self._stream_queue = asyncio.Queue()
         self._credentials = credentials
 
-    def __del__(self) -> None:
-        LOGGER.debug("P4RuntimeServer: destroy server: %s", self._listen_addr)
-
     @contextlib.asynccontextmanager
     async def run(self):
         "Run server inside an async context manager."

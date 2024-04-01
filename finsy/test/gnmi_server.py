@@ -21,6 +21,7 @@ from typing import AsyncIterator
 import grpc  # pyright: ignore[reportMissingTypeStubs]
 
 from finsy import pbutil
+from finsy.log import LOGGER
 from finsy.proto import gnmi, gnmi_grpc
 
 # pyright: reportIncompatibleMethodOverride=false
@@ -44,11 +45,14 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
         self._server = self._create_server()
         try:
             await self._server.start()
+            LOGGER.debug("GNMIServer: server started: %s", self._listen_addr)
             yield self
 
         finally:
-            await self._server.stop(0)
+            await self._server.stop(None)
+            await asyncio.sleep(0.010)  # give a little time to clean up tasks
             self._server = None
+            LOGGER.debug("GNMIServer: server stopped: %s", self._listen_addr)
 
     def _create_server(self) -> grpc.aio.Server:
         "Create AIO server."
