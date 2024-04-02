@@ -665,7 +665,7 @@ class P4IndirectAction:
     group_id: int | None = None
     "ID of action profile group."
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self._check_invariant():
             raise ValueError(
                 "exactly one of action_set, member_id, or group_id must be set"
