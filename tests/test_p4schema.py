@@ -1,10 +1,11 @@
 import difflib
+import logging
 import os
-import subprocess
 from dataclasses import dataclass
 from ipaddress import IPv4Address, IPv4Network
 from pathlib import Path
 
+import black
 import pytest
 
 from finsy import p4values, pbutil
@@ -185,15 +186,17 @@ def test_p4info_repr(p4info_file):
     assert not result_lines
 
 
-def _format_source_code(source):
+def _format_source_code(source: str) -> str:
     "Format the given source code using `black` formatter."
-    return subprocess.check_output(
-        ["black", "-"],
-        input=source,
-        stderr=subprocess.DEVNULL,  # comment out this line to see error msgs!
-        encoding="utf-8",
-        timeout=20.0,
-    )
+    logger = logging.getLogger()
+    savedLevel = logger.level
+    try:
+        # Change log level to WARNING; if left at DEBUG, there is too much output.
+        logger.setLevel(logging.WARNING)
+        return black.format_str(source, mode=black.Mode())
+    finally:
+        # Restore saved log level.
+        logger.setLevel(savedLevel)
 
 
 @pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
