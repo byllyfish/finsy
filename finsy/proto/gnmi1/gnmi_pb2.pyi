@@ -10,6 +10,7 @@ tree supported by a device ("target").
 This document references the gNMI Specification which can be found at
 http://github.com/openconfig/reference/blob/master/rpc/gnmi
 """
+
 import builtins
 import collections.abc
 from . import gnmi_ext_pb2 as _dot_gnmi_ext_pb2
@@ -94,7 +95,7 @@ SAMPLE: SubscriptionMode.ValueType  # 2
 """The target samples values according to the interval."""
 global___SubscriptionMode = SubscriptionMode
 
-@typing_extensions.final
+@typing.final
 class Notification(google.protobuf.message.Message):
     """Notification is a re-usable message that is used to encode data from the
     target to the client. A Notification carries two types of changes to the data
@@ -115,19 +116,22 @@ class Notification(google.protobuf.message.Message):
     ATOMIC_FIELD_NUMBER: builtins.int
     timestamp: builtins.int
     """Timestamp in nanoseconds since Epoch."""
-    @property
-    def prefix(self) -> global___Path:
-        """Prefix used for paths in the message."""
-    @property
-    def update(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Update]:
-        """Data elements that have changed values."""
-    @property
-    def delete(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Path]:
-        """Data elements that have been deleted."""
     atomic: builtins.bool
     """This notification contains a set of paths that are always updated together
     referenced by a globally unique prefix.
     """
+    @property
+    def prefix(self) -> global___Path:
+        """Prefix used for paths in the message."""
+
+    @property
+    def update(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Update]:
+        """Data elements that have changed values."""
+
+    @property
+    def delete(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Path]:
+        """Data elements that have been deleted."""
+
     def __init__(
         self,
         *,
@@ -137,12 +141,12 @@ class Notification(google.protobuf.message.Message):
         delete: collections.abc.Iterable[global___Path] | None = ...,
         atomic: builtins.bool = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["prefix", b"prefix"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["atomic", b"atomic", "delete", b"delete", "prefix", b"prefix", "timestamp", b"timestamp", "update", b"update"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["prefix", b"prefix"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["atomic", b"atomic", "delete", b"delete", "prefix", b"prefix", "timestamp", b"timestamp", "update", b"update"]) -> None: ...
 
 global___Notification = Notification
 
-@typing_extensions.final
+@typing.final
 class Update(google.protobuf.message.Message):
     """Update is a re-usable message that is used to store a particular Path,
     Value pair.
@@ -155,17 +159,20 @@ class Update(google.protobuf.message.Message):
     VALUE_FIELD_NUMBER: builtins.int
     VAL_FIELD_NUMBER: builtins.int
     DUPLICATES_FIELD_NUMBER: builtins.int
+    duplicates: builtins.int
+    """Number of coalesced duplicates."""
     @property
     def path(self) -> global___Path:
         """The path (key) for the update."""
+
     @property
     def value(self) -> global___Value:
         """The value (value) for the update."""
+
     @property
     def val(self) -> global___TypedValue:
         """The explicitly typed update value."""
-    duplicates: builtins.int
-    """Number of coalesced duplicates."""
+
     def __init__(
         self,
         *,
@@ -174,12 +181,12 @@ class Update(google.protobuf.message.Message):
         val: global___TypedValue | None = ...,
         duplicates: builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["path", b"path", "val", b"val", "value", b"value"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["duplicates", b"duplicates", "path", b"path", "val", b"val", "value", b"value"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["path", b"path", "val", b"val", "value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["duplicates", b"duplicates", "path", b"path", "val", b"val", "value", b"value"]) -> None: ...
 
 global___Update = Update
 
-@typing_extensions.final
+@typing.final
 class TypedValue(google.protobuf.message.Message):
     """TypedValue is used to encode a value being sent between the client and
     target (originated by either entity).
@@ -215,15 +222,6 @@ class TypedValue(google.protobuf.message.Message):
     """Deprecated - use double_val."""
     double_val: builtins.float
     """Floating point value."""
-    @property
-    def decimal_val(self) -> global___Decimal64:
-        """Deprecated - use double_val."""
-    @property
-    def leaflist_val(self) -> global___ScalarArray:
-        """Mixed type scalar array value."""
-    @property
-    def any_val(self) -> google.protobuf.any_pb2.Any:
-        """protobuf.Any encoded bytes."""
     json_val: builtins.bytes
     """JSON-encoded text."""
     json_ietf_val: builtins.bytes
@@ -236,6 +234,18 @@ class TypedValue(google.protobuf.message.Message):
     github.com/openconfig/reference/blob/master/rpc/gnmi/protobuf-vals.md
     for a complete specification. [Experimental]
     """
+    @property
+    def decimal_val(self) -> global___Decimal64:
+        """Deprecated - use double_val."""
+
+    @property
+    def leaflist_val(self) -> global___ScalarArray:
+        """Mixed type scalar array value."""
+
+    @property
+    def any_val(self) -> google.protobuf.any_pb2.Any:
+        """protobuf.Any encoded bytes."""
+
     def __init__(
         self,
         *,
@@ -254,13 +264,13 @@ class TypedValue(google.protobuf.message.Message):
         ascii_val: builtins.str = ...,
         proto_bytes: builtins.bytes = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["any_val", b"any_val", "ascii_val", b"ascii_val", "bool_val", b"bool_val", "bytes_val", b"bytes_val", "decimal_val", b"decimal_val", "double_val", b"double_val", "float_val", b"float_val", "int_val", b"int_val", "json_ietf_val", b"json_ietf_val", "json_val", b"json_val", "leaflist_val", b"leaflist_val", "proto_bytes", b"proto_bytes", "string_val", b"string_val", "uint_val", b"uint_val", "value", b"value"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["any_val", b"any_val", "ascii_val", b"ascii_val", "bool_val", b"bool_val", "bytes_val", b"bytes_val", "decimal_val", b"decimal_val", "double_val", b"double_val", "float_val", b"float_val", "int_val", b"int_val", "json_ietf_val", b"json_ietf_val", "json_val", b"json_val", "leaflist_val", b"leaflist_val", "proto_bytes", b"proto_bytes", "string_val", b"string_val", "uint_val", b"uint_val", "value", b"value"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["value", b"value"]) -> typing_extensions.Literal["string_val", "int_val", "uint_val", "bool_val", "bytes_val", "float_val", "double_val", "decimal_val", "leaflist_val", "any_val", "json_val", "json_ietf_val", "ascii_val", "proto_bytes"] | None: ...
+    def HasField(self, field_name: typing.Literal["any_val", b"any_val", "ascii_val", b"ascii_val", "bool_val", b"bool_val", "bytes_val", b"bytes_val", "decimal_val", b"decimal_val", "double_val", b"double_val", "float_val", b"float_val", "int_val", b"int_val", "json_ietf_val", b"json_ietf_val", "json_val", b"json_val", "leaflist_val", b"leaflist_val", "proto_bytes", b"proto_bytes", "string_val", b"string_val", "uint_val", b"uint_val", "value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["any_val", b"any_val", "ascii_val", b"ascii_val", "bool_val", b"bool_val", "bytes_val", b"bytes_val", "decimal_val", b"decimal_val", "double_val", b"double_val", "float_val", b"float_val", "int_val", b"int_val", "json_ietf_val", b"json_ietf_val", "json_val", b"json_val", "leaflist_val", b"leaflist_val", "proto_bytes", b"proto_bytes", "string_val", b"string_val", "uint_val", b"uint_val", "value", b"value"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["value", b"value"]) -> typing.Literal["string_val", "int_val", "uint_val", "bool_val", "bytes_val", "float_val", "double_val", "decimal_val", "leaflist_val", "any_val", "json_val", "json_ietf_val", "ascii_val", "proto_bytes"] | None: ...
 
 global___TypedValue = TypedValue
 
-@typing_extensions.final
+@typing.final
 class Path(google.protobuf.message.Message):
     """Path encodes a data tree path as a series of repeated strings, with
     each element of the path representing a data tree node name and the
@@ -274,18 +284,20 @@ class Path(google.protobuf.message.Message):
     ORIGIN_FIELD_NUMBER: builtins.int
     ELEM_FIELD_NUMBER: builtins.int
     TARGET_FIELD_NUMBER: builtins.int
+    origin: builtins.str
+    """Label to disambiguate path."""
+    target: builtins.str
+    """The name of the target"""
     @property
     def element(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
         """Elements of the path are no longer encoded as a string, but rather within
         the elem field as a PathElem message.
         """
-    origin: builtins.str
-    """Label to disambiguate path."""
+
     @property
     def elem(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PathElem]:
         """Elements of the path."""
-    target: builtins.str
-    """The name of the target"""
+
     def __init__(
         self,
         *,
@@ -294,11 +306,11 @@ class Path(google.protobuf.message.Message):
         elem: collections.abc.Iterable[global___PathElem] | None = ...,
         target: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["elem", b"elem", "element", b"element", "origin", b"origin", "target", b"target"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["elem", b"elem", "element", b"element", "origin", b"origin", "target", b"target"]) -> None: ...
 
 global___Path = Path
 
-@typing_extensions.final
+@typing.final
 class PathElem(google.protobuf.message.Message):
     """PathElem encodes an element of a gNMI path, along with any attributes (keys)
     that may be associated with it.
@@ -307,7 +319,7 @@ class PathElem(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class KeyEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -321,7 +333,7 @@ class PathElem(google.protobuf.message.Message):
             key: builtins.str = ...,
             value: builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
     NAME_FIELD_NUMBER: builtins.int
     KEY_FIELD_NUMBER: builtins.int
@@ -330,17 +342,18 @@ class PathElem(google.protobuf.message.Message):
     @property
     def key(self) -> google.protobuf.internal.containers.ScalarMap[builtins.str, builtins.str]:
         """Map of key (attribute) name to value."""
+
     def __init__(
         self,
         *,
         name: builtins.str = ...,
         key: collections.abc.Mapping[builtins.str, builtins.str] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "name", b"name"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["key", b"key", "name", b"name"]) -> None: ...
 
 global___PathElem = PathElem
 
-@typing_extensions.final
+@typing.final
 class Value(google.protobuf.message.Message):
     """Value encodes a data tree node's value - along with the way in which
     the value is encoded. This message is deprecated by gNMI 0.3.0.
@@ -361,11 +374,11 @@ class Value(google.protobuf.message.Message):
         value: builtins.bytes = ...,
         type: global___Encoding.ValueType = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["type", b"type", "value", b"value"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["type", b"type", "value", b"value"]) -> None: ...
 
 global___Value = Value
 
-@typing_extensions.final
+@typing.final
 class Error(google.protobuf.message.Message):
     """Error message previously utilised to return errors to the client. Deprecated
     in favour of using the google.golang.org/genproto/googleapis/rpc/status
@@ -385,6 +398,7 @@ class Error(google.protobuf.message.Message):
     @property
     def data(self) -> google.protobuf.any_pb2.Any:
         """Optional additional information."""
+
     def __init__(
         self,
         *,
@@ -392,12 +406,12 @@ class Error(google.protobuf.message.Message):
         message: builtins.str = ...,
         data: google.protobuf.any_pb2.Any | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["data", b"data"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["code", b"code", "data", b"data", "message", b"message"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["data", b"data"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["code", b"code", "data", b"data", "message", b"message"]) -> None: ...
 
 global___Error = Error
 
-@typing_extensions.final
+@typing.final
 class Decimal64(google.protobuf.message.Message):
     """Decimal64 is used to encode a fixed precision decimal number. The value
     is expressed as a set of digits with the precision specifying the
@@ -420,11 +434,11 @@ class Decimal64(google.protobuf.message.Message):
         digits: builtins.int = ...,
         precision: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["digits", b"digits", "precision", b"precision"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["digits", b"digits", "precision", b"precision"]) -> None: ...
 
 global___Decimal64 = Decimal64
 
-@typing_extensions.final
+@typing.final
 class ScalarArray(google.protobuf.message.Message):
     """ScalarArray is used to encode a mixed-type array of values."""
 
@@ -437,16 +451,17 @@ class ScalarArray(google.protobuf.message.Message):
         specify only elements that have a field identifier of 1-7 (i.e., the
         values are scalar values).
         """
+
     def __init__(
         self,
         *,
         element: collections.abc.Iterable[global___TypedValue] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["element", b"element"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["element", b"element"]) -> None: ...
 
 global___ScalarArray = ScalarArray
 
-@typing_extensions.final
+@typing.final
 class SubscribeRequest(google.protobuf.message.Message):
     """SubscribeRequest is the message sent by the client to the target when
     initiating a subscription to a set of paths within the data tree. The
@@ -463,14 +478,17 @@ class SubscribeRequest(google.protobuf.message.Message):
     @property
     def subscribe(self) -> global___SubscriptionList:
         """Specify the paths within a subscription."""
+
     @property
     def poll(self) -> global___Poll:
         """Trigger a polled update."""
+
     @property
     def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the SubscribeRequest. See the
         gNMI extension specification for further definition.
         """
+
     def __init__(
         self,
         *,
@@ -478,13 +496,13 @@ class SubscribeRequest(google.protobuf.message.Message):
         poll: global___Poll | None = ...,
         extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["poll", b"poll", "request", b"request", "subscribe", b"subscribe"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["extension", b"extension", "poll", b"poll", "request", b"request", "subscribe", b"subscribe"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["request", b"request"]) -> typing_extensions.Literal["subscribe", "poll"] | None: ...
+    def HasField(self, field_name: typing.Literal["poll", b"poll", "request", b"request", "subscribe", b"subscribe"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["extension", b"extension", "poll", b"poll", "request", b"request", "subscribe", b"subscribe"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["request", b"request"]) -> typing.Literal["subscribe", "poll"] | None: ...
 
 global___SubscribeRequest = SubscribeRequest
 
-@typing_extensions.final
+@typing.final
 class Poll(google.protobuf.message.Message):
     """Poll is sent within a SubscribeRequest to trigger the device to
     send telemetry updates for the paths that are associated with the
@@ -500,7 +518,7 @@ class Poll(google.protobuf.message.Message):
 
 global___Poll = Poll
 
-@typing_extensions.final
+@typing.final
 class SubscribeResponse(google.protobuf.message.Message):
     """SubscribeResponse is the message used by the target within a Subscribe RPC.
     The target includes a Notification message which is used to transmit values
@@ -516,21 +534,24 @@ class SubscribeResponse(google.protobuf.message.Message):
     SYNC_RESPONSE_FIELD_NUMBER: builtins.int
     ERROR_FIELD_NUMBER: builtins.int
     EXTENSION_FIELD_NUMBER: builtins.int
-    @property
-    def update(self) -> global___Notification:
-        """Changed or sampled value for a path."""
     sync_response: builtins.bool
     """Indicate target has sent all values associated with the subscription
     at least once.
     """
     @property
+    def update(self) -> global___Notification:
+        """Changed or sampled value for a path."""
+
+    @property
     def error(self) -> global___Error:
         """Deprecated in favour of google.golang.org/genproto/googleapis/rpc/status"""
+
     @property
     def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the SubscribeResponse. See the
         gNMI extension specification for further definition.
         """
+
     def __init__(
         self,
         *,
@@ -539,13 +560,13 @@ class SubscribeResponse(google.protobuf.message.Message):
         error: global___Error | None = ...,
         extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["error", b"error", "response", b"response", "sync_response", b"sync_response", "update", b"update"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["error", b"error", "extension", b"extension", "response", b"response", "sync_response", b"sync_response", "update", b"update"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["response", b"response"]) -> typing_extensions.Literal["update", "sync_response", "error"] | None: ...
+    def HasField(self, field_name: typing.Literal["error", b"error", "response", b"response", "sync_response", b"sync_response", "update", b"update"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["error", b"error", "extension", b"extension", "response", b"response", "sync_response", b"sync_response", "update", b"update"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["response", b"response"]) -> typing.Literal["update", "sync_response", "error"] | None: ...
 
 global___SubscribeResponse = SubscribeResponse
 
-@typing_extensions.final
+@typing.final
 class SubscriptionList(google.protobuf.message.Message):
     """SubscriptionList is used within a Subscribe message to specify the list of
     paths that the client wishes to subscribe to. The message consists of a
@@ -587,25 +608,11 @@ class SubscriptionList(google.protobuf.message.Message):
     USE_MODELS_FIELD_NUMBER: builtins.int
     ENCODING_FIELD_NUMBER: builtins.int
     UPDATES_ONLY_FIELD_NUMBER: builtins.int
-    @property
-    def prefix(self) -> global___Path:
-        """Prefix used for paths."""
-    @property
-    def subscription(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Subscription]:
-        """Set of subscriptions to create."""
-    @property
-    def qos(self) -> global___QOSMarking:
-        """DSCP marking to be used."""
     mode: global___SubscriptionList.Mode.ValueType
     allow_aggregation: builtins.bool
     """Whether elements of the schema that are marked as eligible for aggregation
     should be aggregated or not.
     """
-    @property
-    def use_models(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ModelData]:
-        """The set of schemas that define the elements of the data tree that should
-        be sent by the target.
-        """
     encoding: global___Encoding.ValueType
     """The encoding that the target should use within the Notifications generated
     corresponding to the SubscriptionList.
@@ -617,6 +624,24 @@ class SubscriptionList(google.protobuf.message.Message):
     current state. For ONCE and POLL modes, this causes the server to send only
     the sync message (Sec. 3.5.2.3).
     """
+    @property
+    def prefix(self) -> global___Path:
+        """Prefix used for paths."""
+
+    @property
+    def subscription(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Subscription]:
+        """Set of subscriptions to create."""
+
+    @property
+    def qos(self) -> global___QOSMarking:
+        """DSCP marking to be used."""
+
+    @property
+    def use_models(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ModelData]:
+        """The set of schemas that define the elements of the data tree that should
+        be sent by the target.
+        """
+
     def __init__(
         self,
         *,
@@ -629,12 +654,12 @@ class SubscriptionList(google.protobuf.message.Message):
         encoding: global___Encoding.ValueType = ...,
         updates_only: builtins.bool = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["prefix", b"prefix", "qos", b"qos"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["allow_aggregation", b"allow_aggregation", "encoding", b"encoding", "mode", b"mode", "prefix", b"prefix", "qos", b"qos", "subscription", b"subscription", "updates_only", b"updates_only", "use_models", b"use_models"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["prefix", b"prefix", "qos", b"qos"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["allow_aggregation", b"allow_aggregation", "encoding", b"encoding", "mode", b"mode", "prefix", b"prefix", "qos", b"qos", "subscription", b"subscription", "updates_only", b"updates_only", "use_models", b"use_models"]) -> None: ...
 
 global___SubscriptionList = SubscriptionList
 
-@typing_extensions.final
+@typing.final
 class Subscription(google.protobuf.message.Message):
     """Subscription is a single request within a SubscriptionList. The path
     specified is interpreted (along with the prefix) as the elements of the data
@@ -650,9 +675,6 @@ class Subscription(google.protobuf.message.Message):
     SAMPLE_INTERVAL_FIELD_NUMBER: builtins.int
     SUPPRESS_REDUNDANT_FIELD_NUMBER: builtins.int
     HEARTBEAT_INTERVAL_FIELD_NUMBER: builtins.int
-    @property
-    def path(self) -> global___Path:
-        """The data tree path."""
     mode: global___SubscriptionMode.ValueType
     """Subscription mode to be used."""
     sample_interval: builtins.int
@@ -662,10 +684,20 @@ class Subscription(google.protobuf.message.Message):
     subscription.
     """
     heartbeat_interval: builtins.int
-    """Specifies the maximum allowable silent period in nanoseconds when
-    suppress_redundant is in use. The target should send a value at least once
-    in the period specified.
+    """1. A heartbeat interval MAY be specified along with an “on change”
+    subscription - in this case, the value of the data item(s) MUST be re-sent
+    once per heartbeat interval regardless of whether the value has changed or
+    not.
+    2. A heartbeat_interval MAY be specified to modify the behavior of
+    suppress_redundant in a sampled subscription. In this case, the
+    target MUST generate one telemetry update per heartbeat interval,
+    regardless of whether the suppress_redundant flag is set to true.
+    This value is specified as an unsigned 64-bit integer in nanoseconds
     """
+    @property
+    def path(self) -> global___Path:
+        """The data tree path."""
+
     def __init__(
         self,
         *,
@@ -675,12 +707,12 @@ class Subscription(google.protobuf.message.Message):
         suppress_redundant: builtins.bool = ...,
         heartbeat_interval: builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["path", b"path"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["heartbeat_interval", b"heartbeat_interval", "mode", b"mode", "path", b"path", "sample_interval", b"sample_interval", "suppress_redundant", b"suppress_redundant"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["path", b"path"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["heartbeat_interval", b"heartbeat_interval", "mode", b"mode", "path", b"path", "sample_interval", b"sample_interval", "suppress_redundant", b"suppress_redundant"]) -> None: ...
 
 global___Subscription = Subscription
 
-@typing_extensions.final
+@typing.final
 class QOSMarking(google.protobuf.message.Message):
     """QOSMarking specifies the DSCP value to be set on transmitted telemetry
     updates from the target.
@@ -696,11 +728,11 @@ class QOSMarking(google.protobuf.message.Message):
         *,
         marking: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["marking", b"marking"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["marking", b"marking"]) -> None: ...
 
 global___QOSMarking = QOSMarking
 
-@typing_extensions.final
+@typing.final
 class SetRequest(google.protobuf.message.Message):
     """SetRequest is sent from a client to the target to update values in the data
     tree. Paths are either deleted by the client, or modified by means of being
@@ -722,27 +754,33 @@ class SetRequest(google.protobuf.message.Message):
     @property
     def prefix(self) -> global___Path:
         """Prefix used for paths in the message."""
+
     @property
     def delete(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Path]:
         """Paths to be deleted from the data tree."""
+
     @property
     def replace(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Update]:
         """Updates specifying elements to be replaced."""
+
     @property
     def update(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Update]:
         """Updates specifying elements to updated."""
+
     @property
     def union_replace(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Update]:
-        """Updates specifying elements to union and then replace the data tree.  
+        """Updates specifying elements to union and then replace the data tree.
         See the gNMI specification at
         https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md
         for details.
         """
+
     @property
     def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the SetRequest. See the
         gNMI extension specification for further definition.
         """
+
     def __init__(
         self,
         *,
@@ -753,12 +791,12 @@ class SetRequest(google.protobuf.message.Message):
         union_replace: collections.abc.Iterable[global___Update] | None = ...,
         extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["prefix", b"prefix"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["delete", b"delete", "extension", b"extension", "prefix", b"prefix", "replace", b"replace", "union_replace", b"union_replace", "update", b"update"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["prefix", b"prefix"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["delete", b"delete", "extension", b"extension", "prefix", b"prefix", "replace", b"replace", "union_replace", b"union_replace", "update", b"update"]) -> None: ...
 
 global___SetRequest = SetRequest
 
-@typing_extensions.final
+@typing.final
 class SetResponse(google.protobuf.message.Message):
     """SetResponse is the response to a SetRequest, sent from the target to the
     client. It reports the result of the modifications to the data tree that were
@@ -776,24 +814,28 @@ class SetResponse(google.protobuf.message.Message):
     MESSAGE_FIELD_NUMBER: builtins.int
     TIMESTAMP_FIELD_NUMBER: builtins.int
     EXTENSION_FIELD_NUMBER: builtins.int
+    timestamp: builtins.int
+    """Timestamp of transaction (ns since epoch)."""
     @property
     def prefix(self) -> global___Path:
         """Prefix used for paths."""
+
     @property
     def response(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___UpdateResult]:
         """A set of responses specifying the result of the operations specified in
         the SetRequest.
         """
+
     @property
     def message(self) -> global___Error:
         """The overall status of the transaction."""
-    timestamp: builtins.int
-    """Timestamp of transaction (ns since epoch)."""
+
     @property
     def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the SetResponse. See the
         gNMI extension specification for further definition.
         """
+
     def __init__(
         self,
         *,
@@ -803,12 +845,12 @@ class SetResponse(google.protobuf.message.Message):
         timestamp: builtins.int = ...,
         extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "prefix", b"prefix"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["extension", b"extension", "message", b"message", "prefix", b"prefix", "response", b"response", "timestamp", b"timestamp"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["message", b"message", "prefix", b"prefix"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["extension", b"extension", "message", b"message", "prefix", b"prefix", "response", b"response", "timestamp", b"timestamp"]) -> None: ...
 
 global___SetResponse = SetResponse
 
-@typing_extensions.final
+@typing.final
 class UpdateResult(google.protobuf.message.Message):
     """UpdateResult is used within the SetResponse message to communicate the
     result of an operation specified within a SetRequest message.
@@ -856,14 +898,16 @@ class UpdateResult(google.protobuf.message.Message):
     all mutations effected by a set should be applied as a single
     transaction.
     """
+    op: global___UpdateResult.Operation.ValueType
+    """Update operation type."""
     @property
     def path(self) -> global___Path:
         """Path associated with the update."""
+
     @property
     def message(self) -> global___Error:
         """Status of the update operation."""
-    op: global___UpdateResult.Operation.ValueType
-    """Update operation type."""
+
     def __init__(
         self,
         *,
@@ -872,12 +916,12 @@ class UpdateResult(google.protobuf.message.Message):
         message: global___Error | None = ...,
         op: global___UpdateResult.Operation.ValueType = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["message", b"message", "path", b"path"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["message", b"message", "op", b"op", "path", b"path", "timestamp", b"timestamp"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["message", b"message", "path", b"path"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["message", b"message", "op", b"op", "path", b"path", "timestamp", b"timestamp"]) -> None: ...
 
 global___UpdateResult = UpdateResult
 
-@typing_extensions.final
+@typing.final
 class GetRequest(google.protobuf.message.Message):
     """GetRequest is sent when a client initiates a Get RPC. It is used to specify
     the set of data elements for which the target should return a snapshot of
@@ -928,24 +972,28 @@ class GetRequest(google.protobuf.message.Message):
     ENCODING_FIELD_NUMBER: builtins.int
     USE_MODELS_FIELD_NUMBER: builtins.int
     EXTENSION_FIELD_NUMBER: builtins.int
-    @property
-    def prefix(self) -> global___Path:
-        """Prefix used for paths."""
-    @property
-    def path(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Path]:
-        """Paths requested by the client."""
     type: global___GetRequest.DataType.ValueType
     """The type of data being requested."""
     encoding: global___Encoding.ValueType
     """Encoding to be used."""
     @property
+    def prefix(self) -> global___Path:
+        """Prefix used for paths."""
+
+    @property
+    def path(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Path]:
+        """Paths requested by the client."""
+
+    @property
     def use_models(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ModelData]:
         """The schema models to be used."""
+
     @property
     def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the GetRequest. See the
         gNMI extension specification for further definition.
         """
+
     def __init__(
         self,
         *,
@@ -956,12 +1004,12 @@ class GetRequest(google.protobuf.message.Message):
         use_models: collections.abc.Iterable[global___ModelData] | None = ...,
         extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["prefix", b"prefix"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["encoding", b"encoding", "extension", b"extension", "path", b"path", "prefix", b"prefix", "type", b"type", "use_models", b"use_models"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["prefix", b"prefix"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["encoding", b"encoding", "extension", b"extension", "path", b"path", "prefix", b"prefix", "type", b"type", "use_models", b"use_models"]) -> None: ...
 
 global___GetRequest = GetRequest
 
-@typing_extensions.final
+@typing.final
 class GetResponse(google.protobuf.message.Message):
     """GetResponse is used by the target to respond to a GetRequest from a client.
     The set of Notifications corresponds to the data values that are requested
@@ -977,14 +1025,17 @@ class GetResponse(google.protobuf.message.Message):
     @property
     def notification(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Notification]:
         """Data values."""
+
     @property
     def error(self) -> global___Error:
         """Errors that occurred in the Get."""
+
     @property
     def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the GetResponse. See the
         gNMI extension specification for further definition.
         """
+
     def __init__(
         self,
         *,
@@ -992,12 +1043,12 @@ class GetResponse(google.protobuf.message.Message):
         error: global___Error | None = ...,
         extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["error", b"error"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["error", b"error", "extension", b"extension", "notification", b"notification"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["error", b"error"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["error", b"error", "extension", b"extension", "notification", b"notification"]) -> None: ...
 
 global___GetResponse = GetResponse
 
-@typing_extensions.final
+@typing.final
 class CapabilityRequest(google.protobuf.message.Message):
     """CapabilityRequest is sent by the client in the Capabilities RPC to request
     that the target reports its capabilities.
@@ -1012,16 +1063,17 @@ class CapabilityRequest(google.protobuf.message.Message):
         """Extension messages associated with the CapabilityRequest. See the
         gNMI extension specification for further definition.
         """
+
     def __init__(
         self,
         *,
         extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["extension", b"extension"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["extension", b"extension"]) -> None: ...
 
 global___CapabilityRequest = CapabilityRequest
 
-@typing_extensions.final
+@typing.final
 class CapabilityResponse(google.protobuf.message.Message):
     """CapabilityResponse is used by the target to report its capabilities to the
     client within the Capabilities RPC.
@@ -1034,19 +1086,22 @@ class CapabilityResponse(google.protobuf.message.Message):
     SUPPORTED_ENCODINGS_FIELD_NUMBER: builtins.int
     GNMI_VERSION_FIELD_NUMBER: builtins.int
     EXTENSION_FIELD_NUMBER: builtins.int
+    gNMI_version: builtins.str
+    """Supported gNMI version."""
     @property
     def supported_models(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ModelData]:
         """Supported schema models."""
+
     @property
     def supported_encodings(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[global___Encoding.ValueType]:
         """Supported encodings."""
-    gNMI_version: builtins.str
-    """Supported gNMI version."""
+
     @property
     def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
         """Extension messages associated with the CapabilityResponse. See the
         gNMI extension specification for further definition.
         """
+
     def __init__(
         self,
         *,
@@ -1055,11 +1110,11 @@ class CapabilityResponse(google.protobuf.message.Message):
         gNMI_version: builtins.str = ...,
         extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["extension", b"extension", "gNMI_version", b"gNMI_version", "supported_encodings", b"supported_encodings", "supported_models", b"supported_models"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["extension", b"extension", "gNMI_version", b"gNMI_version", "supported_encodings", b"supported_encodings", "supported_models", b"supported_models"]) -> None: ...
 
 global___CapabilityResponse = CapabilityResponse
 
-@typing_extensions.final
+@typing.final
 class ModelData(google.protobuf.message.Message):
     """ModelData is used to describe a set of schema modules. It can be used in a
     CapabilityResponse where a target reports the set of modules that it
@@ -1086,7 +1141,7 @@ class ModelData(google.protobuf.message.Message):
         organization: builtins.str = ...,
         version: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["name", b"name", "organization", b"organization", "version", b"version"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["name", b"name", "organization", b"organization", "version", b"version"]) -> None: ...
 
 global___ModelData = ModelData
 

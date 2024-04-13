@@ -15,22 +15,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import builtins
 import collections.abc
 import google.protobuf.descriptor
 import google.protobuf.duration_pb2
 import google.protobuf.internal.containers
 import google.protobuf.message
-import sys
-
-if sys.version_info >= (3, 8):
-    import typing as typing_extensions
-else:
-    import typing_extensions
+import typing
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
-@typing_extensions.final
+@typing.final
 class RetryInfo(google.protobuf.message.Message):
     """Describes when the clients can retry a failed request. Clients could ignore
     the recommendation here or retry when this information is missing from error
@@ -53,17 +49,18 @@ class RetryInfo(google.protobuf.message.Message):
     @property
     def retry_delay(self) -> google.protobuf.duration_pb2.Duration:
         """Clients should wait at least this long between retrying the same request."""
+
     def __init__(
         self,
         *,
         retry_delay: google.protobuf.duration_pb2.Duration | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["retry_delay", b"retry_delay"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["retry_delay", b"retry_delay"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["retry_delay", b"retry_delay"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["retry_delay", b"retry_delay"]) -> None: ...
 
 global___RetryInfo = RetryInfo
 
-@typing_extensions.final
+@typing.final
 class DebugInfo(google.protobuf.message.Message):
     """Describes additional debugging info."""
 
@@ -71,22 +68,23 @@ class DebugInfo(google.protobuf.message.Message):
 
     STACK_ENTRIES_FIELD_NUMBER: builtins.int
     DETAIL_FIELD_NUMBER: builtins.int
+    detail: builtins.str
+    """Additional debugging information provided by the server."""
     @property
     def stack_entries(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
         """The stack trace entries indicating where the error occurred."""
-    detail: builtins.str
-    """Additional debugging information provided by the server."""
+
     def __init__(
         self,
         *,
         stack_entries: collections.abc.Iterable[builtins.str] | None = ...,
         detail: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["detail", b"detail", "stack_entries", b"stack_entries"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["detail", b"detail", "stack_entries", b"stack_entries"]) -> None: ...
 
 global___DebugInfo = DebugInfo
 
-@typing_extensions.final
+@typing.final
 class QuotaFailure(google.protobuf.message.Message):
     """Describes how a quota check failed.
 
@@ -103,7 +101,7 @@ class QuotaFailure(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class Violation(google.protobuf.message.Message):
         """A message type used to describe a single quota violation.  For example, a
         daily quota or a custom quota that was exceeded.
@@ -133,22 +131,23 @@ class QuotaFailure(google.protobuf.message.Message):
             subject: builtins.str = ...,
             description: builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["description", b"description", "subject", b"subject"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["description", b"description", "subject", b"subject"]) -> None: ...
 
     VIOLATIONS_FIELD_NUMBER: builtins.int
     @property
     def violations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___QuotaFailure.Violation]:
         """Describes all quota violations."""
+
     def __init__(
         self,
         *,
         violations: collections.abc.Iterable[global___QuotaFailure.Violation] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["violations", b"violations"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["violations", b"violations"]) -> None: ...
 
 global___QuotaFailure = QuotaFailure
 
-@typing_extensions.final
+@typing.final
 class ErrorInfo(google.protobuf.message.Message):
     """Describes the cause of the error with structured details.
 
@@ -175,7 +174,7 @@ class ErrorInfo(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class MetadataEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -189,7 +188,7 @@ class ErrorInfo(google.protobuf.message.Message):
             key: builtins.str = ...,
             value: builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
     REASON_FIELD_NUMBER: builtins.int
     DOMAIN_FIELD_NUMBER: builtins.int
@@ -218,6 +217,7 @@ class ErrorInfo(google.protobuf.message.Message):
         {"instanceLimitPerRequest": "100"}, if the client exceeds the number of
         instances that can be created in a single (batch) request.
         """
+
     def __init__(
         self,
         *,
@@ -225,11 +225,11 @@ class ErrorInfo(google.protobuf.message.Message):
         domain: builtins.str = ...,
         metadata: collections.abc.Mapping[builtins.str, builtins.str] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["domain", b"domain", "metadata", b"metadata", "reason", b"reason"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["domain", b"domain", "metadata", b"metadata", "reason", b"reason"]) -> None: ...
 
 global___ErrorInfo = ErrorInfo
 
-@typing_extensions.final
+@typing.final
 class PreconditionFailure(google.protobuf.message.Message):
     """Describes what preconditions have failed.
 
@@ -240,7 +240,7 @@ class PreconditionFailure(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class Violation(google.protobuf.message.Message):
         """A message type used to describe a single precondition failure."""
 
@@ -272,22 +272,23 @@ class PreconditionFailure(google.protobuf.message.Message):
             subject: builtins.str = ...,
             description: builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["description", b"description", "subject", b"subject", "type", b"type"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["description", b"description", "subject", b"subject", "type", b"type"]) -> None: ...
 
     VIOLATIONS_FIELD_NUMBER: builtins.int
     @property
     def violations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PreconditionFailure.Violation]:
         """Describes all precondition violations."""
+
     def __init__(
         self,
         *,
         violations: collections.abc.Iterable[global___PreconditionFailure.Violation] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["violations", b"violations"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["violations", b"violations"]) -> None: ...
 
 global___PreconditionFailure = PreconditionFailure
 
-@typing_extensions.final
+@typing.final
 class BadRequest(google.protobuf.message.Message):
     """Describes violations in a client request. This error type focuses on the
     syntactic aspects of the request.
@@ -295,7 +296,7 @@ class BadRequest(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class FieldViolation(google.protobuf.message.Message):
         """A message type used to describe a single bad request field."""
 
@@ -316,22 +317,23 @@ class BadRequest(google.protobuf.message.Message):
             field: builtins.str = ...,
             description: builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["description", b"description", "field", b"field"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["description", b"description", "field", b"field"]) -> None: ...
 
     FIELD_VIOLATIONS_FIELD_NUMBER: builtins.int
     @property
     def field_violations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___BadRequest.FieldViolation]:
         """Describes all violations in a client request."""
+
     def __init__(
         self,
         *,
         field_violations: collections.abc.Iterable[global___BadRequest.FieldViolation] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["field_violations", b"field_violations"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["field_violations", b"field_violations"]) -> None: ...
 
 global___BadRequest = BadRequest
 
-@typing_extensions.final
+@typing.final
 class RequestInfo(google.protobuf.message.Message):
     """Contains metadata about the request that clients can attach when filing a bug
     or providing other forms of feedback.
@@ -355,11 +357,11 @@ class RequestInfo(google.protobuf.message.Message):
         request_id: builtins.str = ...,
         serving_data: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["request_id", b"request_id", "serving_data", b"serving_data"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["request_id", b"request_id", "serving_data", b"serving_data"]) -> None: ...
 
 global___RequestInfo = RequestInfo
 
-@typing_extensions.final
+@typing.final
 class ResourceInfo(google.protobuf.message.Message):
     """Describes the resource that is being accessed."""
 
@@ -397,11 +399,11 @@ class ResourceInfo(google.protobuf.message.Message):
         owner: builtins.str = ...,
         description: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["description", b"description", "owner", b"owner", "resource_name", b"resource_name", "resource_type", b"resource_type"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["description", b"description", "owner", b"owner", "resource_name", b"resource_name", "resource_type", b"resource_type"]) -> None: ...
 
 global___ResourceInfo = ResourceInfo
 
-@typing_extensions.final
+@typing.final
 class Help(google.protobuf.message.Message):
     """Provides links to documentation or for performing an out of band action.
 
@@ -412,7 +414,7 @@ class Help(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class Link(google.protobuf.message.Message):
         """Describes a URL link."""
 
@@ -430,22 +432,23 @@ class Help(google.protobuf.message.Message):
             description: builtins.str = ...,
             url: builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["description", b"description", "url", b"url"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["description", b"description", "url", b"url"]) -> None: ...
 
     LINKS_FIELD_NUMBER: builtins.int
     @property
     def links(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Help.Link]:
         """URL(s) pointing to additional information on handling the current error."""
+
     def __init__(
         self,
         *,
         links: collections.abc.Iterable[global___Help.Link] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["links", b"links"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["links", b"links"]) -> None: ...
 
 global___Help = Help
 
-@typing_extensions.final
+@typing.final
 class LocalizedMessage(google.protobuf.message.Message):
     """Provides a localized error message that is safe to return to the user
     which can be attached to an RPC error.
@@ -468,6 +471,6 @@ class LocalizedMessage(google.protobuf.message.Message):
         locale: builtins.str = ...,
         message: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["locale", b"locale", "message", b"message"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["locale", b"locale", "message", b"message"]) -> None: ...
 
 global___LocalizedMessage = LocalizedMessage

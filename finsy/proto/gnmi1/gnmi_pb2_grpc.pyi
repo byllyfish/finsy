@@ -10,6 +10,7 @@ tree supported by a device ("target").
 This document references the gNMI Specification which can be found at
 http://github.com/openconfig/reference/blob/master/rpc/gnmi
 """
+
 import abc
 import collections.abc
 from . import gnmi_pb2 as _dot_gnmi_pb2
@@ -17,12 +18,11 @@ import grpc
 import grpc.aio
 import typing
 
-_T = typing.TypeVar('_T')
+_T = typing.TypeVar("_T")
 
-class _MaybeAsyncIterator(collections.abc.AsyncIterator[_T], collections.abc.Iterator[_T], metaclass=abc.ABCMeta):
-    ...
+class _MaybeAsyncIterator(collections.abc.AsyncIterator[_T], collections.abc.Iterator[_T], metaclass=abc.ABCMeta): ...
 
-class _ServicerContext(grpc.ServicerContext, grpc.aio.ServicerContext):  # type: ignore
+class _ServicerContext(grpc.ServicerContext, grpc.aio.ServicerContext):  # type: ignore[misc, type-arg]
     ...
 
 class gNMIStub:
@@ -38,6 +38,7 @@ class gNMIStub:
     to restrict the set of data that is utilized.
     Reference: gNMI Specification Section 3.2
     """
+
     Get: grpc.UnaryUnaryMultiCallable[
         _dot_gnmi_pb2.GetRequest,
         _dot_gnmi_pb2.GetResponse,
@@ -48,6 +49,7 @@ class gNMIStub:
     client using the specified encoding.
     Reference: gNMI Specification Section 3.3
     """
+
     Set: grpc.UnaryUnaryMultiCallable[
         _dot_gnmi_pb2.SetRequest,
         _dot_gnmi_pb2.SetResponse,
@@ -57,6 +59,7 @@ class gNMIStub:
     to set the value to.
     Reference: gNMI Specification Section 3.4
     """
+
     Subscribe: grpc.StreamStreamMultiCallable[
         _dot_gnmi_pb2.SubscribeRequest,
         _dot_gnmi_pb2.SubscribeResponse,
@@ -80,6 +83,7 @@ class gNMIAsyncStub:
     to restrict the set of data that is utilized.
     Reference: gNMI Specification Section 3.2
     """
+
     Get: grpc.aio.UnaryUnaryMultiCallable[
         _dot_gnmi_pb2.GetRequest,
         _dot_gnmi_pb2.GetResponse,
@@ -90,6 +94,7 @@ class gNMIAsyncStub:
     client using the specified encoding.
     Reference: gNMI Specification Section 3.3
     """
+
     Set: grpc.aio.UnaryUnaryMultiCallable[
         _dot_gnmi_pb2.SetRequest,
         _dot_gnmi_pb2.SetResponse,
@@ -99,6 +104,7 @@ class gNMIAsyncStub:
     to set the value to.
     Reference: gNMI Specification Section 3.4
     """
+
     Subscribe: grpc.aio.StreamStreamMultiCallable[
         _dot_gnmi_pb2.SubscribeRequest,
         _dot_gnmi_pb2.SubscribeResponse,
@@ -124,6 +130,7 @@ class gNMIServicer(metaclass=abc.ABCMeta):
         to restrict the set of data that is utilized.
         Reference: gNMI Specification Section 3.2
         """
+
     @abc.abstractmethod
     def Get(
         self,
@@ -136,6 +143,7 @@ class gNMIServicer(metaclass=abc.ABCMeta):
         client using the specified encoding.
         Reference: gNMI Specification Section 3.3
         """
+
     @abc.abstractmethod
     def Set(
         self,
@@ -147,6 +155,7 @@ class gNMIServicer(metaclass=abc.ABCMeta):
         to set the value to.
         Reference: gNMI Specification Section 3.4
         """
+
     @abc.abstractmethod
     def Subscribe(
         self,

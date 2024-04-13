@@ -6,6 +6,7 @@ included with the request and response messages of gNMI RPCs. A set of
 well-known extensions are defined within this file, along with a registry for
 extensions defined outside of this package.
 """
+
 import builtins
 import google.protobuf.descriptor
 import google.protobuf.duration_pb2
@@ -51,7 +52,7 @@ extension.
 """
 global___ExtensionID = ExtensionID
 
-@typing_extensions.final
+@typing.final
 class Extension(google.protobuf.message.Message):
     """The Extension message contains a single gNMI extension."""
 
@@ -61,20 +62,29 @@ class Extension(google.protobuf.message.Message):
     MASTER_ARBITRATION_FIELD_NUMBER: builtins.int
     HISTORY_FIELD_NUMBER: builtins.int
     COMMIT_FIELD_NUMBER: builtins.int
+    DEPTH_FIELD_NUMBER: builtins.int
     @property
     def registered_ext(self) -> global___RegisteredExtension:
         """A registered extension."""
+
     @property
     def master_arbitration(self) -> global___MasterArbitration:
         """Well known extensions.
         Master arbitration extension.
         """
+
     @property
     def history(self) -> global___History:
         """History extension."""
+
     @property
     def commit(self) -> global___Commit:
         """Commit confirmed extension."""
+
+    @property
+    def depth(self) -> global___Depth:
+        """Depth extension."""
+
     def __init__(
         self,
         *,
@@ -82,14 +92,15 @@ class Extension(google.protobuf.message.Message):
         master_arbitration: global___MasterArbitration | None = ...,
         history: global___History | None = ...,
         commit: global___Commit | None = ...,
+        depth: global___Depth | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["commit", b"commit", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["commit", b"commit", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["ext", b"ext"]) -> typing_extensions.Literal["registered_ext", "master_arbitration", "history", "commit"] | None: ...
+    def HasField(self, field_name: typing.Literal["commit", b"commit", "depth", b"depth", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["commit", b"commit", "depth", b"depth", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["ext", b"ext"]) -> typing.Literal["registered_ext", "master_arbitration", "history", "commit", "depth"] | None: ...
 
 global___Extension = Extension
 
-@typing_extensions.final
+@typing.final
 class RegisteredExtension(google.protobuf.message.Message):
     """The RegisteredExtension message defines an extension which is defined outside
     of this file.
@@ -109,11 +120,11 @@ class RegisteredExtension(google.protobuf.message.Message):
         id: global___ExtensionID.ValueType = ...,
         msg: builtins.bytes = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["id", b"id", "msg", b"msg"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["id", b"id", "msg", b"msg"]) -> None: ...
 
 global___RegisteredExtension = RegisteredExtension
 
-@typing_extensions.final
+@typing.final
 class MasterArbitration(google.protobuf.message.Message):
     """MasterArbitration is used to select the master among multiple gNMI clients
     with the same Roles. The client with the largest election_id is honored as
@@ -136,12 +147,12 @@ class MasterArbitration(google.protobuf.message.Message):
         role: global___Role | None = ...,
         election_id: global___Uint128 | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["election_id", b"election_id", "role", b"role"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["election_id", b"election_id", "role", b"role"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["election_id", b"election_id", "role", b"role"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["election_id", b"election_id", "role", b"role"]) -> None: ...
 
 global___MasterArbitration = MasterArbitration
 
-@typing_extensions.final
+@typing.final
 class Uint128(google.protobuf.message.Message):
     """Representation of unsigned 128-bit integer."""
 
@@ -157,11 +168,11 @@ class Uint128(google.protobuf.message.Message):
         high: builtins.int = ...,
         low: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["high", b"high", "low", b"low"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["high", b"high", "low", b"low"]) -> None: ...
 
 global___Uint128 = Uint128
 
-@typing_extensions.final
+@typing.final
 class Role(google.protobuf.message.Message):
     """There can be one master for each role. The role is identified by its id."""
 
@@ -177,11 +188,11 @@ class Role(google.protobuf.message.Message):
         *,
         id: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["id", b"id"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["id", b"id"]) -> None: ...
 
 global___Role = Role
 
-@typing_extensions.final
+@typing.final
 class History(google.protobuf.message.Message):
     """The History extension allows clients to request historical data. Its
     spec can be found at
@@ -202,13 +213,13 @@ class History(google.protobuf.message.Message):
         snapshot_time: builtins.int = ...,
         range: global___TimeRange | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["range", b"range", "request", b"request", "snapshot_time", b"snapshot_time"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["range", b"range", "request", b"request", "snapshot_time", b"snapshot_time"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["request", b"request"]) -> typing_extensions.Literal["snapshot_time", "range"] | None: ...
+    def HasField(self, field_name: typing.Literal["range", b"range", "request", b"request", "snapshot_time", b"snapshot_time"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["range", b"range", "request", b"request", "snapshot_time", b"snapshot_time"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["request", b"request"]) -> typing.Literal["snapshot_time", "range"] | None: ...
 
 global___History = History
 
-@typing_extensions.final
+@typing.final
 class TimeRange(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -224,17 +235,17 @@ class TimeRange(google.protobuf.message.Message):
         start: builtins.int = ...,
         end: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["end", b"end", "start", b"start"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["end", b"end", "start", b"start"]) -> None: ...
 
 global___TimeRange = TimeRange
 
-@typing_extensions.final
+@typing.final
 class Commit(google.protobuf.message.Message):
     """Commit confirmed extension allows automated revert of the configuration after
-    certain duration if an explicit confirmation is not issued. It allows explicit
-    cancellation of the commit during the rollback window. There cannot be more
-    than one commit active at a given time.
-    The document about gNMI commit confirmed can be found at
+    certain duration if an explicit confirmation is not issued. It allows
+    explicit cancellation of the commit during the rollback window. There cannot
+    be more than one commit active at a given time. The document about gNMI
+    commit confirmed can be found at
     https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-commit-confirmed.md
     """
 
@@ -246,30 +257,36 @@ class Commit(google.protobuf.message.Message):
     CANCEL_FIELD_NUMBER: builtins.int
     SET_ROLLBACK_DURATION_FIELD_NUMBER: builtins.int
     id: builtins.str
-    """ID is provided by the client during the commit request. During confirm and cancel
-    actions the provided ID should match the ID provided during commit.
+    """ID is provided by the client during the commit request. During confirm and
+    cancel actions the provided ID should match the ID provided during commit.
     If ID is not passed in any actions server shall return error.
     Required.
     """
     @property
     def commit(self) -> global___CommitRequest:
-        """commit action creates a new commit. If a commit is on-going, server returns error."""
+        """commit action creates a new commit. If a commit is on-going, server
+        returns error.
+        """
+
     @property
     def confirm(self) -> global___CommitConfirm:
-        """confirm action will confirm an on-going commit, the ID provided during confirm
-        should match the on-going commit ID.
+        """confirm action will confirm an on-going commit, the ID provided during
+        confirm should match the on-going commit ID.
         """
+
     @property
     def cancel(self) -> global___CommitCancel:
-        """cancel action will cancel an on-going commit, the ID provided during cancel
-        should match the on-going commit ID.
+        """cancel action will cancel an on-going commit, the ID provided during
+        cancel should match the on-going commit ID.
         """
+
     @property
     def set_rollback_duration(self) -> global___CommitSetRollbackDuration:
         """set rollback duration action sets the rollback duration of an on-going commit
         to a new value.
         The ID provided with the Commit message should match the on-going commit ID.
         """
+
     def __init__(
         self,
         *,
@@ -279,13 +296,13 @@ class Commit(google.protobuf.message.Message):
         cancel: global___CommitCancel | None = ...,
         set_rollback_duration: global___CommitSetRollbackDuration | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "set_rollback_duration", b"set_rollback_duration"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "id", b"id", "set_rollback_duration", b"set_rollback_duration"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["action", b"action"]) -> typing_extensions.Literal["commit", "confirm", "cancel", "set_rollback_duration"] | None: ...
+    def HasField(self, field_name: typing.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "set_rollback_duration", b"set_rollback_duration"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "id", b"id", "set_rollback_duration", b"set_rollback_duration"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["action", b"action"]) -> typing.Literal["commit", "confirm", "cancel", "set_rollback_duration"] | None: ...
 
 global___Commit = Commit
 
-@typing_extensions.final
+@typing.final
 class CommitRequest(google.protobuf.message.Message):
     """CommitRequest is used to create a new confirmed commit. It hold additional
     parameter requried for commit action.
@@ -297,17 +314,18 @@ class CommitRequest(google.protobuf.message.Message):
     @property
     def rollback_duration(self) -> google.protobuf.duration_pb2.Duration:
         """Maximum duration to wait for a confirmaton before reverting the commit."""
+
     def __init__(
         self,
         *,
         rollback_duration: google.protobuf.duration_pb2.Duration | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["rollback_duration", b"rollback_duration"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["rollback_duration", b"rollback_duration"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["rollback_duration", b"rollback_duration"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["rollback_duration", b"rollback_duration"]) -> None: ...
 
 global___CommitRequest = CommitRequest
 
-@typing_extensions.final
+@typing.final
 class CommitConfirm(google.protobuf.message.Message):
     """CommitConfirm is used to confirm an on-going commit. It hold additional
     parameter requried for confirm action.
@@ -321,7 +339,7 @@ class CommitConfirm(google.protobuf.message.Message):
 
 global___CommitConfirm = CommitConfirm
 
-@typing_extensions.final
+@typing.final
 class CommitCancel(google.protobuf.message.Message):
     """CommitCancel is used to cancel an on-going commit. It hold additional
     parameter requried for cancel action.
@@ -335,7 +353,7 @@ class CommitCancel(google.protobuf.message.Message):
 
 global___CommitCancel = CommitCancel
 
-@typing_extensions.final
+@typing.final
 class CommitSetRollbackDuration(google.protobuf.message.Message):
     """CommitSetRollbackDuration is used to set the existing rollback duration value
     of an on-going commit to a new desired value.
@@ -347,12 +365,42 @@ class CommitSetRollbackDuration(google.protobuf.message.Message):
     @property
     def rollback_duration(self) -> google.protobuf.duration_pb2.Duration:
         """Maximum duration to wait for a confirmaton before reverting the commit."""
+
     def __init__(
         self,
         *,
         rollback_duration: google.protobuf.duration_pb2.Duration | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["rollback_duration", b"rollback_duration"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["rollback_duration", b"rollback_duration"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["rollback_duration", b"rollback_duration"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["rollback_duration", b"rollback_duration"]) -> None: ...
 
 global___CommitSetRollbackDuration = CommitSetRollbackDuration
+
+@typing.final
+class Depth(google.protobuf.message.Message):
+    """Depth allows clients to specify the depth of the subtree to be returned in
+    the response. The depth is specified as the number of levels below the
+    specified path.
+    The depth is applied to all paths in the Get or Subscribe request.
+    The document about gNMI depth can be found at
+    https://github.com/openconfig/reference/tree/master/rpc/gnmi/gnmi-depth.md
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    LEVEL_FIELD_NUMBER: builtins.int
+    level: builtins.int
+    """The level of the subtree to be returned in the response.
+    Value of 0 means no depth limit and behaves the same as if the extension
+    was not specified.
+    Value of 1 means only the specified path and its direct children will be
+    returned.
+    """
+    def __init__(
+        self,
+        *,
+        level: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["level", b"level"]) -> None: ...
+
+global___Depth = Depth
