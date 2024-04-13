@@ -29,7 +29,7 @@ python = "^3.10"
 # Core dependencies.
 grpcio = "^1.62.1"
 parsy = "^2.1.0"
-protobuf = "^5.26.0"
+protobuf = "^5.26.1"
 pyee = "^11.1.0"
 
 [tool.poetry.group.dev.dependencies]
@@ -38,11 +38,11 @@ mypy = "^1.9.0"
 pdoc = "^14.4.0"
 prometheus-client = "^0.20.0"
 pylint = "^3.1.0"
-pyright = "^1.1.354"
+pyright = "^1.1.358"
 pytest = "^7.4.4"  # TODO
 pytest-asyncio = "0.21.1"  # TODO
-pytest-cov = "^4.1.0"
-ruff = "^0.3.3"
+pytest-cov = "^4.1.0"  # TODO
+ruff = "^0.3.7"
 shellous = "^0.36.0"
 
 [tool.poetry.group.demonet]
