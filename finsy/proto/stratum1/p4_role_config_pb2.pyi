@@ -5,21 +5,17 @@ Copyright 2022-present Open Networking Foundation
 Copyright 2022 Intel Corporation
 SPDX-License-Identifier: Apache-2.0
 """
+
 import builtins
 import collections.abc
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
-import sys
-
-if sys.version_info >= (3, 8):
-    import typing as typing_extensions
-else:
-    import typing_extensions
+import typing
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
-@typing_extensions.final
+@typing.final
 class P4RoleConfig(google.protobuf.message.Message):
     """The P4RoleConfig message conists of these fields:
      exclusive_p4_ids - A list of P4 entities for which this role exclusivly may
@@ -38,7 +34,7 @@ class P4RoleConfig(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class PacketFilter(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -54,21 +50,21 @@ class P4RoleConfig(google.protobuf.message.Message):
             metadata_id: builtins.int = ...,
             value: builtins.bytes = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["metadata_id", b"metadata_id", "value", b"value"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["metadata_id", b"metadata_id", "value", b"value"]) -> None: ...
 
     EXCLUSIVE_P4_IDS_FIELD_NUMBER: builtins.int
     SHARED_P4_IDS_FIELD_NUMBER: builtins.int
     PACKET_IN_FILTER_FIELD_NUMBER: builtins.int
     RECEIVES_PACKET_INS_FIELD_NUMBER: builtins.int
     CAN_PUSH_PIPELINE_FIELD_NUMBER: builtins.int
+    receives_packet_ins: builtins.bool
+    can_push_pipeline: builtins.bool
     @property
     def exclusive_p4_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
     @property
     def shared_p4_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
     @property
     def packet_in_filter(self) -> global___P4RoleConfig.PacketFilter: ...
-    receives_packet_ins: builtins.bool
-    can_push_pipeline: builtins.bool
     def __init__(
         self,
         *,
@@ -78,7 +74,7 @@ class P4RoleConfig(google.protobuf.message.Message):
         receives_packet_ins: builtins.bool = ...,
         can_push_pipeline: builtins.bool = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["packet_in_filter", b"packet_in_filter"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["can_push_pipeline", b"can_push_pipeline", "exclusive_p4_ids", b"exclusive_p4_ids", "packet_in_filter", b"packet_in_filter", "receives_packet_ins", b"receives_packet_ins", "shared_p4_ids", b"shared_p4_ids"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["packet_in_filter", b"packet_in_filter"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["can_push_pipeline", b"can_push_pipeline", "exclusive_p4_ids", b"exclusive_p4_ids", "packet_in_filter", b"packet_in_filter", "receives_packet_ins", b"receives_packet_ins", "shared_p4_ids", b"shared_p4_ids"]) -> None: ...
 
 global___P4RoleConfig = P4RoleConfig

@@ -15,21 +15,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import builtins
 import collections.abc
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
-import sys
-
-if sys.version_info >= (3, 8):
-    import typing as typing_extensions
-else:
-    import typing_extensions
+import typing
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
-@typing_extensions.final
+@typing.final
 class P4Data(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -47,10 +43,16 @@ class P4Data(google.protobuf.message.Message):
     ENUM_VALUE_FIELD_NUMBER: builtins.int
     bitstring: builtins.bytes
     """for bit<W>, int<W>"""
+    bool: builtins.bool
+    enum: builtins.str
+    """safe (non-serializable) enums only"""
+    error: builtins.str
+    enum_value: builtins.bytes
+    """serializable enums only"""
     @property
     def varbit(self) -> global___P4Varbit:
         """for varbit<W>"""
-    bool: builtins.bool
+
     @property
     def tuple(self) -> global___P4StructLike: ...
     @property
@@ -63,11 +65,6 @@ class P4Data(google.protobuf.message.Message):
     def header_stack(self) -> global___P4HeaderStack: ...
     @property
     def header_union_stack(self) -> global___P4HeaderUnionStack: ...
-    enum: builtins.str
-    """safe (non-serializable) enums only"""
-    error: builtins.str
-    enum_value: builtins.bytes
-    """serializable enums only"""
     def __init__(
         self,
         *,
@@ -84,13 +81,13 @@ class P4Data(google.protobuf.message.Message):
         error: builtins.str = ...,
         enum_value: builtins.bytes = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["bitstring", b"bitstring", "bool", b"bool", "data", b"data", "enum", b"enum", "enum_value", b"enum_value", "error", b"error", "header", b"header", "header_stack", b"header_stack", "header_union", b"header_union", "header_union_stack", b"header_union_stack", "struct", b"struct", "tuple", b"tuple", "varbit", b"varbit"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["bitstring", b"bitstring", "bool", b"bool", "data", b"data", "enum", b"enum", "enum_value", b"enum_value", "error", b"error", "header", b"header", "header_stack", b"header_stack", "header_union", b"header_union", "header_union_stack", b"header_union_stack", "struct", b"struct", "tuple", b"tuple", "varbit", b"varbit"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["data", b"data"]) -> typing_extensions.Literal["bitstring", "varbit", "bool", "tuple", "struct", "header", "header_union", "header_stack", "header_union_stack", "enum", "error", "enum_value"] | None: ...
+    def HasField(self, field_name: typing.Literal["bitstring", b"bitstring", "bool", b"bool", "data", b"data", "enum", b"enum", "enum_value", b"enum_value", "error", b"error", "header", b"header", "header_stack", b"header_stack", "header_union", b"header_union", "header_union_stack", b"header_union_stack", "struct", b"struct", "tuple", b"tuple", "varbit", b"varbit"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["bitstring", b"bitstring", "bool", b"bool", "data", b"data", "enum", b"enum", "enum_value", b"enum_value", "error", b"error", "header", b"header", "header_stack", b"header_stack", "header_union", b"header_union", "header_union_stack", b"header_union_stack", "struct", b"struct", "tuple", b"tuple", "varbit", b"varbit"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["data", b"data"]) -> typing.Literal["bitstring", "varbit", "bool", "tuple", "struct", "header", "header_union", "header_stack", "header_union_stack", "enum", "error", "enum_value"] | None: ...
 
 global___P4Data = P4Data
 
-@typing_extensions.final
+@typing.final
 class P4Varbit(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -105,11 +102,11 @@ class P4Varbit(google.protobuf.message.Message):
         bitstring: builtins.bytes = ...,
         bitwidth: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["bitstring", b"bitstring", "bitwidth", b"bitwidth"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["bitstring", b"bitstring", "bitwidth", b"bitwidth"]) -> None: ...
 
 global___P4Varbit = P4Varbit
 
-@typing_extensions.final
+@typing.final
 class P4StructLike(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -121,11 +118,11 @@ class P4StructLike(google.protobuf.message.Message):
         *,
         members: collections.abc.Iterable[global___P4Data] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["members", b"members"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["members", b"members"]) -> None: ...
 
 global___P4StructLike = P4StructLike
 
-@typing_extensions.final
+@typing.final
 class P4Header(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -143,11 +140,11 @@ class P4Header(google.protobuf.message.Message):
         is_valid: builtins.bool = ...,
         bitstrings: collections.abc.Iterable[builtins.bytes] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["bitstrings", b"bitstrings", "is_valid", b"is_valid"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["bitstrings", b"bitstrings", "is_valid", b"is_valid"]) -> None: ...
 
 global___P4Header = P4Header
 
-@typing_extensions.final
+@typing.final
 class P4HeaderUnion(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -165,12 +162,12 @@ class P4HeaderUnion(google.protobuf.message.Message):
         valid_header_name: builtins.str = ...,
         valid_header: global___P4Header | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["valid_header", b"valid_header"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["valid_header", b"valid_header", "valid_header_name", b"valid_header_name"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["valid_header", b"valid_header"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["valid_header", b"valid_header", "valid_header_name", b"valid_header_name"]) -> None: ...
 
 global___P4HeaderUnion = P4HeaderUnion
 
-@typing_extensions.final
+@typing.final
 class P4HeaderStack(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -180,16 +177,17 @@ class P4HeaderStack(google.protobuf.message.Message):
         """The length of this repeated field must always be equal to the compile-time
         size of the header stack, which is specified in P4Info.
         """
+
     def __init__(
         self,
         *,
         entries: collections.abc.Iterable[global___P4Header] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["entries", b"entries"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["entries", b"entries"]) -> None: ...
 
 global___P4HeaderStack = P4HeaderStack
 
-@typing_extensions.final
+@typing.final
 class P4HeaderUnionStack(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -199,11 +197,12 @@ class P4HeaderUnionStack(google.protobuf.message.Message):
         """The length of this repeated field must always be equal to the compile-time
         size of the header union stack, which is specified in P4Info.
         """
+
     def __init__(
         self,
         *,
         entries: collections.abc.Iterable[global___P4HeaderUnion] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["entries", b"entries"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["entries", b"entries"]) -> None: ...
 
 global___P4HeaderUnionStack = P4HeaderUnionStack

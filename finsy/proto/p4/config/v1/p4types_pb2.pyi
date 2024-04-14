@@ -15,21 +15,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import builtins
 import collections.abc
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.message
-import sys
-
-if sys.version_info >= (3, 8):
-    import typing as typing_extensions
-else:
-    import typing_extensions
+import typing
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
-@typing_extensions.final
+@typing.final
 class P4TypeInfo(google.protobuf.message.Message):
     """|--------------------|--------------------------------------------|
     |                    | Container type                             |
@@ -65,7 +61,7 @@ class P4TypeInfo(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class StructsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -80,10 +76,10 @@ class P4TypeInfo(google.protobuf.message.Message):
             key: builtins.str = ...,
             value: global___P4StructTypeSpec | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
-    @typing_extensions.final
+    @typing.final
     class HeadersEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -98,10 +94,10 @@ class P4TypeInfo(google.protobuf.message.Message):
             key: builtins.str = ...,
             value: global___P4HeaderTypeSpec | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
-    @typing_extensions.final
+    @typing.final
     class HeaderUnionsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -116,10 +112,10 @@ class P4TypeInfo(google.protobuf.message.Message):
             key: builtins.str = ...,
             value: global___P4HeaderUnionTypeSpec | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
-    @typing_extensions.final
+    @typing.final
     class EnumsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -134,10 +130,10 @@ class P4TypeInfo(google.protobuf.message.Message):
             key: builtins.str = ...,
             value: global___P4EnumTypeSpec | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
-    @typing_extensions.final
+    @typing.final
     class SerializableEnumsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -152,10 +148,10 @@ class P4TypeInfo(google.protobuf.message.Message):
             key: builtins.str = ...,
             value: global___P4SerializableEnumTypeSpec | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
-    @typing_extensions.final
+    @typing.final
     class NewTypesEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -170,8 +166,8 @@ class P4TypeInfo(google.protobuf.message.Message):
             key: builtins.str = ...,
             value: global___P4NewTypeSpec | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
     STRUCTS_FIELD_NUMBER: builtins.int
     HEADERS_FIELD_NUMBER: builtins.int
@@ -205,12 +201,12 @@ class P4TypeInfo(google.protobuf.message.Message):
         serializable_enums: collections.abc.Mapping[builtins.str, global___P4SerializableEnumTypeSpec] | None = ...,
         new_types: collections.abc.Mapping[builtins.str, global___P4NewTypeSpec] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["error", b"error"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["enums", b"enums", "error", b"error", "header_unions", b"header_unions", "headers", b"headers", "new_types", b"new_types", "serializable_enums", b"serializable_enums", "structs", b"structs"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["error", b"error"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["enums", b"enums", "error", b"error", "header_unions", b"header_unions", "headers", b"headers", "new_types", b"new_types", "serializable_enums", b"serializable_enums", "structs", b"structs"]) -> None: ...
 
 global___P4TypeInfo = P4TypeInfo
 
-@typing_extensions.final
+@typing.final
 class P4DataTypeSpec(google.protobuf.message.Message):
     """Describes a P4_16 type."""
 
@@ -268,13 +264,13 @@ class P4DataTypeSpec(google.protobuf.message.Message):
         serializable_enum: global___P4NamedType | None = ...,
         new_type: global___P4NamedType | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["bitstring", b"bitstring", "bool", b"bool", "enum", b"enum", "error", b"error", "header", b"header", "header_stack", b"header_stack", "header_union", b"header_union", "header_union_stack", b"header_union_stack", "new_type", b"new_type", "serializable_enum", b"serializable_enum", "struct", b"struct", "tuple", b"tuple", "type_spec", b"type_spec"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["bitstring", b"bitstring", "bool", b"bool", "enum", b"enum", "error", b"error", "header", b"header", "header_stack", b"header_stack", "header_union", b"header_union", "header_union_stack", b"header_union_stack", "new_type", b"new_type", "serializable_enum", b"serializable_enum", "struct", b"struct", "tuple", b"tuple", "type_spec", b"type_spec"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["type_spec", b"type_spec"]) -> typing_extensions.Literal["bitstring", "bool", "tuple", "struct", "header", "header_union", "header_stack", "header_union_stack", "enum", "error", "serializable_enum", "new_type"] | None: ...
+    def HasField(self, field_name: typing.Literal["bitstring", b"bitstring", "bool", b"bool", "enum", b"enum", "error", b"error", "header", b"header", "header_stack", b"header_stack", "header_union", b"header_union", "header_union_stack", b"header_union_stack", "new_type", b"new_type", "serializable_enum", b"serializable_enum", "struct", b"struct", "tuple", b"tuple", "type_spec", b"type_spec"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["bitstring", b"bitstring", "bool", b"bool", "enum", b"enum", "error", b"error", "header", b"header", "header_stack", b"header_stack", "header_union", b"header_union", "header_union_stack", b"header_union_stack", "new_type", b"new_type", "serializable_enum", b"serializable_enum", "struct", b"struct", "tuple", b"tuple", "type_spec", b"type_spec"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["type_spec", b"type_spec"]) -> typing.Literal["bitstring", "bool", "tuple", "struct", "header", "header_union", "header_stack", "header_union_stack", "enum", "error", "serializable_enum", "new_type"] | None: ...
 
 global___P4DataTypeSpec = P4DataTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4NamedType(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -285,11 +281,11 @@ class P4NamedType(google.protobuf.message.Message):
         *,
         name: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["name", b"name"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["name", b"name"]) -> None: ...
 
 global___P4NamedType = P4NamedType
 
-@typing_extensions.final
+@typing.final
 class P4BoolType(google.protobuf.message.Message):
     """Empty message as no type information needed, just used as a placeholder in
     the oneof to identify boolean types.
@@ -303,7 +299,7 @@ class P4BoolType(google.protobuf.message.Message):
 
 global___P4BoolType = P4BoolType
 
-@typing_extensions.final
+@typing.final
 class P4ErrorType(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -313,7 +309,7 @@ class P4ErrorType(google.protobuf.message.Message):
 
 global___P4ErrorType = P4ErrorType
 
-@typing_extensions.final
+@typing.final
 class P4BitstringLikeTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -326,22 +322,27 @@ class P4BitstringLikeTypeSpec(google.protobuf.message.Message):
     @property
     def bit(self) -> global___P4BitTypeSpec:
         """bit<W>"""
+
     @property
     def int(self) -> global___P4IntTypeSpec:
         """int<W>"""
+
     @property
     def varbit(self) -> global___P4VarbitTypeSpec:
         """varbit<W>"""
+
     @property
     def annotations(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
         """Useful to identify well-known types, such as IP address or Ethernet MAC
         address.
         """
+
     @property
     def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SourceLocation]:
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
+
     @property
     def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___StructuredAnnotation]: ...
     def __init__(
@@ -354,13 +355,13 @@ class P4BitstringLikeTypeSpec(google.protobuf.message.Message):
         annotation_locations: collections.abc.Iterable[global___SourceLocation] | None = ...,
         structured_annotations: collections.abc.Iterable[global___StructuredAnnotation] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["bit", b"bit", "int", b"int", "type_spec", b"type_spec", "varbit", b"varbit"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "bit", b"bit", "int", b"int", "structured_annotations", b"structured_annotations", "type_spec", b"type_spec", "varbit", b"varbit"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["type_spec", b"type_spec"]) -> typing_extensions.Literal["bit", "int", "varbit"] | None: ...
+    def HasField(self, field_name: typing.Literal["bit", b"bit", "int", b"int", "type_spec", b"type_spec", "varbit", b"varbit"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "bit", b"bit", "int", b"int", "structured_annotations", b"structured_annotations", "type_spec", b"type_spec", "varbit", b"varbit"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["type_spec", b"type_spec"]) -> typing.Literal["bit", "int", "varbit"] | None: ...
 
 global___P4BitstringLikeTypeSpec = P4BitstringLikeTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4BitTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -371,11 +372,11 @@ class P4BitTypeSpec(google.protobuf.message.Message):
         *,
         bitwidth: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["bitwidth", b"bitwidth"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["bitwidth", b"bitwidth"]) -> None: ...
 
 global___P4BitTypeSpec = P4BitTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4IntTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -386,11 +387,11 @@ class P4IntTypeSpec(google.protobuf.message.Message):
         *,
         bitwidth: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["bitwidth", b"bitwidth"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["bitwidth", b"bitwidth"]) -> None: ...
 
 global___P4IntTypeSpec = P4IntTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4VarbitTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -401,11 +402,11 @@ class P4VarbitTypeSpec(google.protobuf.message.Message):
         *,
         max_bitwidth: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["max_bitwidth", b"max_bitwidth"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["max_bitwidth", b"max_bitwidth"]) -> None: ...
 
 global___P4VarbitTypeSpec = P4VarbitTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4TupleTypeSpec(google.protobuf.message.Message):
     """From the P4_16 spec: "A tuple is similar to a struct, in that it holds
     multiple values. Unlike a struct type, tuples have no named fields."
@@ -421,15 +422,15 @@ class P4TupleTypeSpec(google.protobuf.message.Message):
         *,
         members: collections.abc.Iterable[global___P4DataTypeSpec] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["members", b"members"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["members", b"members"]) -> None: ...
 
 global___P4TupleTypeSpec = P4TupleTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4StructTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -444,8 +445,8 @@ class P4StructTypeSpec(google.protobuf.message.Message):
             name: builtins.str = ...,
             type_spec: global___P4DataTypeSpec | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["type_spec", b"type_spec"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["name", b"name", "type_spec", b"type_spec"]) -> None: ...
+        def HasField(self, field_name: typing.Literal["type_spec", b"type_spec"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["name", b"name", "type_spec", b"type_spec"]) -> None: ...
 
     MEMBERS_FIELD_NUMBER: builtins.int
     ANNOTATIONS_FIELD_NUMBER: builtins.int
@@ -460,6 +461,7 @@ class P4StructTypeSpec(google.protobuf.message.Message):
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
+
     @property
     def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___StructuredAnnotation]: ...
     def __init__(
@@ -470,15 +472,15 @@ class P4StructTypeSpec(google.protobuf.message.Message):
         annotation_locations: collections.abc.Iterable[global___SourceLocation] | None = ...,
         structured_annotations: collections.abc.Iterable[global___StructuredAnnotation] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "members", b"members", "structured_annotations", b"structured_annotations"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "members", b"members", "structured_annotations", b"structured_annotations"]) -> None: ...
 
 global___P4StructTypeSpec = P4StructTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4HeaderTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -493,8 +495,8 @@ class P4HeaderTypeSpec(google.protobuf.message.Message):
             name: builtins.str = ...,
             type_spec: global___P4BitstringLikeTypeSpec | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["type_spec", b"type_spec"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["name", b"name", "type_spec", b"type_spec"]) -> None: ...
+        def HasField(self, field_name: typing.Literal["type_spec", b"type_spec"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["name", b"name", "type_spec", b"type_spec"]) -> None: ...
 
     MEMBERS_FIELD_NUMBER: builtins.int
     ANNOTATIONS_FIELD_NUMBER: builtins.int
@@ -509,6 +511,7 @@ class P4HeaderTypeSpec(google.protobuf.message.Message):
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
+
     @property
     def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___StructuredAnnotation]: ...
     def __init__(
@@ -519,15 +522,15 @@ class P4HeaderTypeSpec(google.protobuf.message.Message):
         annotation_locations: collections.abc.Iterable[global___SourceLocation] | None = ...,
         structured_annotations: collections.abc.Iterable[global___StructuredAnnotation] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "members", b"members", "structured_annotations", b"structured_annotations"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "members", b"members", "structured_annotations", b"structured_annotations"]) -> None: ...
 
 global___P4HeaderTypeSpec = P4HeaderTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4HeaderUnionTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -542,8 +545,8 @@ class P4HeaderUnionTypeSpec(google.protobuf.message.Message):
             name: builtins.str = ...,
             header: global___P4NamedType | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["header", b"header"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["header", b"header", "name", b"name"]) -> None: ...
+        def HasField(self, field_name: typing.Literal["header", b"header"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["header", b"header", "name", b"name"]) -> None: ...
 
     MEMBERS_FIELD_NUMBER: builtins.int
     ANNOTATIONS_FIELD_NUMBER: builtins.int
@@ -558,6 +561,7 @@ class P4HeaderUnionTypeSpec(google.protobuf.message.Message):
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
+
     @property
     def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___StructuredAnnotation]: ...
     def __init__(
@@ -568,51 +572,51 @@ class P4HeaderUnionTypeSpec(google.protobuf.message.Message):
         annotation_locations: collections.abc.Iterable[global___SourceLocation] | None = ...,
         structured_annotations: collections.abc.Iterable[global___StructuredAnnotation] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "members", b"members", "structured_annotations", b"structured_annotations"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "members", b"members", "structured_annotations", b"structured_annotations"]) -> None: ...
 
 global___P4HeaderUnionTypeSpec = P4HeaderUnionTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4HeaderStackTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     HEADER_FIELD_NUMBER: builtins.int
     SIZE_FIELD_NUMBER: builtins.int
+    size: builtins.int
     @property
     def header(self) -> global___P4NamedType: ...
-    size: builtins.int
     def __init__(
         self,
         *,
         header: global___P4NamedType | None = ...,
         size: builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["header", b"header"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["header", b"header", "size", b"size"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["header", b"header"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["header", b"header", "size", b"size"]) -> None: ...
 
 global___P4HeaderStackTypeSpec = P4HeaderStackTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4HeaderUnionStackTypeSpec(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     HEADER_UNION_FIELD_NUMBER: builtins.int
     SIZE_FIELD_NUMBER: builtins.int
+    size: builtins.int
     @property
     def header_union(self) -> global___P4NamedType: ...
-    size: builtins.int
     def __init__(
         self,
         *,
         header_union: global___P4NamedType | None = ...,
         size: builtins.int = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["header_union", b"header_union"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["header_union", b"header_union", "size", b"size"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["header_union", b"header_union"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["header_union", b"header_union", "size", b"size"]) -> None: ...
 
 global___P4HeaderUnionStackTypeSpec = P4HeaderUnionStackTypeSpec
 
-@typing_extensions.final
+@typing.final
 class KeyValuePair(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -627,12 +631,12 @@ class KeyValuePair(google.protobuf.message.Message):
         key: builtins.str = ...,
         value: global___Expression | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["value", b"value"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
 global___KeyValuePair = KeyValuePair
 
-@typing_extensions.final
+@typing.final
 class KeyValuePairList(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -644,11 +648,11 @@ class KeyValuePairList(google.protobuf.message.Message):
         *,
         kv_pairs: collections.abc.Iterable[global___KeyValuePair] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["kv_pairs", b"kv_pairs"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["kv_pairs", b"kv_pairs"]) -> None: ...
 
 global___KeyValuePairList = KeyValuePairList
 
-@typing_extensions.final
+@typing.final
 class Expression(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -665,13 +669,13 @@ class Expression(google.protobuf.message.Message):
         int64_value: builtins.int = ...,
         bool_value: builtins.bool = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["bool_value", b"bool_value", "int64_value", b"int64_value", "string_value", b"string_value", "value", b"value"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["bool_value", b"bool_value", "int64_value", b"int64_value", "string_value", b"string_value", "value", b"value"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["value", b"value"]) -> typing_extensions.Literal["string_value", "int64_value", "bool_value"] | None: ...
+    def HasField(self, field_name: typing.Literal["bool_value", b"bool_value", "int64_value", b"int64_value", "string_value", b"string_value", "value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["bool_value", b"bool_value", "int64_value", b"int64_value", "string_value", b"string_value", "value", b"value"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["value", b"value"]) -> typing.Literal["string_value", "int64_value", "bool_value"] | None: ...
 
 global___Expression = Expression
 
-@typing_extensions.final
+@typing.final
 class ExpressionList(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -683,11 +687,11 @@ class ExpressionList(google.protobuf.message.Message):
         *,
         expressions: collections.abc.Iterable[global___Expression] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["expressions", b"expressions"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["expressions", b"expressions"]) -> None: ...
 
 global___ExpressionList = ExpressionList
 
-@typing_extensions.final
+@typing.final
 class StructuredAnnotation(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -703,6 +707,7 @@ class StructuredAnnotation(google.protobuf.message.Message):
     @property
     def source_location(self) -> global___SourceLocation:
         """Optional. Location of the '@' symbol of this annotation in the source code."""
+
     def __init__(
         self,
         *,
@@ -711,13 +716,13 @@ class StructuredAnnotation(google.protobuf.message.Message):
         kv_pair_list: global___KeyValuePairList | None = ...,
         source_location: global___SourceLocation | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["body", b"body", "expression_list", b"expression_list", "kv_pair_list", b"kv_pair_list", "source_location", b"source_location"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["body", b"body", "expression_list", b"expression_list", "kv_pair_list", b"kv_pair_list", "name", b"name", "source_location", b"source_location"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["body", b"body"]) -> typing_extensions.Literal["expression_list", "kv_pair_list"] | None: ...
+    def HasField(self, field_name: typing.Literal["body", b"body", "expression_list", b"expression_list", "kv_pair_list", b"kv_pair_list", "source_location", b"source_location"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["body", b"body", "expression_list", b"expression_list", "kv_pair_list", b"kv_pair_list", "name", b"name", "source_location", b"source_location"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["body", b"body"]) -> typing.Literal["expression_list", "kv_pair_list"] | None: ...
 
 global___StructuredAnnotation = StructuredAnnotation
 
-@typing_extensions.final
+@typing.final
 class SourceLocation(google.protobuf.message.Message):
     """Location of code relative to a given source file."""
 
@@ -738,11 +743,11 @@ class SourceLocation(google.protobuf.message.Message):
         line: builtins.int = ...,
         column: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["column", b"column", "file", b"file", "line", b"line"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["column", b"column", "file", b"file", "line", b"line"]) -> None: ...
 
 global___SourceLocation = SourceLocation
 
-@typing_extensions.final
+@typing.final
 class P4EnumTypeSpec(google.protobuf.message.Message):
     """For "safe" enums with no underlying representation and no member integer
     values.
@@ -750,7 +755,7 @@ class P4EnumTypeSpec(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -766,6 +771,7 @@ class P4EnumTypeSpec(google.protobuf.message.Message):
             """Optional. If present, the location of `annotations[i]` is given by
             `annotation_locations[i]`.
             """
+
         @property
         def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___StructuredAnnotation]: ...
         def __init__(
@@ -776,7 +782,7 @@ class P4EnumTypeSpec(google.protobuf.message.Message):
             annotation_locations: collections.abc.Iterable[global___SourceLocation] | None = ...,
             structured_annotations: collections.abc.Iterable[global___StructuredAnnotation] | None = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "name", b"name", "structured_annotations", b"structured_annotations"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "name", b"name", "structured_annotations", b"structured_annotations"]) -> None: ...
 
     MEMBERS_FIELD_NUMBER: builtins.int
     ANNOTATIONS_FIELD_NUMBER: builtins.int
@@ -791,6 +797,7 @@ class P4EnumTypeSpec(google.protobuf.message.Message):
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
+
     @property
     def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___StructuredAnnotation]: ...
     def __init__(
@@ -801,11 +808,11 @@ class P4EnumTypeSpec(google.protobuf.message.Message):
         annotation_locations: collections.abc.Iterable[global___SourceLocation] | None = ...,
         structured_annotations: collections.abc.Iterable[global___StructuredAnnotation] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "members", b"members", "structured_annotations", b"structured_annotations"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "members", b"members", "structured_annotations", b"structured_annotations"]) -> None: ...
 
 global___P4EnumTypeSpec = P4EnumTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4SerializableEnumTypeSpec(google.protobuf.message.Message):
     """For serializable (or "unsafe") enums, which have an underlying type. Note
     that as per the P4_16 specification, the underlying representation can only
@@ -814,7 +821,7 @@ class P4SerializableEnumTypeSpec(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class Member(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -832,6 +839,7 @@ class P4SerializableEnumTypeSpec(google.protobuf.message.Message):
             """Optional. If present, the location of `annotations[i]` is given by
             `annotation_locations[i]`.
             """
+
         @property
         def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___StructuredAnnotation]: ...
         def __init__(
@@ -843,7 +851,7 @@ class P4SerializableEnumTypeSpec(google.protobuf.message.Message):
             annotation_locations: collections.abc.Iterable[global___SourceLocation] | None = ...,
             structured_annotations: collections.abc.Iterable[global___StructuredAnnotation] | None = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "name", b"name", "structured_annotations", b"structured_annotations", "value", b"value"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "name", b"name", "structured_annotations", b"structured_annotations", "value", b"value"]) -> None: ...
 
     UNDERLYING_TYPE_FIELD_NUMBER: builtins.int
     MEMBERS_FIELD_NUMBER: builtins.int
@@ -861,6 +869,7 @@ class P4SerializableEnumTypeSpec(google.protobuf.message.Message):
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
+
     @property
     def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___StructuredAnnotation]: ...
     def __init__(
@@ -872,12 +881,12 @@ class P4SerializableEnumTypeSpec(google.protobuf.message.Message):
         annotation_locations: collections.abc.Iterable[global___SourceLocation] | None = ...,
         structured_annotations: collections.abc.Iterable[global___StructuredAnnotation] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["underlying_type", b"underlying_type"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "members", b"members", "structured_annotations", b"structured_annotations", "underlying_type", b"underlying_type"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["underlying_type", b"underlying_type"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "members", b"members", "structured_annotations", b"structured_annotations", "underlying_type", b"underlying_type"]) -> None: ...
 
 global___P4SerializableEnumTypeSpec = P4SerializableEnumTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4ErrorTypeSpec(google.protobuf.message.Message):
     """Similar to an enum, but there is always one and only one instance per P4
     program.
@@ -893,15 +902,15 @@ class P4ErrorTypeSpec(google.protobuf.message.Message):
         *,
         members: collections.abc.Iterable[builtins.str] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["members", b"members"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["members", b"members"]) -> None: ...
 
 global___P4ErrorTypeSpec = P4ErrorTypeSpec
 
-@typing_extensions.final
+@typing.final
 class P4NewTypeTranslation(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    @typing_extensions.final
+    @typing.final
     class SdnString(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -928,13 +937,13 @@ class P4NewTypeTranslation(google.protobuf.message.Message):
         sdn_bitwidth: builtins.int = ...,
         sdn_string: global___P4NewTypeTranslation.SdnString | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["sdn_bitwidth", b"sdn_bitwidth", "sdn_string", b"sdn_string", "sdn_type", b"sdn_type"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["sdn_bitwidth", b"sdn_bitwidth", "sdn_string", b"sdn_string", "sdn_type", b"sdn_type", "uri", b"uri"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["sdn_type", b"sdn_type"]) -> typing_extensions.Literal["sdn_bitwidth", "sdn_string"] | None: ...
+    def HasField(self, field_name: typing.Literal["sdn_bitwidth", b"sdn_bitwidth", "sdn_string", b"sdn_string", "sdn_type", b"sdn_type"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["sdn_bitwidth", b"sdn_bitwidth", "sdn_string", b"sdn_string", "sdn_type", b"sdn_type", "uri", b"uri"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["sdn_type", b"sdn_type"]) -> typing.Literal["sdn_bitwidth", "sdn_string"] | None: ...
 
 global___P4NewTypeTranslation = P4NewTypeTranslation
 
-@typing_extensions.final
+@typing.final
 class P4NewTypeSpec(google.protobuf.message.Message):
     """New types introduced with the "type" keyword"""
 
@@ -948,17 +957,21 @@ class P4NewTypeSpec(google.protobuf.message.Message):
     @property
     def original_type(self) -> global___P4DataTypeSpec:
         """if no @p4runtime_translation annotation present"""
+
     @property
     def translated_type(self) -> global___P4NewTypeTranslation:
         """if @p4runtime_translation annotation present"""
+
     @property
     def annotations(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
         """for other annotations (not @p4runtime_translation)"""
+
     @property
     def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___SourceLocation]:
         """Optional. If present, the location of `annotations[i]` is given by
         `annotation_locations[i]`.
         """
+
     @property
     def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___StructuredAnnotation]: ...
     def __init__(
@@ -970,8 +983,8 @@ class P4NewTypeSpec(google.protobuf.message.Message):
         annotation_locations: collections.abc.Iterable[global___SourceLocation] | None = ...,
         structured_annotations: collections.abc.Iterable[global___StructuredAnnotation] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["original_type", b"original_type", "representation", b"representation", "translated_type", b"translated_type"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "original_type", b"original_type", "representation", b"representation", "structured_annotations", b"structured_annotations", "translated_type", b"translated_type"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["representation", b"representation"]) -> typing_extensions.Literal["original_type", "translated_type"] | None: ...
+    def HasField(self, field_name: typing.Literal["original_type", b"original_type", "representation", b"representation", "translated_type", b"translated_type"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "original_type", b"original_type", "representation", b"representation", "structured_annotations", b"structured_annotations", "translated_type", b"translated_type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["representation", b"representation"]) -> typing.Literal["original_type", "translated_type"] | None: ...
 
 global___P4NewTypeSpec = P4NewTypeSpec
