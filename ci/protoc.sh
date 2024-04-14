@@ -9,6 +9,18 @@
 #
 # Requirements:
 #    pip install -r requirements-protoc.txt
+#
+# To update `protoc_relative_path.patch`:
+#
+# 1. Make sure the .py and .pyi protobuf files are in their working,
+#   final, patched state. Commit these changes to git.
+# 2. Temporarily modify this script to comment out the `patch` line below.
+# 3. Run the `protoc.sh update` script to download/compile the unpatched files.
+# 4. Run `git diff -U1 -R -- finsy > ci/protoc_relative_path.patch`.
+# 5. Uncomment the `patch` line below (that you commented out in step 2.)
+# 6. Re-run the protoc.sh script to generate the patched files.
+# 7. Only the `protoc_relative_path.patch` file should be modified in git.
+# 8. Commit the `protoc_relative_path.patch` file to git.
 
 set -eu
 
