@@ -1,6 +1,6 @@
 # Dockerfile that produces an ubuntu-based image with BMV2 and Mininet.
 
-FROM docker.io/opennetworking/mn-stratum:latest@sha256:3dc917d59ed173fd56bd6c27067e40219005718a175ef77e43c99ce54ef16a1e AS stratum
+FROM docker.io/opennetworking/mn-stratum:latest@sha256:b588956bafc3a4829b36e0c96ff0d580662a00862dde3a1ef73ad1179cba1a62 AS stratum
 
 FROM ubuntu:22.04@sha256:aa772c98400ef833586d1d517d3e8de670f7e712bf581ce6053165081773259d AS builder
 WORKDIR /root
