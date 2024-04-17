@@ -176,9 +176,12 @@ class Config:
         "Return the number of switches in the config."
         return sum(1 for item in self.items if isinstance(item, Switch))
 
-    def draw(self, filename: str) -> None:
-        "Draw the network to `filename`."
-        graph = self.to_graph()
+    def draw(self, filename: str, *, with_mac: bool = False) -> None:
+        """Draw the network to `filename`.
+
+        If `with_mac` is true, draw each host with the MAC address in the label.
+        """
+        graph = self.to_graph(with_mac=with_mac)
         graph.layout()
         graph.draw(filename)
 
@@ -255,8 +258,11 @@ class Config:
                 f"DemoNet can't serialize {type(obj).__name__!r}: {obj!r}"
             ) from ex
 
-    def to_graph(self) -> GraphAPI:
-        "Create a pygraphviz Graph of the network."
+    def to_graph(self, *, with_mac: bool = False) -> GraphAPI:
+        """Create a pygraphviz Graph of the network.
+
+        If `with_mac` is true, hosts will show their MAC address.
+        """
         try:
             import pygraphviz as pgv  # type: ignore
         except ImportError:
@@ -270,6 +276,8 @@ class Config:
                     graph.add_node(item.name, **_PyGraphStyle.switch)
                 case Host():
                     sublabels = [item.name, item.assigned_ipv4, item.assigned_ipv6]
+                    if with_mac:
+                        sublabels.append(item.mac)
                     host_label = "\n".join(x for x in sublabels if x)
                     graph.add_node(
                         item.name,
@@ -593,6 +601,9 @@ def _parse_args():
     "Create argument parser and parse arguments."
     parser = argparse.ArgumentParser("demonet")
     parser.add_argument("--draw", help="Draw network map into file.")
+    parser.add_argument(
+        "--with-mac", action="store_true", help="Draw with host MAC addresses."
+    )
     return parser.parse_args()
 
 
@@ -600,7 +611,7 @@ def main(config: Sequence[Directive]) -> None:
     "Main entry point for demonet."
     args = _parse_args()
     if args.draw:
-        Config(config).draw(args.draw)
+        Config(config).draw(args.draw, with_mac=args.with_mac)
     else:
         run(config)
 
