@@ -1,6 +1,6 @@
 # Finsy Examples
 
-Here are some example programs that demonstrate how to use Finsy.
+Here are some P4Runtime example programs that demonstrate how to use Finsy.
 
 In each example directory, you'll find two support directories: `p4` and `net`.
 
@@ -13,7 +13,7 @@ podman or docker to run the demonstration network in a container.
 
 ### Requirements
 
-- Python 3.10 virtual environment with `finsy` installed.
+- Python 3.10 (or later) virtual environment with `finsy` installed.
 - [podman](https://podman.io/) or [docker](https://docker.com)
 
 ## gnmi
@@ -40,6 +40,10 @@ the third-party `prometheus-client` to export statistics to Prometheus/Grafana.
 ## simple
 
 The [simple](./simple) directory contains a P4Runtime script for the `simple_router` example from ["P4App"](https://github.com/p4lang/p4app/tree/master/examples/simple_router.p4app)
+
+## basic
+
+The [basic](./basic) directory contains a P4Runtime script for the `basic.p4` example from the [Basic Forwarding exercise](https://github.com/p4lang/tutorials/tree/master/exercises/basic) in the P4 tutorial.
 
 ## tunnel
 
