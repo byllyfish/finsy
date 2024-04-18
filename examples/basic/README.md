@@ -1,6 +1,6 @@
 # basic Demo
 
-The basic directory demonstrates the `Basic` example from the [P4 Tutorial](https://github.com/p4lang/tutorials/tree/master/exercises/basic).
+The basic directory demonstrates the `Basic Forwarding` example from the [P4 Tutorial](https://github.com/p4lang/tutorials/tree/master/exercises/basic).
 
 The demo network looks like this picture. To start Mininet, type `./net/run.py`.
 
@@ -24,6 +24,6 @@ In the Mininet CLI, the `h1 ping h2` command will fail because there are no
 entries loaded into the `ipv4_lpm` switch tables.
 
 To load the P4 tables with the proper entries, run `python demo.py`. The program should
-exit immediately.
+exit immediately after loading entries for all four switches.
 
 In the Mininet CLI, the `pingall` command now works. 
