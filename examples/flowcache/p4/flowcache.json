@@ -1,0 +1,1632 @@
+{
+  "header_types" : [
+    {
+      "name" : "scalars_0",
+      "id" : 0,
+      "fields" : [
+        ["switch_0_key", 8, false],
+        ["metadata_t.ingress_port", 9, false],
+        ["metadata_t.punt_reason", 8, false],
+        ["metadata_t.opcode", 8, false],
+        ["_padding_0", 7, false]
+      ]
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "fields" : [
+        ["ingress_port", 9, false],
+        ["egress_spec", 9, false],
+        ["egress_port", 9, false],
+        ["instance_type", 32, false],
+        ["packet_length", 32, false],
+        ["enq_timestamp", 32, false],
+        ["enq_qdepth", 19, false],
+        ["deq_timedelta", 32, false],
+        ["deq_qdepth", 19, false],
+        ["ingress_global_timestamp", 48, false],
+        ["egress_global_timestamp", 48, false],
+        ["mcast_grp", 16, false],
+        ["egress_rid", 16, false],
+        ["checksum_error", 1, false],
+        ["parser_error", 32, false],
+        ["priority", 3, false],
+        ["_padding", 3, false]
+      ]
+    },
+    {
+      "name" : "packet_in_header_h",
+      "id" : 2,
+      "fields" : [
+        ["input_port", 16, false],
+        ["punt_reason", 8, false],
+        ["opcode", 8, false]
+      ]
+    },
+    {
+      "name" : "packet_out_header_h",
+      "id" : 3,
+      "fields" : [
+        ["opcode", 8, false],
+        ["reserved1", 8, false],
+        ["operand0", 32, false]
+      ]
+    },
+    {
+      "name" : "ethernet_h",
+      "id" : 4,
+      "fields" : [
+        ["dst_addr", 48, false],
+        ["src_addr", 48, false],
+        ["ether_type", 16, false]
+      ]
+    },
+    {
+      "name" : "ipv4_h",
+      "id" : 5,
+      "fields" : [
+        ["version", 4, false],
+        ["ihl", 4, false],
+        ["diffserv", 8, false],
+        ["total_len", 16, false],
+        ["identification", 16, false],
+        ["flags", 3, false],
+        ["frag_offset", 13, false],
+        ["ttl", 8, false],
+        ["protocol", 8, false],
+        ["hdr_checksum", 16, false],
+        ["src_addr", 32, false],
+        ["dst_addr", 32, false]
+      ]
+    }
+  ],
+  "headers" : [
+    {
+      "name" : "scalars",
+      "id" : 0,
+      "header_type" : "scalars_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "header_type" : "standard_metadata",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "packet_in",
+      "id" : 2,
+      "header_type" : "packet_in_header_h",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "packet_out",
+      "id" : 3,
+      "header_type" : "packet_out_header_h",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ethernet",
+      "id" : 4,
+      "header_type" : "ethernet_h",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ipv4",
+      "id" : 5,
+      "header_type" : "ipv4_h",
+      "metadata" : false,
+      "pi_omit" : true
+    }
+  ],
+  "header_stacks" : [],
+  "header_union_types" : [],
+  "header_unions" : [],
+  "header_union_stacks" : [],
+  "field_lists" : [
+    {
+      "id" : 1,
+      "name" : "field_list1",
+      "elements" : [
+        {
+          "type" : "field",
+          "value" : ["scalars", "metadata_t.ingress_port"]
+        },
+        {
+          "type" : "field",
+          "value" : ["scalars", "metadata_t.punt_reason"]
+        },
+        {
+          "type" : "field",
+          "value" : ["scalars", "metadata_t.opcode"]
+        }
+      ]
+    }
+  ],
+  "errors" : [
+    ["NoError", 0],
+    ["PacketTooShort", 1],
+    ["NoMatch", 2],
+    ["StackOutOfBounds", 3],
+    ["HeaderTooShort", 4],
+    ["ParserTimeout", 5],
+    ["ParserInvalidArgument", 6]
+  ],
+  "enums" : [],
+  "parsers" : [
+    {
+      "name" : "parser",
+      "id" : 0,
+      "init_state" : "start",
+      "parse_states" : [
+        {
+          "name" : "start",
+          "id" : 0,
+          "parser_ops" : [],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x01fe",
+              "mask" : null,
+              "next_state" : "parse_controller_packet_out_header"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : "parse_ethernet"
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "ingress_port"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_controller_packet_out_header",
+          "id" : 1,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "packet_out"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        },
+        {
+          "name" : "parse_ethernet",
+          "id" : 2,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ethernet"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x0800",
+              "mask" : null,
+              "next_state" : "parse_ipv4"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "ether_type"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_ipv4",
+          "id" : 3,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ipv4"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        }
+      ]
+    }
+  ],
+  "parse_vsets" : [],
+  "deparsers" : [
+    {
+      "name" : "deparser",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/root/flowcache.p4",
+        "line" : 315,
+        "column" : 8,
+        "source_fragment" : "deparserImpl"
+      },
+      "order" : ["packet_in", "ethernet", "ipv4"],
+      "primitives" : []
+    }
+  ],
+  "meter_arrays" : [],
+  "counter_arrays" : [],
+  "register_arrays" : [],
+  "calculations" : [
+    {
+      "name" : "calc",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/root/flowcache.p4",
+        "line" : 345,
+        "column" : 8,
+        "source_fragment" : "update_checksum(hdr.ipv4.isValid() && hdr.ipv4.ihl == 5, ..."
+      },
+      "algo" : "csum16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["ipv4", "version"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ihl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "diffserv"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "total_len"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "identification"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "flags"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "frag_offset"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ttl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "protocol"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "src_addr"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "dst_addr"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_0",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "/root/flowcache.p4",
+        "line" : 327,
+        "column" : 8,
+        "source_fragment" : "verify_checksum(hdr.ipv4.isValid() && hdr.ipv4.ihl == 5, ..."
+      },
+      "algo" : "csum16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["ipv4", "version"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ihl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "diffserv"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "total_len"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "identification"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "flags"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "frag_offset"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ttl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "protocol"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "src_addr"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "dst_addr"]
+        }
+      ]
+    }
+  ],
+  "learn_lists" : [],
+  "actions" : [
+    {
+      "name" : "NoAction",
+      "id" : 0,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "ingressImpl.send_to_controller_with_details",
+      "id" : 1,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "egress_spec"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01fe"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 181,
+            "column" : 8,
+            "source_fragment" : "stdmeta.egress_spec = 510"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.ingress_port"]
+            },
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "ingress_port"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 182,
+            "column" : 8,
+            "source_fragment" : "meta.ingress_port = stdmeta.ingress_port"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.punt_reason"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x02"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 183,
+            "column" : 8,
+            "source_fragment" : "meta.punt_reason = punt_reason"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.opcode"]
+            },
+            {
+              "type" : "field",
+              "value" : ["packet_out", "opcode"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 184,
+            "column" : 8,
+            "source_fragment" : "meta.opcode = opcode"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "ingressImpl.drop_packet",
+      "id" : 2,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 197,
+            "column" : 8,
+            "source_fragment" : "mark_to_drop(stdmeta)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "ingressImpl.cached_action",
+      "id" : 3,
+      "runtime_data" : [
+        {
+          "name" : "port",
+          "bitwidth" : 9
+        },
+        {
+          "name" : "decrement_ttl",
+          "bitwidth" : 1
+        },
+        {
+          "name" : "new_dscp",
+          "bitwidth" : 6
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "egress_spec"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 204,
+            "column" : 8,
+            "source_fragment" : "stdmeta.egress_spec = port"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "ttl"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "usat_cast",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "-",
+                          "left" : {
+                            "type" : "field",
+                            "value" : ["ipv4", "ttl"]
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0x01"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x8"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "field",
+                    "value" : ["ipv4", "ttl"]
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "==",
+                      "left" : {
+                        "type" : "local",
+                        "value" : 1
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x01"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 205,
+            "column" : 8,
+            "source_fragment" : "hdr.ipv4.ttl ="
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "diffserv"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "|",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "&",
+                      "left" : {
+                        "type" : "field",
+                        "value" : ["ipv4", "diffserv"]
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x03"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "&",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "<<",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 2
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x2"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xfc"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 206,
+            "column" : 8,
+            "source_fragment" : "hdr.ipv4.diffserv[7:2] = new_dscp"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "ingressImpl.flow_unknown",
+      "id" : 4,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "clone_ingress_pkt_to_egress",
+          "parameters" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x00000039"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x1"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 190,
+            "column" : 8,
+            "source_fragment" : "clone_preserving_field_list(CloneType.I2E, CPU_PORT_CLONE_SESSION_ID, ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.ingress_port"]
+            },
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "ingress_port"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 192,
+            "column" : 8,
+            "source_fragment" : "meta.ingress_port = stdmeta.ingress_port"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.punt_reason"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 84,
+            "column" : 19,
+            "source_fragment" : "1, ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.opcode"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 79,
+            "column" : 12,
+            "source_fragment" : "0, ..."
+          }
+        },
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 197,
+            "column" : 8,
+            "source_fragment" : "mark_to_drop(stdmeta)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "switch_0_case",
+      "id" : 5,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "switch_0_case_0",
+      "id" : 6,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "flowcache245",
+      "id" : 7,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "egress_spec"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "&",
+                      "left" : {
+                        "type" : "field",
+                        "value" : ["packet_out", "operand0"]
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x000001ff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x01ff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 245,
+            "column" : 20,
+            "source_fragment" : "stdmeta.egress_spec = (PortId_t) hdr.packet_out.operand0"
+          }
+        },
+        {
+          "op" : "remove_header",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "packet_out"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 246,
+            "column" : 20,
+            "source_fragment" : "hdr.packet_out.setInvalid()"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "flowcache252",
+      "id" : 8,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "remove_header",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "packet_out"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 252,
+            "column" : 20,
+            "source_fragment" : "hdr.packet_out.setInvalid()"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "flowcache243",
+      "id" : 9,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "switch_0_key"]
+            },
+            {
+              "type" : "field",
+              "value" : ["packet_out", "opcode"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 243,
+            "column" : 12,
+            "source_fragment" : "switch (hdr.packet_out.opcode"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "NoAction",
+      "id" : 10,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "egressImpl.prepend_packet_in_hdr",
+      "id" : 11,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "add_header",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "packet_in"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 300,
+            "column" : 8,
+            "source_fragment" : "hdr.packet_in.setValid()"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["packet_in", "input_port"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["scalars", "metadata_t.ingress_port"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 301,
+            "column" : 8,
+            "source_fragment" : "hdr.packet_in.input_port = (PortIdToController_t) ingress_port"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["packet_in", "punt_reason"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.punt_reason"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 302,
+            "column" : 8,
+            "source_fragment" : "hdr.packet_in.punt_reason = punt_reason"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["packet_in", "opcode"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 79,
+            "column" : 12,
+            "source_fragment" : "0, ..."
+          }
+        }
+      ]
+    }
+  ],
+  "pipelines" : [
+    {
+      "name" : "ingress",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/root/flowcache.p4",
+        "line" : 173,
+        "column" : 8,
+        "source_fragment" : "ingressImpl"
+      },
+      "init_table" : "node_2",
+      "tables" : [
+        {
+          "name" : "ingressImpl.dbgPacketOutHdr",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 230,
+            "column" : 10,
+            "source_fragment" : "dbgPacketOutHdr"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "hdr.packet_out.opcode",
+              "target" : ["packet_out", "opcode"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "hdr.packet_out.reserved1",
+              "target" : ["packet_out", "reserved1"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [0],
+          "actions" : ["NoAction"],
+          "base_default_next" : "tbl_flowcache243",
+          "next_tables" : {
+            "NoAction" : "tbl_flowcache243"
+          },
+          "default_entry" : {
+            "action_id" : 0,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_flowcache243",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 243,
+            "column" : 12,
+            "source_fragment" : "switch"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [9],
+          "actions" : ["flowcache243"],
+          "base_default_next" : "switch_0_table",
+          "next_tables" : {
+            "flowcache243" : "switch_0_table"
+          },
+          "default_entry" : {
+            "action_id" : 9,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "switch_0_table",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 243,
+            "column" : 12,
+            "source_fragment" : "switch"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "target" : ["scalars", "switch_0_key"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [5, 6],
+          "actions" : ["switch_0_case", "switch_0_case_0"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "switch_0_case" : "tbl_flowcache245",
+            "switch_0_case_0" : "tbl_send_to_controller_with_details"
+          },
+          "default_entry" : {
+            "action_id" : 6,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          },
+          "entries" : [
+            {
+              "source_info" : {
+                "filename" : "/root/flowcache.p4",
+                "line" : 244,
+                "column" : 16,
+                "source_fragment" : "ControllerOpcode_t.SEND_TO_PORT_IN_OPERAND0: { ..."
+              },
+              "match_key" : [
+                {
+                  "match_type" : "exact",
+                  "key" : "0x01"
+                }
+              ],
+              "action_entry" : {
+                "action_id" : 5,
+                "action_data" : []
+              },
+              "priority" : 1
+            }
+          ]
+        },
+        {
+          "name" : "tbl_flowcache245",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 245,
+            "column" : 40,
+            "source_fragment" : "= (PortId_t) hdr.packet_out.operand0; ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [7],
+          "actions" : ["flowcache245"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "flowcache245" : null
+          },
+          "default_entry" : {
+            "action_id" : 7,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_send_to_controller_with_details",
+          "id" : 4,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 249,
+            "column" : 20,
+            "source_fragment" : "send_to_controller_with_details( ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [1],
+          "actions" : ["ingressImpl.send_to_controller_with_details"],
+          "base_default_next" : "tbl_flowcache252",
+          "next_tables" : {
+            "ingressImpl.send_to_controller_with_details" : "tbl_flowcache252"
+          },
+          "default_entry" : {
+            "action_id" : 1,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_flowcache252",
+          "id" : 5,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 252,
+            "column" : 20,
+            "source_fragment" : "hdr.packet_out.setInvalid()"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [8],
+          "actions" : ["flowcache252"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "flowcache252" : null
+          },
+          "default_entry" : {
+            "action_id" : 8,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "ingressImpl.flow_cache",
+          "id" : 6,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 215,
+            "column" : 10,
+            "source_fragment" : "flow_cache"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "hdr.ipv4.protocol",
+              "target" : ["ipv4", "protocol"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "hdr.ipv4.src_addr",
+              "target" : ["ipv4", "src_addr"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "hdr.ipv4.dst_addr",
+              "target" : ["ipv4", "dst_addr"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 65536,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [3, 2, 4],
+          "actions" : ["ingressImpl.cached_action", "ingressImpl.drop_packet", "ingressImpl.flow_unknown"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "ingressImpl.cached_action" : null,
+            "ingressImpl.drop_packet" : null,
+            "ingressImpl.flow_unknown" : null
+          },
+          "default_entry" : {
+            "action_id" : 4,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_2",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 240,
+            "column" : 12,
+            "source_fragment" : "hdr.packet_out.isValid()"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["packet_out", "$valid$"]
+              }
+            }
+          },
+          "true_next" : "ingressImpl.dbgPacketOutHdr",
+          "false_next" : "node_9"
+        },
+        {
+          "name" : "node_9",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 255,
+            "column" : 19,
+            "source_fragment" : "hdr.ipv4.isValid()"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["ipv4", "$valid$"]
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "ingressImpl.flow_cache"
+        }
+      ]
+    },
+    {
+      "name" : "egress",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "/root/flowcache.p4",
+        "line" : 266,
+        "column" : 8,
+        "source_fragment" : "egressImpl"
+      },
+      "init_table" : "egressImpl.debug_egress_stdmeta",
+      "tables" : [
+        {
+          "name" : "egressImpl.debug_egress_stdmeta",
+          "id" : 7,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 270,
+            "column" : 10,
+            "source_fragment" : "debug_egress_stdmeta"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "stdmeta.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "stdmeta.egress_spec",
+              "target" : ["standard_metadata", "egress_spec"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "stdmeta.egress_port",
+              "target" : ["standard_metadata", "egress_port"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "stdmeta.instance_type",
+              "target" : ["standard_metadata", "instance_type"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "stdmeta.packet_length",
+              "target" : ["standard_metadata", "packet_length"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [10],
+          "actions" : ["NoAction"],
+          "base_default_next" : "node_14",
+          "next_tables" : {
+            "NoAction" : "node_14"
+          },
+          "default_entry" : {
+            "action_id" : 10,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_prepend_packet_in_hdr",
+          "id" : 8,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 308,
+            "column" : 12,
+            "source_fragment" : "prepend_packet_in_hdr(meta.punt_reason, meta.ingress_port)"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [11],
+          "actions" : ["egressImpl.prepend_packet_in_hdr"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "egressImpl.prepend_packet_in_hdr" : null
+          },
+          "default_entry" : {
+            "action_id" : 11,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_14",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "/root/flowcache.p4",
+            "line" : 307,
+            "column" : 12,
+            "source_fragment" : "stdmeta.egress_port == 510"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["standard_metadata", "egress_port"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x01fe"
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "tbl_prepend_packet_in_hdr"
+        }
+      ]
+    }
+  ],
+  "checksums" : [
+    {
+      "name" : "cksum",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/root/flowcache.p4",
+        "line" : 345,
+        "column" : 8,
+        "source_fragment" : "update_checksum(hdr.ipv4.isValid() && hdr.ipv4.ihl == 5, ..."
+      },
+      "target" : ["ipv4", "hdr_checksum"],
+      "type" : "generic",
+      "calculation" : "calc",
+      "verify" : false,
+      "update" : true,
+      "if_cond" : {
+        "type" : "expression",
+        "value" : {
+          "op" : "and",
+          "left" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["ipv4", "$valid$"]
+              }
+            }
+          },
+          "right" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["ipv4", "ihl"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x05"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name" : "cksum_0",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "/root/flowcache.p4",
+        "line" : 327,
+        "column" : 8,
+        "source_fragment" : "verify_checksum(hdr.ipv4.isValid() && hdr.ipv4.ihl == 5, ..."
+      },
+      "target" : ["ipv4", "hdr_checksum"],
+      "type" : "generic",
+      "calculation" : "calc_0",
+      "verify" : true,
+      "update" : false,
+      "if_cond" : {
+        "type" : "expression",
+        "value" : {
+          "op" : "and",
+          "left" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["ipv4", "$valid$"]
+              }
+            }
+          },
+          "right" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["ipv4", "ihl"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x05"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "force_arith" : [],
+  "extern_instances" : [],
+  "field_aliases" : [
+    [
+      "queueing_metadata.enq_timestamp",
+      ["standard_metadata", "enq_timestamp"]
+    ],
+    [
+      "queueing_metadata.enq_qdepth",
+      ["standard_metadata", "enq_qdepth"]
+    ],
+    [
+      "queueing_metadata.deq_timedelta",
+      ["standard_metadata", "deq_timedelta"]
+    ],
+    [
+      "queueing_metadata.deq_qdepth",
+      ["standard_metadata", "deq_qdepth"]
+    ],
+    [
+      "intrinsic_metadata.ingress_global_timestamp",
+      ["standard_metadata", "ingress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.egress_global_timestamp",
+      ["standard_metadata", "egress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.mcast_grp",
+      ["standard_metadata", "mcast_grp"]
+    ],
+    [
+      "intrinsic_metadata.egress_rid",
+      ["standard_metadata", "egress_rid"]
+    ],
+    [
+      "intrinsic_metadata.priority",
+      ["standard_metadata", "priority"]
+    ]
+  ],
+  "program" : "/root/_out_/flowcache.p4i",
+  "__meta__" : {
+    "version" : [2, 23],
+    "compiler" : "https://github.com/p4lang/p4c"
+  }
+}

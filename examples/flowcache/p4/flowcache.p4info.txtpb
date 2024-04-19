@@ -1,0 +1,245 @@
+# proto-file: p4/config/v1/p4info.proto
+# proto-message: p4.config.v1.P4Info
+
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 35632390
+    name: "ingressImpl.flow_cache"
+    alias: "flow_cache"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ipv4.protocol"
+    bitwidth: 8
+    match_type: EXACT
+  }
+  match_fields {
+    id: 2
+    name: "hdr.ipv4.src_addr"
+    bitwidth: 32
+    match_type: EXACT
+  }
+  match_fields {
+    id: 3
+    name: "hdr.ipv4.dst_addr"
+    bitwidth: 32
+    match_type: EXACT
+  }
+  action_refs {
+    id: 23485479
+  }
+  action_refs {
+    id: 24088863
+  }
+  action_refs {
+    id: 18375742
+  }
+  size: 65536
+}
+tables {
+  preamble {
+    id: 44549397
+    name: "ingressImpl.dbgPacketOutHdr"
+    alias: "dbgPacketOutHdr"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.packet_out.opcode"
+    bitwidth: 8
+    match_type: EXACT
+  }
+  match_fields {
+    id: 2
+    name: "hdr.packet_out.reserved1"
+    bitwidth: 8
+    match_type: EXACT
+  }
+  action_refs {
+    id: 21257015
+  }
+  const_default_action_id: 21257015
+  size: 1024
+}
+tables {
+  preamble {
+    id: 37950760
+    name: "egressImpl.debug_egress_stdmeta"
+    alias: "debug_egress_stdmeta"
+  }
+  match_fields {
+    id: 1
+    name: "stdmeta.ingress_port"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  match_fields {
+    id: 2
+    name: "stdmeta.egress_spec"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  match_fields {
+    id: 3
+    name: "stdmeta.egress_port"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  match_fields {
+    id: 4
+    name: "stdmeta.instance_type"
+    bitwidth: 32
+    match_type: EXACT
+  }
+  match_fields {
+    id: 5
+    name: "stdmeta.packet_length"
+    bitwidth: 32
+    match_type: EXACT
+  }
+  action_refs {
+    id: 21257015
+  }
+  const_default_action_id: 21257015
+  size: 1024
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 20057651
+    name: "ingressImpl.send_to_controller_with_details"
+    alias: "send_to_controller_with_details"
+  }
+}
+actions {
+  preamble {
+    id: 24088863
+    name: "ingressImpl.drop_packet"
+    alias: "drop_packet"
+  }
+}
+actions {
+  preamble {
+    id: 23485479
+    name: "ingressImpl.cached_action"
+    alias: "cached_action"
+  }
+  params {
+    id: 1
+    name: "port"
+    bitwidth: 9
+  }
+  params {
+    id: 2
+    name: "decrement_ttl"
+    bitwidth: 1
+  }
+  params {
+    id: 3
+    name: "new_dscp"
+    bitwidth: 6
+  }
+}
+actions {
+  preamble {
+    id: 18375742
+    name: "ingressImpl.flow_unknown"
+    alias: "flow_unknown"
+  }
+}
+actions {
+  preamble {
+    id: 18842688
+    name: "egressImpl.prepend_packet_in_hdr"
+    alias: "prepend_packet_in_hdr"
+  }
+}
+controller_packet_metadata {
+  preamble {
+    id: 79342057
+    name: "packet_out"
+    alias: "packet_out"
+    annotations: "@controller_header(\"packet_out\")"
+  }
+  metadata {
+    id: 1
+    name: "opcode"
+    bitwidth: 8
+  }
+  metadata {
+    id: 2
+    name: "reserved1"
+    bitwidth: 8
+  }
+  metadata {
+    id: 3
+    name: "operand0"
+    bitwidth: 32
+  }
+}
+controller_packet_metadata {
+  preamble {
+    id: 82393100
+    name: "packet_in"
+    alias: "packet_in"
+    annotations: "@controller_header(\"packet_in\")"
+  }
+  metadata {
+    id: 1
+    name: "input_port"
+    bitwidth: 16
+  }
+  metadata {
+    id: 2
+    name: "punt_reason"
+    bitwidth: 8
+  }
+  metadata {
+    id: 3
+    name: "opcode"
+    bitwidth: 8
+  }
+}
+type_info {
+  serializable_enums {
+    key: "ControllerOpcode_t"
+    value {
+      underlying_type {
+        bitwidth: 8
+      }
+      members {
+        name: "NO_OP"
+        value: "\000"
+      }
+      members {
+        name: "SEND_TO_PORT_IN_OPERAND0"
+        value: "\001"
+      }
+    }
+  }
+  serializable_enums {
+    key: "PuntReason_t"
+    value {
+      underlying_type {
+        bitwidth: 8
+      }
+      members {
+        name: "FLOW_UNKNOWN"
+        value: "\001"
+      }
+      members {
+        name: "UNRECOGNIZED_OPCODE"
+        value: "\002"
+      }
+    }
+  }
+}

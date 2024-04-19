@@ -1,0 +1,50 @@
+strict graph "" {
+	graph [bb="0,0,114.86,151.01",
+		bgcolor=lightblue,
+		margin=0,
+		pad=0.25
+	];
+	node [label="\N"];
+	s1	[fillcolor="green:white",
+		gradientangle=90,
+		height=0.26917,
+		margin="0.08,0.02",
+		pos="47.462,80.896",
+		shape=box,
+		style=filled,
+		width=0.32667];
+	h1	[fillcolor="yellow:white",
+		fontsize=10,
+		gradientangle=90,
+		height=0.3525,
+		label="h1
+10.0.0.1/8",
+		margin="0.04,0.02",
+		pos="91.357,138.32",
+		shape=box,
+		style=filled,
+		width=0.65292];
+	h1 -- s1	[fontcolor=darkgreen,
+		fontsize=10,
+		head_lp="52.434,96.459",
+		headlabel=1,
+		penwidth=2.0,
+		pos="81.397,125.29 73.404,114.83 62.351,100.37 55.059,90.834"];
+	h2	[fillcolor="yellow:white",
+		fontsize=10,
+		gradientangle=90,
+		height=0.3525,
+		label="h2
+10.0.0.2/8",
+		margin="0.04,0.02",
+		pos="23.505,12.69",
+		shape=box,
+		style=filled,
+		width=0.65292];
+	h2 -- s1	[fontcolor=darkgreen,
+		fontsize=10,
+		head_lp="41.321,65.262",
+		headlabel=2,
+		penwidth=2.0,
+		pos="28.124,25.841 32.747,39.003 39.758,58.962 43.946,70.887"];
+}
