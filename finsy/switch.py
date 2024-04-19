@@ -67,14 +67,23 @@ _ET = TypeVar("_ET", bound=p4entity.P4Entity)
 
 @dataclasses.dataclass(frozen=True)
 class SwitchOptions:
-    """`SwitchOptions` manages the configuration options for a `Switch`.
-
-    Each `SwitchOptions` object is immutable and may be shared by multiple
-    switches. You should treat all values as read-only. You can use function call
-    syntax to change one or more properties and construct a new object.
+    """Represents the configuration options for a `Switch`.
 
     ```
-    opts = SwitchOptions(device_id=5)
+    opts = SwitchOptions(
+        p4info=Path("basic.p4info.txtpb"),
+        p4blob=Path("basic.json"),
+        ready_handler=on_ready,
+    )
+    ```
+
+    Each `SwitchOptions` object is immutable and may be shared by multiple
+    switches. You should treat all values as read-only.
+
+    You can use function call syntax to return a copy of a `SwitchOptions` with
+    one or more propertise altered.
+
+    ```
     new_opts = opts(device_id=6)
     ```
     """
@@ -143,10 +152,19 @@ class ApiVersion(NamedTuple):
 
 
 class Switch:
-    """`Switch` manages a P4Runtime Switch.
+    """Represents a P4Runtime Switch.
 
     A `Switch` is constructed with a `name`, `address` and an optional
     `SwitchOptions` configuration.
+
+    ```
+    opts = SwitchOptions(p4info=..., p4blob=...)
+    sw1 = Switch('sw1', '10.0.0.1:50000', opts)
+    ```
+
+    Each switch object has an event emitter `ee`. Use the EventEmitter to listen
+    for port change events like PORT_UP and PORT_DOWN. See the `SwitchEvent`
+    class for a list of support switch events.
     """
 
     _name: str

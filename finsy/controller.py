@@ -27,19 +27,15 @@ from finsy.switch import Switch, SwitchEvent, SwitchFailFastError
 
 
 class Controller:
-    """A Controller manages a variable number of concurrent `Switch` objects.
+    """Represents a collection of P4Runtime switches.
 
-    You can think of it as a collection of Switches.
+    Each `Switch` in the Controller is identified by its name. Each name must
+    be unique.
 
-    Each Switch in the Controller is uniquely identified by its name. You are
-    not permitted to have two or more switches with the same name.
-
-    Example:
-
-    ```python
+    ```
     switches = [
-        fy.Switch("sw1", "127.0.0.1:50001"),
-        fy.Switch("sw2", "127.0.0.1:50001"),
+        fy.Switch("sw1", "10.0.0.1:50000"),
+        fy.Switch("sw2", "10.0.0.2:50000"),
     ]
     controller = fy.Controller(switches)
     await controller.run()
@@ -47,15 +43,9 @@ class Controller:
 
     A Controller can be running or stopped. There are two ways to run a
     Controller. You can use the `Controller.run()` method, or you can use
-    a Controller as an async context manager. The example above shows
-    `run()` which runs until cancelled, here is the same example as a context
-    manager:
+    a Controller as a context manager.
 
-    ```python
-    switches = [
-        fy.Switch("sw1", "127.0.0.1:50001"),
-        fy.Switch("sw2", "127.0.0.1:50001"),
-    ]
+    ```
     controller = fy.Controller(switches)
     async with controller:
         # Let controller run for 60 seconds.
@@ -80,13 +70,13 @@ class Controller:
 
     You can iterate over the switches in a Controller using a for loop:
 
-    ```python
+    ```
     for switch in controller:
         print(switch.name)
     ```
 
-    Any Switch running in a controller can retrieve its Controller object using
-    the `Controller.current()` method.
+    Any task or sub-task running inside a controller can retrieve its
+    Controller object using the `Controller.current()` method.
     """
 
     _switches: dict[str, Switch]
@@ -97,7 +87,6 @@ class Controller:
     "Keep track of controller's main task."
 
     def __init__(self, switches: Iterable[Switch] = ()):
-        "Initialize Controller with a list of switches."
         self._switches = {}
         self._pending_removal = set()
         self._task_count = CountdownFuture()

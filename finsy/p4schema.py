@@ -476,16 +476,22 @@ def _blob_bytes(blob: Path | bytes | SupportsBytes | None) -> bytes:
 
 
 class P4Schema(_ReprMixin):
-    """Concrete class for accessing a P4Info file and API version info.
+    """Represents a P4Info file and its associated P4 blob (optional).
 
-    TODO: This class stores information that may be shared across multiple
-    switches with the exact same P4Info file. The current implementation does
-    not share anything, and this is inefficient.
+    ```
+    p4 = P4Schema(Path("basic.p4info.txtpb"))
+    ```
+
+    This class parses the P4Info contents to produce an in-memory representation
+    of the tables, actions, types, etc. inside. This in-memory graph of the
+    contents of the P4Info file may be shared when we parse identical
+    P4Info files. The sharing of P4Info data is controlled by the
+    `P4SchemaCache` class.
     """
 
     _p4info: p4i.P4Info | None
     _p4blob: Path | bytes | SupportsBytes | None
-    _p4defs: _P4Defs
+    _p4defs: _P4Defs  # possibly shared in-memory representation
     _p4cookie: int = 0
 
     def __init__(
@@ -493,7 +499,6 @@ class P4Schema(_ReprMixin):
         p4info: p4i.P4Info | Path | None = None,
         p4blob: Path | bytes | SupportsBytes | None = None,
     ):
-        "Parse P4Info information."
         self._p4blob = p4blob
         self._p4info, self._p4defs, self._p4cookie = P4SchemaCache.load_p4info(
             p4info,
