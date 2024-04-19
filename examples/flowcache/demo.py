@@ -28,9 +28,9 @@ class DemoApp:
     This example uses a serializable enum from the P4Info file.
     """
 
-    P4INFO = fy.P4Schema(P4INFO)
-    OPCODE = P4INFO.type_info.serializable_enums["ControllerOpcode_t"]
-    PUNT_REASON = P4INFO.type_info.serializable_enums["PuntReason_t"]
+    P4 = fy.P4Schema(P4INFO)
+    OPCODE = P4.type_info.serializable_enums["ControllerOpcode_t"]
+    PUNT_REASON = P4.type_info.serializable_enums["PuntReason_t"]
     FLOW_UNKNOWN = PUNT_REASON["FLOW_UNKNOWN"]
 
     options: fy.SwitchOptions
