@@ -76,9 +76,9 @@ async def _table(controller: fy.Controller, args: list[str]) -> None:
     if switch is None:
         raise ValueError(f"no such device: {device_name}")
 
+    p4 = switch.p4info
     async for table in switch.read(entities):
-        with switch.p4info:
-            print(table.priority, table.match_str(), "->", table.action_str())
+        print(table.priority, table.match_str(p4), "->", table.action_str(p4))
 
 
 async def _srv6_insert(controller: fy.Controller, args: list[str]) -> None:
