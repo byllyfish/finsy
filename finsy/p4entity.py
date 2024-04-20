@@ -42,6 +42,8 @@ from finsy.p4schema import (
 )
 from finsy.proto import p4r
 
+NOACTION_STR = "NoAction()"
+
 
 class _SupportsDecodeEntity(Protocol):
     @classmethod
@@ -293,7 +295,7 @@ class P4TableMatch(dict[str, Any]):
     of the match field. The field's value should be appropriate for the type
     of match (EXACT, LPM, TERNARY, etc.)
 
-    You will construct a match the same as any dictionary.
+    Construct a match similar to a dictionary.
 
     Example:
     ```
@@ -1115,7 +1117,7 @@ class P4TableEntry(_P4Writable):
 
     def match_dict(
         self,
-        schema: P4Schema | None = None,
+        schema: P4Schema,
         *,
         wildcard: str | None = None,
     ) -> dict[str, str]:
@@ -1125,8 +1127,6 @@ class P4TableEntry(_P4Writable):
         `wildcard` is set, include all field names but replace unset values with
         given wildcard value (e.g. "*")
         """
-        if schema is None:
-            schema = P4Schema.current()
         table = schema.tables[self.table_id]
         if self.match is not None:
             return self.match.format_dict(table, wildcard=wildcard)
@@ -1134,25 +1134,21 @@ class P4TableEntry(_P4Writable):
 
     def match_str(
         self,
-        schema: P4Schema | None = None,
+        schema: P4Schema,
         *,
         wildcard: str | None = None,
     ) -> str:
         "Format the match fields as a human-readable, canonical string."
-        if schema is None:
-            schema = P4Schema.current()
         table = schema.tables[self.table_id]
         if self.match is not None:
             return self.match.format_str(table, wildcard=wildcard)
         return P4TableMatch().format_str(table, wildcard=wildcard)
 
-    def action_str(self, schema: P4Schema | None = None) -> str:
+    def action_str(self, schema: P4Schema) -> str:
         "Format the actions as a human-readable, canonical string."
-        if schema is None:
-            schema = P4Schema.current()
         table = schema.tables[self.table_id]
         if self.action is None:
-            return "NoAction()"
+            return NOACTION_STR
         return self.action.format_str(table)
 
 
@@ -1392,11 +1388,10 @@ class P4ActionProfileMember(_P4Writable):
             action=action,
         )
 
-    def action_str(self) -> str:
-        "Return string representation of action."
-        if not self.action:
-            return ""
-        schema = P4Schema.current()
+    def action_str(self, schema: P4Schema) -> str:
+        "Format the action as a human-readable, canonical string."
+        if self.action is None:
+            return NOACTION_STR
         return self.action.format_str(schema)
 
 
@@ -1498,7 +1493,7 @@ class P4ActionProfileGroup(_P4Writable):
             members=members,
         )
 
-    def action_str(self) -> str:
+    def action_str(self, _schema: P4Schema) -> str:
         "Return string representation of the weighted members."
         if not self.members:
             return ""

@@ -649,32 +649,10 @@ class P4Schema(_ReprMixin):
         "Collection of P4 extern instances."
         return self._p4defs.externs
 
-    @staticmethod
-    def current() -> "P4Schema":
-        "Return the current P4Schema context."
-        result = _P4SCHEMA_CTXT.get()
-        if result is None:
-            raise RuntimeError("not in P4Schema context")
-        return result
-
-    def __enter__(self) -> "P4Schema":
-        if _P4SCHEMA_CTXT.get() is not None:
-            raise RuntimeError("Do not stack P4Schema context managers")
-        _P4SCHEMA_CTXT.set(self)
-        return self
-
-    def __exit__(self, *_args: Any) -> bool | None:
-        _P4SCHEMA_CTXT.set(None)
-
     def __str__(self) -> str:
         if self._p4info is None:
             return "<P4Info: No pipeline configured>"
         return str(P4SchemaDescription(self))
-
-
-# Context var that stores the current context for convenience. Returned by
-# `P4Schema.current()`.
-_P4SCHEMA_CTXT: ContextVar[P4Schema | None] = ContextVar("_P4SCHEMA_CTXT", default=None)
 
 
 def _sort_map(value: Mapping[Any, Any]):

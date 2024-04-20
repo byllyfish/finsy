@@ -530,13 +530,9 @@ def test_table_entry_str_display():
     )
     assert f"{entry}" == str(entry)
 
-    with _SCHEMA:
-        # Test schema-aware formatting.
-        assert entry.match_str() == "dstAddr=0x1"
-        assert entry.action_str() == "ipv4_forward(dstAddr=0x10203040506, port=0x1)"
-
-    with pytest.raises(RuntimeError, match="not in P4Schema context"):
-        assert entry.action_str()
+    # Test schema-aware formatting.
+    assert entry.match_str(_SCHEMA) == "dstAddr=0x1"
+    assert entry.action_str(_SCHEMA) == "ipv4_forward(dstAddr=0x10203040506, port=0x1)"
 
 
 def test_table_entry_action_id():
@@ -748,10 +744,10 @@ def test_action_profile_member_actionstr():
         member_id=2,
         action=P4TableAction("pop_vlan"),
     )
-    with schema:
-        assert entry.action_profile_id == "hashed_selector"
-        assert entry.member_id == 2
-        assert entry.action_str() == "pop_vlan()"
+
+    assert entry.action_profile_id == "hashed_selector"
+    assert entry.member_id == 2
+    assert entry.action_str(schema) == "pop_vlan()"
 
 
 def test_action_profile_group1():
@@ -804,11 +800,10 @@ def test_action_profile_group_actionstr():
         ],
     )
 
-    with schema:
-        assert entry.action_profile_id == "hashed_selector"
-        assert entry.group_id == 2
-        assert entry.max_size == 3
-        assert entry.action_str() == "(3, 2748)*0x1 4*0x2"
+    assert entry.action_profile_id == "hashed_selector"
+    assert entry.group_id == 2
+    assert entry.max_size == 3
+    assert entry.action_str(schema) == "(3, 2748)*0x1 4*0x2"
 
 
 def test_member():
