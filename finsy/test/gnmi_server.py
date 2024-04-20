@@ -135,7 +135,6 @@ class GNMIServer(gnmi_grpc.gNMIServicer):
                             await asyncio.sleep(0.2)
                             for reply in _GNMI_SUBSCRIBE_RESPONSES_UPDATES:
                                 yield pbutil.from_text(reply, gnmi.SubscribeResponse)
-                    await asyncio.sleep(5.0)
                 case "poll":  # not supported
                     raise RuntimeError("not supported")
                 case _:
