@@ -1,4 +1,4 @@
-# Poetry (version 1.8.2) export at Thu Apr 18 16:27:06 MST 2024
+# Poetry (version 1.8.2) export at Sat Apr 20 16:57:18 MST 2024
 grpcio==1.62.2 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:07ce1f775d37ca18c7a141300e5b71539690efa1f51fe17f812ca85b5e73262f \
     --hash=sha256:112eaa7865dd9e6d7c0556c8b04ae3c3a2dc35d62ad3373ab7f6a562d8199200 \
@@ -72,6 +72,9 @@ protobuf==5.26.1 ; python_version >= "3.10" and python_version < "4.0" \
 pyee==11.1.0 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:5d346a7d0f861a4b2e6c47960295bd895f816725b27d656181947346be98d7c1 \
     --hash=sha256:b53af98f6990c810edd9b56b87791021a8f54fd13db4edd1142438d44ba2263f
+shellous==0.36.0 ; python_version >= "3.10" and python_version < "4.0" \
+    --hash=sha256:26f67207342221330a5ec752d66f0a04b92f6595adce4b60d5f9754485bd8d0c \
+    --hash=sha256:3ff9f222101e8fc6ab3acac2118f1f7d23c8a8ed293dbb8cce3c19306f11a483
 typing-extensions==4.11.0 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:83f085bd5ca59c80295fc2a82ab5dac679cbe02b9f33f7d83af68e241bea51b0 \
     --hash=sha256:c1f94d72897edaf4ce775bb7558d5b79d8126906a14ea5ed1635921406c0387a
