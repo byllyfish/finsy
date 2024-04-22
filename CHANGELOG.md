@@ -1,5 +1,21 @@
 # Finsy Change Log
 
+## 0.25.0
+
+- The `match_dict`, `match_str` and `action_str` formatting methods now require a P4Schema argument. Removed P4Schema's context manager API. (#499)
+- Add support for serializable enums in P4Schema.
+- Add port of `flowcache` example that uses serializable enums.
+- Add port of basic forwarding example from the P4lang tutorial.
+- Re-compile example P4 programs with the latest P4c compiler. Replace file extension `p4info.txt` with  `p4info.txtpb` (#501).
+- Make `shellous` an optional dependency that can be installed as an extra: `pip install finsy[demonet]` (#502).
+- Fix issue in CI testing which led to an ERROR log message when shutting down GNMIServer testing. (#505)
+- When using `black` in CI testing, call it as a library function, not a subprocess. This fixes an occasional thread-related hang on MacOS in CI testing.
+- Incorporate the latest changes to `gnmi.proto` and `gnmi_ext.proto`. Upgrade protobuf compiler toolchain and re-compile all protobuf files. Bring "relative path" patch-file up to date.
+- Update the demonet docker image: include gpg (for codecov), update ubuntu base tag, and update the mn-stratum base hash. Use latest demonet 24.04 build for CI testing.
+- Add the `--with-mac` argument to the `Demonet` class to include the MAC address of hosts when drawing the network map.
+- Update doc comments for the Switch, SwitchOptions and Controller classes.
+- Improve reliability of CI testing and fix minor typing issues.
+- Update dependencies.
 
 ## 0.24.0
 
