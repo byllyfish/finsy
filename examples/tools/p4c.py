@@ -106,7 +106,7 @@ async def _p4c(container: str, dest_program: Path, dest_out: Path, args: list[st
         "--output",
         dest_out,
         "--p4runtime-files",
-        dest_out / f"{base_name}.p4info.txt",
+        dest_out / f"{base_name}.p4info.txtpb",
         args,
         dest_program,
     ).stdout(sh.INHERIT).stderr(sh.INHERIT)
