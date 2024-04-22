@@ -46,7 +46,7 @@ async def ready_handler(sw: fy.Switch):
 async def main():
     "Main program."
     options = fy.SwitchOptions(
-        p4info=P4SRC / "hello.p4info.txt",
+        p4info=P4SRC / "hello.p4info.txtpb",
         p4blob=P4SRC / "hello.json",
         ready_handler=ready_handler,
     )

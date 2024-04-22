@@ -65,7 +65,7 @@ ENTRIES = [
 async def main():
     "Main program."
     opts = fy.SwitchOptions(
-        p4info=P4SRC / "simple_router.p4info.txt",
+        p4info=P4SRC / "simple_router.p4info.txtpb",
         p4blob=P4SRC / "simple_router.json",
     )
 

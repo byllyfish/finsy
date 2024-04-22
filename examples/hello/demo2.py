@@ -26,7 +26,7 @@ class DemoApp:
     "Hello World, demo app."
 
     CONTROLLER_PORT = 255
-    P4INFO = P4SRC / "hello.p4info.txt"
+    P4INFO = P4SRC / "hello.p4info.txtpb"
     P4BLOB = P4SRC / "hello.json"
 
     def __init__(self):
