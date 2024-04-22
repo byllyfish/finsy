@@ -5,7 +5,7 @@ from int_p4info import *
 
 import finsy as fy
 
-P4SRC = Path(__file__).parents[1] / "p4"
+P4SRC = Path(__file__).parents[1] / "p4/int_v1.0"
 
 H1_MAC = "00:00:00:00:01:01"
 H2_MAC = "00:00:00:00:02:02"
