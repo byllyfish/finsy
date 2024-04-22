@@ -13,8 +13,9 @@ podman or docker to run the demonstration network in a container.
 
 ### Requirements
 
-- Python 3.10 (or later) virtual environment with `finsy` installed.
-- [podman](https://podman.io/) or [docker](https://docker.com)
+- Python 3.10 (or later) virtual environment.
+- [podman](https://podman.io/) or [docker](https://docker.com) installed on the host and available in PATH.
+- Finsy with the demonet extra installed:  `pip install finsy[demonet]`
 
 ## gnmi
 
@@ -58,6 +59,10 @@ The [INT](./int) directory contains an In-Band Network Telemetry controller adap
 To run the integration tests, enter the examples directory and type 
 `pytest`. Each test module will create a Mininet instance, run its tests in order, 
 then stop Mininet.
+
+To use pytest, you will need to install the Finsy `dev` dependencies in your virtualenv:
+
+- `pip install -r ./ci/requirements-dev.txt`
 
 ## References
 
