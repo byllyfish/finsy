@@ -11,7 +11,7 @@ from .route import RouteManager
 from .stat import StatManager
 
 P4SRC_DIR = Path(__file__).parent / "p4"
-P4INFO = P4SRC_DIR / "main.p4info.txt"
+P4INFO = P4SRC_DIR / "main.p4info.txtpb"
 P4BLOB = P4SRC_DIR / "main.json"
 
 

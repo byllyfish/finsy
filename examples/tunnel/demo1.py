@@ -43,7 +43,7 @@ async def setup_tunnel(
 
 async def main():
     opts = fy.SwitchOptions(
-        p4info=P4SRC / "advanced_tunnel.p4info.txt",
+        p4info=P4SRC / "advanced_tunnel.p4info.txtpb",
         p4blob=P4SRC / "advanced_tunnel.json",
     )
 

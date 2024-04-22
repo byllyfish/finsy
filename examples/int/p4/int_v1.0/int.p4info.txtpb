@@ -1,3 +1,6 @@
+# proto-file: p4/config/v1/p4info.proto
+# proto-message: p4.config.v1.P4Info
+
 pkg_info {
   arch: "v1model"
 }
@@ -215,6 +218,7 @@ tables {
   }
   size: 1024
   is_const_table: true
+  has_initial_entries: true
 }
 tables {
   preamble {
@@ -283,6 +287,7 @@ tables {
   }
   size: 1024
   is_const_table: true
+  has_initial_entries: true
 }
 tables {
   preamble {

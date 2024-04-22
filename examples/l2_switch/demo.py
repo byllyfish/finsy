@@ -96,7 +96,7 @@ async def _log_counters(switch: fy.Switch, name: str):
 async def main():
     "Main program."
     options = fy.SwitchOptions(
-        p4info=P4SRC / "l2_switch.p4info.txt",
+        p4info=P4SRC / "l2_switch.p4info.txtpb",
         p4blob=P4SRC / "l2_switch.json",
         ready_handler=_ready_handler,
     )

@@ -59,7 +59,7 @@ S4_ENTS = [
 async def main():
     "Main program."
     opts = fy.SwitchOptions(
-        p4info=_P4SRC / "basic.p4info.txt",
+        p4info=_P4SRC / "basic.p4info.txtpb",
         p4blob=_P4SRC / "basic.json",
         p4force=True,  # Always reload P4 program upon connection.
     )

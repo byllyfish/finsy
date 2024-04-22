@@ -19,7 +19,7 @@ Here's the initial setup.
 ```pycon
 >>> from finsy import P4MulticastGroupEntry, P4CloneSessionEntry, P4Schema
 >>> from pathlib import Path
->>> p4info = P4Schema(Path('examples/ngsdn/ngsdn/p4/main.p4info.txt'))
+>>> p4info = P4Schema(Path('examples/ngsdn/ngsdn/p4/main.p4info.txtpb'))
 
 ```
 

@@ -5,7 +5,7 @@ from int_p4info import *
 
 import finsy as fy
 
-P4SRC = Path(__file__).parents[1] / "p4"
+P4SRC = Path(__file__).parents[1] / "p4/int_v1.0"
 
 H1_MAC = "00:00:00:00:01:01"
 H2_MAC = "00:00:00:00:02:02"
@@ -119,7 +119,7 @@ async def ready_handler(sw: fy.Switch):
 
 async def main():
     opts = fy.SwitchOptions(
-        p4info=P4SRC / "int.p4info.txt",
+        p4info=P4SRC / "int.p4info.txtpb",
         p4blob=P4SRC / "int.json",
         p4force=False,
         ready_handler=ready_handler,

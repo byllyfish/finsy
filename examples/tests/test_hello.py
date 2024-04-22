@@ -13,7 +13,7 @@ async def test_demo0(python):
     "Test the hello/demo0 example program."
     result = await python(
         HELLO_DIR / "demo0.py",
-        HELLO_DIR / "p4/hello.p4info.txt",
+        HELLO_DIR / "p4/hello.p4info.txtpb",
     )
 
     assert (

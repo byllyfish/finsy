@@ -12,7 +12,7 @@ This demo program reads an existing P4Info file and prints out a description of 
 contents.
 
 ```
-$ python demo0.py p4/hello.p4info.txt
+$ python demo0.py p4/hello.p4info.txtpb
 ```
 
 You should see output like:
