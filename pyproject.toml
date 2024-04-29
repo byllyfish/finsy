@@ -45,7 +45,7 @@ pdoc = "^14.4.0"
 prometheus-client = "^0.20.0"
 pylint = "^3.1.0"
 pyright = "^1.1.358"
-pytest = "^7.4.4"  # TODO
+pytest = ">=7.4.4,<9.0.0"  # TODO
 pytest-asyncio = "0.21.1"  # TODO
 pytest-cov = "^4.1.0"  # TODO
 ruff = "^0.3.7"
