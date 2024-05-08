@@ -27,7 +27,7 @@ classifiers = [
 python = "^3.10"
 
 # Core dependencies.
-grpcio = "^1.62.1"
+grpcio = "^1.63.0"
 parsy = "^2.1.0"
 protobuf = "^5.26.1"
 pyee = "^11.1.0"
@@ -39,16 +39,16 @@ shellous = { version = "^0.36.0", optional = true }
 demonet = ["shellous"]
 
 [tool.poetry.group.dev.dependencies]
-black = "24.4.0"
-mypy = "^1.9.0"
+black = "24.4.2"
+mypy = "^1.10.0"
 pdoc = "^14.4.0"
 prometheus-client = "^0.20.0"
 pylint = "^3.1.0"
-pyright = "^1.1.358"
+pyright = "^1.1.362"
 pytest = "^7.4.4"  # TODO
 pytest-asyncio = "0.21.1"  # TODO
 pytest-cov = "^4.1.0"  # TODO
-ruff = "^0.3.7"
+ruff = "^0.4.3"
 shellous = "^0.36.0"
 
 [tool.poetry.group.demonet]
@@ -105,7 +105,7 @@ reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']
-required-version = "24.4.0"
+required-version = "24.4.2"
 force-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 #************
