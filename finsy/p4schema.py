@@ -533,7 +533,9 @@ class P4Schema(_ReprMixin):
         "Return true if the current P4Info equals the given P4Info."
         if self._p4info is None:
             return False
-        return self._p4info.SerializeToString(True) == p4info.SerializeToString(True)
+        return self._p4info.SerializeToString(
+            deterministic=True
+        ) == p4info.SerializeToString(deterministic=True)
 
     @property
     def p4blob(self) -> bytes:
@@ -2262,7 +2264,7 @@ class P4SchemaCache:
             p4info = p4info_ptr
 
         assert isinstance(p4info, p4i.P4Info)
-        p4info_key = p4info.SerializeToString(True)
+        p4info_key = p4info.SerializeToString(deterministic=True)
         cookie = P4SchemaCache.compute_cookie(p4info_key, _blob_bytes(p4blob_ptr))
 
         cache = P4SchemaCache.current()
