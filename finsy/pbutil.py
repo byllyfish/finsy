@@ -38,7 +38,7 @@ _MT = TypeVar("_MT", bound=PBMessage)
 def from_any(any_obj: PBAny, msg_class: type[_MT]) -> _MT:
     "Unpack a protobuf `any_pb2.Any` message, or raise an exception."
     obj = msg_class()
-    if not any_obj.Unpack(obj):
+    if not any_obj.Unpack(obj):  # pyright: ignore[reportUnknownMemberType]
         raise ValueError(f"Not a {msg_class.__name__}: {any_obj!r}")
     return obj
 
@@ -64,7 +64,7 @@ def from_dict(value: dict[str, Any], msg_class: type[_MT]) -> _MT:
 def to_any(msg: PBMessage) -> PBAny:
     "Wrap a protobuf message as an `any_pb2.Any` message."
     result = PBAny()
-    result.Pack(msg)
+    result.Pack(msg)  # pyright: ignore[reportUnknownMemberType]
     return result
 
 
