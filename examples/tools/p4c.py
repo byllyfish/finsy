@@ -97,7 +97,7 @@ async def _copy_in(
 
 async def _p4c(container: str, dest_program: Path, dest_out: Path, args: list[str]):
     "Run p4c compiler in a container."
-    base_name = os.path.splitext(dest_program.name)[0]
+    base_name = dest_program.stem
     await sh(
         "podman",
         "exec",
@@ -157,7 +157,7 @@ async def running_container(image: str):
         "sh",
         image,
         "-c",
-        "echo $HOSTNAME; cat",
+        "echo $HOSTNAME; cat",  # `cat` will run util we close stdin.
     )
 
     async with podman.stdin(sh.CAPTURE).stdout(sh.CAPTURE) as run:

@@ -191,3 +191,5 @@ ignore = [
 ".devcontainer/install-poetry.py" = ["E501"]
 "finsy/test/gnmi_server.py" = ["E501"]
 "tests/test_gnmistring.py" = ["E501"]
+"tests/test_p4client.py" = ["E501"]
+"tests/test_pbutil.py" = ["E501"]
