@@ -113,6 +113,39 @@ class Documentation(google.protobuf.message.Message):
 global___Documentation = Documentation
 
 @typing.final
+class PlatformProperties(google.protobuf.message.Message):
+    """Used to describe the required properties of the underlying platform."""
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MULTICAST_GROUP_TABLE_SIZE_FIELD_NUMBER: builtins.int
+    MULTICAST_GROUP_TABLE_TOTAL_REPLICAS_FIELD_NUMBER: builtins.int
+    MULTICAST_GROUP_TABLE_MAX_REPLICAS_PER_ENTRY_FIELD_NUMBER: builtins.int
+    multicast_group_table_size: builtins.int
+    """The minimum number of multicast entries (i.e. multicast groups) that the
+    platform is required to support. If 0, there are no requirements.
+    """
+    multicast_group_table_total_replicas: builtins.int
+    """The minimum number of replicas that the platform is required to support
+    across all  groups. If 0, there are no requirements.
+    """
+    multicast_group_table_max_replicas_per_entry: builtins.int
+    """The number of replicas that the platform is required to support per
+    group/entry. If 0, `multicast_group_table_total_replicas` should be used.
+    Must be no larger than `multicast_group_table_total_replicas`.
+    """
+    def __init__(
+        self,
+        *,
+        multicast_group_table_size: builtins.int = ...,
+        multicast_group_table_total_replicas: builtins.int = ...,
+        multicast_group_table_max_replicas_per_entry: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["multicast_group_table_max_replicas_per_entry", b"multicast_group_table_max_replicas_per_entry", "multicast_group_table_size", b"multicast_group_table_size", "multicast_group_table_total_replicas", b"multicast_group_table_total_replicas"]) -> None: ...
+
+global___PlatformProperties = PlatformProperties
+
+@typing.final
 class PkgInfo(google.protobuf.message.Message):
     """Top-level package documentation describing the forwarding pipeline config
     Can be used to manage multiple P4 packages.
@@ -130,6 +163,7 @@ class PkgInfo(google.protobuf.message.Message):
     CONTACT_FIELD_NUMBER: builtins.int
     URL_FIELD_NUMBER: builtins.int
     STRUCTURED_ANNOTATIONS_FIELD_NUMBER: builtins.int
+    PLATFORM_PROPERTIES_FIELD_NUMBER: builtins.int
     name: builtins.str
     """a definitive name for this configuration, e.g. switch.p4_v1.0"""
     version: builtins.str
@@ -162,6 +196,13 @@ class PkgInfo(google.protobuf.message.Message):
     def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]:
         """Miscellaneous metadata, structured; a way to extend PkgInfo"""
 
+    @property
+    def platform_properties(self) -> global___PlatformProperties:
+        """If set, specifies the properties that the underlying platform should have.
+        If the platform does not conform to these properties, the server should
+        reject the P4Info when used with a SetForwardingPipelineConfigRequest.
+        """
+
     def __init__(
         self,
         *,
@@ -175,9 +216,10 @@ class PkgInfo(google.protobuf.message.Message):
         contact: builtins.str = ...,
         url: builtins.str = ...,
         structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
+        platform_properties: global___PlatformProperties | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["doc", b"doc"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "arch", b"arch", "contact", b"contact", "doc", b"doc", "name", b"name", "organization", b"organization", "structured_annotations", b"structured_annotations", "url", b"url", "version", b"version"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["doc", b"doc", "platform_properties", b"platform_properties"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["annotation_locations", b"annotation_locations", "annotations", b"annotations", "arch", b"arch", "contact", b"contact", "doc", b"doc", "name", b"name", "organization", b"organization", "platform_properties", b"platform_properties", "structured_annotations", b"structured_annotations", "url", b"url", "version", b"version"]) -> None: ...
 
 global___PkgInfo = PkgInfo
 
