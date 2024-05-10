@@ -86,8 +86,10 @@ ignore = [
 strict = [
   "examples/**/*.py", 
   "finsy/**/*.py",
+  "tests/conftest.py",
   "tests/test_p4data.py",
   "tests/test_p4entity.py",
+  "tests/test_p4schema.py",
   "tests/test_p4values.py",
   "tests/test_controller.py",
   "tests/test_switch.py"
@@ -189,3 +191,5 @@ ignore = [
 ".devcontainer/install-poetry.py" = ["E501"]
 "finsy/test/gnmi_server.py" = ["E501"]
 "tests/test_gnmistring.py" = ["E501"]
+"tests/test_p4client.py" = ["E501"]
+"tests/test_pbutil.py" = ["E501"]

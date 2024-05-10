@@ -45,7 +45,9 @@ def _scan_file(source_file: Path) -> set[str]:
     return set(_INCLUDE_REGEX.findall(source))
 
 
-def _fix_includes(includes: set[str], parent: str) -> set[str]:
+def _fix_includes(includes: set[str], source: str) -> set[str]:
+    "Fix the `include set` for a source file to include the source's dirname."
+    parent = os.path.dirname(source)  # noqa: PTH120
     if not parent:
         return includes
     quote = '"'
@@ -70,7 +72,7 @@ def _scan_all_files(source_file: Path) -> dict[str, set[str]]:
             if name[0] == '"' and name not in result:
                 source = name.strip('"')
                 includes = _scan_file(dir / source)
-                includes = _fix_includes(includes, os.path.dirname(source))
+                includes = _fix_includes(includes, source)
                 result[name] = includes
                 latest |= includes
         names = latest
@@ -97,7 +99,7 @@ async def _copy_in(
 
 async def _p4c(container: str, dest_program: Path, dest_out: Path, args: list[str]):
     "Run p4c compiler in a container."
-    base_name = os.path.splitext(dest_program.name)[0]
+    base_name = dest_program.stem
     await sh(
         "podman",
         "exec",
@@ -157,7 +159,7 @@ async def running_container(image: str):
         "sh",
         image,
         "-c",
-        "echo $HOSTNAME; cat",
+        "echo $HOSTNAME; cat",  # `cat` will run util we close stdin.
     )
 
     async with podman.stdin(sh.CAPTURE).stdout(sh.CAPTURE) as run:

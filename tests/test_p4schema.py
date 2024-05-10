@@ -1,3 +1,5 @@
+# pyright: reportPrivateUsage=false
+
 import difflib
 import logging
 import os
@@ -50,7 +52,7 @@ def test_entity_map():
     "Test P4EntityMap helper class."
     example = _Example(1, "example.one", "one")
 
-    entities = P4EntityMap("entry_type")
+    entities = P4EntityMap[_Example]("entry_type")
     assert len(entities) == 0
 
     entities._add(example)
@@ -76,7 +78,7 @@ def test_entity_map_split():
     "Test P4EntityMap helper class with split_suffix."
     example = _Example(1, "example.one", "example.one")
 
-    entities = P4EntityMap("entry_type")
+    entities = P4EntityMap[_Example]("entry_type")
     entities._add(example, split_suffix=True)
 
     assert entities[1] == example
@@ -90,7 +92,7 @@ def test_entity_map_duplicate():
     example2 = _Example(1, "example.one", "example.one")
     example3 = _Example(2, "example.one", "example.one")
 
-    entities = P4EntityMap("entry_type")
+    entities = P4EntityMap[_Example]("entry_type")
     entities._add(example1)
 
     with pytest.raises(ValueError, match="id already exists"):
@@ -156,7 +158,7 @@ def test_p4info_actions():
 
 
 @pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
-def test_p4info_repr(p4info_file):
+def test_p4info_repr(p4info_file: Path):
     "Test output of P4Schema repr function."
     p4 = P4Schema(p4info_file)
 
@@ -200,7 +202,7 @@ def _format_source_code(source: str) -> str:
 
 
 @pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
-def test_p4info_str(p4info_file):
+def test_p4info_str(p4info_file: Path):
     "Test output of P4Schema description files."
     p4 = P4Schema(p4info_file)
 
@@ -234,7 +236,7 @@ def test_p4info_lookup():
         schema.registers["bloom"]
 
 
-def _make_bitstring(bitwidth) -> p4t.P4BitstringLikeTypeSpec:
+def _make_bitstring(bitwidth: int) -> p4t.P4BitstringLikeTypeSpec:
     return p4t.P4BitstringLikeTypeSpec(
         bit=p4t.P4BitTypeSpec(
             bitwidth=bitwidth,

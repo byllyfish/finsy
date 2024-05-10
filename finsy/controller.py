@@ -17,7 +17,7 @@
 import asyncio
 from contextvars import ContextVar
 from types import TracebackType
-from typing import Any, Iterable, Iterator
+from typing import Any, Iterable, Iterator, final
 
 from typing_extensions import Self
 
@@ -26,6 +26,7 @@ from finsy.log import LOGGER
 from finsy.switch import Switch, SwitchEvent, SwitchFailFastError
 
 
+@final
 class Controller:
     """Represents a collection of P4Runtime switches.
 

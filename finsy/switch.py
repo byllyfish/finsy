@@ -34,6 +34,7 @@ from typing import (
     NamedTuple,
     SupportsBytes,
     TypeVar,
+    final,
     overload,
 )
 
@@ -65,6 +66,7 @@ _T = TypeVar("_T")
 _ET = TypeVar("_ET", bound=p4entity.P4Entity)
 
 
+@final
 @dataclasses.dataclass(frozen=True)
 class SwitchOptions:
     """Represents the configuration options for a `Switch`.
@@ -151,6 +153,7 @@ class ApiVersion(NamedTuple):
         return ".".join(map(str, vers)) + self.extra
 
 
+@final
 class Switch:
     """Represents a P4Runtime Switch.
 
