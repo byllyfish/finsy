@@ -45,7 +45,9 @@ def _scan_file(source_file: Path) -> set[str]:
     return set(_INCLUDE_REGEX.findall(source))
 
 
-def _fix_includes(includes: set[str], parent: str) -> set[str]:
+def _fix_includes(includes: set[str], source: str) -> set[str]:
+    "Fix the `include set` for a source file to include the source's dirname."
+    parent = os.path.dirname(source)  # noqa: PTH120
     if not parent:
         return includes
     quote = '"'
@@ -70,7 +72,7 @@ def _scan_all_files(source_file: Path) -> dict[str, set[str]]:
             if name[0] == '"' and name not in result:
                 source = name.strip('"')
                 includes = _scan_file(dir / source)
-                includes = _fix_includes(includes, os.path.dirname(source))
+                includes = _fix_includes(includes, source)
                 result[name] = includes
                 latest |= includes
         names = latest

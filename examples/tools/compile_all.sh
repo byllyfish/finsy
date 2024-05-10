@@ -6,9 +6,9 @@ CURRENT_DIR="$(pwd)"
 P4C_TOOL="$CURRENT_DIR/examples/tools/p4c.py"
 
 p4c() {
-    pushd "$1" || exit 1
+    pushd "$1" >/dev/null || exit 1
     $P4C_TOOL "$2" $3
-    popd || exit 1
+    popd >/dev/null || exit 1
 }
 
 
