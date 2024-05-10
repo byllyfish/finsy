@@ -112,6 +112,38 @@ def test_p4schema():
     assert str(schema)
 
 
+def test_p4info_pkginfo():
+    "Test P4Schema's PkgInfo accessors."
+    p4 = P4Schema(P4INFO_TEST_DIR / "basic.p4.p4info.txt")
+
+    assert p4.exists
+    assert p4.name == ""
+    assert p4.arch == "v1model"
+    assert p4.version == ""
+
+    assert pbutil.to_dict(p4.pkg_info) == {"arch": "v1model"}
+    assert p4.pkg_info.name == ""
+    assert p4.pkg_info.arch == "v1model"
+    assert p4.pkg_info.version == ""
+    assert p4.pkg_info.contact == ""
+    assert p4.pkg_info.organization == ""
+
+    assert pbutil.to_dict(p4.pkg_info.doc) == {}
+    assert p4.pkg_info.doc.brief == ""
+    assert p4.pkg_info.doc.description == ""
+
+    assert pbutil.to_dict(p4.pkg_info.platform_properties) == {}
+    assert p4.pkg_info.platform_properties.multicast_group_table_size == 0
+    assert p4.pkg_info.platform_properties.multicast_group_table_total_replicas == 0
+    assert (
+        p4.pkg_info.platform_properties.multicast_group_table_max_replicas_per_entry
+        == 0
+    )
+
+    assert not p4.pkg_info.HasField("doc")
+    assert not p4.pkg_info.HasField("platform_properties")
+
+
 def test_p4info_tables():
     p4 = P4Schema(P4INFO_TEST_DIR / "basic.p4.p4info.txt")
 
