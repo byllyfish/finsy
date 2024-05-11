@@ -114,7 +114,7 @@ class RouteManagerOneShot:
         controller = fy.Controller.current()
         links = [
             (event.local_port, controller[event.remote_switch])
-            for event in self.switch.manager["link"].links.values()
+            for event in self.switch.stash["link"].links.values()
         ]
 
         return [

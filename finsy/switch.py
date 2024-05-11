@@ -160,6 +160,15 @@ class Switch:
     A `Switch` is constructed with a `name`, `address` and an optional
     `SwitchOptions` configuration.
 
+    The `name` is up to the user but should uniquely identify the switch.
+
+    The `address` identifies the target endpoint of the GRPC channel. It should
+    have the format "<address>:<port>" where <address> can be a domain name,
+    IPv4 address, or IPv6 address in square brackets.
+
+    The `options` is a `SwitchOptions` object that specifies how the `Switch`
+    will behave.
+
     ```
     opts = SwitchOptions(p4info=..., p4blob=...)
     sw1 = Switch('sw1', '10.0.0.1:50000', opts)
@@ -173,6 +182,7 @@ class Switch:
     _name: str
     _address: str
     _options: SwitchOptions
+    _stash: dict[str, Any]
     _p4client: P4Client | None
     _p4schema: P4Schema
     _tasks: "SwitchTasks | None"
@@ -191,9 +201,6 @@ class Switch:
     ee: "SwitchEmitter"
     "Event emitter."
 
-    manager: Any = None
-    "Available to attach per-switch manager(s)."
-
     def __init__(
         self,
         name: str,
@@ -206,6 +213,7 @@ class Switch:
         self._name = name
         self._address = address
         self._options = options
+        self._stash = {}
         self._p4client = None
         self._p4schema = P4Schema(options.p4info, options.p4blob)
         self._tasks = None
@@ -245,6 +253,11 @@ class Switch:
         self._arbitrator = Arbitrator(
             opts.initial_election_id, opts.role_name, opts.role_config
         )
+
+    @property
+    def stash(self) -> dict[str, Any]:
+        "Switch stash, may be used to store per-switch data for any purpose."
+        return self._stash
 
     @property
     def device_id(self) -> int:
