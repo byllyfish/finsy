@@ -169,7 +169,7 @@ _validate_enum(GRPCStatusCode, rpc_code.Code)
 # ~~~~~~~~~~~~
 
 # Don't include properties that are redundant or verbose.
-_EXEMPT_PROPERTIES = {"pbuf", "p4info", "p4blob", "data_type_spec"}
+_EXEMPT_PROPERTIES = {"pbuf", "p4info", "p4blob", "data_type_spec", "pkg_info"}
 
 
 class _ReprMixin:
@@ -585,6 +585,17 @@ class P4Schema(_ReprMixin):
         if self._p4info is None:
             return ""
         return self._p4info.pkg_info.arch
+
+    @property
+    def pkg_info(self) -> p4i.PkgInfo:
+        """Protobuf message containing original `PkgInfo` header.
+
+        Use this to access less frequently used fields like `contact`, `url`,
+        and `platform_properties`.
+        """
+        if self._p4info is None:
+            raise ValueError("P4Info: No pipeline configured")
+        return self._p4info.pkg_info
 
     @property
     def tables(self) -> P4EntityMap["P4Table"]:
