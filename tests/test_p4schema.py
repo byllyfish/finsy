@@ -74,6 +74,20 @@ def test_entity_map():
     assert repr(entities) == "[_Example(id=1, name='example.one', alias='one')]"
 
 
+def test_entity_map_empty():
+    "Test P4EntityMap helper class when it is empty."
+    entities = P4EntityMap[_Example]("entry_type")
+    assert len(entities) == 0
+
+    with pytest.raises(ValueError, match="no entry_type with id=1"):
+        entities[1]
+
+    with pytest.raises(
+        ValueError, match="no entry_types present; you asked for 'one'?"
+    ):
+        entities["one"]
+
+
 def test_entity_map_split():
     "Test P4EntityMap helper class with split_suffix."
     example = _Example(1, "example.one", "example.one")
@@ -142,6 +156,20 @@ def test_p4info_pkginfo():
 
     assert not p4.pkg_info.HasField("doc")
     assert not p4.pkg_info.HasField("platform_properties")
+
+
+def test_p4info_pkginfo_empty():
+    "Test P4Schema's PkgInfo accessors when P4Info doesn't exist."
+    p4 = P4Schema()
+
+    assert not p4.exists
+    assert p4.name == ""
+    assert p4.arch == ""
+    assert p4.version == ""
+
+    # Trying to access `pkg_info` when it doesn't exist is an error.
+    with pytest.raises(ValueError, match="No pipeline configured"):
+        p4.pkg_info
 
 
 def test_p4info_tables():

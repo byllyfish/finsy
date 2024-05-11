@@ -594,7 +594,7 @@ class P4Schema(_ReprMixin):
         and `platform_properties`.
         """
         if self._p4info is None:
-            raise RuntimeError("P4Info: No pipeline configured")
+            raise ValueError("P4Info: No pipeline configured")
         return self._p4info.pkg_info
 
     @property
