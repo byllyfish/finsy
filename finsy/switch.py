@@ -183,6 +183,7 @@ class Switch:
     _address: str
     _options: SwitchOptions
     _stash: dict[str, Any]
+    _ee: "SwitchEmitter"
     _p4client: P4Client | None
     _p4schema: P4Schema
     _tasks: "SwitchTasks | None"
@@ -198,9 +199,6 @@ class Switch:
     control_task: asyncio.Task[Any] | None = None
     "Used by Controller to track switch's main task."
 
-    ee: "SwitchEmitter"
-    "Event emitter."
-
     def __init__(
         self,
         name: str,
@@ -214,6 +212,7 @@ class Switch:
         self._address = address
         self._options = options
         self._stash = {}
+        self._ee = SwitchEmitter(self)
         self._p4client = None
         self._p4schema = P4Schema(options.p4info, options.p4blob)
         self._tasks = None
@@ -225,7 +224,6 @@ class Switch:
         )
         self._gnmi_client = None
         self._ports = SwitchPortList()
-        self.ee = SwitchEmitter(self)
 
     @property
     def name(self) -> str:
@@ -258,6 +256,11 @@ class Switch:
     def stash(self) -> dict[str, Any]:
         "Switch stash, may be used to store per-switch data for any purpose."
         return self._stash
+
+    @property
+    def ee(self) -> "SwitchEmitter":
+        "Switch event emitter. See `SwitchEvent` for more details on events."
+        return self._ee
 
     @property
     def device_id(self) -> int:
