@@ -87,6 +87,43 @@ async def test_switch4(p4rt_server_target: str):
         await asyncio.sleep(0.01)
 
 
+async def test_switch_ee(p4rt_server_target: str):
+    "Test switch's event emitter."
+
+    def _dump_ee(sw: Switch) -> dict[str, int]:
+        return {
+            event: len(
+                sw.ee.listeners(  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
+                    event
+                )
+            )
+            for event in sw.ee.event_names()
+        }
+
+    options = SwitchOptions(
+        p4info=Path("tests/test_data/p4info/basic.p4.p4info.txt"),
+    )
+
+    sw1 = Switch("sw1", p4rt_server_target, options)
+
+    assert _dump_ee(sw1) == {}
+    async with sw1:
+        assert _dump_ee(sw1) == {}
+    assert _dump_ee(sw1) == {}
+
+    def _ignore(*_: object):
+        pass
+
+    sw1.ee.add_listener(SwitchEvent.CHANNEL_UP, _ignore)
+    sw1.ee.add_listener(SwitchEvent.CHANNEL_UP, _ignore)  # dup coalesced
+    sw1.ee.add_listener(SwitchEvent.CHANNEL_DOWN, _ignore)
+
+    assert _dump_ee(sw1) == {"channel_up": 1, "channel_down": 1}
+    async with sw1:
+        assert _dump_ee(sw1) == {"channel_up": 1, "channel_down": 1}
+    assert _dump_ee(sw1) == {"channel_up": 1, "channel_down": 1}
+
+
 def test_switch_options():
     "Test the SwitchOptions class."
     some_path = Path("/")

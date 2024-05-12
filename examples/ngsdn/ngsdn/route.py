@@ -11,10 +11,9 @@ class RouteManagerOneShot:
 
     def __init__(self, switch: fy.Switch):
         self.switch = switch
-
-    async def run(self):
         self.switch.ee.add_listener(LinkEvent.LINK_READY, self._link_ready)
 
+    async def run(self):
         await self._init_profiles()
 
         await self.switch.write(
