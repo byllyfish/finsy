@@ -195,9 +195,7 @@ class Switch:
     _ports: SwitchPortList
     _is_channel_up: bool = False
     _api_version: ApiVersion = ApiVersion(1, 0, 0, "")
-
-    control_task: asyncio.Task[Any] | None = None
-    "Used by Controller to track switch's main task."
+    _control_task: asyncio.Task[Any] | None = None
 
     def __init__(
         self,

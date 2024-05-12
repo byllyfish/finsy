@@ -84,7 +84,7 @@ class Controller:
     _pending_removal: set[Switch]
     _task_count: CountdownFuture
 
-    control_task: asyncio.Task[Any] | None = None
+    _control_task: asyncio.Task[Any] | None = None
     "Keep track of controller's main task."
 
     def __init__(self, switches: Iterable[Switch] = ()):
@@ -100,7 +100,7 @@ class Controller:
     @property
     def running(self) -> bool:
         "True if Controller is running."
-        return self.control_task is not None
+        return self._control_task is not None
 
     async def run(self) -> None:
         "Run the controller."
@@ -109,8 +109,8 @@ class Controller:
 
     def stop(self) -> None:
         "Stop the controller if it is running."
-        if self.control_task is not None:
-            self.control_task.cancel()
+        if self._control_task is not None:
+            self._control_task.cancel()
 
     async def __aenter__(self) -> Self:
         "Run the controller as a context manager (see also run())."
@@ -118,7 +118,7 @@ class Controller:
         assert self._task_count.value() == 0
         assert not self._pending_removal
 
-        self.control_task = asyncio.current_task()
+        self._control_task = asyncio.current_task()
         _CONTROLLER.set(self)
 
         try:
@@ -126,7 +126,7 @@ class Controller:
             for switch in self:
                 self._start_switch(switch)
         except Exception:
-            self.control_task = None
+            self._control_task = None
             _CONTROLLER.set(None)
             raise
 
@@ -150,7 +150,7 @@ class Controller:
             await self._task_count.wait()
 
         finally:
-            self.control_task = None
+            self._control_task = None
             _CONTROLLER.set(None)
 
     def add(self, switch: Switch) -> None:
@@ -160,8 +160,6 @@ class Controller:
         """
         if switch.name in self._switches:
             raise ValueError(f"Switch named {switch.name!r} already exists")
-
-        assert switch.control_task is None
 
         self._switches[switch.name] = switch
         if self.running:
@@ -200,16 +198,16 @@ class Controller:
     def _start_switch(self, switch: Switch):
         "Start the switch's control task."
         LOGGER.debug("Controller._start_switch: %r", switch)
-        assert switch.control_task is None
+        assert switch._control_task is None  # pyright: ignore[reportPrivateUsage]
 
         switch.ee.emit(SwitchEvent.CONTROLLER_ENTER, switch)
 
         task = asyncio.create_task(switch.run(), name=f"fy:{switch.name}")
-        switch.control_task = task
+        switch._control_task = task  # pyright: ignore[reportPrivateUsage]
         self._task_count.increment()
 
         def _switch_done(done: asyncio.Task[Any]):
-            switch.control_task = None
+            switch._control_task = None  # pyright: ignore[reportPrivateUsage]
             switch.ee.emit(SwitchEvent.CONTROLLER_LEAVE, switch)
             self._task_count.decrement()
 
@@ -234,8 +232,8 @@ class Controller:
         "Stop the switch's control task."
         LOGGER.debug("Controller._stop_switch: %r", switch)
 
-        if switch.control_task is not None:
-            switch.control_task.cancel()
+        if switch._control_task is not None:  # pyright: ignore[reportPrivateUsage]
+            switch._control_task.cancel()  # pyright: ignore[reportPrivateUsage]
 
     def __len__(self) -> int:
         "Return switch count."
