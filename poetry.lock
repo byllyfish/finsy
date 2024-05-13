@@ -583,12 +583,12 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pygraphviz"
-version = "1.12"
+version = "1.13"
 description = "Python interface to Graphviz"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "pygraphviz-1.12.tar.gz", hash = "sha256:8b0b9207954012f3b670e53b8f8f448a28d12bdbbcf69249313bd8dbe680152f"},
+    {file = "pygraphviz-1.13.tar.gz", hash = "sha256:6ad8aa2f26768830a5a1cfc8a14f022d13df170a8f6fdfd68fd1aa1267000964"},
 ]
 
 [[package]]
