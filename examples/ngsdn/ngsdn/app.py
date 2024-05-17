@@ -28,7 +28,8 @@ async def _ready_handler(sw: Switch):
 
     # Create a task for each configured sub-manager.
     for manager in sw.stash.values():
-        sw.create_task(manager.run())
+        if hasattr(manager, "run"):
+            sw.create_task(manager.run())
 
 
 def load_netcfg(config: Path) -> Iterator[Switch]:
@@ -39,15 +40,15 @@ def load_netcfg(config: Path) -> Iterator[Switch]:
         p4info=P4INFO,
         p4blob=P4BLOB,
         ready_handler=_ready_handler,
-        configuration=cfg,
         fail_fast=True,
     )
 
     for name, address, device_id in netcfg.configured_devices(cfg):
         switch = Switch(name, address, options(device_id=device_id))
 
-        # Configure and stash the switch sub-managers.
+        # Stash the config and sub-managers.
         switch.stash.update(
+            config=cfg,
             host=HostManager(switch),
             route=RouteManager(switch),
             link=LinkManager(switch),

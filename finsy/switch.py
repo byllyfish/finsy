@@ -121,9 +121,6 @@ class SwitchOptions:
     """If true, log switch errors as CRITICAL and immediately abort when the
     switch is running in a Controller."""
 
-    configuration: Any = None
-    "Store your app's configuration information here."
-
     def __call__(self, **kwds: Any) -> Self:
         return dataclasses.replace(self, **kwds)
 
@@ -202,6 +199,8 @@ class Switch:
         name: str,
         address: str,
         options: SwitchOptions | None = None,
+        *,
+        stash: dict[str, Any] | None = None,
     ) -> None:
         if options is None:
             options = SwitchOptions()
@@ -209,7 +208,7 @@ class Switch:
         self._name = name
         self._address = address
         self._options = options
-        self._stash = {}
+        self._stash = stash or {}
         self._ee = SwitchEmitter(self)
         self._p4client = None
         self._p4schema = P4Schema(options.p4info, options.p4blob)
