@@ -15,12 +15,12 @@ SwitchOptions(
     role_config: pbutil.PBMessage | None = None,
     ready_handler: Optional[Callable[[ForwardRef('Switch')], Coroutine[Any, Any, NoneType]]] = None,
     fail_fast: bool = False,
-    configuration: Any = None,
 )
 ```
 
 You can make a new copy of `SwitchOptions` by using function call syntax with the properties
-you want altered.
+you want altered. In the example below, `new_opts` is a separate copy of `opts`, but
+with a `device_id` of 6. The original `opts` is unchanged.
 
 ```python
 opts = SwitchOptions(device_id=5)
@@ -50,14 +50,17 @@ the authoritative pipeline for the device and will never set the forwarding pipe
 `p4blob` specifies the "P4 Device Config" -- the output of the P4 compiler for the target. If `p4blob` is
 `None`, the Switch class will never alter the forwarding pipeline.
 
-`p4blob` can be a file system path or any object that implements the `__bytes__()` dunder method. For some
-targets `p4blob` is an amalgamation of several files.
+`p4blob` can be a file system path or any object that implements the `__bytes__()` "dunder" method. For some
+P4 targets `p4blob` is an amalgamation of several files.
 
 ## p4force (default = False)
 
 Setting `p4force` to true will force the pipeline to be uploaded to the switch, even if a pipeline with
-the same "cookie" is already configured. The default behavior is to check the current pipeline's cookie
-first.
+the same "cookie" is already configured.
+
+The default behavior `p4force=False` is to check the current pipeline's cookie
+first. If an identical pipeline is already uploaded, Finsy does not upload the 
+new pipeline since this will reset the state of all the tables.
 
 Forcing the pipeline to be uploaded will reset the forwarding state of the switch.
 
@@ -97,16 +100,14 @@ async def ready(switch: Switch):
 If the switch disconnects or changes its primary/backup status, all switch tasks are cancelled. The
 `ready_handler` will be invoked again when the switch's new status is ready.
 
+Setting the `ready_handler` is an alternative to listening for the `SwitchEvent.CHANNEL_READY` event
+using the event emitter API.
+
 ## fail_fast
 
-When `fail_fast` is true, the controller will re-raise any exception cause by a programming error.
+When `fail_fast` is true, the controller will re-raise any exception caused by a programming error.
 
 Normally, a controller will recover from a programming bug affecting a single switch by closing the
 current connection and reconnecting to the switch.
 
-This setting is useful during development, because it terminates the program on the first real failure.
-
-## configuration
-
-A property that you can use to store any configuration information that needs to be shared between 
-switches. For example, you could store your own global settings here.
+This setting is useful during development, because it terminates the entire program on the first real failure.
