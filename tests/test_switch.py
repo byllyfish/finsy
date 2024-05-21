@@ -138,7 +138,6 @@ def test_switch_options():
         role_config=None,
         ready_handler=None,
         fail_fast=True,
-        configuration={},
     )
     assert opts.p4info == some_path
     assert opts.device_id == 23

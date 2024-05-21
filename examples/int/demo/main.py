@@ -114,7 +114,7 @@ S3 = [
 
 async def ready_handler(sw: fy.Switch):
     await sw.delete_all()
-    await sw.write(sw.options.configuration)
+    await sw.write(sw.stash["entries"])
 
 
 async def main():
@@ -126,9 +126,9 @@ async def main():
     )
 
     switches = [
-        fy.Switch("s1", "127.0.0.1:50001", opts(configuration=S1)),
-        fy.Switch("s2", "127.0.0.1:50002", opts(configuration=S2)),
-        fy.Switch("s3", "127.0.0.1:50003", opts(configuration=S3)),
+        fy.Switch("s1", "127.0.0.1:50001", opts, stash={"entries": S1}),
+        fy.Switch("s2", "127.0.0.1:50002", opts, stash={"entries": S2}),
+        fy.Switch("s3", "127.0.0.1:50003", opts, stash={"entries": S3}),
     ]
 
     controller = fy.Controller(switches)
