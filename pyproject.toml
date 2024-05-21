@@ -27,7 +27,7 @@ classifiers = [
 python = "^3.10"
 
 # Core dependencies.
-grpcio = "^1.63.0"
+grpcio = "^1.64.0"
 parsy = "^2.1.0"
 protobuf = "^5.26.1"
 pyee = "^11.1.0"
@@ -41,11 +41,11 @@ demonet = ["shellous"]
 [tool.poetry.group.dev.dependencies]
 black = "24.4.2"
 mypy = "^1.10.0"
-pdoc = "^14.4.0"
+pdoc = "^14.5.0"
 prometheus-client = "^0.20.0"
-pylint = "^3.1.0"
+pylint = "^3.2.2"
 pyright = "^1.1.363"
-pytest = "^8.2.0"
+pytest = "^8.2.1"
 pytest-asyncio = "0.21.2"  # TODO
 pytest-cov = "^5.0.0"
 ruff = "^0.4.4"
