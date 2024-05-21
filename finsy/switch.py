@@ -161,7 +161,8 @@ class Switch:
 
     The `address` identifies the target endpoint of the GRPC channel. It should
     have the format "<address>:<port>" where <address> can be a domain name,
-    IPv4 address, or IPv6 address in square brackets.
+    IPv4 address, or IPv6 address in square brackets, and <port> is the TCP
+    port number.
 
     The `options` is a `SwitchOptions` object that specifies how the `Switch`
     will behave.
@@ -171,9 +172,13 @@ class Switch:
     sw1 = Switch('sw1', '10.0.0.1:50000', opts)
     ```
 
+    The `stash` is an optional dictionary for storing arbitrary per-switch
+    information. The dictionary keys are strings. You can use this to store
+    anything that you need to manage the switch.
+
     Each switch object has an event emitter `ee`. Use the EventEmitter to listen
     for port change events like PORT_UP and PORT_DOWN. See the `SwitchEvent`
-    class for a list of support switch events.
+    class for a list of other switch events.
     """
 
     _name: str
@@ -202,6 +207,17 @@ class Switch:
         *,
         stash: dict[str, Any] | None = None,
     ) -> None:
+        """Initialize switch with name, address and options.
+
+        Args:
+            name: A human-readable name to uniquely identify the switch.
+            address: The target address of the P4Runtime GRPC channel.
+              Format is "<address>:<port>" where <address> is a DNS name or
+              IP address, and <port> is the TCP port number.
+            options: Configuration options for the switch.
+            stash: Optional user-controlled dictionary.
+              Used to store information that user code needs to access or share.
+        """
         if options is None:
             options = SwitchOptions()
 
@@ -251,7 +267,7 @@ class Switch:
 
     @property
     def stash(self) -> dict[str, Any]:
-        "Switch stash, may be used to store per-switch data for any purpose."
+        "Switch stash. Used to store per-switch data for any purpose."
         return self._stash
 
     @property
