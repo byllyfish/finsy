@@ -18,7 +18,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__version__ = "0.25.0"
+__version__ = "0.26.0"
 
 import sys
 
