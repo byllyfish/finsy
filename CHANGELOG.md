@@ -1,5 +1,16 @@
 # Finsy Change Log
 
+## 0.26.0
+
+- Replace the `manager` property in the `Switch` class with `stash` and constrain the type to `dict[str, Any]`.
+- Add the `stash` keyword argument to the `Switch.__init__` method.
+- Remove the `configuration` property from the `SwitchOptions` class. (Use the Switch `stash` property instead.)
+- The `control_task` property of the `Switch` class is now private (`_control_task`).
+- Add the `pkg_info` accessor to `P4Schema`.
+- The `Switch`, `SwitchOptions` and `Controller` classes are now `@final`; they are not intended to be subclassed.
+- Update the `protoc` compiler to 1.65.0 and re-compile all protobuf files.
+- Update protobuf files from upstream; the `v1.p4info.proto` file now includes the PlatformProperties field in PkgInfo.
+
 ## 0.25.0
 
 - The `match_dict`, `match_str` and `action_str` formatting methods now require a P4Schema argument. Removed P4Schema's context manager API. (#499)
