@@ -6,7 +6,7 @@
 #}
 
 {% macro is_public(doc) %}
-    {% if doc.name in ["__len__", "__getitem__", "__contains__", "__aenter__", "__iter__", "__aiter__", "__await__"] %}
+    {% if doc.name in ["__len__", "__getitem__", "__contains__", "__aenter__", "__iter__", "__aiter__", "__await__", "__call__"] %}
         true
     {% else %}
         {{ default_is_public(doc) }}
