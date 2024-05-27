@@ -88,6 +88,11 @@ class Controller:
     "Keep track of controller's main task."
 
     def __init__(self, switches: Iterable[Switch] = ()):
+        """Initialize Controller object with an initial list of switches.
+
+        Args:
+            switches: a collection or other iterable of Switch objects.
+        """
         self._switches = {}
         self._pending_removal = set()
         self._task_count = CountdownFuture()
@@ -157,6 +162,9 @@ class Controller:
         """Add a switch to the controller.
 
         If the controller is running, tell the switch to start.
+
+        Args:
+            switch: the Switch object.
         """
         if switch.name in self._switches:
             raise ValueError(f"Switch named {switch.name!r} already exists")
@@ -170,6 +178,9 @@ class Controller:
 
         If the controller is running, tell the switch to stop and schedule it
         for removal when it fully stops.
+
+        Args:
+            switch: the Switch object.
         """
         name = switch.name
         if self._switches.get(name, None) is not switch:
@@ -236,19 +247,19 @@ class Controller:
             switch._control_task.cancel()  # pyright: ignore[reportPrivateUsage]
 
     def __len__(self) -> int:
-        "Return switch count."
+        "Return the number of switches."
         return len(self._switches)
 
     def __iter__(self) -> Iterator[Switch]:
-        "Iterate over switches."
+        "Iterate over the switches."
         return iter(self._switches.values())
 
     def __getitem__(self, name: str) -> Switch:
-        "Retrieve switch by name."
+        "Retrieve a switch by name."
         return self._switches[name]
 
     def get(self, name: str) -> Switch | None:
-        "Retrieve switch by name, or return None if not found."
+        "Retrieve a switch by name, or return None if not found."
         return self._switches.get(name)
 
     @staticmethod
