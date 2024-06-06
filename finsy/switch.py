@@ -160,8 +160,8 @@ class Switch:
     The `name` is up to the user but should uniquely identify the switch.
 
     The `address` identifies the target endpoint of the GRPC channel. It should
-    have the format "<address>:<port>" where <address> can be a domain name,
-    IPv4 address, or IPv6 address in square brackets, and <port> is the TCP
+    have the format `<ADDRESS>:<PORT>` where `<ADDRESS>` can be a domain name,
+    IPv4 address, or IPv6 address in square brackets, and `<PORT>` is the TCP
     port number.
 
     The `options` is a `SwitchOptions` object that specifies how the `Switch`
@@ -212,8 +212,8 @@ class Switch:
         Args:
             name: A human-readable name to uniquely identify the switch.
             address: The target address of the P4Runtime GRPC channel.
-              Format is "<address>:<port>" where <address> is a DNS name or
-              IP address, and <port> is the TCP port number.
+              Format is `<ADDRESS>:<PORT>` where `<ADDRESS>` is a DNS name or
+              IP address, and `<PORT>` is the TCP port number.
             options: Configuration options for the switch.
             stash: Optional user-controlled dictionary.
               Used to store information that user code needs to access or share.
@@ -245,7 +245,11 @@ class Switch:
 
     @property
     def address(self) -> str:
-        "Address of the switch."
+        """Address of the switch formatted as a GRPC target.
+
+        Format is `<ADDRESS>:<PORT>` where `<ADDRESS>` is a DNS name or IP
+        address, and `<PORT>` is the TCP port number.
+        """
         return self._address
 
     @property

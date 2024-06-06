@@ -142,9 +142,9 @@ def log_msg(
     """Log a sent/received client message.
 
     Format:
-        <state><mesg-type> (<size> bytes): <msg-contents>
+        `<state><mesg-type> (<size> bytes): <msg-contents>`
 
-    <state> is empty if the client state is READY. Otherwise, it's the
+    `<state>` is empty if the client state is READY. Otherwise, it's the
     channel connectivity state.
     """
     if not MSG_LOG.isEnabledFor(level):  # pragma: no cover

@@ -28,7 +28,7 @@ jobs:
         pip install --require-hashes -r ci/requirements-dev.txt
     - name: Build Docs
       run: |
-        pdoc -t ci/custom-template -o html/ finsy
+        pdoc -d google -t ci/custom-template -o html/ finsy
     - name: Upload Docs
       uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
       with:

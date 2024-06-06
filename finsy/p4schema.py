@@ -200,7 +200,7 @@ _T = TypeVar("_T")
 
 
 class _P4Bridged(_ReprMixin, Generic[_T]):
-    """Generic base class that wraps a corresponding protobuf message <T>.
+    """Generic base class that wraps a corresponding protobuf message T.
 
     You can access the protobuf using the `.pbuf` property.
     """
