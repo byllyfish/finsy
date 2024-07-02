@@ -29,7 +29,7 @@ python = "^3.10"
 # Core dependencies.
 grpcio = "^1.64.1"
 parsy = "^2.1.0"
-protobuf = "^5.27.1"
+protobuf = "^5.27.2"
 pyee = "^11.1.0"
 
 # Optional dependency: installed via `pip install finsy[demonet]`
@@ -40,15 +40,15 @@ demonet = ["shellous"]
 
 [tool.poetry.group.dev.dependencies]
 black = "24.4.2"
-mypy = "^1.10.0"
-pdoc = "^14.5.0"
+mypy = "^1.10.1"
+pdoc = "^14.5.1"
 prometheus-client = "^0.20.0"
-pylint = "^3.2.3"
-pyright = "^1.1.366"
+pylint = "^3.2.5"
+pyright = "^1.1.369"
 pytest = "^8.2.2"
 pytest-asyncio = "0.21.2"  # TODO
 pytest-cov = "^5.0.0"
-ruff = "^0.4.8"
+ruff = "^0.5.0"
 shellous = "^0.36.0"
 
 [tool.poetry.group.demonet]
