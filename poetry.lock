@@ -722,13 +722,13 @@ files = [
 
 [[package]]
 name = "shellous"
-version = "0.36.0"
+version = "0.37.0"
 description = "Async Processes and Pipelines"
 optional = false
-python-versions = ">=3.9,<4.0"
+python-versions = "<4.0,>=3.9"
 files = [
-    {file = "shellous-0.36.0-py3-none-any.whl", hash = "sha256:26f67207342221330a5ec752d66f0a04b92f6595adce4b60d5f9754485bd8d0c"},
-    {file = "shellous-0.36.0.tar.gz", hash = "sha256:3ff9f222101e8fc6ab3acac2118f1f7d23c8a8ed293dbb8cce3c19306f11a483"},
+    {file = "shellous-0.37.0-py3-none-any.whl", hash = "sha256:a23a9391abdd4a282a11f3920202a6c6125b4c498a84e63b3d863f4d31a8729a"},
+    {file = "shellous-0.37.0.tar.gz", hash = "sha256:520a3adec56a57da00fbadbc30013f38319be14bb9b5e3dc2f4cab4dc81ce04f"},
 ]
 
 [[package]]
@@ -770,4 +770,4 @@ demonet = ["shellous"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "15c78214c969e14da6cb11db9f6c90e50919b81acaaf02bf6ddc5014617a1de1"
+content-hash = "608acb8cb4509eb66b9945e61c53923d61e404f4c98ef60332a2b6ae45cc793f"
