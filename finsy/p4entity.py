@@ -776,6 +776,7 @@ class P4MeterConfig:
         cburst (int): Committed burst size.
         pir (int): Peak information rate (units/sec).
         pburst (int): Peak burst size.
+        eburst (int): Excess burst size (only used by srTCM). [default=0]
 
     Example:
     ```
@@ -796,17 +797,29 @@ class P4MeterConfig:
     "Peak information rate (units/sec)."
     pburst: int
     "Peak burst size."
+    eburst: int = 0
+    "Excess burst size (only used by srTCM)."
 
     def encode(self) -> p4r.MeterConfig:
         "Encode object as MeterConfig."
         return p4r.MeterConfig(
-            cir=self.cir, cburst=self.cburst, pir=self.pir, pburst=self.pburst
+            cir=self.cir,
+            cburst=self.cburst,
+            pir=self.pir,
+            pburst=self.pburst,
+            eburst=self.eburst,
         )
 
     @classmethod
     def decode(cls, msg: p4r.MeterConfig) -> Self:
         "Decode MeterConfig."
-        return cls(cir=msg.cir, cburst=msg.cburst, pir=msg.pir, pburst=msg.pburst)
+        return cls(
+            cir=msg.cir,
+            cburst=msg.cburst,
+            pir=msg.pir,
+            pburst=msg.pburst,
+            eburst=msg.eburst,
+        )
 
 
 @dataclass(kw_only=True, slots=True)

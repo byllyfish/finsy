@@ -514,6 +514,7 @@ P4Schema(
             direct_table_id=33554688,
             id=352321792,
             name="ingress.acl_ingress.acl_ingress_meter",
+            type=P4MeterType.TWO_RATE_THREE_COLOR,
             unit=P4MeterUnit.BYTES,
         )
     ],
@@ -1456,6 +1457,7 @@ P4Schema(
                 direct_table_id=33554688,
                 id=352321792,
                 name="ingress.acl_ingress.acl_ingress_meter",
+                type=P4MeterType.TWO_RATE_THREE_COLOR,
                 unit=P4MeterUnit.BYTES,
             ),
             has_initial_entries=False,

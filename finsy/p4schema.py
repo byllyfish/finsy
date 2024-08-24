@@ -90,6 +90,13 @@ class P4MeterUnit(_EnumBase):
     PACKETS = p4i.MeterSpec.Unit.PACKETS
 
 
+class P4MeterType(_EnumBase):
+    "IntEnum equivalent to `p4i.MeterSpec.Type`. (1.4.0)"
+    TWO_RATE_THREE_COLOR = p4i.MeterSpec.Type.TWO_RATE_THREE_COLOR
+    SINGLE_RATE_THREE_COLOR = p4i.MeterSpec.Type.SINGLE_RATE_THREE_COLOR
+    SINGLE_RATE_TWO_COLOR = p4i.MeterSpec.Type.SINGLE_RATE_TWO_COLOR
+
+
 class P4ConfigResponseType(_EnumBase):
     "IntEnum equivalent to `p4r.GetForwardingPipelineConfigRequest.ResponseType`."
     ALL = p4r.GetForwardingPipelineConfigRequest.ResponseType.ALL
@@ -155,6 +162,7 @@ _validate_enum(P4IdleTimeoutBehavior, p4i.Table.IdleTimeoutBehavior)
 _validate_enum(P4ActionScope, p4i.ActionRef.Scope)
 _validate_enum(P4CounterUnit, p4i.CounterSpec.Unit)
 _validate_enum(P4MeterUnit, p4i.MeterSpec.Unit)
+_validate_enum(P4MeterType, p4i.MeterSpec.Type)
 _validate_enum(
     P4ConfigResponseType,
     p4r.GetForwardingPipelineConfigRequest.ResponseType,
@@ -1351,6 +1359,11 @@ class P4DirectMeter(_P4TopLevel[p4i.DirectMeter]):
         return P4MeterUnit(self.pbuf.spec.unit)
 
     @property
+    def type(self) -> P4MeterType:
+        "Direct meter type. (1.4.0)"
+        return P4MeterType(self.pbuf.spec.type)
+
+    @property
     def direct_table_id(self) -> int:
         "Meter's direct table ID."
         return self.pbuf.direct_table_id
@@ -1382,6 +1395,11 @@ class P4Meter(_P4TopLevel[p4i.Meter]):
     def unit(self) -> P4MeterUnit:
         "Meter unit."
         return P4MeterUnit(self.pbuf.spec.unit)
+
+    @property
+    def type(self) -> P4MeterType:
+        "Meter type. (1.4.0)"
+        return P4MeterType(self.pbuf.spec.type)
 
 
 class P4BitsType(_P4AnnoMixin, _P4Bridged[p4t.P4BitstringLikeTypeSpec]):
