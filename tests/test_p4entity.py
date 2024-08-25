@@ -859,6 +859,23 @@ def test_meter_entry2():
     assert entry == P4MeterEntry.decode(msg, _SCHEMA)
 
 
+def test_meter_config1():
+    "Test P4MeterConfig class with eburst member (1.4.0)."
+    config = P4MeterConfig(cir=1, cburst=2, pir=3, pburst=4, eburst=5)
+    assert config.cir == 1
+    assert config.eburst == 5
+
+    msg = config.encode()
+    assert pbutil.to_dict(msg) == {
+        "cburst": "2",
+        "cir": "1",
+        "eburst": "5",
+        "pburst": "4",
+        "pir": "3",
+    }
+    assert config == P4MeterConfig.decode(msg)
+
+
 def test_direct_meter_entry1():
     "Test P4MeterEntry class."
     entry = P4DirectMeterEntry()

@@ -496,6 +496,48 @@ class MatchField(google.protobuf.message.Message):
 global___MatchField = MatchField
 
 @typing.final
+class TableActionCall(google.protobuf.message.Message):
+    """A TableActionCall references a particular action id and executes the
+    action with the supplied list of arguments.
+    Arguments are matched to the id of the respective action parameter.
+    TableActionCalls may be used as the default action call of a table implementation.
+    Added in 1.4.0.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class Argument(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        PARAM_ID_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        param_id: builtins.int
+        value: builtins.bytes
+        def __init__(
+            self,
+            *,
+            param_id: builtins.int = ...,
+            value: builtins.bytes = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["param_id", b"param_id", "value", b"value"]) -> None: ...
+
+    ACTION_ID_FIELD_NUMBER: builtins.int
+    ARGUMENTS_FIELD_NUMBER: builtins.int
+    action_id: builtins.int
+    @property
+    def arguments(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___TableActionCall.Argument]: ...
+    def __init__(
+        self,
+        *,
+        action_id: builtins.int = ...,
+        arguments: collections.abc.Iterable[global___TableActionCall.Argument] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["action_id", b"action_id", "arguments", b"arguments"]) -> None: ...
+
+global___TableActionCall = TableActionCall
+
+@typing.final
 class Table(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -520,6 +562,7 @@ class Table(google.protobuf.message.Message):
     MATCH_FIELDS_FIELD_NUMBER: builtins.int
     ACTION_REFS_FIELD_NUMBER: builtins.int
     CONST_DEFAULT_ACTION_ID_FIELD_NUMBER: builtins.int
+    INITIAL_DEFAULT_ACTION_FIELD_NUMBER: builtins.int
     IMPLEMENTATION_ID_FIELD_NUMBER: builtins.int
     DIRECT_RESOURCE_IDS_FIELD_NUMBER: builtins.int
     SIZE_FIELD_NUMBER: builtins.int
@@ -566,6 +609,12 @@ class Table(google.protobuf.message.Message):
         """
 
     @property
+    def initial_default_action(self) -> global___TableActionCall:
+        """The initial default action of the table. This can be overridden at runtime.
+        Added in 1.4.0.
+        """
+
+    @property
     def direct_resource_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
         """ids of the direct resources (if any) attached to this table; for now this
         includes only direct counters and direct meters, but other resources may be
@@ -585,6 +634,7 @@ class Table(google.protobuf.message.Message):
         match_fields: collections.abc.Iterable[global___MatchField] | None = ...,
         action_refs: collections.abc.Iterable[global___ActionRef] | None = ...,
         const_default_action_id: builtins.int = ...,
+        initial_default_action: global___TableActionCall | None = ...,
         implementation_id: builtins.int = ...,
         direct_resource_ids: collections.abc.Iterable[builtins.int] | None = ...,
         size: builtins.int = ...,
@@ -593,8 +643,8 @@ class Table(google.protobuf.message.Message):
         has_initial_entries: builtins.bool = ...,
         other_properties: google.protobuf.any_pb2.Any | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["other_properties", b"other_properties", "preamble", b"preamble"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["action_refs", b"action_refs", "const_default_action_id", b"const_default_action_id", "direct_resource_ids", b"direct_resource_ids", "has_initial_entries", b"has_initial_entries", "idle_timeout_behavior", b"idle_timeout_behavior", "implementation_id", b"implementation_id", "is_const_table", b"is_const_table", "match_fields", b"match_fields", "other_properties", b"other_properties", "preamble", b"preamble", "size", b"size"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["initial_default_action", b"initial_default_action", "other_properties", b"other_properties", "preamble", b"preamble"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["action_refs", b"action_refs", "const_default_action_id", b"const_default_action_id", "direct_resource_ids", b"direct_resource_ids", "has_initial_entries", b"has_initial_entries", "idle_timeout_behavior", b"idle_timeout_behavior", "implementation_id", b"implementation_id", "initial_default_action", b"initial_default_action", "is_const_table", b"is_const_table", "match_fields", b"match_fields", "other_properties", b"other_properties", "preamble", b"preamble", "size", b"size"]) -> None: ...
 
 global___Table = Table
 
@@ -750,11 +800,9 @@ class ActionProfile(google.protobuf.message.Message):
         def __init__(
             self,
             *,
-            max_member_weight: builtins.int | None = ...,
+            max_member_weight: builtins.int = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing.Literal["_max_member_weight", b"_max_member_weight", "max_member_weight", b"max_member_weight"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["_max_member_weight", b"_max_member_weight", "max_member_weight", b"max_member_weight"]) -> None: ...
-        def WhichOneof(self, oneof_group: typing.Literal["_max_member_weight", b"_max_member_weight"]) -> typing.Literal["max_member_weight"] | None: ...
+        def ClearField(self, field_name: typing.Literal["max_member_weight", b"max_member_weight"]) -> None: ...
 
     PREAMBLE_FIELD_NUMBER: builtins.int
     TABLE_IDS_FIELD_NUMBER: builtins.int
@@ -918,14 +966,70 @@ class MeterSpec(google.protobuf.message.Message):
     BYTES: MeterSpec.Unit.ValueType  # 1
     PACKETS: MeterSpec.Unit.ValueType  # 2
 
+    class _Type:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _TypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[MeterSpec._Type.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        TWO_RATE_THREE_COLOR: MeterSpec._Type.ValueType  # 0
+        """As described in RFC 2698, allows meters to use two rates to split packets
+        into three potential colors.
+        MeterConfigs on table entries using this meter type MUST have `eburst ==
+        0` (i.e. unset).
+        """
+        SINGLE_RATE_THREE_COLOR: MeterSpec._Type.ValueType  # 1
+        """As described in RFC 2697, allows meters to use one rate with an Excess
+        Burst Size (EBS) to split packets into three potential colors.
+        MeterConfigs on table entries using this meter type MUST have
+        `cir == pir && cburst == pburst`.
+        """
+        SINGLE_RATE_TWO_COLOR: MeterSpec._Type.ValueType  # 2
+        """A simplified version of RFC 2697, restricting meters to using a single
+        rate to split packets into only RED or GREEN, by not providing an Excess
+        Burst Size (EBS).
+        MeterConfigs on table entries using this meter type MUST have
+        `cir == pir && cburst == pburst && eburst == 0` (i.e. unset).
+        """
+
+    class Type(_Type, metaclass=_TypeEnumTypeWrapper):
+        """Used to restrict the MeterConfigs that can be used to instantiate the
+        meter.
+        Added in 1.4.0.
+        """
+
+    TWO_RATE_THREE_COLOR: MeterSpec.Type.ValueType  # 0
+    """As described in RFC 2698, allows meters to use two rates to split packets
+    into three potential colors.
+    MeterConfigs on table entries using this meter type MUST have `eburst ==
+    0` (i.e. unset).
+    """
+    SINGLE_RATE_THREE_COLOR: MeterSpec.Type.ValueType  # 1
+    """As described in RFC 2697, allows meters to use one rate with an Excess
+    Burst Size (EBS) to split packets into three potential colors.
+    MeterConfigs on table entries using this meter type MUST have
+    `cir == pir && cburst == pburst`.
+    """
+    SINGLE_RATE_TWO_COLOR: MeterSpec.Type.ValueType  # 2
+    """A simplified version of RFC 2697, restricting meters to using a single
+    rate to split packets into only RED or GREEN, by not providing an Excess
+    Burst Size (EBS).
+    MeterConfigs on table entries using this meter type MUST have
+    `cir == pir && cburst == pburst && eburst == 0` (i.e. unset).
+    """
+
     UNIT_FIELD_NUMBER: builtins.int
+    TYPE_FIELD_NUMBER: builtins.int
     unit: global___MeterSpec.Unit.ValueType
+    type: global___MeterSpec.Type.ValueType
+    """Added in 1.4.0."""
     def __init__(
         self,
         *,
         unit: global___MeterSpec.Unit.ValueType = ...,
+        type: global___MeterSpec.Type.ValueType = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["unit", b"unit"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["type", b"type", "unit", b"unit"]) -> None: ...
 
 global___MeterSpec = MeterSpec
 

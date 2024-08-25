@@ -901,12 +901,24 @@ global___DirectMeterEntry = DirectMeterEntry
 
 @typing.final
 class MeterConfig(google.protobuf.message.Message):
-    """Modeled as RFC 2698: A Two Rate Three Color Marker (trTCM)
+    """Modeled to support both RFC 2698: A Two Rate Three Color Marker (trTCM) and
+    RFC 2697: A Single Rate Three Color Marker (srTCM) based on the `type` of the
+    corresponding MeterSpec.
+
     The trTCM meters a packet stream and marks its packets based on two rates,
     Peak Information Rate (PIR) and Committed Information Rate (CIR), and their
     associated burst sizes to be either green, yellow, or red.  A packet is
     marked red if it exceeds the PIR.  Otherwise it is marked either yellow or
-    green depending on whether it exceeds or doesn't exceed the CIR.
+    green depending on whether it exceeds or doesn't exceed the CIR. For this
+    meter type, `eburst` must be unset.
+
+    The srTCM meters a packet stream and marks its packets based on one rate,
+    Committed Information Rate (CIR), and its associated burst size as well as an
+    Excess Burst Size (EBS) to be either green, yellow, or red. Roughly, a packet
+    is marked green if it doesn't exceed the CIR.  Otherwise it is marked either
+    yellow or green depending on whether it exceeds or doesn't exceed the EBS.
+    For this meter type, it must be the case that `cir == pir && cburst ==
+    pburst`.
     """
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -915,6 +927,7 @@ class MeterConfig(google.protobuf.message.Message):
     CBURST_FIELD_NUMBER: builtins.int
     PIR_FIELD_NUMBER: builtins.int
     PBURST_FIELD_NUMBER: builtins.int
+    EBURST_FIELD_NUMBER: builtins.int
     cir: builtins.int
     """Committed information rate (units per sec)"""
     cburst: builtins.int
@@ -923,6 +936,10 @@ class MeterConfig(google.protobuf.message.Message):
     """Peak information rate (units per sec)"""
     pburst: builtins.int
     """Peak burst size"""
+    eburst: builtins.int
+    """Excess burst size (only used by srTCM).
+    Added in 1.4.0.
+    """
     def __init__(
         self,
         *,
@@ -930,8 +947,9 @@ class MeterConfig(google.protobuf.message.Message):
         cburst: builtins.int = ...,
         pir: builtins.int = ...,
         pburst: builtins.int = ...,
+        eburst: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["cburst", b"cburst", "cir", b"cir", "pburst", b"pburst", "pir", b"pir"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["cburst", b"cburst", "cir", b"cir", "eburst", b"eburst", "pburst", b"pburst", "pir", b"pir"]) -> None: ...
 
 global___MeterConfig = MeterConfig
 

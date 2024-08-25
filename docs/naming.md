@@ -46,6 +46,7 @@ protobuf classes.
 - P4ActionScope  `p4i.ActionRef.Scope`
 - P4CounterUnit  `p4i.CounterSpec.Unit`
 - P4MeterUnit  `p4i.MeterSpec.Unit`
+- P4MeterType  `p4i.MeterSpec.Type`
 - P4ConfigResponseType `p4r.GetForwardingPipelineConfigRequest.ResponseType`
 - P4ConfigAction `p4r.SetForwardingPipelineConfigRequest.Action`
 - P4Atomicity  `p4r.WriteRequest.Atomicity`
@@ -79,4 +80,5 @@ protobuf classes.
 - P4Digest  `p4i.Digest`
 - P4ValueSet  `p4i.ValueSet`
 - P4ExternInstance  `p4i.ExternInstance`
+- (Not Implemented)  `p4i.TableActionCall`
 

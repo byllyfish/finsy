@@ -150,6 +150,7 @@ P4Schema(
             direct_table_id=37375156,
             id=357216394,
             name="MyIngress.ipv4_meter",
+            type=P4MeterType.TWO_RATE_THREE_COLOR,
             unit=P4MeterUnit.PACKETS,
         )
     ],
@@ -165,6 +166,7 @@ P4Schema(
             id=341473317,
             name="MyIngress.other_meter",
             size=1024,
+            type=P4MeterType.TWO_RATE_THREE_COLOR,
             unit=P4MeterUnit.PACKETS,
         )
     ],
@@ -256,6 +258,7 @@ P4Schema(
                 direct_table_id=37375156,
                 id=357216394,
                 name="MyIngress.ipv4_meter",
+                type=P4MeterType.TWO_RATE_THREE_COLOR,
                 unit=P4MeterUnit.PACKETS,
             ),
             has_initial_entries=False,

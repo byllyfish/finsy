@@ -785,6 +785,7 @@ P4Schema(
             id=348573637,
             name="FabricIngress.qos.slice_tc_meter",
             size=64,
+            type=P4MeterType.TWO_RATE_THREE_COLOR,
             unit=P4MeterUnit.BYTES,
         )
     ],
