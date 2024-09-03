@@ -4,6 +4,9 @@ from pathlib import Path
 import pytest
 import testlib
 
+# All tests run in the "module" event loop.
+pytestmark = pytest.mark.asyncio(loop_scope="module")
+
 GNMI_DIR = Path(__file__).parents[1] / "gnmi"
 
 DEMONET = GNMI_DIR / "net/run.py"

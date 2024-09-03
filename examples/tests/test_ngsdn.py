@@ -2,9 +2,14 @@ import asyncio
 import logging
 from pathlib import Path
 
+import pytest
 import testlib
 
 import finsy as fy
+
+# All tests run in the "module" event loop.
+pytestmark = pytest.mark.asyncio(loop_scope="module")
+
 
 NGSDN_DIR = Path(__file__).parents[1] / "ngsdn"
 

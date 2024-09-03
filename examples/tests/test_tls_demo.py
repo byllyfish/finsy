@@ -1,6 +1,11 @@
 import asyncio
 from pathlib import Path
 
+import pytest
+
+# All tests run in the "module" event loop.
+pytestmark = pytest.mark.asyncio(loop_scope="module")
+
 TLSDEMO_DIR = Path(__file__).parents[1] / "tls_demo"
 
 DEMONET = TLSDEMO_DIR / "net/run.py"

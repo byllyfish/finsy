@@ -4,17 +4,10 @@ import sys
 from pathlib import Path
 
 import pytest
+import pytest_asyncio
 from shellous import sh
 
 from finsy.test import demonet as dn
-
-
-@pytest.fixture(scope="module")
-def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-    yield loop
-    loop.close()
 
 
 def _import_module(path: Path):
@@ -38,9 +31,12 @@ def _get_config(value):
     return value
 
 
-@pytest.fixture(scope="module")
+@pytest_asyncio.fixture(loop_scope="module", scope="module")
 async def demonet(request):
-    "Fixture to run demonet based on config in module."
+    """Fixture to run demonet based on config in module.
+
+    This async fixture runs once per module in the module-scoped event loop.
+    """
     config = _get_config(request.module.DEMONET)
 
     try:

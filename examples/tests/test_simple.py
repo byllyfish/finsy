@@ -7,6 +7,9 @@ import testlib
 import finsy as fy
 from finsy import pbutil
 
+# All tests run in the "module" event loop.
+pytestmark = pytest.mark.asyncio(loop_scope="module")
+
 SIMPLE_DIR = Path(__file__).parents[1] / "simple"
 
 DEMONET = SIMPLE_DIR / "net/run.py"
