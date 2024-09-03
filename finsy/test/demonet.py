@@ -404,9 +404,10 @@ class DemoNet(_AContextHelper):
     async def _read_welcome(self):
         "Collect welcome message from Mininet."
         assert self._prompt is not None
-        welcome, _ = await self._prompt.expect()
-        if welcome.startswith("Error:"):
-            raise RuntimeError(welcome)
+        try:
+            welcome, _ = await self._prompt.expect()
+        except EOFError:
+            raise RuntimeError(self._prompt.pending)
         print(welcome)
 
     async def _read_pids(self):
