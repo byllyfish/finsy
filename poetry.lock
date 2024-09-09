@@ -569,13 +569,13 @@ files = [
 
 [[package]]
 name = "pyee"
-version = "11.1.1"
+version = "12.0.0"
 description = "A rough port of Node.js's EventEmitter to Python with a few tricks of its own"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pyee-11.1.1-py3-none-any.whl", hash = "sha256:9e4cdd7c2f9fcf247db94bad39a260aceffefdbe52286ce71be01959de34a5c2"},
-    {file = "pyee-11.1.1.tar.gz", hash = "sha256:82e1eb1853f8497c4ff1a0c7fa26b9cd2f1253e2b6ffb93b4700fda907017302"},
+    {file = "pyee-12.0.0-py3-none-any.whl", hash = "sha256:7b14b74320600049ccc7d0e0b1becd3b4bd0a03c745758225e31a59f4095c990"},
+    {file = "pyee-12.0.0.tar.gz", hash = "sha256:c480603f4aa2927d4766eb41fa82793fe60a82cbfdb8d688e0d08c55a534e145"},
 ]
 
 [package.dependencies]
@@ -790,4 +790,4 @@ demonet = ["shellous"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "b45abb12dbeb56ef8d2b8b6ae0defdae67a8c504da29e7168541a530f34b26cd"
+content-hash = "2634e495ade4681357cce7df7fe9a0e013b5d6254cafd0e100c9e23fefaef3d8"

@@ -30,7 +30,7 @@ python = "^3.10"
 grpcio = "^1.65.5"
 parsy = "^2.1.0"
 protobuf = "5.27.3"
-pyee = "^11.1.0"
+pyee = ">=11.1,<13.0"
 
 # Optional dependency: installed via `pip install finsy[demonet]`
 shellous = { version = "^0.37.0", optional = true }
