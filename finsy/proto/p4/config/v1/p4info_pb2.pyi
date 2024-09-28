@@ -114,7 +114,9 @@ global___Documentation = Documentation
 
 @typing.final
 class PlatformProperties(google.protobuf.message.Message):
-    """Used to describe the required properties of the underlying platform."""
+    """Used to describe the required properties of the underlying platform.
+    Added in v1.4.0
+    """
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -201,6 +203,7 @@ class PkgInfo(google.protobuf.message.Message):
         """If set, specifies the properties that the underlying platform should have.
         If the platform does not conform to these properties, the server should
         reject the P4Info when used with a SetForwardingPipelineConfigRequest.
+        Added in 1.4.0
         """
 
     def __init__(
@@ -777,6 +780,7 @@ class ActionProfile(google.protobuf.message.Message):
         """indicates that `size` and `max_group_size` represent the maximum sum of
         weights that can be present across all selector groups and within a
         single selector group respectively.
+        Added in v1.4.0
         """
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -790,6 +794,7 @@ class ActionProfile(google.protobuf.message.Message):
         """indicates that `size` and `max_group_size` represent the maximum number
         of members that can be present across all selector groups and within a
         single selector group respectively.
+        Added in v1.4.0
         """
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -830,11 +835,15 @@ class ActionProfile(google.protobuf.message.Message):
 
     @property
     def sum_of_weights(self) -> global___ActionProfile.SumOfWeights:
-        """group size is the sum of the group's weights."""
+        """group size is the sum of the group's weights.
+        Added in v1.4.0
+        """
 
     @property
     def sum_of_members(self) -> global___ActionProfile.SumOfMembers:
-        """group size is the sum of the group's members."""
+        """group size is the sum of the group's members.
+        Added in v1.4.0
+        """
 
     def __init__(
         self,
