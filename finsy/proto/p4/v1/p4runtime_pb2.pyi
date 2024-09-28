@@ -134,7 +134,9 @@ class WriteRequest(google.protobuf.message.Message):
     ATOMICITY_FIELD_NUMBER: builtins.int
     device_id: builtins.int
     role_id: builtins.int
+    """Deprecated in v1.4.0"""
     role: builtins.str
+    """Added in v1.4.0"""
     atomicity: global___WriteRequest.Atomicity.ValueType
     @property
     def election_id(self) -> global___Uint128: ...
@@ -179,7 +181,9 @@ class ReadRequest(google.protobuf.message.Message):
     ENTITIES_FIELD_NUMBER: builtins.int
     device_id: builtins.int
     role: builtins.str
-    """When specified, only return table entries for the given role."""
+    """When specified, only return table entries for the given role.
+    Added in 1.4.0.
+    """
     @property
     def entities(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Entity]: ...
     def __init__(
@@ -443,7 +447,9 @@ class TableEntry(google.protobuf.message.Message):
     def counter_data(self) -> global___CounterData: ...
     @property
     def meter_counter_data(self) -> global___MeterCounterData:
-        """Per color counters for tables with a direct meter."""
+        """Per color counters for tables with a direct meter.
+        Added in v1.4.0
+        """
 
     @property
     def time_since_last_hit(self) -> global___TableEntry.IdleTimeout:
@@ -846,7 +852,9 @@ class MeterEntry(google.protobuf.message.Message):
     @property
     def config(self) -> global___MeterConfig: ...
     @property
-    def counter_data(self) -> global___MeterCounterData: ...
+    def counter_data(self) -> global___MeterCounterData:
+        """Added in v1.4.0"""
+
     def __init__(
         self,
         *,
@@ -886,7 +894,9 @@ class DirectMeterEntry(google.protobuf.message.Message):
     @property
     def config(self) -> global___MeterConfig: ...
     @property
-    def counter_data(self) -> global___MeterCounterData: ...
+    def counter_data(self) -> global___MeterCounterData:
+        """Added in v1.4.0"""
+
     def __init__(
         self,
         *,
@@ -1039,6 +1049,8 @@ global___CounterData = CounterData
 
 @typing.final
 class MeterCounterData(google.protobuf.message.Message):
+    """Added in v1.4.0"""
+
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     GREEN_FIELD_NUMBER: builtins.int
@@ -1099,8 +1111,11 @@ class Replica(google.protobuf.message.Message):
     PORT_FIELD_NUMBER: builtins.int
     INSTANCE_FIELD_NUMBER: builtins.int
     egress_port: builtins.int
-    """Using uint32 as ports is deprecated, use port field instead."""
+    """Using uint32 as ports is deprecated, use port field instead.
+    Deprecated in v1.4.0
+    """
     port: builtins.bytes
+    """Added in v1.4.0"""
     instance: builtins.int
     def __init__(
         self,
@@ -1585,8 +1600,11 @@ class Role(google.protobuf.message.Message):
     NAME_FIELD_NUMBER: builtins.int
     CONFIG_FIELD_NUMBER: builtins.int
     id: builtins.int
-    """Uniquely identifies this role."""
+    """Uniquely identifies this role.
+    Deprecated in 1.4.0.
+    """
     name: builtins.str
+    """Added in 1.4.0."""
     @property
     def config(self) -> google.protobuf.any_pb2.Any:
         """Describes the role configuration, i.e. what operations, P4 entities,
@@ -1859,7 +1877,9 @@ class SetForwardingPipelineConfigRequest(google.protobuf.message.Message):
     CONFIG_FIELD_NUMBER: builtins.int
     device_id: builtins.int
     role_id: builtins.int
+    """Deprecated in 1.4.0."""
     role: builtins.str
+    """Added in 1.4.0."""
     action: global___SetForwardingPipelineConfigRequest.Action.ValueType
     @property
     def election_id(self) -> global___Uint128: ...
