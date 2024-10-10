@@ -79,6 +79,7 @@ jobs:
 
   test-examples:
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # stop runaway job after 15 minutes
     needs: build
     container:
       image: ghcr.io/byllyfish/demonet:24.04
