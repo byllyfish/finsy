@@ -41,7 +41,7 @@ demonet = ["shellous"]
 [tool.poetry.group.dev.dependencies]
 black = "24.8.0"
 mypy = "^1.11.2"
-pdoc = "^14.7.0"
+pdoc = ">=14.7,<16.0"
 prometheus-client = "^0.21.0"
 pylint = "^3.3.1"
 pyright = "^1.1.383"
