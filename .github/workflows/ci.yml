@@ -84,8 +84,6 @@ jobs:
     container:
       image: ghcr.io/byllyfish/demonet:24.04
       options: --privileged
-    env:
-      SHELLOUS_TRACE: all
 
     steps:
       - name: Harden Runner
