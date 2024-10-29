@@ -17,7 +17,7 @@ async def test_demo(demonet, python):
     async with python(L2SWITCH_DIR / "demo.py") as demo:
         await asyncio.sleep(0.5)
         await demonet.send("pingall", expect="(6/6 received)")
-        demo.cancel()
+        raise asyncio.CancelledError()
 
 
 async def test_read_tables(demonet):
