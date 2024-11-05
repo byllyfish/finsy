@@ -26,7 +26,7 @@ async def test_ngsdn_oneshot(demonet, python):
         await demonet.send("h3 ping -c 1 h1a")
         await demonet.send("h1a ping -c 1 h3", expect=" 0% packet loss")
 
-        demo.cancel()
+        raise asyncio.CancelledError()
 
 
 async def test_leaf2(demonet):
@@ -163,7 +163,7 @@ async def test_ngsdn_actionprofile(demonet, python):
         await demonet.send("h3 ping -c 2 h1a")
         await demonet.send("h1a ping -c 1 h3", expect=" 0% packet loss")
 
-        demo.cancel()
+        raise asyncio.CancelledError()
 
 
 async def test_read_tables_actionprofile(demonet, caplog):
