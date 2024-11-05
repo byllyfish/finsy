@@ -795,4 +795,4 @@ demonet = ["shellous"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "3717d84d03fc4501ce6576235e3d03022eab4e1b20e38b3d64650a05f71a88b1"
+content-hash = "7fde133746422cb0604d23dc6d99f4c6d1145d585106164eaa4b655dbef5eebe"
