@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Don't use min() builtin in performance-critical loops.
+# pylint: disable=consider-using-min-builtin
+
 
 def minimum_edit_distance(str1: str, str2: str) -> int:
     """Compute the minimum edit distance between two strings.

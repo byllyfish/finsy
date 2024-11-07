@@ -2030,10 +2030,12 @@ class P4SerializableEnumType(_P4Bridged[p4t.P4SerializableEnumTypeSpec]):
 
     @property
     def bitwidth(self) -> int:
+        "Width of serializable enum in bits."
         return self.pbuf.underlying_type.bitwidth
 
     @property
     def members(self) -> dict[str, int]:
+        "Dictionary of enum members."
         return self._members
 
     def encode_data(self, value: Any) -> p4d.P4Data:
@@ -2176,10 +2178,12 @@ class P4ExternInstance(_P4TopLevel[p4i.ExternInstance]):
 
     @property
     def extern_type_id(self) -> int:
+        "ID of the extern's type."
         return self._extern_type_id
 
     @property
     def extern_type_name(self) -> str:
+        "Name of the extern's type."
         return self._extern_type_name
 
     @property
@@ -2208,7 +2212,7 @@ class P4ExternMap:
         value = self.get(key)
         if value is None:
             self._key_error(key)
-        return value  # pyright: ignore[reportReturnType]
+        return value
 
     def __iter__(self) -> Iterator[P4ExternInstance]:
         return iter(self._by_name.values())
