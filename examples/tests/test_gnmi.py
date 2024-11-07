@@ -28,7 +28,7 @@ async def test_demo2(demonet, python):
         await asyncio.sleep(0.5)
         await demonet.send("h1 ifconfig eth0 up")
         await asyncio.sleep(0.5)
-        raise asyncio.CancelledError()
+        demo2.cancel()
 
     assert (
         result.decode()
@@ -42,7 +42,7 @@ async def test_demo3(demonet, python):
 
     async with python(GNMI_DIR / "demo3.py") | result as demo3:
         await asyncio.sleep(6.5)
-        raise asyncio.CancelledError()
+        demo3.cancel()
 
     assert result.decode().startswith(
         "initial: s1-eth1 is UP\nupdate:  s1-eth1 is DOWN\nupdate:  s1-eth1 is UP\nupdate:  s1-eth1 is DOWN"

@@ -41,7 +41,7 @@ async def test_demo1(demonet, python):
     async with python(HELLO_DIR / "demo1.py") as demo1:
         await asyncio.sleep(0.25)
         await demonet.send("pingall", expect="(6/6 received)")
-        raise asyncio.CancelledError()
+        demo1.cancel()
 
 
 async def test_demo2(demonet, python):
@@ -50,7 +50,7 @@ async def test_demo2(demonet, python):
         await asyncio.sleep(0.5)
         await demonet.send("pingall")
         await demonet.send("pingall", expect="(6/6 received)")
-        raise asyncio.CancelledError()
+        demo2.cancel()
 
 
 async def test_read_tables(demonet):
@@ -90,7 +90,7 @@ async def test_demo3(demonet, python):
         await asyncio.sleep(0.5)
         await demonet.send("pingall")
         await demonet.send("pingall", expect="(6/6 received)")
-        raise asyncio.CancelledError()
+        demo3.cancel()
 
 
 @pytest.mark.skipif(not testlib.has_pygraphviz(), reason="Requires pygraphviz")

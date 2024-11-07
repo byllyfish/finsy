@@ -16,4 +16,4 @@ async def test_demo1(demonet, python):
     async with python(TLSDEMO_DIR / "demo1.py") as demo1:
         await asyncio.sleep(0.25)
         await demonet.send("pingall", expect="(2/2 received)")
-        raise asyncio.CancelledError()
+        demo1.cancel()

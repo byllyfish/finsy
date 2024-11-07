@@ -17,7 +17,7 @@ async def test_demo(demonet, python):
     async with python(BASIC_DIR / "demo.py") as demo:
         await asyncio.sleep(0.5)
         await demonet.send("pingall", expect="(12/12 received)")
-        raise asyncio.CancelledError()
+        demo.cancel()
 
 
 async def test_read_tables(demonet):
