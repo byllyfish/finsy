@@ -18,7 +18,7 @@ async def test_demo(demonet, python):
         await asyncio.sleep(0.25)
         await demonet.send("h1 echo 'abc' | socat - udp:192.168.0.48:5555")
         await asyncio.sleep(1.0)
-        raise asyncio.CancelledError()
+        demo.cancel()
 
 
 async def test_read_tables(demonet):

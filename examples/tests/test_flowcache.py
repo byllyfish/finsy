@@ -18,7 +18,7 @@ async def test_demo(demonet, python):
         await asyncio.sleep(0.5)
         await demonet.send("h1 ping -c 1 -W .25 h2", expect="100% packet loss")
         await demonet.send("h2 ping -c 1 -W .25 h1", expect="100% packet loss")
-        raise asyncio.CancelledError()
+        demo.cancel()
 
 
 async def test_read_tables(demonet):
