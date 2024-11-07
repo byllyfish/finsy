@@ -4,7 +4,7 @@
 
 [tool.poetry]
 name = "finsy"
-version = "0.26.0"
+version = "0.27.0"
 description = "P4Runtime Client Library"
 license = "Apache-2.0"
 authors = ["Bill Fisher <william.w.fisher@gmail.com>"]
@@ -15,6 +15,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Framework :: AsyncIO",
   "Typing :: Typed",
 ]

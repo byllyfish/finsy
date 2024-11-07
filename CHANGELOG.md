@@ -1,5 +1,12 @@
 # Finsy Change Log
 
+## 0.27.0
+
+- Update `P4Runtime` protobufs to the 1.4.1 release.
+- Update dependencies to `grpcio` 1.67.1 and `protobuf` 5.28.3.
+- Include CI testing support for Python 3.13.
+- In test code, update pytest-asyncio to the latest version.
+
 ## 0.26.0
 
 - Replace the `manager` property in the `Switch` class with `stash` and constrain the type to `dict[str, Any]`.
