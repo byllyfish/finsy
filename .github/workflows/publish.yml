@@ -52,7 +52,7 @@ jobs:
           name: package_dists
           path: dist/
       - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@f7600683efdcb7656dec5b29656edb7bc586e597 # release/v1
+        uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # release/v1
         with:
           verbose: true
           print-hash: true
