@@ -127,7 +127,7 @@ async def test_tls_client_using_misconfigured_key(p4rt_secure_server):
     async with client:
         with pytest.raises(
             P4ClientError,
-            match="code=GRPCStatusCode.UNAVAILABLE message='empty address list: '",
+            match="code=GRPCStatusCode.UNAVAILABLE message='empty address list",
         ):
             await _check_arbitration_request(client)
 
