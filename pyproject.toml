@@ -20,6 +20,9 @@ classifiers = [
   "Typing :: Typed",
 ]
 
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
+
 [tool.poetry.urls]
 "Release Notes" = "https://github.com/byllyfish/finsy/blob/main/CHANGELOG.md"
 "Issue Tracker" = "https://github.com/byllyfish/finsy/issues"
@@ -118,7 +121,7 @@ force-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 [tool.isort]
 profile = "black"
-skip_glob = ["*_pb2.py", "*_pb2_grpc.py", ".venv*"]
+skip_glob = ["*_pb2.py", "*_pb2_grpc.py", ".venv*", ".poetry"]
 
 #**************
 # p y l i n t *
