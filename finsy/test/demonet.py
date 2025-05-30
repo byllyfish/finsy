@@ -40,8 +40,8 @@ class GraphAPI(Protocol):
 IPV4_BASE = IPv4Network("10.0.0.0/8")
 IPV6_BASE = IPv6Network("fc00::/64")
 
-# tag=24.04
-DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet@sha256:2a31fc7b33d82483fc8cb833671e4f6545005068e6cab13913bf8d550508c4e6"
+# tag=24.11
+DEFAULT_IMAGE = "ghcr.io/byllyfish/demonet@sha256:a154e705d6d61624b311bedb1c760dbec49e4c0db0bb73d9013f7c6dc01cb85a"
 
 
 @dataclass

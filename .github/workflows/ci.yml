@@ -82,7 +82,7 @@ jobs:
     timeout-minutes: 15  # stop runaway job after 15 minutes
     needs: build
     container:
-      image: ghcr.io/byllyfish/demonet:24.04
+      image: ghcr.io/byllyfish/demonet:24.11
       options: --privileged
 
     steps:

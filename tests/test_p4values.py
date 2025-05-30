@@ -49,24 +49,24 @@ def test_p4r_truncate():
     "Test the p4r_truncate function."
     assert p4values.p4r_truncate(b"\x00") == b"\x00"
     assert p4values.p4r_truncate(b"\x80") == b"\x80"
-    assert p4values.p4r_truncate(b"\xFF") == b"\xFF"
+    assert p4values.p4r_truncate(b"\xff") == b"\xff"
     assert p4values.p4r_truncate(b"\x00\x80") == b"\x80"
     assert p4values.p4r_truncate(b"\x80\x80") == b"\x80\x80"
-    assert p4values.p4r_truncate(b"\xFF\x80") == b"\xFF\x80"
-    assert p4values.p4r_truncate(b"\xFF\xFF") == b"\xFF\xFF"
+    assert p4values.p4r_truncate(b"\xff\x80") == b"\xff\x80"
+    assert p4values.p4r_truncate(b"\xff\xff") == b"\xff\xff"
 
 
 def test_p4r_truncate_signed():
     "Test the p4r_truncate_signed function."
     assert p4values.p4r_truncate_signed(b"\x00") == b"\x00"
     assert p4values.p4r_truncate_signed(b"\x80") == b"\x80"
-    assert p4values.p4r_truncate_signed(b"\xFF") == b"\xFF"
+    assert p4values.p4r_truncate_signed(b"\xff") == b"\xff"
     assert p4values.p4r_truncate_signed(b"\x00\x80") == b"\x00\x80"
     assert p4values.p4r_truncate_signed(b"\x80\x80") == b"\x80\x80"
-    assert p4values.p4r_truncate_signed(b"\xFF\x80") == b"\x80"
-    assert p4values.p4r_truncate_signed(b"\xFF\xFF") == b"\xFF"
-    assert p4values.p4r_truncate_signed(b"\x80\xFF\xFF") == b"\x80\xFF\xFF"
-    assert p4values.p4r_truncate_signed(b"\x7F\xFF\xFF") == b"\x7F\xFF\xFF"
+    assert p4values.p4r_truncate_signed(b"\xff\x80") == b"\x80"
+    assert p4values.p4r_truncate_signed(b"\xff\xff") == b"\xff"
+    assert p4values.p4r_truncate_signed(b"\x80\xff\xff") == b"\x80\xff\xff"
+    assert p4values.p4r_truncate_signed(b"\x7f\xff\xff") == b"\x7f\xff\xff"
 
 
 def test_encode_exact_int():
@@ -75,20 +75,20 @@ def test_encode_exact_int():
         # Ints
         (0, 32, b"\x00"),
         (1, 32, b"\x01"),
-        (255, 32, b"\xFF"),
+        (255, 32, b"\xff"),
         (256, 32, b"\x01\x00"),
         # Decimal strings
         ("0", 32, b"\x00"),
         ("1", 32, b"\x01"),
-        ("255", 32, b"\xFF"),
+        ("255", 32, b"\xff"),
         ("256", 32, b"\x01\x00"),
         # Hex strings
         ("0x0", 32, b"\x00"),
         ("0x1", 32, b"\x01"),
-        ("0x000ff", 32, b"\xFF"),
+        ("0x000ff", 32, b"\xff"),
         ("0x100", 32, b"\x01\x00"),
         # Misc.
-        (127, 7, b"\x7F"),
+        (127, 7, b"\x7f"),
         (4095, 12, b"\x0f\xff"),
     ]
 
@@ -121,10 +121,10 @@ def test_encode_exact_fail():
 def test_encode_exact_ipv4():
     "Test the encode_exact function with IPv4 addresses."
     data = [
-        ("10.0.0.1", b"\x0A\x00\x00\x01"),
+        ("10.0.0.1", b"\x0a\x00\x00\x01"),
         ("0.0.0.1", b"\x01"),
-        (" 10.0.0.2 ", b"\x0A\x00\x00\x02"),  # ignore spaces
-        (IP("10.0.0.1"), b"\x0A\x00\x00\x01"),
+        (" 10.0.0.2 ", b"\x0a\x00\x00\x02"),  # ignore spaces
+        (IP("10.0.0.1"), b"\x0a\x00\x00\x01"),
         (IP("0.0.0.1"), b"\x01"),
     ]
 
@@ -195,8 +195,8 @@ def test_decode_exact_int():
         (b"\x00", 0),
         (b"\x00\x00\x00\x00", 0),
         (b"\x01", 1),
-        (b"\xFF", 255),
-        (b"\x00\xFF", 255),
+        (b"\xff", 255),
+        (b"\x00\xff", 255),
         (b"\x01\x00", 256),
     ]
 
@@ -218,8 +218,8 @@ def test_decode_exact_mac():
         (b"\x00", "00:00:00:00:00:00"),
         (b"\x00\x00\x00", "00:00:00:00:00:00"),
         (b"\x01", "00:00:00:00:00:01"),
-        (b"\xFF", "00:00:00:00:00:ff"),
-        (b"\x00\xFF", "00:00:00:00:00:ff"),
+        (b"\xff", "00:00:00:00:00:ff"),
+        (b"\x00\xff", "00:00:00:00:00:ff"),
         (b"\x01\x00", "00:00:00:00:01:00"),
     ]
 
@@ -242,8 +242,8 @@ def test_decode_exact_ipv4():
         (b"\x00", "0.0.0.0"),
         (b"\x00\x00\x00", "0.0.0.0"),
         (b"\x01", "0.0.0.1"),
-        (b"\xFF", "0.0.0.255"),
-        (b"\x00\xFF", "0.0.0.255"),
+        (b"\xff", "0.0.0.255"),
+        (b"\x00\xff", "0.0.0.255"),
         (b"\x01\x00", "0.0.1.0"),
     ]
 
@@ -302,7 +302,7 @@ def test_encode_enum_valid():
     valid = [
         (0, 1, b"\x00"),
         (1, 1, b"\x01"),
-        (0xFF, 8, b"\xFF"),
+        (0xFF, 8, b"\xff"),
     ]
 
     for value, bitwidth, data in valid:
@@ -327,7 +327,7 @@ def test_decode_enum_valid():
     valid = [
         (b"\x00", 1, 0),
         (b"\x01", 1, 1),
-        (b"\x0F", 4, 0x0F),
+        (b"\x0f", 4, 0x0F),
         (b"abcd", 31, 0x61626364),
     ]
 
@@ -448,8 +448,8 @@ def test_decode_lpm_int():
         (b"\x00", 32, 33, (0, 32)),
         (b"\x00\x00\x00\x00", 32, 33, (0, 32)),
         (b"\x02", 32, 33, (2, 32)),
-        (b"\xFE", 32, 33, (254, 32)),
-        (b"\x00\xFE", 32, 33, (254, 32)),
+        (b"\xfe", 32, 33, (254, 32)),
+        (b"\x00\xfe", 32, 33, (254, 32)),
         (b"\x01\x00", 32, 33, (256, 32)),
     ]
 
@@ -531,7 +531,7 @@ def test_encode_ternary_ipv4():
             (b"\xc0\xa8\x01\x00", b"\xff\xff\xff\x00"),
         ),
         ("192.168.1.1/24", (b"\xc0\xa8\x01\x00", b"\xff\xff\xff\x00")),
-        (IPv4Network("10.0.0.0/24"), (b"\x0A\x00\x00\x00", b"\xff\xff\xff\x00")),
+        (IPv4Network("10.0.0.0/24"), (b"\x0a\x00\x00\x00", b"\xff\xff\xff\x00")),
     ]
 
     for value, result in data:

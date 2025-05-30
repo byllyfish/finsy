@@ -328,7 +328,7 @@ _INVALID_PATHS2 = [
 _VALID_PATHS3 = {
     (r"/abc\xb7def", r"/abc\u00b7def"): {
         "elem": [
-            {"name": "abc\xB7def"},
+            {"name": "abc\xb7def"},
         ]
     },
     r"/abc\u0123def": {
@@ -343,7 +343,7 @@ _VALID_PATHS3 = {
     },
     r"\U0001d11e": {
         "elem": [
-            {"name": "\U0001D11E"},
+            {"name": "\U0001d11e"},
         ]
     },
     r"\u0020": {

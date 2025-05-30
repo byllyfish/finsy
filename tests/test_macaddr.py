@@ -81,7 +81,7 @@ def test_is_unspecified():
 def test_packed():
     "Test the `packed` property."
     assert MACAddress(0).packed == b"\x00\x00\x00\x00\x00\x00"
-    assert MACAddress(0xFFFFFFFFFFFF).packed == b"\xFF\xFF\xFF\xFF\xFF\xFF"
+    assert MACAddress(0xFFFFFFFFFFFF).packed == b"\xff\xff\xff\xff\xff\xff"
 
 
 def test_eq():
