@@ -44,9 +44,9 @@ def p4r_truncate(value: bytes) -> bytes:
 def p4r_truncate_signed(value: bytes) -> bytes:
     "Truncate a signed bytes value to the specified bitwidth."
     if (value[0] & 0x80) == 0x80:
-        value = value.lstrip(b"\xFF")
+        value = value.lstrip(b"\xff")
         if not value or (value[0] & 0x80) == 0:
-            return b"\xFF" + value
+            return b"\xff" + value
         return value
 
     value = value.lstrip(b"\x00")

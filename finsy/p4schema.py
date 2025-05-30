@@ -54,6 +54,7 @@ from finsy.proto import p4d, p4i, p4r, p4t, rpc_code
 
 class P4MatchType(_EnumBase):
     "IntEnum equivalent to `p4i.MatchField.MatchType`."
+
     UNSPECIFIED = p4i.MatchField.MatchType.UNSPECIFIED
     EXACT = p4i.MatchField.MatchType.EXACT
     LPM = p4i.MatchField.MatchType.LPM
@@ -64,12 +65,14 @@ class P4MatchType(_EnumBase):
 
 class P4IdleTimeoutBehavior(_EnumBase):
     "IntEnum equivalent to `p4i.Table.IdleTimeoutBehavior`."
+
     NO_TIMEOUT = p4i.Table.IdleTimeoutBehavior.NO_TIMEOUT
     NOTIFY_CONTROL = p4i.Table.IdleTimeoutBehavior.NOTIFY_CONTROL
 
 
 class P4ActionScope(_EnumBase):
     "IntEnum equivalent to `p4i.ActionRef.Scope`."
+
     TABLE_AND_DEFAULT = p4i.ActionRef.Scope.TABLE_AND_DEFAULT
     TABLE_ONLY = p4i.ActionRef.Scope.TABLE_ONLY
     DEFAULT_ONLY = p4i.ActionRef.Scope.DEFAULT_ONLY
@@ -77,6 +80,7 @@ class P4ActionScope(_EnumBase):
 
 class P4CounterUnit(_EnumBase):
     "IntEnum equivalent to `p4i.CounterSpec.Unit`."
+
     UNSPECIFIED = p4i.CounterSpec.Unit.UNSPECIFIED
     BYTES = p4i.CounterSpec.Unit.BYTES
     PACKETS = p4i.CounterSpec.Unit.PACKETS
@@ -85,6 +89,7 @@ class P4CounterUnit(_EnumBase):
 
 class P4MeterUnit(_EnumBase):
     "IntEnum equivalent to `p4i.MeterSpec.Unit`."
+
     UNSPECIFIED = p4i.MeterSpec.Unit.UNSPECIFIED
     BYTES = p4i.MeterSpec.Unit.BYTES
     PACKETS = p4i.MeterSpec.Unit.PACKETS
@@ -92,6 +97,7 @@ class P4MeterUnit(_EnumBase):
 
 class P4MeterType(_EnumBase):
     "IntEnum equivalent to `p4i.MeterSpec.Type`. (1.4.0)"
+
     TWO_RATE_THREE_COLOR = p4i.MeterSpec.Type.TWO_RATE_THREE_COLOR
     SINGLE_RATE_THREE_COLOR = p4i.MeterSpec.Type.SINGLE_RATE_THREE_COLOR
     SINGLE_RATE_TWO_COLOR = p4i.MeterSpec.Type.SINGLE_RATE_TWO_COLOR
@@ -99,6 +105,7 @@ class P4MeterType(_EnumBase):
 
 class P4ConfigResponseType(_EnumBase):
     "IntEnum equivalent to `p4r.GetForwardingPipelineConfigRequest.ResponseType`."
+
     ALL = p4r.GetForwardingPipelineConfigRequest.ResponseType.ALL
     COOKIE_ONLY = p4r.GetForwardingPipelineConfigRequest.ResponseType.COOKIE_ONLY
     P4INFO_AND_COOKIE = (
@@ -115,6 +122,7 @@ class P4ConfigResponseType(_EnumBase):
 
 class P4ConfigAction(_EnumBase):
     "IntEnum equivalent to `p4r.SetForwardingPipelineConfigRequest.Action`."
+
     UNSPECIFIED = p4r.SetForwardingPipelineConfigRequest.Action.UNSPECIFIED
     VERIFY = p4r.SetForwardingPipelineConfigRequest.Action.VERIFY
     VERIFY_AND_SAVE = p4r.SetForwardingPipelineConfigRequest.Action.VERIFY_AND_SAVE
@@ -131,6 +139,7 @@ class P4ConfigAction(_EnumBase):
 
 class P4Atomicity(_EnumBase):
     "IntEnum equivalent to `p4r.WriteRequest.Atomicity`."
+
     CONTINUE_ON_ERROR = p4r.WriteRequest.Atomicity.CONTINUE_ON_ERROR
     ROLLBACK_ON_ERROR = p4r.WriteRequest.Atomicity.ROLLBACK_ON_ERROR
     DATAPLANE_ATOMIC = p4r.WriteRequest.Atomicity.DATAPLANE_ATOMIC
@@ -138,6 +147,7 @@ class P4Atomicity(_EnumBase):
 
 class P4UpdateType(_EnumBase):
     "IntEnum equivalent to `p4r.Update.Type`."
+
     UNSPECIFIED = p4r.Update.Type.UNSPECIFIED
     INSERT = p4r.Update.Type.INSERT
     DELETE = p4r.Update.Type.DELETE
@@ -2357,9 +2367,9 @@ _P4CACHE_CTXT: ContextVar[P4SchemaCache | None] = ContextVar(
 class P4SchemaDescription:
     "Helper class to produce text description of a P4Schema."
 
-    HORIZ_LINE = "\U000023AF"  # Horizontal line
-    TABLE = "\U0001F4CB"  # Clipboard
-    PROFILE = "\U0001F4E6"  # Package
+    HORIZ_LINE = "\U000023af"  # Horizontal line
+    TABLE = "\U0001f4cb"  # Clipboard
+    PROFILE = "\U0001f4e6"  # Package
     PACKET_METADATA = "\U0001f4ec"  # Mailbox
     DIGEST = "\U0001f4c7"  # Card index
     TIMEOUT = "\U000023f1"  # Stopwatch

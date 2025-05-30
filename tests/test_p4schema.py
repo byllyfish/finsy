@@ -43,6 +43,7 @@ def _coverage():
 @dataclass
 class _Example:
     "Dummy entity used to test P4EntityMap."
+
     id: int
     name: str
     alias: str
@@ -317,8 +318,8 @@ def test_p4bitstype():
     assert bits.encode_bytes(0) == b"\x00"
     assert bits.decode_bytes(b"\x00") == 0
 
-    assert bits.encode_bytes(255) == b"\xFF"
-    assert bits.decode_bytes(b"\xFF") == 255
+    assert bits.encode_bytes(255) == b"\xff"
+    assert bits.decode_bytes(b"\xff") == 255
 
     data = bits.encode_data(0)
     assert pbutil.to_dict(data) == {"bitstring": "AA=="}
@@ -352,8 +353,8 @@ def test_p4bitstype_signed():
     assert bits.encode_bytes(-128) == b"\x80"
     assert bits.decode_bytes(b"\x80") == -128
 
-    assert bits.encode_bytes(127) == b"\x7F"
-    assert bits.decode_bytes(b"\x7F") == 127
+    assert bits.encode_bytes(127) == b"\x7f"
+    assert bits.decode_bytes(b"\x7f") == 127
 
     data = bits.encode_data(-128)
     assert pbutil.to_dict(data) == {"bitstring": "gA=="}
@@ -387,8 +388,8 @@ def test_p4bitstype_varbit():
     assert bits.encode_bytes(0) == b"\x00"
     assert bits.decode_bytes(b"\x00") == 0
 
-    assert bits.encode_bytes(255) == b"\xFF"
-    assert bits.decode_bytes(b"\xFF") == 255
+    assert bits.encode_bytes(255) == b"\xff"
+    assert bits.decode_bytes(b"\xff") == 255
 
     data = bits.encode_data((0, 8))
     assert pbutil.to_dict(data) == {"varbit": {"bitstring": "AA==", "bitwidth": 8}}
