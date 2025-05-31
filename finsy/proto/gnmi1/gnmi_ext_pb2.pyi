@@ -63,6 +63,7 @@ class Extension(google.protobuf.message.Message):
     HISTORY_FIELD_NUMBER: builtins.int
     COMMIT_FIELD_NUMBER: builtins.int
     DEPTH_FIELD_NUMBER: builtins.int
+    CONFIG_SUBSCRIPTION_FIELD_NUMBER: builtins.int
     @property
     def registered_ext(self) -> global___RegisteredExtension:
         """A registered extension."""
@@ -85,6 +86,10 @@ class Extension(google.protobuf.message.Message):
     def depth(self) -> global___Depth:
         """Depth extension."""
 
+    @property
+    def config_subscription(self) -> global___ConfigSubscription:
+        """Config Subscription extension."""
+
     def __init__(
         self,
         *,
@@ -93,10 +98,11 @@ class Extension(google.protobuf.message.Message):
         history: global___History | None = ...,
         commit: global___Commit | None = ...,
         depth: global___Depth | None = ...,
+        config_subscription: global___ConfigSubscription | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["commit", b"commit", "depth", b"depth", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["commit", b"commit", "depth", b"depth", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["ext", b"ext"]) -> typing.Literal["registered_ext", "master_arbitration", "history", "commit", "depth"] | None: ...
+    def HasField(self, field_name: typing.Literal["commit", b"commit", "config_subscription", b"config_subscription", "depth", b"depth", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["commit", b"commit", "config_subscription", b"config_subscription", "depth", b"depth", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["ext", b"ext"]) -> typing.Literal["registered_ext", "master_arbitration", "history", "commit", "depth", "config_subscription"] | None: ...
 
 global___Extension = Extension
 
@@ -404,3 +410,82 @@ class Depth(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["level", b"level"]) -> None: ...
 
 global___Depth = Depth
+
+@typing.final
+class ConfigSubscription(google.protobuf.message.Message):
+    """ConfigSubscription extension allows clients to subscribe to configuration
+    schema nodes only.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    START_FIELD_NUMBER: builtins.int
+    SYNC_DONE_FIELD_NUMBER: builtins.int
+    @property
+    def start(self) -> global___ConfigSubscriptionStart:
+        """ConfigSubscriptionStart is sent by the client in the SubscribeRequest"""
+
+    @property
+    def sync_done(self) -> global___ConfigSubscriptionSyncDone:
+        """ConfigSubscriptionSyncDone is sent by the server in the SubscribeResponse"""
+
+    def __init__(
+        self,
+        *,
+        start: global___ConfigSubscriptionStart | None = ...,
+        sync_done: global___ConfigSubscriptionSyncDone | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["action", b"action", "start", b"start", "sync_done", b"sync_done"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["action", b"action", "start", b"start", "sync_done", b"sync_done"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["action", b"action"]) -> typing.Literal["start", "sync_done"] | None: ...
+
+global___ConfigSubscription = ConfigSubscription
+
+@typing.final
+class ConfigSubscriptionStart(google.protobuf.message.Message):
+    """ConfigSubscriptionStart is used to indicate to a target that for a given set
+    of paths in the SubscribeRequest, the client wishes to receive updates
+    for the configuration schema nodes only.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___ConfigSubscriptionStart = ConfigSubscriptionStart
+
+@typing.final
+class ConfigSubscriptionSyncDone(google.protobuf.message.Message):
+    """ConfigSubscriptionSyncDone is sent by the server in the SubscribeResponse
+    after all the updates for the configuration schema nodes have been sent.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    COMMIT_CONFIRM_ID_FIELD_NUMBER: builtins.int
+    SERVER_COMMIT_ID_FIELD_NUMBER: builtins.int
+    DONE_FIELD_NUMBER: builtins.int
+    commit_confirm_id: builtins.str
+    """ID of a commit confirm operation as assigned by the client
+    see Commit Confirm extension for more details.
+    """
+    server_commit_id: builtins.str
+    """ID of a commit as might be assigned by the server
+    when registering a commit operation.
+    """
+    done: builtins.bool
+    """If true indicates that the server is done processing the updates related to the
+    commit_confirm_id and/or server_commit_id.
+    """
+    def __init__(
+        self,
+        *,
+        commit_confirm_id: builtins.str = ...,
+        server_commit_id: builtins.str = ...,
+        done: builtins.bool = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["commit_confirm_id", b"commit_confirm_id", "done", b"done", "server_commit_id", b"server_commit_id"]) -> None: ...
+
+global___ConfigSubscriptionSyncDone = ConfigSubscriptionSyncDone
