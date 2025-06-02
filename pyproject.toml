@@ -33,7 +33,7 @@ python = "^3.10"
 # Core dependencies.
 grpcio = "^1.71.0"
 parsy = "^2.1.0"
-protobuf = "^5.29.5"
+protobuf = ">=5.29.5,<7.0.0"
 pyee = "^12.1.1"
 
 # Optional dependency: installed via `pip install finsy[demonet]`
