@@ -31,10 +31,10 @@ poetry-plugin-export = ">=1.8"
 python = "^3.10"
 
 # Core dependencies.
-grpcio = "^1.71.0"
+grpcio = "^1.72.1"
 parsy = "^2.1.0"
 protobuf = "^5.29.5"
-pyee = "^12.1.1"
+pyee = "^13.0.0"
 
 # Optional dependency: installed via `pip install finsy[demonet]`
 shellous = { version = "^0.38.0", optional = true }
@@ -46,12 +46,12 @@ demonet = ["shellous"]
 black = "25.1.0"
 mypy = "^1.16.0"
 pdoc = "^15.0.3"
-prometheus-client = "^0.21.1"
+prometheus-client = "^0.22.1"
 pylint = "^3.3.7"
 pyright = "^1.1.401"
 pytest = "^8.3.5"
 pytest-asyncio = "^0.24.0"
-pytest-cov = "^5.0.0"
+pytest-cov = "^6.1.1"
 ruff = "^0.11.12"
 shellous = "^0.38.0"
 
