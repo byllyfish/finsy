@@ -5,7 +5,7 @@ import warnings
 
 from . import gnmi_pb2 as gnmi1_dot_gnmi__pb2
 
-GRPC_GENERATED_VERSION = '1.71.0'
+GRPC_GENERATED_VERSION = '1.72.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
