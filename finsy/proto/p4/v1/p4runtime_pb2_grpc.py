@@ -5,7 +5,7 @@ import warnings
 
 from . import p4runtime_pb2 as p4_dot_v1_dot_p4runtime__pb2
 
-GRPC_GENERATED_VERSION = '1.71.0'
+GRPC_GENERATED_VERSION = '1.72.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
