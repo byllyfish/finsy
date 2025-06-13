@@ -100,8 +100,7 @@ jobs:
           python3 -m venv venv
           . venv/bin/activate
           python --version
-          pip list
-          pip install -U pip
+          pip install --no-cache-dir -U pip setuptools
           pip install --require-hashes --no-cache-dir -r ./ci/requirements-dev.txt
       - name: Run tests
         env:
