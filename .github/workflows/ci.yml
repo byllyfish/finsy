@@ -121,7 +121,7 @@ jobs:
           cd examples; PYTHONPATH=.. COVERAGE_RUN=true pytest -k simple --cov ../finsy --cov-report xml --cov-config ../.coveragerc
       - name: Upload Coverage to Codecov
         # Revert codecov-action here due to failure running in container with v4.0.1.
-        uses: codecov/codecov-action@4fe8c5f003fae66aa5ebb77cfd3e7bfbbda0b6b0 # v3.1.5
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           token: ${{ secrets.FINSY_CODECOV_TOKEN }}
           directory: ./examples/
