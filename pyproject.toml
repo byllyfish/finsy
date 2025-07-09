@@ -31,7 +31,7 @@ poetry-plugin-export = ">=1.8"
 python = "^3.10"
 
 # Core dependencies.
-grpcio = "^1.73.0"
+grpcio = "^1.73.1"
 parsy = "^2.1.0"
 protobuf = "^6.31.1"
 pyee = "^13.0.0"
@@ -44,15 +44,15 @@ demonet = ["shellous"]
 
 [tool.poetry.group.dev.dependencies]
 black = "25.1.0"
-mypy = "^1.16.0"
+mypy = "^1.16.1"
 pdoc = "^15.0.4"
 prometheus-client = "^0.22.1"
 pylint = "^3.3.7"
-pyright = "^1.1.402"
-pytest = "^8.4.0"
+pyright = "^1.1.403"
+pytest = "^8.4.1"
 pytest-asyncio = "^1.0.0"
 pytest-cov = "^6.2.1"
-ruff = "^0.11.13"
+ruff = "^0.12.2"
 shellous = "^0.38.0"
 
 [tool.poetry.group.demonet]
