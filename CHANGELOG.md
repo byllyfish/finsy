@@ -1,5 +1,11 @@
 # Finsy Change Log
 
+## 0.28.0
+
+- Update `GNMI` protobufs to latest from upstream.
+- Re-compile protobuf files with newer `protoc`.
+- Re-format python source files with latest version of `black`.
+
 ## 0.27.0
 
 - Update `P4Runtime` protobufs to the 1.4.1 release.
