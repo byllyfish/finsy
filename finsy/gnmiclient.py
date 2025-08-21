@@ -20,7 +20,7 @@ import asyncio
 from dataclasses import dataclass
 from typing import Any, AsyncIterator, Iterator, Sequence, TypeAlias, cast
 
-import grpc  # pyright: ignore[reportMissingTypeStubs]
+import grpc
 from typing_extensions import Self
 
 from finsy import pbutil
@@ -109,7 +109,7 @@ def gnmi_update(
             val = gnmi.TypedValue(string_val=value)
         case bytes():
             val = gnmi.TypedValue(bytes_val=value)
-        case _:  # pyright: ignore[reportUnnecessaryComparison]
+        case _:
             raise TypeError(f"unexpected type: {type(value).__name__}")
 
     return gnmi.Update(path=path.path, val=val)
@@ -238,7 +238,7 @@ class GNMIClient:
         try:
             reply = cast(
                 gnmi.GetResponse,
-                await self._stub.Get(request),
+                await self._stub.Get(request),  # type: ignore
             )
         except grpc.RpcError as ex:
             raise GNMIClientError(ex) from None
@@ -300,7 +300,7 @@ class GNMIClient:
         try:
             reply = cast(
                 gnmi.CapabilityResponse,
-                await self._stub.Capabilities(request),
+                await self._stub.Capabilities(request),  # type: ignore
             )
         except grpc.RpcError as ex:
             raise GNMIClientError(ex) from None
@@ -351,7 +351,7 @@ class GNMIClient:
         try:
             reply = cast(
                 gnmi.SetResponse,
-                await self._stub.Set(request),
+                await self._stub.Set(request),  # type: ignore
             )
         except grpc.RpcError as ex:
             raise GNMIClientError(ex) from None
@@ -492,7 +492,7 @@ class GNMISubscription:
         while True:
             msg = cast(
                 gnmi.SubscribeResponse,
-                await self._stream.read(),  # type: ignore
+                await self._stream.read(),
             )
             if msg is GRPC_EOF:
                 LOGGER.warning("gNMI _read: unexpected EOF")

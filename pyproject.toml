@@ -31,9 +31,9 @@ poetry-plugin-export = ">=1.8"
 python = "^3.10"
 
 # Core dependencies.
-grpcio = "^1.73.1"
+grpcio = "^1.74.0"
 parsy = "^2.1.0"
-protobuf = "^6.31.1"
+protobuf = "^6.32.0"
 pyee = "^13.0.0"
 
 # Optional dependency: installed via `pip install finsy[demonet]`
@@ -44,15 +44,15 @@ demonet = ["shellous"]
 
 [tool.poetry.group.dev.dependencies]
 black = "25.1.0"
-mypy = "^1.16.1"
+mypy = "^1.17.1"
 pdoc = "^15.0.4"
 prometheus-client = "^0.22.1"
-pylint = "^3.3.7"
+pylint = "^3.3.8"
 pyright = "^1.1.403"
 pytest = "^8.4.1"
-pytest-asyncio = "^1.0.0"
+pytest-asyncio = "^1.1.0"
 pytest-cov = "^6.2.1"
-ruff = "^0.12.2"
+ruff = "^0.12.9"
 shellous = "^0.38.0"
 
 [tool.poetry.group.demonet]
@@ -185,6 +185,7 @@ ignore = [
   "S101",   # Use of `assert` detected
   "EM101",  # Exception must not use a string literal, assign to variable first
   "EM102",  # Exception must not use an f-string literal, assign to variable first
+  "RUF022", # `__all__` is not sorted
 ]
 
 [tool.ruff.lint.per-file-ignores]

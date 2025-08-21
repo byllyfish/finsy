@@ -19,14 +19,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
-import grpc  # pyright: ignore[reportMissingTypeStubs]
+import grpc
 
 from finsy.log import LOGGER
 from finsy.proto import rpc_code
 
 # `grpc.aio.EOF` is not typed.
 GRPC_EOF: object = cast(
-    object, grpc.aio.EOF  # pyright: ignore[reportUnknownMemberType]
+    object,
+    grpc.aio.EOF,  # pyright: ignore[reportUnknownMemberType,reportAttributeAccessIssue]
 )
 
 
@@ -61,7 +62,7 @@ class GRPCStatusCode(_EnumBase):
     @classmethod
     def from_status_code(cls, val: grpc.StatusCode) -> "GRPCStatusCode":
         "Create corresponding GRPCStatusCode from a grpc.StatusCode object."
-        n: Any = val.value[0]  # pyright: ignore[reportUnknownMemberType]
+        n: Any = val.value[0]
         assert isinstance(n, int)
         return GRPCStatusCode(n)
 
@@ -69,7 +70,7 @@ class GRPCStatusCode(_EnumBase):
     def _validate_enum() -> None:
         "Verify that GRPCStatusCode covers every possible grpc.StatusCode."
         for value in grpc.StatusCode:
-            n: Any = value.value[0]  # pyright: ignore[reportUnknownMemberType]
+            n: Any = value.value[0]
             assert isinstance(n, int)
             assert GRPCStatusCode[value.name].value == n, value.name
 
@@ -141,7 +142,7 @@ class GRPCCredentialsTLS:
         private_key = _coerce_tls_path(self.private_key)
 
         return self._compose_credentials(
-            grpc.ssl_channel_credentials(  # pyright: ignore[reportUnknownMemberType]
+            grpc.ssl_channel_credentials(
                 root_certificates=root_certificates,
                 private_key=private_key,
                 certificate_chain=certificate_chain,
@@ -157,7 +158,13 @@ class GRPCCredentialsTLS:
         certificate_chain = _coerce_tls_path(self.cert)
         private_key = _coerce_tls_path(self.private_key)
 
-        return grpc.ssl_server_credentials(  # pyright: ignore[reportUnknownMemberType]
+        if not private_key:
+            raise ValueError("Empty private key in server credentials")
+
+        if not certificate_chain:
+            raise ValueError("Empty certificate chain in server credential")
+
+        return grpc.ssl_server_credentials(
             private_key_certificate_chain_pairs=[(private_key, certificate_chain)],
             root_certificates=root_certificates,
             require_client_auth=True,
@@ -170,15 +177,8 @@ class GRPCCredentialsTLS:
         if not self.call_credentials:
             return channel_cred
 
-        call_cred = (
-            grpc.metadata_call_credentials(  # pyright: ignore[reportUnknownMemberType]
-                self.call_credentials
-            )
-        )
-        return grpc.composite_channel_credentials(  # pyright: ignore[reportUnknownMemberType]
-            channel_cred,
-            call_cred,
-        )
+        call_cred = grpc.metadata_call_credentials(self.call_credentials)
+        return grpc.composite_channel_credentials(channel_cred, call_cred)
 
 
 def _coerce_tls_path(value: Path | bytes | None) -> bytes | None:

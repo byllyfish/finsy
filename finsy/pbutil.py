@@ -19,7 +19,7 @@ import re
 import textwrap
 from typing import Any, TypeVar
 
-import grpc  # pyright: ignore [reportMissingTypeStubs]
+import grpc
 from google.protobuf import json_format, text_format
 from google.protobuf.any_pb2 import Any as _Any  # pylint: disable=E0611
 from google.protobuf.message import Message as _Message

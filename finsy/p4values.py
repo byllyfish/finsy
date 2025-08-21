@@ -339,7 +339,7 @@ def encode_lpm(value: _LPMValue, bitwidth: int) -> tuple[bytes, int]:
             if bitwidth != value.max_prefixlen:
                 raise _invalid_err("lpm", bitwidth, value)
             return (encode_exact(value, bitwidth), bitwidth)
-        case _:  # pyright: ignore[reportUnnecessaryComparison]
+        case _:
             raise _invalid_err("lpm", bitwidth, value)
 
 
@@ -530,7 +530,7 @@ def encode_range(value: _RangeValue, bitwidth: int) -> tuple[bytes, bytes]:
             low, high = val.split("...", 1)
         case (low, high):
             pass
-        case _:  # pyright: ignore[reportUnnecessaryComparison]
+        case _:
             raise _invalid_err("range", bitwidth, value)
 
     return (encode_exact(low, bitwidth), encode_exact(high, bitwidth))
