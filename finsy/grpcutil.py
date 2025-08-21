@@ -158,6 +158,12 @@ class GRPCCredentialsTLS:
         certificate_chain = _coerce_tls_path(self.cert)
         private_key = _coerce_tls_path(self.private_key)
 
+        if not private_key:
+            raise ValueError("Empty private key in server credentials")
+
+        if not certificate_chain:
+            raise ValueError("Empty certificate chain in server credential")
+
         return grpc.ssl_server_credentials(
             private_key_certificate_chain_pairs=[(private_key, certificate_chain)],
             root_certificates=root_certificates,

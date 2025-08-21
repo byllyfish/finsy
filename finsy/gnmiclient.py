@@ -238,7 +238,7 @@ class GNMIClient:
         try:
             reply = cast(
                 gnmi.GetResponse,
-                await self._stub.Get(request),
+                await self._stub.Get(request),  # type: ignore
             )
         except grpc.RpcError as ex:
             raise GNMIClientError(ex) from None
@@ -300,7 +300,7 @@ class GNMIClient:
         try:
             reply = cast(
                 gnmi.CapabilityResponse,
-                await self._stub.Capabilities(request),
+                await self._stub.Capabilities(request),  # type: ignore
             )
         except grpc.RpcError as ex:
             raise GNMIClientError(ex) from None
@@ -351,7 +351,7 @@ class GNMIClient:
         try:
             reply = cast(
                 gnmi.SetResponse,
-                await self._stub.Set(request),
+                await self._stub.Set(request),  # type: ignore
             )
         except grpc.RpcError as ex:
             raise GNMIClientError(ex) from None

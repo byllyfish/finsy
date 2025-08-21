@@ -78,7 +78,9 @@ class P4RpcStatus:
         "Construct status from RpcError."
         assert isinstance(error, grpc.aio.AioRpcError)
 
-        for key, value in error.trailing_metadata():
+        # N.B. AioRpcError overrides trailing_metadata with a different
+        # return type than RpcError.
+        for key, value in error.trailing_metadata():  # type: ignore
             if key == "grpc-status-details-bin":
                 assert isinstance(value, bytes)
                 return P4RpcStatus.from_bytes(value)
