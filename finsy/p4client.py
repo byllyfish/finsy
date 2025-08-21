@@ -18,7 +18,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, AsyncIterator, Callable, Sequence, TypeAlias, cast, overload
 
-import grpc  # pyright: ignore[reportMissingTypeStubs]
+import grpc
 from typing_extensions import Self
 
 from finsy import pbutil
@@ -341,7 +341,7 @@ class P4Client:
         try:
             msg = cast(
                 p4r.StreamMessageResponse,
-                await self._stream.read(),  # type: ignore
+                await self._stream.read(),
             )
             if msg is GRPC_EOF:
                 # Treat EOF as a protocol violation.

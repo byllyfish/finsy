@@ -707,7 +707,7 @@ class P4IndirectAction:
                     watch_port = None
                 case (weight_value, int(watch)):
                     watch_port = encode_watch_port(watch)
-                case _:  # pyright: ignore[reportUnnecessaryComparison]
+                case _:
                     raise ValueError(f"unexpected action weight: {weight!r}")
 
             profile = p4r.ActionProfileAction(action=action, weight=weight_value)

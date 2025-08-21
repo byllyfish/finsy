@@ -808,7 +808,7 @@ def _parse_structured_annotation(annotation: p4t.StructuredAnnotation) -> P4Anno
             body = _parse_kvpairs(annotation.kv_pair_list.kv_pairs)
         case None:
             body = []  # empty expression list
-        case _:  # pyright: ignore[reportUnnecessaryComparison]
+        case _:
             raise ValueError(f"unsupported structured annotation: {annotation!r}")
     return P4Annotation(annotation.name, body)
 
