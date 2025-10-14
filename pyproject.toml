@@ -46,13 +46,13 @@ demonet = ["shellous"]
 black = "25.9.0"
 mypy = "^1.18.2"
 pdoc = "^15.0.4"
-prometheus-client = "^0.22.1"
-pylint = "^3.3.9"
+prometheus-client = "^0.23.1"
+pylint = "^4.0.0"
 pyright = "^1.1.406"
 pytest = "^8.4.2"
 pytest-asyncio = "^1.2.0"
-pytest-cov = "^6.3.0"
-ruff = "^0.12.12"
+pytest-cov = "^7.0.0"
+ruff = "^0.14.0"
 shellous = "^0.39.0"
 
 [tool.poetry.group.demonet]
