@@ -16,6 +16,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Framework :: AsyncIO",
   "Typing :: Typed",
 ]
@@ -31,29 +32,29 @@ poetry-plugin-export = ">=1.8"
 python = "^3.10"
 
 # Core dependencies.
-grpcio = "^1.74.0"
-parsy = "^2.1.0"
-protobuf = "^6.32.0"
+grpcio = "^1.75.1"
+parsy = "^2.2.0"
+protobuf = "^6.32.1"
 pyee = "^13.0.0"
 
 # Optional dependency: installed via `pip install finsy[demonet]`
-shellous = { version = "^0.38.0", optional = true }
+shellous = { version = "^0.39.0", optional = true }
 
 [tool.poetry.extras]
 demonet = ["shellous"]
 
 [tool.poetry.group.dev.dependencies]
-black = "25.1.0"
-mypy = "^1.17.1"
+black = "25.9.0"
+mypy = "^1.18.2"
 pdoc = "^15.0.4"
-prometheus-client = "^0.22.1"
-pylint = "^3.3.8"
-pyright = "^1.1.403"
-pytest = "^8.4.1"
-pytest-asyncio = "^1.1.0"
-pytest-cov = "^6.2.1"
-ruff = "^0.12.9"
-shellous = "^0.38.0"
+prometheus-client = "^0.23.1"
+pylint = "^4.0.0"
+pyright = "^1.1.406"
+pytest = "^8.4.2"
+pytest-asyncio = "^1.2.0"
+pytest-cov = "^7.0.0"
+ruff = "^0.14.0"
+shellous = "^0.39.0"
 
 [tool.poetry.group.demonet]
 optional = true
@@ -112,7 +113,7 @@ reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']
-required-version = "25.1.0"
+required-version = "25.9.0"
 force-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 #************
