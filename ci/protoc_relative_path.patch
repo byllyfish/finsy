@@ -1,5 +1,5 @@
 diff --git b/finsy/proto/gnmi1/gnmi_pb2.py a/finsy/proto/gnmi1/gnmi_pb2.py
-index b1abd23..a596421 100644
+index c2b36d4..f83da65 100644
 --- b/finsy/proto/gnmi1/gnmi_pb2.py
 +++ a/finsy/proto/gnmi1/gnmi_pb2.py
 @@ -26,3 +26,3 @@ from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
@@ -97,7 +97,7 @@ index ef4a518..84117b1 100644
 +        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
      ) -> None: ...
 diff --git b/finsy/proto/gnmi1/gnmi_pb2_grpc.py a/finsy/proto/gnmi1/gnmi_pb2_grpc.py
-index a831028..85c8a8c 100644
+index eaa7acb..9f20986 100644
 --- b/finsy/proto/gnmi1/gnmi_pb2_grpc.py
 +++ a/finsy/proto/gnmi1/gnmi_pb2_grpc.py
 @@ -5,3 +5,3 @@ import warnings
@@ -203,7 +203,7 @@ index cbb2816..c1a2cef 100644
 +    ) -> typing.Union[collections.abc.Iterator[_dot_gnmi_pb2.SubscribeResponse], collections.abc.AsyncIterator[_dot_gnmi_pb2.SubscribeResponse]]:
          """Subscribe allows a client to request the target to send it values
 diff --git b/finsy/proto/p4/config/v1/p4info_pb2.py a/finsy/proto/p4/config/v1/p4info_pb2.py
-index 99d4db5..1d461db 100644
+index d5d4397..989e86c 100644
 --- b/finsy/proto/p4/config/v1/p4info_pb2.py
 +++ a/finsy/proto/p4/config/v1/p4info_pb2.py
 @@ -25,3 +25,3 @@ _sym_db = _symbol_database.Default()
@@ -212,7 +212,7 @@ index 99d4db5..1d461db 100644
 +from . import p4types_pb2 as p4_dot_config_dot_v1_dot_p4types__pb2
  
 diff --git b/finsy/proto/p4/config/v1/p4info_pb2.pyi a/finsy/proto/p4/config/v1/p4info_pb2.pyi
-index ebd8515..3e171a6 100644
+index 52574b0..7566ca4 100644
 --- b/finsy/proto/p4/config/v1/p4info_pb2.pyi
 +++ a/finsy/proto/p4/config/v1/p4info_pb2.pyi
 @@ -12,3 +12,3 @@ import google.protobuf.internal.enum_type_wrapper
@@ -321,7 +321,7 @@ index ebd8515..3e171a6 100644
          @property
 -        def type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
 +        def type_name(self) -> _dot_p4types_pb2.P4NamedType:
-             """unset if not user-defined type"""
+             """unset if not user-defined type."""
 @@ -740,3 +740,3 @@ class Action(google.protobuf.message.Message):
          @property
 -        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
@@ -338,42 +338,42 @@ index ebd8515..3e171a6 100644
 +            type_name: _dot_p4types_pb2.P4NamedType | None = ...,
 +            structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
          ) -> None: ...
-@@ -915,3 +915,3 @@ class Counter(google.protobuf.message.Message):
+@@ -923,3 +923,3 @@ class Counter(google.protobuf.message.Message):
      @property
 -    def index_type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
 +    def index_type_name(self) -> _dot_p4types_pb2.P4NamedType:
          """unset if index is not user-defined type"""
-@@ -924,3 +924,3 @@ class Counter(google.protobuf.message.Message):
+@@ -932,3 +932,3 @@ class Counter(google.protobuf.message.Message):
          size: builtins.int = ...,
 -        index_type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
 +        index_type_name: _dot_p4types_pb2.P4NamedType | None = ...,
      ) -> None: ...
-@@ -1059,3 +1059,3 @@ class Meter(google.protobuf.message.Message):
+@@ -1067,3 +1067,3 @@ class Meter(google.protobuf.message.Message):
      @property
 -    def index_type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
 +    def index_type_name(self) -> _dot_p4types_pb2.P4NamedType:
          """unset if index is not user-defined type"""
-@@ -1068,3 +1068,3 @@ class Meter(google.protobuf.message.Message):
+@@ -1076,3 +1076,3 @@ class Meter(google.protobuf.message.Message):
          size: builtins.int = ...,
 -        index_type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
 +        index_type_name: _dot_p4types_pb2.P4NamedType | None = ...,
      ) -> None: ...
-@@ -1132,3 +1132,3 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
+@@ -1140,3 +1140,3 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
          @property
 -        def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
 +        def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
              """Optional. If present, the location of `annotations[i]` is given by
-@@ -1138,3 +1138,3 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
+@@ -1146,3 +1146,3 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
          @property
 -        def type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
 +        def type_name(self) -> _dot_p4types_pb2.P4NamedType:
              """unset if not user-defined type"""
-@@ -1142,3 +1142,3 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
+@@ -1150,3 +1150,3 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
          @property
 -        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
 +        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
          def __init__(
-@@ -1149,6 +1149,6 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
+@@ -1157,6 +1157,6 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
              annotations: collections.abc.Iterable[builtins.str] | None = ...,
 -            annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
 +            annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
@@ -383,7 +383,7 @@ index ebd8515..3e171a6 100644
 +            type_name: _dot_p4types_pb2.P4NamedType | None = ...,
 +            structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
          ) -> None: ...
-@@ -1219,5 +1219,5 @@ class Register(google.protobuf.message.Message):
+@@ -1227,5 +1227,5 @@ class Register(google.protobuf.message.Message):
      @property
 -    def type_spec(self) -> p4.config.v1.p4types_pb2.P4DataTypeSpec: ...
 +    def type_spec(self) -> _dot_p4types_pb2.P4DataTypeSpec: ...
@@ -391,7 +391,7 @@ index ebd8515..3e171a6 100644
 -    def index_type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
 +    def index_type_name(self) -> _dot_p4types_pb2.P4NamedType:
          """unset if index is not user-defined type"""
-@@ -1228,5 +1228,5 @@ class Register(google.protobuf.message.Message):
+@@ -1236,5 +1236,5 @@ class Register(google.protobuf.message.Message):
          preamble: global___Preamble | None = ...,
 -        type_spec: p4.config.v1.p4types_pb2.P4DataTypeSpec | None = ...,
 +        type_spec: _dot_p4types_pb2.P4DataTypeSpec | None = ...,
@@ -399,18 +399,18 @@ index ebd8515..3e171a6 100644
 -        index_type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
 +        index_type_name: _dot_p4types_pb2.P4NamedType | None = ...,
      ) -> None: ...
-@@ -1246,3 +1246,3 @@ class Digest(google.protobuf.message.Message):
+@@ -1254,3 +1254,3 @@ class Digest(google.protobuf.message.Message):
      @property
 -    def type_spec(self) -> p4.config.v1.p4types_pb2.P4DataTypeSpec: ...
 +    def type_spec(self) -> _dot_p4types_pb2.P4DataTypeSpec: ...
      def __init__(
-@@ -1251,3 +1251,3 @@ class Digest(google.protobuf.message.Message):
+@@ -1259,3 +1259,3 @@ class Digest(google.protobuf.message.Message):
          preamble: global___Preamble | None = ...,
 -        type_spec: p4.config.v1.p4types_pb2.P4DataTypeSpec | None = ...,
 +        type_spec: _dot_p4types_pb2.P4DataTypeSpec | None = ...,
      ) -> None: ...
 diff --git b/finsy/proto/p4/v1/p4runtime_pb2.py a/finsy/proto/p4/v1/p4runtime_pb2.py
-index fe1b877..5777af0 100644
+index 96187af..ac43f11 100644
 --- b/finsy/proto/p4/v1/p4runtime_pb2.py
 +++ a/finsy/proto/p4/v1/p4runtime_pb2.py
 @@ -25,5 +25,5 @@ _sym_db = _symbol_database.Default()
@@ -423,7 +423,7 @@ index fe1b877..5777af0 100644
 +from . import p4data_pb2 as p4_dot_v1_dot_p4data__pb2
  
 diff --git b/finsy/proto/p4/v1/p4runtime_pb2.pyi a/finsy/proto/p4/v1/p4runtime_pb2.pyi
-index d369349..903e635 100644
+index 8fb662f..d73c320 100644
 --- b/finsy/proto/p4/v1/p4runtime_pb2.pyi
 +++ a/finsy/proto/p4/v1/p4runtime_pb2.pyi
 @@ -12,5 +12,5 @@ import google.protobuf.internal.enum_type_wrapper
@@ -435,48 +435,48 @@ index d369349..903e635 100644
 +from ..config.v1 import p4info_pb2 as _dot_p4info_pb2
 +from . import p4data_pb2 as _dot_p4data_pb2
  import sys
-@@ -1274,3 +1274,3 @@ class RegisterEntry(google.protobuf.message.Message):
+@@ -1363,3 +1363,3 @@ class RegisterEntry(google.protobuf.message.Message):
      @property
 -    def data(self) -> p4.v1.p4data_pb2.P4Data: ...
 +    def data(self) -> _dot_p4data_pb2.P4Data: ...
      def __init__(
-@@ -1280,3 +1280,3 @@ class RegisterEntry(google.protobuf.message.Message):
+@@ -1369,3 +1369,3 @@ class RegisterEntry(google.protobuf.message.Message):
          index: global___Index | None = ...,
 -        data: p4.v1.p4data_pb2.P4Data | None = ...,
 +        data: _dot_p4data_pb2.P4Data | None = ...,
      ) -> None: ...
-@@ -1507,3 +1507,3 @@ class DigestList(google.protobuf.message.Message):
+@@ -1596,3 +1596,3 @@ class DigestList(google.protobuf.message.Message):
      @property
 -    def data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.v1.p4data_pb2.P4Data]:
 +    def data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4data_pb2.P4Data]:
          """List of entries: each call to the Digest<T>::pack() method corresponds to
-@@ -1517,3 +1517,3 @@ class DigestList(google.protobuf.message.Message):
+@@ -1606,3 +1606,3 @@ class DigestList(google.protobuf.message.Message):
          list_id: builtins.int = ...,
 -        data: collections.abc.Iterable[p4.v1.p4data_pb2.P4Data] | None = ...,
 +        data: collections.abc.Iterable[_dot_p4data_pb2.P4Data] | None = ...,
          timestamp: builtins.int = ...,
-@@ -1575,3 +1575,3 @@ class MasterArbitrationUpdate(google.protobuf.message.Message):
+@@ -1664,3 +1664,3 @@ class MasterArbitrationUpdate(google.protobuf.message.Message):
      @property
 -    def status(self) -> google.rpc.status_pb2.Status:
 +    def status(self) -> _dot_status_pb2.Status:
          """Switch populates this with OK for the client that is the primary, and
-@@ -1587,3 +1587,3 @@ class MasterArbitrationUpdate(google.protobuf.message.Message):
+@@ -1676,3 +1676,3 @@ class MasterArbitrationUpdate(google.protobuf.message.Message):
          election_id: global___Uint128 | None = ...,
 -        status: google.rpc.status_pb2.Status | None = ...,
 +        status: _dot_status_pb2.Status | None = ...,
      ) -> None: ...
-@@ -1944,3 +1944,3 @@ class ForwardingPipelineConfig(google.protobuf.message.Message):
+@@ -2033,3 +2033,3 @@ class ForwardingPipelineConfig(google.protobuf.message.Message):
      @property
 -    def p4info(self) -> p4.config.v1.p4info_pb2.P4Info: ...
 +    def p4info(self) -> _dot_p4info_pb2.P4Info: ...
      @property
-@@ -1950,3 +1950,3 @@ class ForwardingPipelineConfig(google.protobuf.message.Message):
+@@ -2039,3 +2039,3 @@ class ForwardingPipelineConfig(google.protobuf.message.Message):
          *,
 -        p4info: p4.config.v1.p4info_pb2.P4Info | None = ...,
 +        p4info: _dot_p4info_pb2.P4Info | None = ...,
          p4_device_config: builtins.bytes = ...,
 diff --git b/finsy/proto/p4/v1/p4runtime_pb2_grpc.py a/finsy/proto/p4/v1/p4runtime_pb2_grpc.py
-index 51c39b2..a1dfc5c 100644
+index f6376e4..0ee8a08 100644
 --- b/finsy/proto/p4/v1/p4runtime_pb2_grpc.py
 +++ a/finsy/proto/p4/v1/p4runtime_pb2_grpc.py
 @@ -5,3 +5,3 @@ import warnings
@@ -626,7 +626,7 @@ index bfe8ee1..925392e 100644
 +    ) -> typing.Union[_dot_p4runtime_pb2.CapabilitiesResponse, collections.abc.Awaitable[_dot_p4runtime_pb2.CapabilitiesResponse]]: ...
  
 diff --git b/finsy/proto/p4testgen1/p4testgen_pb2.py a/finsy/proto/p4testgen1/p4testgen_pb2.py
-index fbfd6fc..f663c15 100644
+index 7032aca..1bf7c66 100644
 --- b/finsy/proto/p4testgen1/p4testgen_pb2.py
 +++ a/finsy/proto/p4testgen1/p4testgen_pb2.py
 @@ -24,3 +24,3 @@ _sym_db = _symbol_database.Default()
