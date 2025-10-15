@@ -683,15 +683,73 @@ global___Action = Action
 class ActionProfileActionSet(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    class _ActionSelectionMode:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _ActionSelectionModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ActionProfileActionSet._ActionSelectionMode.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        DEFAULT_MODE_DETERMINED_BY_ACTION_SELECTOR: ActionProfileActionSet._ActionSelectionMode.ValueType  # 0
+        """Uses the mode specified by the action selector."""
+        HASH: ActionProfileActionSet._ActionSelectionMode.ValueType  # 1
+        """Uses the hash mode specified by the action selector or a target-defined
+        hash mode if there is none.
+        """
+        RANDOM: ActionProfileActionSet._ActionSelectionMode.ValueType  # 2
+        """Picks the action randomly."""
+
+    class ActionSelectionMode(_ActionSelectionMode, metaclass=_ActionSelectionModeEnumTypeWrapper):
+        """Added in v1.5.0."""
+
+    DEFAULT_MODE_DETERMINED_BY_ACTION_SELECTOR: ActionProfileActionSet.ActionSelectionMode.ValueType  # 0
+    """Uses the mode specified by the action selector."""
+    HASH: ActionProfileActionSet.ActionSelectionMode.ValueType  # 1
+    """Uses the hash mode specified by the action selector or a target-defined
+    hash mode if there is none.
+    """
+    RANDOM: ActionProfileActionSet.ActionSelectionMode.ValueType  # 2
+    """Picks the action randomly."""
+
+    class _SizeSemantics:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _SizeSemanticsEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[ActionProfileActionSet._SizeSemantics.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        DEFAULT_SIZE_DETERMINED_BY_ACTION_SELECTOR: ActionProfileActionSet._SizeSemantics.ValueType  # 0
+        """Uses the `selector_size_semantics` specified by the action selector."""
+        SUM_OF_WEIGHTS: ActionProfileActionSet._SizeSemantics.ValueType  # 1
+        """Uses the `sum_of_weights` `selector_size_semantics` for this group."""
+        SUM_OF_MEMBERS: ActionProfileActionSet._SizeSemantics.ValueType  # 2
+        """Uses the `sum_of_members` `selector_size_semantics` for this group."""
+
+    class SizeSemantics(_SizeSemantics, metaclass=_SizeSemanticsEnumTypeWrapper):
+        """Added in v1.5.0."""
+
+    DEFAULT_SIZE_DETERMINED_BY_ACTION_SELECTOR: ActionProfileActionSet.SizeSemantics.ValueType  # 0
+    """Uses the `selector_size_semantics` specified by the action selector."""
+    SUM_OF_WEIGHTS: ActionProfileActionSet.SizeSemantics.ValueType  # 1
+    """Uses the `sum_of_weights` `selector_size_semantics` for this group."""
+    SUM_OF_MEMBERS: ActionProfileActionSet.SizeSemantics.ValueType  # 2
+    """Uses the `sum_of_members` `selector_size_semantics` for this group."""
+
     ACTION_PROFILE_ACTIONS_FIELD_NUMBER: builtins.int
+    ACTION_SELECTION_MODE_FIELD_NUMBER: builtins.int
+    SIZE_SEMANTICS_FIELD_NUMBER: builtins.int
+    action_selection_mode: global___ActionProfileActionSet.ActionSelectionMode.ValueType
+    """Determines how the group selects a per-packet action."""
+    size_semantics: global___ActionProfileActionSet.SizeSemantics.ValueType
+    """Determines the resources used by the group."""
     @property
     def action_profile_actions(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ActionProfileAction]: ...
     def __init__(
         self,
         *,
         action_profile_actions: collections.abc.Iterable[global___ActionProfileAction] | None = ...,
+        action_selection_mode: global___ActionProfileActionSet.ActionSelectionMode.ValueType = ...,
+        size_semantics: global___ActionProfileActionSet.SizeSemantics.ValueType = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["action_profile_actions", b"action_profile_actions"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["action_profile_actions", b"action_profile_actions", "action_selection_mode", b"action_selection_mode", "size_semantics", b"size_semantics"]) -> None: ...
 
 global___ActionProfileActionSet = ActionProfileActionSet
 
@@ -1102,6 +1160,28 @@ class PacketReplicationEngineEntry(google.protobuf.message.Message):
 global___PacketReplicationEngineEntry = PacketReplicationEngineEntry
 
 @typing.final
+class BackupReplica(google.protobuf.message.Message):
+    """A backup replica used as a fallback when the primary replica port goes down.
+    Added in v1.5.0.
+    """
+
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PORT_FIELD_NUMBER: builtins.int
+    INSTANCE_FIELD_NUMBER: builtins.int
+    port: builtins.bytes
+    instance: builtins.int
+    def __init__(
+        self,
+        *,
+        port: builtins.bytes = ...,
+        instance: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["instance", b"instance", "port", b"port"]) -> None: ...
+
+global___BackupReplica = BackupReplica
+
+@typing.final
 class Replica(google.protobuf.message.Message):
     """Used for replicas created for cloning and multicasting actions."""
 
@@ -1110,6 +1190,7 @@ class Replica(google.protobuf.message.Message):
     EGRESS_PORT_FIELD_NUMBER: builtins.int
     PORT_FIELD_NUMBER: builtins.int
     INSTANCE_FIELD_NUMBER: builtins.int
+    BACKUP_REPLICAS_FIELD_NUMBER: builtins.int
     egress_port: builtins.int
     """Using uint32 as ports is deprecated, use port field instead.
     Deprecated in v1.4.0
@@ -1117,15 +1198,23 @@ class Replica(google.protobuf.message.Message):
     port: builtins.bytes
     """Added in v1.4.0"""
     instance: builtins.int
+    @property
+    def backup_replicas(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___BackupReplica]:
+        """List of backup replicas used as a fallback when the primary replica port
+        (and all higher-preference backup replica ports) are down.
+        Added in v1.5.0.
+        """
+
     def __init__(
         self,
         *,
         egress_port: builtins.int = ...,
         port: builtins.bytes = ...,
         instance: builtins.int = ...,
+        backup_replicas: collections.abc.Iterable[global___BackupReplica] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["egress_port", b"egress_port", "port", b"port", "port_kind", b"port_kind"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["egress_port", b"egress_port", "instance", b"instance", "port", b"port", "port_kind", b"port_kind"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["backup_replicas", b"backup_replicas", "egress_port", b"egress_port", "instance", b"instance", "port", b"port", "port_kind", b"port_kind"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["port_kind", b"port_kind"]) -> typing.Literal["egress_port", "port"] | None: ...
 
 global___Replica = Replica
@@ -2073,9 +2162,18 @@ class CapabilitiesRequest(google.protobuf.message.Message):
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    DEVICE_ID_FIELD_NUMBER: builtins.int
+    device_id: builtins.int
+    """Optional: Response should include the device-specific capabilities of the
+    device identified by `device_id` in addition to server-wide capabilities.
+    Added in v1.5.0
+    """
     def __init__(
         self,
+        *,
+        device_id: builtins.int = ...,
     ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["device_id", b"device_id"]) -> None: ...
 
 global___CapabilitiesRequest = CapabilitiesRequest
 
@@ -2084,15 +2182,24 @@ class CapabilitiesResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     P4RUNTIME_API_VERSION_FIELD_NUMBER: builtins.int
+    EXPERIMENTAL_FIELD_NUMBER: builtins.int
     p4runtime_api_version: builtins.str
     """The full semantic version string (e.g. "1.1.0-rc.1") corresponding to the
     version of the P4Runtime API currently implemented by the server.
     """
+    @property
+    def experimental(self) -> google.protobuf.any_pb2.Any:
+        """Used for experimental features before proposing them for standardization.
+        Added in 1.5.0.
+        """
+
     def __init__(
         self,
         *,
         p4runtime_api_version: builtins.str = ...,
+        experimental: google.protobuf.any_pb2.Any | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["p4runtime_api_version", b"p4runtime_api_version"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["experimental", b"experimental"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["experimental", b"experimental", "p4runtime_api_version", b"p4runtime_api_version"]) -> None: ...
 
 global___CapabilitiesResponse = CapabilitiesResponse

@@ -731,11 +731,11 @@ class Action(google.protobuf.message.Message):
 
         @property
         def doc(self) -> global___Documentation:
-            """Documentation of the Param"""
+            """Documentation of the Param."""
 
         @property
         def type_name(self) -> _dot_p4types_pb2.P4NamedType:
-            """unset if not user-defined type"""
+            """unset if not user-defined type."""
 
         @property
         def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
@@ -780,7 +780,7 @@ class ActionProfile(google.protobuf.message.Message):
         """indicates that `size` and `max_group_size` represent the maximum sum of
         weights that can be present across all selector groups and within a
         single selector group respectively.
-        Added in v1.4.0
+        Added in v1.4.0.
         """
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -794,7 +794,7 @@ class ActionProfile(google.protobuf.message.Message):
         """indicates that `size` and `max_group_size` represent the maximum number
         of members that can be present across all selector groups and within a
         single selector group respectively.
-        Added in v1.4.0
+        Added in v1.4.0.
         """
 
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -816,6 +816,7 @@ class ActionProfile(google.protobuf.message.Message):
     MAX_GROUP_SIZE_FIELD_NUMBER: builtins.int
     SUM_OF_WEIGHTS_FIELD_NUMBER: builtins.int
     SUM_OF_MEMBERS_FIELD_NUMBER: builtins.int
+    WEIGHTS_DISALLOWED_FIELD_NUMBER: builtins.int
     with_selector: builtins.bool
     """true iff the action profile used dynamic selection"""
     size: builtins.int
@@ -827,6 +828,12 @@ class ActionProfile(google.protobuf.message.Message):
     """0 if the action profile does not have a selector. Otherwise, semantics as
     specified by `selector_size_semantics` below.
     """
+    weights_disallowed: builtins.bool
+    """dictates whether the controller can specify weights for groups programmed
+    in this ActionProfile. If `weights_disallowed` is true, then all weights
+    must be absent. Unset (false) in action profiles.
+    Added in v1.5.0.
+    """
     @property
     def preamble(self) -> global___Preamble: ...
     @property
@@ -836,13 +843,13 @@ class ActionProfile(google.protobuf.message.Message):
     @property
     def sum_of_weights(self) -> global___ActionProfile.SumOfWeights:
         """group size is the sum of the group's weights.
-        Added in v1.4.0
+        Added in v1.4.0.
         """
 
     @property
     def sum_of_members(self) -> global___ActionProfile.SumOfMembers:
         """group size is the sum of the group's members.
-        Added in v1.4.0
+        Added in v1.4.0.
         """
 
     def __init__(
@@ -855,9 +862,10 @@ class ActionProfile(google.protobuf.message.Message):
         max_group_size: builtins.int = ...,
         sum_of_weights: global___ActionProfile.SumOfWeights | None = ...,
         sum_of_members: global___ActionProfile.SumOfMembers | None = ...,
+        weights_disallowed: builtins.bool = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["preamble", b"preamble", "selector_size_semantics", b"selector_size_semantics", "sum_of_members", b"sum_of_members", "sum_of_weights", b"sum_of_weights"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["max_group_size", b"max_group_size", "preamble", b"preamble", "selector_size_semantics", b"selector_size_semantics", "size", b"size", "sum_of_members", b"sum_of_members", "sum_of_weights", b"sum_of_weights", "table_ids", b"table_ids", "with_selector", b"with_selector"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["max_group_size", b"max_group_size", "preamble", b"preamble", "selector_size_semantics", b"selector_size_semantics", "size", b"size", "sum_of_members", b"sum_of_members", "sum_of_weights", b"sum_of_weights", "table_ids", b"table_ids", "weights_disallowed", b"weights_disallowed", "with_selector", b"with_selector"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["selector_size_semantics", b"selector_size_semantics"]) -> typing.Literal["sum_of_weights", "sum_of_members"] | None: ...
 
 global___ActionProfile = ActionProfile
