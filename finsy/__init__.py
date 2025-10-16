@@ -58,7 +58,13 @@ from .p4entity import (
     P4TableMatch,
     P4ValueSetEntry,
 )
-from .p4schema import P4ConfigAction, P4CounterUnit, P4Schema
+from .p4schema import (
+    P4ActionSelectionMode,
+    P4ActionSizeSemantics,
+    P4ConfigAction,
+    P4CounterUnit,
+    P4Schema,
+)
 from .ports import SwitchPort, SwitchPortList
 from .runner import run
 from .switch import Switch, SwitchEvent, SwitchOptions
@@ -108,6 +114,8 @@ __all__ = [
     "Match",  # alias for P4TableMatch
     "P4TableMatch",
     "P4ValueSetEntry",
+    "P4ActionSelectionMode",
+    "P4ActionSizeSemantics",
     "P4ConfigAction",
     "P4Schema",
     "Switch",

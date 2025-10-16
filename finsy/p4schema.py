@@ -158,6 +158,34 @@ class P4UpdateType(_EnumBase):
         return cast(p4r.Update.Type.ValueType, self)
 
 
+class P4ActionSelectionMode(_EnumBase):
+    "IntEnum equivalent to `p4r.ActionProfileActionSet.ActionSelectionMode` (1.5.0)."
+
+    DEFAULT_MODE_DETERMINED_BY_ACTION_SELECTOR = (
+        p4r.ActionProfileActionSet.ActionSelectionMode.DEFAULT_MODE_DETERMINED_BY_ACTION_SELECTOR
+    )
+    HASH = p4r.ActionProfileActionSet.ActionSelectionMode.HASH
+    RANDOM = p4r.ActionProfileActionSet.ActionSelectionMode.RANDOM
+
+    def vt(self) -> p4r.ActionProfileActionSet.ActionSelectionMode.ValueType:
+        "Cast `self` to `ValueType`."
+        return cast(p4r.ActionProfileActionSet.ActionSelectionMode.ValueType, self)
+
+
+class P4ActionSizeSemantics(_EnumBase):
+    "IntEnum equivalent to `p4r.ActionProfileActionSet.SizeSemantics` (1.5.0)."
+
+    DEFAULT_SIZE_DETERMINED_BY_ACTION_SELECTOR = (
+        p4r.ActionProfileActionSet.SizeSemantics.DEFAULT_SIZE_DETERMINED_BY_ACTION_SELECTOR
+    )
+    SUM_OF_WEIGHTS = p4r.ActionProfileActionSet.SizeSemantics.SUM_OF_WEIGHTS
+    SUM_OF_MEMBERS = p4r.ActionProfileActionSet.SizeSemantics.SUM_OF_MEMBERS
+
+    def vt(self) -> p4r.ActionProfileActionSet.SizeSemantics.ValueType:
+        "Cast `self` to `ValueType`."
+        return cast(p4r.ActionProfileActionSet.SizeSemantics.ValueType, self)
+
+
 def _validate_enum(enum_class: Any, pbuf_class: Any):
     "Verify that our enum class contains the same members as the protobuf."
     for name, value in pbuf_class.items():
@@ -180,6 +208,8 @@ _validate_enum(
 _validate_enum(P4ConfigAction, p4r.SetForwardingPipelineConfigRequest.Action)
 _validate_enum(P4Atomicity, p4r.WriteRequest.Atomicity)
 _validate_enum(P4UpdateType, p4r.Update.Type)
+_validate_enum(P4ActionSelectionMode, p4r.ActionProfileActionSet.ActionSelectionMode)
+_validate_enum(P4ActionSizeSemantics, p4r.ActionProfileActionSet.SizeSemantics)
 _validate_enum(GRPCStatusCode, rpc_code.Code)
 
 

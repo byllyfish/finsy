@@ -35,6 +35,8 @@ from finsy.log import LOGGER
 from finsy.p4schema import (
     P4Action,
     P4ActionRef,
+    P4ActionSelectionMode,
+    P4ActionSizeSemantics,
     P4Schema,
     P4Table,
     P4UpdateType,
@@ -652,9 +654,6 @@ class P4IndirectAction:
         - "9.1.2. Action Specification",
         - "9.2.3. One Shot Action Selector Programming"
 
-    TODO: Refactor into three classes? P4OneShotAction, P4MemberAction, and
-        P4GroupAction.
-
     See Also:
         - P4TableEntry
     """
@@ -666,6 +665,14 @@ class P4IndirectAction:
     "ID of action profile member."
     group_id: int | None = None
     "ID of action profile group."
+    selection_mode: P4ActionSelectionMode = (
+        P4ActionSelectionMode.DEFAULT_MODE_DETERMINED_BY_ACTION_SELECTOR
+    )
+    "Action selection mode for one-shot action profile (1.5.0)."
+    size_semantics: P4ActionSizeSemantics = (
+        P4ActionSizeSemantics.DEFAULT_SIZE_DETERMINED_BY_ACTION_SELECTOR
+    )
+    "Action size semantics for one-shot action profile (1.5.0)."
 
     def __post_init__(self) -> None:
         if not self._check_invariant():
@@ -715,7 +722,11 @@ class P4IndirectAction:
                 profile.watch_port = watch_port
             profile_actions.append(profile)
 
-        return p4r.ActionProfileActionSet(action_profile_actions=profile_actions)
+        return p4r.ActionProfileActionSet(
+            action_profile_actions=profile_actions,
+            action_selection_mode=self.selection_mode.vt(),
+            size_semantics=self.size_semantics.vt(),
+        )
 
     @classmethod
     def decode_action_set(cls, msg: p4r.ActionProfileActionSet, table: P4Table) -> Self:
@@ -735,7 +746,11 @@ class P4IndirectAction:
             table_action = P4TableAction.decode_action(action.action, table)
             action_set.append((weight, table_action))
 
-        return cls(action_set)
+        return cls(
+            action_set,
+            selection_mode=P4ActionSelectionMode(msg.action_selection_mode),
+            size_semantics=P4ActionSizeSemantics(msg.size_semantics),
+        )
 
     def format_str(self, table: P4Table) -> str:
         """Format the indirect table action as a human-readable string."""
@@ -744,7 +759,10 @@ class P4IndirectAction:
                 f"{weight}*{action.format_str(table)}"
                 for weight, action in self.action_set
             ]
-            return " ".join(weighted_actions)
+            props = self._format_properties()
+            if props:
+                props = f" <{props}>"
+            return " ".join(weighted_actions) + props
 
         # Use the name of the action_profile, if we can get it. If not, just
         # use the placeholder "__indirect".
@@ -761,10 +779,44 @@ class P4IndirectAction:
     def __repr__(self) -> str:
         "Customize representation to make it more concise."
         if self.action_set is not None:
-            return f"P4IndirectAction(action_set={self.action_set!r})"
+            props = self._repr_properties()
+            if props:
+                return f"P4IndirectAction(action_set={self.action_set!r}, {props})"
+            else:
+                return f"P4IndirectAction(action_set={self.action_set!r})"
         if self.member_id is not None:
             return f"P4IndirectAction(member_id={self.member_id!r})"
         return f"P4IndirectAction(group_id={self.group_id!r})"
+
+    def _repr_properties(self) -> str:
+        "Return string description of properties used in __repr__."
+        result: list[str] = []
+        if (
+            self.selection_mode
+            != P4ActionSelectionMode.DEFAULT_MODE_DETERMINED_BY_ACTION_SELECTOR
+        ):
+            result.append(f"selection_mode={self.selection_mode!r}")
+        if (
+            self.size_semantics
+            != P4ActionSizeSemantics.DEFAULT_SIZE_DETERMINED_BY_ACTION_SELECTOR
+        ):
+            result.append(f"size_semantics={self.size_semantics!r}")
+        return ", ".join(result)
+
+    def _format_properties(self) -> str:
+        "Return string description of properties used in format_str."
+        result: list[str] = []
+        if (
+            self.selection_mode
+            != P4ActionSelectionMode.DEFAULT_MODE_DETERMINED_BY_ACTION_SELECTOR
+        ):
+            result.append(f"{self.selection_mode.name}")
+        if (
+            self.size_semantics
+            != P4ActionSizeSemantics.DEFAULT_SIZE_DETERMINED_BY_ACTION_SELECTOR
+        ):
+            result.append(f"{self.size_semantics.name}")
+        return ", ".join(result)
 
 
 @dataclass(kw_only=True, slots=True)
