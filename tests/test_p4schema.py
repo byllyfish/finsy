@@ -13,6 +13,8 @@ import pytest
 from finsy import p4values, pbutil
 from finsy.p4schema import (
     P4ActionParam,
+    P4ActionProfile,
+    P4ActionSizeSemantics,
     P4BitsType,
     P4BoolType,
     P4EntityMap,
@@ -944,3 +946,32 @@ def test_p4info_externs():
     assert extern2.name == "instance2"
     assert extern2.extern_type_name == "x"
     assert extern2.extern_type_id == 1
+
+
+def test_p4actionprofile():
+    "Test the 1.5.0 version of ActionProfile in P4Info."
+    pbuf = p4i.ActionProfile(
+        preamble=p4i.Preamble(id=1, name="foo"),
+        sum_of_members=p4i.ActionProfile.SumOfMembers(max_member_weight=10),
+        with_selector=True,
+        weights_disallowed=True,
+    )
+    assert pbuf.sum_of_members.max_member_weight == 10
+
+    action_profile = P4ActionProfile(pbuf)
+    assert action_profile.id == 1
+    assert action_profile.name == "foo"
+    assert (
+        action_profile.selector_size_semantics == P4ActionSizeSemantics.SUM_OF_MEMBERS
+    )
+    assert action_profile.max_member_weight == 10
+    assert action_profile.weights_disallowed
+    assert action_profile.with_selector
+
+    assert (
+        repr(action_profile)
+        == "P4ActionProfile(actions=[], alias='', annotations=[], brief='',"
+        " description='', id=1, max_group_size=0, max_member_weight=10,"
+        " name='foo', selector_size_semantics=P4ActionSizeSemantics.SUM_OF_MEMBERS,"
+        " size=0, table_names=[], weights_disallowed=True, with_selector=True)"
+    )

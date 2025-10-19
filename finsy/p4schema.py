@@ -1093,11 +1093,24 @@ class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
 
     _actions: P4EntityMap[P4Action]
     _table_names: list[str]
+    _selector_size_semantics: P4ActionSizeSemantics | None
+    _max_member_weight: int | None
 
     def __init__(self, pbuf: p4i.ActionProfile):
         super().__init__(pbuf)
         self._actions = P4EntityMap("action")
         self._table_names = []
+        self._selector_size_semantics = None
+        self._max_member_weight = None
+
+        if pbuf.HasField("sum_of_members"):
+            self._selector_size_semantics = P4ActionSizeSemantics.SUM_OF_MEMBERS
+            self._max_member_weight = pbuf.sum_of_members.max_member_weight
+            if self._max_member_weight == 0:
+                # If `max_member_weight` is unset, any 32-bit integer weight.
+                self._max_member_weight = 0xFFFFFFFF
+        elif pbuf.HasField("sum_of_weights") or self.with_selector:
+            self._selector_size_semantics = P4ActionSizeSemantics.SUM_OF_WEIGHTS
 
     def _finish_init(self, defs: _P4Defs):
         # Copy actions from first table.  FIXME: Is `actions` used anywhere?
@@ -1135,6 +1148,27 @@ class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
     def table_names(self) -> list[str]:
         "Table names using this action profile."
         return self._table_names
+
+    @property
+    def selector_size_semantics(self) -> P4ActionSizeSemantics | None:
+        """Specifies the semantics of `size` and `max_group_size` (1.4.0).
+
+        Set to `None` if not a selector.
+        """
+        return self._selector_size_semantics
+
+    @property
+    def max_member_weight(self) -> int | None:
+        """Maximum weight of each individual member in a group (1.4.0).
+
+        Only specified when `selector_size_semantics` is `SUM_OF_MEMBERS`.
+        Otherwise, the value is always `None`."""
+        return self._max_member_weight
+
+    @property
+    def weights_disallowed(self) -> bool:
+        "Are weights for groups disallowed? (1.5.0)"
+        return self.pbuf.weights_disallowed
 
 
 class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):
