@@ -406,9 +406,9 @@ pytest-cov==7.0.0 ; python_version >= "3.10" and python_version < "4.0" \
 pytest==8.4.2 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01 \
     --hash=sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79
-pytokens==0.1.10 ; python_version >= "3.10" and python_version < "4.0" \
-    --hash=sha256:c9a4bfa0be1d26aebce03e6884ba454e842f186a59ea43a6d3b25af58223c044 \
-    --hash=sha256:db7b72284e480e69fb085d9f251f66b3d2df8b7166059261258ff35f50fb711b
+pytokens==0.2.0 ; python_version >= "3.10" and python_version < "4.0" \
+    --hash=sha256:532d6421364e5869ea57a9523bf385f02586d4662acbcc0342afd69511b4dd43 \
+    --hash=sha256:74d4b318c67f4295c13782ddd9abcb7e297ec5630ad060eb90abf7ebbefe59f8
 ruff==0.14.0 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:16b68e183a0e28e5c176d51004aaa40559e8f90065a10a559176713fcf435206 \
     --hash=sha256:30a58c087aef4584c193aebf2700f0fbcfc1e77b89c7385e3139956fa90434e2 \
