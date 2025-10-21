@@ -1053,6 +1053,9 @@ class Switch:
             reply = await self._p4client.request(p4r.CapabilitiesRequest())
             self._api_version = ApiVersion.parse(reply.p4runtime_api_version)
 
+            # TODO: Do something with the `experimental` option added to
+            # CapabilitiesResponse in P4Runtime 1.5.0.
+
         except P4ClientError as ex:
             if ex.code != GRPCStatusCode.UNIMPLEMENTED:
                 raise

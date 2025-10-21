@@ -158,6 +158,34 @@ class P4UpdateType(_EnumBase):
         return cast(p4r.Update.Type.ValueType, self)
 
 
+class P4ActionSelectionMode(_EnumBase):
+    "IntEnum equivalent to `p4r.ActionProfileActionSet.ActionSelectionMode` (1.5.0)."
+
+    DEFAULT_MODE_DETERMINED_BY_ACTION_SELECTOR = (
+        p4r.ActionProfileActionSet.ActionSelectionMode.DEFAULT_MODE_DETERMINED_BY_ACTION_SELECTOR
+    )
+    HASH = p4r.ActionProfileActionSet.ActionSelectionMode.HASH
+    RANDOM = p4r.ActionProfileActionSet.ActionSelectionMode.RANDOM
+
+    def vt(self) -> p4r.ActionProfileActionSet.ActionSelectionMode.ValueType:
+        "Cast `self` to `ValueType`."
+        return cast(p4r.ActionProfileActionSet.ActionSelectionMode.ValueType, self)
+
+
+class P4ActionSizeSemantics(_EnumBase):
+    "IntEnum equivalent to `p4r.ActionProfileActionSet.SizeSemantics` (1.5.0)."
+
+    DEFAULT_SIZE_DETERMINED_BY_ACTION_SELECTOR = (
+        p4r.ActionProfileActionSet.SizeSemantics.DEFAULT_SIZE_DETERMINED_BY_ACTION_SELECTOR
+    )
+    SUM_OF_WEIGHTS = p4r.ActionProfileActionSet.SizeSemantics.SUM_OF_WEIGHTS
+    SUM_OF_MEMBERS = p4r.ActionProfileActionSet.SizeSemantics.SUM_OF_MEMBERS
+
+    def vt(self) -> p4r.ActionProfileActionSet.SizeSemantics.ValueType:
+        "Cast `self` to `ValueType`."
+        return cast(p4r.ActionProfileActionSet.SizeSemantics.ValueType, self)
+
+
 def _validate_enum(enum_class: Any, pbuf_class: Any):
     "Verify that our enum class contains the same members as the protobuf."
     for name, value in pbuf_class.items():
@@ -180,6 +208,8 @@ _validate_enum(
 _validate_enum(P4ConfigAction, p4r.SetForwardingPipelineConfigRequest.Action)
 _validate_enum(P4Atomicity, p4r.WriteRequest.Atomicity)
 _validate_enum(P4UpdateType, p4r.Update.Type)
+_validate_enum(P4ActionSelectionMode, p4r.ActionProfileActionSet.ActionSelectionMode)
+_validate_enum(P4ActionSizeSemantics, p4r.ActionProfileActionSet.SizeSemantics)
 _validate_enum(GRPCStatusCode, rpc_code.Code)
 
 
@@ -1063,11 +1093,24 @@ class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
 
     _actions: P4EntityMap[P4Action]
     _table_names: list[str]
+    _selector_size_semantics: P4ActionSizeSemantics | None
+    _max_member_weight: int | None
 
     def __init__(self, pbuf: p4i.ActionProfile):
         super().__init__(pbuf)
         self._actions = P4EntityMap("action")
         self._table_names = []
+        self._selector_size_semantics = None
+        self._max_member_weight = None
+
+        if pbuf.HasField("sum_of_members"):
+            self._selector_size_semantics = P4ActionSizeSemantics.SUM_OF_MEMBERS
+            self._max_member_weight = pbuf.sum_of_members.max_member_weight
+            if self._max_member_weight == 0:
+                # If `max_member_weight` is unset, any 32-bit integer weight.
+                self._max_member_weight = 0xFFFFFFFF
+        elif pbuf.HasField("sum_of_weights") or self.with_selector:
+            self._selector_size_semantics = P4ActionSizeSemantics.SUM_OF_WEIGHTS
 
     def _finish_init(self, defs: _P4Defs):
         # Copy actions from first table.  FIXME: Is `actions` used anywhere?
@@ -1105,6 +1148,27 @@ class P4ActionProfile(_P4TopLevel[p4i.ActionProfile]):
     def table_names(self) -> list[str]:
         "Table names using this action profile."
         return self._table_names
+
+    @property
+    def selector_size_semantics(self) -> P4ActionSizeSemantics | None:
+        """Specifies the semantics of `size` and `max_group_size` (1.4.0).
+
+        Set to `None` if not a selector.
+        """
+        return self._selector_size_semantics
+
+    @property
+    def max_member_weight(self) -> int | None:
+        """Maximum weight of each individual member in a group (1.4.0).
+
+        Only specified when `selector_size_semantics` is `SUM_OF_MEMBERS`.
+        Otherwise, the value is always `None`."""
+        return self._max_member_weight
+
+    @property
+    def weights_disallowed(self) -> bool:
+        "Are weights for groups disallowed? (1.5.0)"
+        return self.pbuf.weights_disallowed
 
 
 class P4MatchField(_P4DocMixin, _P4AnnoMixin, _P4NamedMixin[p4i.MatchField]):

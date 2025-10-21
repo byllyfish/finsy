@@ -40,7 +40,7 @@ from finsy.p4entity import (
     flatten,
     format_replica,
 )
-from finsy.p4schema import P4Schema
+from finsy.p4schema import P4ActionSelectionMode, P4ActionSizeSemantics, P4Schema
 from finsy.proto import p4r
 
 _P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
@@ -350,6 +350,64 @@ def test_indirect_action5():
     assert pbutil.to_dict(msg1) == {"action_profile_member_id": 456}
     assert action2 == P4TableAction.decode_table_action(msg1, table)
     assert action2.format_str(table) == "@hashed_selector[[0x1c8]]"
+
+
+def test_indirect_action6():
+    "Test P4IndirectAction with selection and size options (P4R 1.5.0)."
+    action = P4IndirectAction(
+        action_set=[
+            (1, P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=1)),
+            (1, P4TableAction("ipv4_forward", dstAddr=0x0A000001, port=2)),
+        ],
+        selection_mode=P4ActionSelectionMode.RANDOM,
+        size_semantics=P4ActionSizeSemantics.SUM_OF_WEIGHTS,
+    )
+    table = _SCHEMA.tables["ipv4_lpm"]
+
+    msg = action.encode_table_action(table)
+    assert pbutil.to_dict(msg) == {
+        "action_profile_action_set": {
+            "action_profile_actions": [
+                {
+                    "action": {
+                        "action_id": 28792405,
+                        "params": [
+                            {"param_id": 1, "value": "CgAAAQ=="},
+                            {"param_id": 2, "value": "AQ=="},
+                        ],
+                    },
+                    "weight": 1,
+                },
+                {
+                    "action": {
+                        "action_id": 28792405,
+                        "params": [
+                            {"param_id": 1, "value": "CgAAAQ=="},
+                            {"param_id": 2, "value": "Ag=="},
+                        ],
+                    },
+                    "weight": 1,
+                },
+            ],
+            "action_selection_mode": "RANDOM",
+            "size_semantics": "SUM_OF_WEIGHTS",
+        }
+    }
+
+    assert action == P4TableAction.decode_table_action(msg, table)
+    assert action.selection_mode == P4ActionSelectionMode.RANDOM
+    assert action.size_semantics == P4ActionSizeSemantics.SUM_OF_WEIGHTS
+
+    assert repr(action) == (
+        "P4IndirectAction(action_set=[(1, P4TableAction(name='ipv4_forward', "
+        "args={'dstAddr': 167772161, 'port': 1})), (1, "
+        "P4TableAction(name='ipv4_forward', args={'dstAddr': 167772161, 'port': "
+        "2}))], selection_mode=P4ActionSelectionMode.RANDOM, size_semantics=P4ActionSizeSemantics.SUM_OF_WEIGHTS)"
+    )
+    assert (
+        action.format_str(table)
+        == "1*ipv4_forward(dstAddr=0xa000001, port=0x1) 1*ipv4_forward(dstAddr=0xa000001, port=0x2) <RANDOM, SUM_OF_WEIGHTS>"
+    )
 
 
 def test_weighted_action():
