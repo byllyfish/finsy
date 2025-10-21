@@ -829,9 +829,9 @@ class ActionProfile(google.protobuf.message.Message):
     specified by `selector_size_semantics` below.
     """
     weights_disallowed: builtins.bool
-    """dictates whether the controller can specify weights for groups programmed
+    """Dictates whether the controller can specify weights for groups programmed
     in this ActionProfile. If `weights_disallowed` is true, then all weights
-    must be absent. Unset (false) in action profiles.
+    must be absent. Unset (false) in action profiles without selectors.
     Added in v1.5.0.
     """
     @property
