@@ -26,6 +26,7 @@ from finsy.p4entity import (
     P4PacketIn,
     P4PacketOut,
     P4RegisterEntry,
+    P4Replica,
     P4TableAction,
     P4TableEntry,
     P4TableMatch,
@@ -40,7 +41,12 @@ from finsy.p4entity import (
     flatten,
     format_replica,
 )
-from finsy.p4schema import P4ActionSelectionMode, P4ActionSizeSemantics, P4Schema
+from finsy.p4schema import (
+    P4ActionSelectionMode,
+    P4ActionSizeSemantics,
+    P4RuntimeVersion,
+    P4Schema,
+)
 from finsy.proto import p4r
 
 _P4INFO_TEST_DIR = Path(__file__).parent / "test_data/p4info"
@@ -59,16 +65,16 @@ def test_flatten():
 
 def test_replica1():
     "Test encode_replica and decode_replica functions."
-    msg = encode_replica(1)
+    msg = encode_replica(1, P4RuntimeVersion(1, 3, 0, ""))
     assert pbutil.to_dict(msg) == {"egress_port": 1}
-    assert decode_replica(msg) == (1, 0)
+    assert decode_replica(msg) == 1
 
 
 def test_replica2():
     "Test encode_replica and decode_replica functions"
-    msg = encode_replica((1, 2))
+    msg = encode_replica((1, 2), P4RuntimeVersion(1, 3, 0, ""))
     assert pbutil.to_dict(msg) == {"egress_port": 1, "instance": 2}
-    assert decode_replica(msg) == (1, 2)
+    assert decode_replica(msg) == P4Replica(1, instance=2)
 
 
 def test_format_replica():
@@ -1149,11 +1155,11 @@ def test_multicast_group_entry2():
     "Test P4MulticastEntry."
     entry = P4MulticastGroupEntry(
         1,
-        replicas=((1, 0), (2, 1), (2, 2)),
+        replicas=(1, (2, 1), (2, 2)),
         metadata=b"abc",
     )
-    msg = entry.encode(_SCHEMA)
 
+    msg = entry.encode(_SCHEMA)
     assert pbutil.to_dict(msg) == {
         "packet_replication_engine_entry": {
             "multicast_group_entry": {
@@ -1167,7 +1173,20 @@ def test_multicast_group_entry2():
             }
         }
     }
-    assert entry == P4MulticastGroupEntry.decode(msg, _SCHEMA)
+
+    # The decode is canonical form.
+    canon_entry = P4MulticastGroupEntry(
+        1,
+        replicas=(1, P4Replica(port=2, instance=1), P4Replica(port=2, instance=2)),
+        metadata=b"abc",
+    )
+
+    assert canon_entry == P4MulticastGroupEntry.decode(msg, _SCHEMA)
+    msg = canon_entry.encode(_SCHEMA)
+    assert canon_entry == P4MulticastGroupEntry.decode(msg, _SCHEMA)
+
+    # Test using newer P4Runtime version.
+    # TODO
 
 
 def test_clone_session_entry1():

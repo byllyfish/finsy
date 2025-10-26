@@ -63,6 +63,7 @@ from .p4schema import (
     P4ActionSizeSemantics,
     P4ConfigAction,
     P4CounterUnit,
+    P4RuntimeVersion,
     P4Schema,
 )
 from .ports import SwitchPort, SwitchPortList
@@ -117,6 +118,7 @@ __all__ = [
     "P4ActionSelectionMode",
     "P4ActionSizeSemantics",
     "P4ConfigAction",
+    "P4RuntimeVersion",
     "P4Schema",
     "Switch",
     "SwitchEvent",
