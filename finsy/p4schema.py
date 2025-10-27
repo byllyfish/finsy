@@ -30,12 +30,13 @@ from typing import (
     Mapping,
     NamedTuple,
     NoReturn,
-    Self,
     Sequence,
     SupportsBytes,
     TypeVar,
     cast,
 )
+
+from typing_extensions import Self
 
 from finsy import p4values, pbutil, stringutil
 from finsy.grpcutil import GRPCStatusCode, _EnumBase
