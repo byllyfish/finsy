@@ -280,7 +280,7 @@ class P4Replica:
 
     def encode(self, version: P4RuntimeVersion) -> p4r.Replica:
         if not self.backup_replicas:
-            if version < P4RUNTIME_VERSION_1_4:
+            if version < P4RUNTIME_VERSION_1_5:
                 # `egress_port` field was deprecated in P4Runtime 1.4.0.
                 return p4r.Replica(egress_port=self.port, instance=self.instance)
             return p4r.Replica(port=encode_port(self.port), instance=self.instance)
