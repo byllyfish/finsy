@@ -285,9 +285,6 @@ class P4Replica:
                 return p4r.Replica(egress_port=self.port, instance=self.instance)
             return p4r.Replica(port=encode_port(self.port), instance=self.instance)
 
-        if version < P4RUNTIME_VERSION_1_5:
-            raise ValueError(f"Backup replicas not supported on {version}")
-
         return p4r.Replica(
             port=encode_port(self.port),
             instance=self.instance,

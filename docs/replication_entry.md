@@ -32,9 +32,10 @@ runtime translation of strings to port numbers.
 
 When a packet is replicated to a port, the port may include an instance number.
 This allows a packet to be copied more than once to the same egress port.
-Port replicas are represented in Finsy by a 2-tuple `(port: int, instance: int)`.
-If you specify a replica as just the port number, the instance number will 
-default to 0.  (FIXME: Should this be 1?)
+Port replicas are represented in Finsy by a `P4Replica`. Optionally,
+the port replica can be represented by a two-tuple `(port, instance)`.
+If you specify a replica as just an integer, the instance number
+will default to 0.
 
 # P4MulticastGroupEntry (§ 9.5.1)
 
@@ -47,7 +48,7 @@ P4Runtime MulticastGroupEntry, which is used to replicate a packet to different
 P4MulticastGroupEntry(
     multicast_group_id: int = 0, 
     *, 
-    replicas: Sequence[tuple[int, int] | int] = ()
+    replicas: Sequence[tuple[int, int] | int | P4Replica] = ()
 )
 ```
 

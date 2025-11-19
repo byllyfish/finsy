@@ -7,6 +7,7 @@ from finsy import pbutil
 from finsy.p4entity import (
     P4ActionProfileGroup,
     P4ActionProfileMember,
+    P4BackupReplica,
     P4CloneSessionEntry,
     P4CounterData,
     P4CounterEntry,
@@ -1185,8 +1186,54 @@ def test_multicast_group_entry2():
     msg = canon_entry.encode(_SCHEMA)
     assert canon_entry == P4MulticastGroupEntry.decode(msg, _SCHEMA)
 
-    # Test using newer P4Runtime version.
-    # TODO
+
+def test_multicast_group_entry3():
+    "Test P4MulticastEntry."
+    entry = P4MulticastGroupEntry(
+        1,
+        replicas=(
+            1,
+            P4Replica(2, backup_replicas=[P4BackupReplica(3), P4BackupReplica(4)]),
+        ),
+        metadata=b"abc",
+    )
+
+    msg = entry.encode(_SCHEMA)
+    assert pbutil.to_dict(msg) == {
+        "packet_replication_engine_entry": {
+            "multicast_group_entry": {
+                "multicast_group_id": 1,
+                "replicas": [
+                    {"egress_port": 1},
+                    {
+                        "port": "Ag==",
+                        "backup_replicas": [{"port": "Aw=="}, {"port": "BA=="}],
+                    },
+                ],
+                "metadata": "YWJj",
+            }
+        }
+    }
+
+    # The decode is canonical form.
+    canon_entry = P4MulticastGroupEntry(
+        1,
+        replicas=(
+            1,
+            P4Replica(
+                port=2,
+                backup_replicas=[
+                    P4BackupReplica(port=3),
+                    P4BackupReplica(port=4),
+                ],
+            ),
+        ),
+        metadata=b"abc",
+    )
+
+    assert canon_entry == P4MulticastGroupEntry.decode(msg, _SCHEMA)
+    msg = canon_entry.encode(_SCHEMA)
+    assert canon_entry == P4MulticastGroupEntry.decode(msg, _SCHEMA)
 
 
 def test_clone_session_entry1():
