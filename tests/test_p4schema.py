@@ -25,6 +25,7 @@ from finsy.p4schema import (
     P4MatchField,
     P4MatchType,
     P4NewType,
+    P4RuntimeVersion,
     P4Schema,
     P4SchemaCache,
     P4StructType,
@@ -975,3 +976,21 @@ def test_p4actionprofile():
         " name='foo', selector_size_semantics=P4ActionSizeSemantics.SUM_OF_MEMBERS,"
         " size=0, table_names=[], weights_disallowed=True, with_selector=True)"
     )
+
+
+def test_p4runtime_version():
+    "Test the P4RuntimeVersion class."
+    assert P4RuntimeVersion.parse("0.9") == P4RuntimeVersion(0, 9, 0, "")
+    assert P4RuntimeVersion.parse("0.9.a") == P4RuntimeVersion(0, 9, 0, ".a")
+    assert P4RuntimeVersion.parse("0.9.9f") == P4RuntimeVersion(0, 9, 9, "f")
+    assert P4RuntimeVersion.parse("1.2") == P4RuntimeVersion(1, 2, 0, "")
+    assert P4RuntimeVersion.parse("1.2.3") == P4RuntimeVersion(1, 2, 3, "")
+    assert P4RuntimeVersion.parse("1.2.3+4") == P4RuntimeVersion(1, 2, 3, "+4")
+    assert P4RuntimeVersion.parse("1.2.3-final") == P4RuntimeVersion(1, 2, 3, "-final")
+    assert P4RuntimeVersion.parse("1.2.3.4") == P4RuntimeVersion(1, 2, 3, ".4")
+    assert P4RuntimeVersion.parse(" 1.2.3 ") == P4RuntimeVersion(1, 2, 3, "")
+
+    with pytest.raises(ValueError):
+        P4RuntimeVersion.parse("1.")
+
+    assert str(P4RuntimeVersion(1, 2, 3, "-abc")) == "1.2.3-abc"

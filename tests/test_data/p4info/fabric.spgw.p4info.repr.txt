@@ -848,6 +848,7 @@ P4Schema(
     meters=[],
     name="",
     p4cookie=10726446454680061058,
+    p4runtime_version=P4RuntimeVersion(major=1, minor=3, patch=0, extra=""),
     registers=[],
     tables=[
         P4Table(

@@ -48,7 +48,12 @@ from finsy.grpcutil import GRPCCredentialsTLS, GRPCStatusCode
 from finsy.log import LOGGER
 from finsy.p4arbitrator import Arbitrator
 from finsy.p4client import P4Client, P4ClientError
-from finsy.p4schema import P4ConfigAction, P4ConfigResponseType, P4Schema
+from finsy.p4schema import (
+    P4ConfigAction,
+    P4ConfigResponseType,
+    P4RuntimeVersion,
+    P4Schema,
+)
 from finsy.ports import SwitchPortList
 from finsy.proto import p4r
 
@@ -125,31 +130,6 @@ class SwitchOptions:
         return dataclasses.replace(self, **kwds)
 
 
-_SEMVER_REGEX = re.compile(r"^(\d+)\.(\d+)(?:\.(\d+))?(.*)$")
-
-
-class ApiVersion(NamedTuple):
-    "Represents the semantic version of an API."
-
-    major: int
-    minor: int
-    patch: int
-    extra: str  # optional pre-release/build info
-
-    @classmethod
-    def parse(cls, version_str: str) -> Self:
-        "Parse the API version string."
-        m = _SEMVER_REGEX.match(version_str.strip())
-        if not m:
-            raise ValueError(f"unexpected version string: {version_str}")
-        return cls(int(m[1]), int(m[2]), int(m[3] or "0"), m[4])
-
-    def __str__(self) -> str:
-        "Return the version string."
-        vers = self[:3]  # pylint: disable=unsubscriptable-object
-        return ".".join(map(str, vers)) + self.extra
-
-
 @final
 class Switch:
     """Represents a P4Runtime Switch.
@@ -196,7 +176,6 @@ class Switch:
     _gnmi_client: GNMIClient | None
     _ports: SwitchPortList
     _is_channel_up: bool = False
-    _api_version: ApiVersion = ApiVersion(1, 0, 0, "")
     _control_task: asyncio.Task[Any] | None = None
 
     def __init__(
@@ -325,9 +304,9 @@ class Switch:
         return self._ports
 
     @property
-    def api_version(self) -> ApiVersion:
+    def p4runtime_version(self) -> P4RuntimeVersion:
         "P4Runtime protocol version."
-        return self._api_version
+        return self._p4schema.p4runtime_version
 
     @overload
     async def read(
@@ -804,7 +783,7 @@ class Switch:
             "Channel up (is_primary=%r, role_name=%r, p4r=%s): %s",
             self.is_primary,
             self.role_name,
-            self.api_version,
+            self.p4runtime_version,
             ports,
         )
         self._is_channel_up = True
@@ -1051,7 +1030,8 @@ class Switch:
 
         try:
             reply = await self._p4client.request(p4r.CapabilitiesRequest())
-            self._api_version = ApiVersion.parse(reply.p4runtime_api_version)
+            version = P4RuntimeVersion.parse(reply.p4runtime_api_version)
+            self._p4schema.set_p4runtime_version(version)
 
             # TODO: Do something with the `experimental` option added to
             # CapabilitiesResponse in P4Runtime 1.5.0.

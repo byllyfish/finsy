@@ -37,6 +37,7 @@ from finsy.p4schema import (
     P4ActionRef,
     P4ActionSelectionMode,
     P4ActionSizeSemantics,
+    P4RuntimeVersion,
     P4Schema,
     P4Table,
     P4UpdateType,
@@ -45,6 +46,8 @@ from finsy.p4schema import (
 from finsy.proto import p4r
 
 NOACTION_STR = "NoAction()"
+P4RUNTIME_VERSION_1_4 = (1, 4)
+P4RUNTIME_VERSION_1_5 = (1, 5)
 
 
 class _SupportsDecodeEntity(Protocol):
@@ -245,49 +248,128 @@ class _P4ModifyOnly(P4Entity):
 
 _DataValueType = Any  # TODO: tighten P4Data type constraint later
 _MetadataDictType = dict[str, Any]
-_PortType = int
-_ReplicaCanonType = tuple[_PortType, int]
-_ReplicaType = _ReplicaCanonType | _PortType
 
 P4Weight = int | tuple[int, int]
 P4WeightedAction = tuple[P4Weight, "P4TableAction"]
 
 
-def encode_replica(value: _ReplicaType) -> p4r.Replica:
+@dataclass(slots=True)
+class P4BackupReplica:
+    """Represents a backup port replica."""
+
+    port: int
+    _: KW_ONLY
+    instance: int = 0
+
+    def encode(self) -> p4r.BackupReplica:
+        return p4r.BackupReplica(port=encode_port(self.port), instance=self.instance)
+
+    @classmethod
+    def decode(cls, replica: p4r.BackupReplica) -> Self:
+        return cls(port=decode_port(replica.port), instance=replica.instance)
+
+
+@dataclass(slots=True)
+class P4Replica:
+    """Represents a port replica."""
+
+    port: int
+    _: KW_ONLY
+    instance: int = 0
+    backup_replicas: Sequence[P4BackupReplica] | None = None
+
+    def encode(self, version: P4RuntimeVersion) -> p4r.Replica:
+        if not self.backup_replicas:
+            if version < P4RUNTIME_VERSION_1_5:
+                # `egress_port` field was deprecated in P4Runtime 1.4.0.
+                return p4r.Replica(egress_port=self.port, instance=self.instance)
+            return p4r.Replica(port=encode_port(self.port), instance=self.instance)
+
+        return p4r.Replica(
+            port=encode_port(self.port),
+            instance=self.instance,
+            backup_replicas=[replica.encode() for replica in self.backup_replicas],
+        )
+
+    @classmethod
+    def decode(cls, replica: p4r.Replica) -> Self:
+        "Decode Replica message."
+        if replica.HasField("port"):
+            port = decode_port(replica.port)
+        else:
+            # `egress_port` field was deprecated in P4Runtime 1.4.0.
+            port = replica.egress_port
+
+        if replica.backup_replicas:
+            backup_replicas = [
+                P4BackupReplica.decode(replica) for replica in replica.backup_replicas
+            ]
+        else:
+            backup_replicas = None
+
+        return cls(
+            port=port, instance=replica.instance, backup_replicas=backup_replicas
+        )
+
+    def __repr__(self) -> str:
+        "Return a concise string representation."
+        result = f"P4Replica(port={self.port}"
+        if self.instance:
+            result += f", instance={self.instance}"
+        if self.backup_replicas:
+            result += f", backup_replicas={self.backup_replicas}"
+        return result
+
+    def __str__(self) -> str:
+        "Format replica as string."
+        if self.instance != 0:
+            return f"{self.port}#{self.instance}"
+        return str(self.port)
+
+
+_PortType = int
+_ReplicaCanonType = _PortType | P4Replica
+_ReplicaType = tuple[_PortType, int] | _ReplicaCanonType
+
+
+def _to_replica(value: _ReplicaType) -> P4Replica:
+    match value:
+        case P4Replica():
+            return value
+        case int():
+            return P4Replica(value)
+        case (port, instance):
+            return P4Replica(port, instance=instance)
+        case _:
+            raise ValueError(f"Unexpected value for replica: {value}")
+
+
+def encode_replica(value: _ReplicaType, version: P4RuntimeVersion) -> p4r.Replica:
     "Convert python representation to Replica."
-    if isinstance(value, int):
-        egress_port, instance = value, 0
-    else:
-        assert isinstance(value, tuple) and len(value) == 2
-        egress_port, instance = value
-
-    return p4r.Replica(egress_port=egress_port, instance=instance)
+    return _to_replica(value).encode(version)
 
 
-def decode_replica(replica: p4r.Replica) -> _ReplicaCanonType:
+def decode_replica(value: p4r.Replica) -> _ReplicaCanonType:
     "Convert Replica to python representation."
-    return (replica.egress_port, replica.instance)
+    replica = P4Replica.decode(value)
+    if replica.instance == 0 and not replica.backup_replicas:
+        return replica.port
+    return replica
 
 
 def format_replica(value: _ReplicaType) -> str:
     "Format python representation of Replica."
-    if isinstance(value, int):
-        return str(value)
-    assert isinstance(value, tuple) and len(value) == 2
-    port, instance = value
-    if instance == 0:
-        return str(port)
-    return f"{port}#{instance}"
+    return str(_to_replica(value))
 
 
-def encode_watch_port(watch_port: int) -> bytes:
-    "Encode watch_port into protobuf message."
-    return p4values.encode_exact(watch_port, 32)
+def encode_port(port: int) -> bytes:
+    "Encode port number (port, watch_port) into protobuf message."
+    return p4values.encode_exact(port, 32)
 
 
-def decode_watch_port(watch_port: bytes) -> int:
-    "Decode watch_port from protobuf message."
-    return int(p4values.decode_exact(watch_port, 32))
+def decode_port(port_bytes: bytes) -> int:
+    "Decode port number (port, watch_port) from protobuf message."
+    return int(p4values.decode_exact(port_bytes, 32))
 
 
 class P4TableMatch(dict[str, Any]):
@@ -713,7 +795,7 @@ class P4IndirectAction:
                 case int(weight_value):
                     watch_port = None
                 case (weight_value, int(watch)):
-                    watch_port = encode_watch_port(watch)
+                    watch_port = encode_port(watch)
                 case _:
                     raise ValueError(f"unexpected action weight: {weight!r}")
 
@@ -736,7 +818,7 @@ class P4IndirectAction:
         for action in msg.action_profile_actions:
             match action.WhichOneof("watch_kind"):
                 case "watch_port":
-                    weight = (action.weight, decode_watch_port(action.watch_port))
+                    weight = (action.weight, decode_port(action.watch_port))
                 case None:
                     weight = action.weight
                 case other:
@@ -1289,9 +1371,12 @@ class P4MulticastGroupEntry(_P4Writable):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode MulticastGroupEntry data as protobuf."
+        p4r_version = schema.p4runtime_version
         entry = p4r.MulticastGroupEntry(
             multicast_group_id=self.multicast_group_id,
-            replicas=[encode_replica(replica) for replica in self.replicas],
+            replicas=[
+                encode_replica(replica, p4r_version) for replica in self.replicas
+            ],
             metadata=self.metadata,
         )
         return p4r.Entity(
@@ -1328,11 +1413,14 @@ class P4CloneSessionEntry(_P4Writable):
 
     def encode(self, schema: P4Schema) -> p4r.Entity:
         "Encode CloneSessionEntry data as protobuf."
+        p4r_version = schema.p4runtime_version
         entry = p4r.CloneSessionEntry(
             session_id=self.session_id,
             class_of_service=self.class_of_service,
             packet_length_bytes=self.packet_length_bytes,
-            replicas=[encode_replica(replica) for replica in self.replicas],
+            replicas=[
+                encode_replica(replica, p4r_version) for replica in self.replicas
+            ],
         )
         return p4r.Entity(
             packet_replication_engine_entry=p4r.PacketReplicationEngineEntry(
@@ -1478,7 +1566,7 @@ class P4Member:
             case int(weight):
                 watch_port = None
             case (int(weight), int(watch)):
-                watch_port = encode_watch_port(watch)
+                watch_port = encode_port(watch)
             case other:  # pyright: ignore[reportUnnecessaryComparison]
                 raise ValueError(f"unexpected weight: {other!r}")
 
@@ -1496,7 +1584,7 @@ class P4Member:
         "Decode protobuf to P4Member."
         match msg.WhichOneof("watch_kind"):
             case "watch_port":
-                weight = (msg.weight, decode_watch_port(msg.watch_port))
+                weight = (msg.weight, decode_port(msg.watch_port))
             case None:
                 weight = msg.weight
             case other:

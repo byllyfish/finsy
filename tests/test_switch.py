@@ -12,7 +12,6 @@ from finsy import (
     SwitchOptions,
 )
 from finsy.proto import stratum
-from finsy.switch import ApiVersion
 
 
 async def test_switch1(p4rt_server_target: str):
@@ -149,21 +148,3 @@ def test_switch_options():
     opts2 = opts1(device_id=23)
     assert opts2 != opts1
     assert opts2 == opts and opts2 is not opts
-
-
-def test_api_version():
-    "Test the internal ApiVersion class (currently defined in switch.py)."
-    assert ApiVersion.parse("0.9") == ApiVersion(0, 9, 0, "")
-    assert ApiVersion.parse("0.9.a") == ApiVersion(0, 9, 0, ".a")
-    assert ApiVersion.parse("0.9.9f") == ApiVersion(0, 9, 9, "f")
-    assert ApiVersion.parse("1.2") == ApiVersion(1, 2, 0, "")
-    assert ApiVersion.parse("1.2.3") == ApiVersion(1, 2, 3, "")
-    assert ApiVersion.parse("1.2.3+4") == ApiVersion(1, 2, 3, "+4")
-    assert ApiVersion.parse("1.2.3-final") == ApiVersion(1, 2, 3, "-final")
-    assert ApiVersion.parse("1.2.3.4") == ApiVersion(1, 2, 3, ".4")
-    assert ApiVersion.parse(" 1.2.3 ") == ApiVersion(1, 2, 3, "")
-
-    with pytest.raises(ValueError):
-        ApiVersion.parse("1.")
-
-    assert str(ApiVersion(1, 2, 3, "-abc")) == "1.2.3-abc"

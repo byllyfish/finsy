@@ -172,6 +172,7 @@ P4Schema(
     ],
     name="",
     p4cookie=6059638281715268889,
+    p4runtime_version=P4RuntimeVersion(major=1, minor=3, patch=0, extra=""),
     registers=[
         P4Register(
             alias="counter_bloom_filter",

@@ -36,6 +36,8 @@ from typing import (
     cast,
 )
 
+from typing_extensions import Self
+
 from finsy import p4values, pbutil, stringutil
 from finsy.grpcutil import GRPCStatusCode, _EnumBase
 from finsy.log import LOGGER
@@ -523,6 +525,31 @@ def _blob_bytes(blob: Path | bytes | SupportsBytes | None) -> bytes:
     return bytes(blob)
 
 
+_P4RUNTIME_SEMVER_REGEX = re.compile(r"^(\d+)\.(\d+)(?:\.(\d+))?(.*)$")
+
+
+class P4RuntimeVersion(NamedTuple):
+    "Represents the semantic version of the P4Runtime protocol."
+
+    major: int
+    minor: int
+    patch: int
+    extra: str  # optional pre-release/build info
+
+    @classmethod
+    def parse(cls, version_str: str) -> Self:
+        "Parse the P4Runtime version string."
+        m = _P4RUNTIME_SEMVER_REGEX.match(version_str.strip())
+        if not m:
+            raise ValueError(f"unexpected P4Runtime version: {version_str}")
+        return cls(int(m[1]), int(m[2]), int(m[3] or "0"), m[4])
+
+    def __str__(self) -> str:
+        "Return the version string."
+        vers = self[:3]  # pylint: disable=unsubscriptable-object
+        return ".".join(map(str, vers)) + self.extra
+
+
 class P4Schema(_ReprMixin):
     """Represents a P4Info file and its associated P4 blob (optional).
 
@@ -541,6 +568,7 @@ class P4Schema(_ReprMixin):
     _p4blob: Path | bytes | SupportsBytes | None
     _p4defs: _P4Defs  # possibly shared in-memory representation
     _p4cookie: int = 0
+    _p4runtime_version: P4RuntimeVersion = P4RuntimeVersion(1, 3, 0, "")
 
     def __init__(
         self,
@@ -594,6 +622,15 @@ class P4Schema(_ReprMixin):
     def p4cookie(self) -> int:
         """Cookie value for p4info and p4blob."""
         return self._p4cookie
+
+    @property
+    def p4runtime_version(self) -> P4RuntimeVersion:
+        "Current P4Runtime protocol version to assume."
+        return self._p4runtime_version
+
+    def set_p4runtime_version(self, version: P4RuntimeVersion):
+        "Set P4Runtime protocol version using value returned from switch."
+        self._p4runtime_version = version
 
     def get_pipeline_config(self) -> p4r.ForwardingPipelineConfig:
         """The forwarding pipeline configuration."""

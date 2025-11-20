@@ -794,6 +794,7 @@ P4Schema(
     ],
     name="",
     p4cookie=14044871448053088569,
+    p4runtime_version=P4RuntimeVersion(major=1, minor=3, patch=0, extra=""),
     registers=[],
     tables=[
         P4Table(
