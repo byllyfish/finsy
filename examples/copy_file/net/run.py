@@ -9,7 +9,6 @@ TMP_DIR = Path("/tmp")
 
 DEMONET = [
     dn.Image(
-        dn.DEFAULT_IMAGE,
         files=[
             dn.CopyFile(
                 MY_DIR / "myscript.py",

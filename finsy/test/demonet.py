@@ -57,7 +57,7 @@ class CopyFile:
 
 @dataclass
 class Image(Directive):
-    name: str
+    name: str = DEFAULT_IMAGE
     _: KW_ONLY
     kind: str = field(default="image", init=False)
     files: Sequence[CopyFile] = field(default_factory=list)
@@ -169,7 +169,7 @@ class Config:
         if len(images) > 1:
             raise ValueError("There should only be one Image config.")
         if not images:
-            return Image(DEFAULT_IMAGE)
+            return Image()
         return images[0]
 
     def switch_count(self) -> int:
@@ -371,6 +371,7 @@ class DemoNet(_AContextHelper):
     """
 
     config: Config
+    inside_running_image: bool = False
     _pids: dict[str, int]
     _config_file: Path
     _prompt: Prompt | None = None
@@ -443,13 +444,17 @@ class DemoNet(_AContextHelper):
         """Return a command to run Mininet.
 
         If we are running inside the DEMONET docker image, return a command
-        to start Mininet directly. We determine whether we are in the image
-        by looking for the `mn` command and the installed `p4switch.py` file.
+        to start Mininet directly.
 
         Otherwise, we set up a DEMONET Docker image to run Mininet in a
         container.
         """
-        if sh.find_command("mn") and _IMAGE_P4SWITCH_PY.exists():
+        self.inside_running_image = False
+
+        if is_inside_mininet_image():
+            # We are already running inside the docker image. This setup is
+            # used in Github Actions. The Image directive is ignored.
+            self.inside_running_image = True
             self._config_file.write_text(self.config.to_json(remote=False))
             return _mininet_start(DEMONET_CONFIG=str(self._config_file))
 
@@ -487,6 +492,15 @@ PUBLISH_BASE = 50000
 _IMAGE_P4SWITCH_PY = Path("/usr/local/mininet/custom/p4switch.py")
 _IMAGE_TOPO_PY = Path("/tmp/demonet_topo.py")
 _IMAGE_CONFIG_JSON = Path("/tmp/demonet_config.json")
+
+
+def is_inside_mininet_image() -> bool:
+    """Return True if we are already running inside the Mininet docker image.
+
+    We determine whether we are inside the image by looking for the `mn`
+    command and the installed `p4switch.py` file.
+    """
+    return sh.find_command("mn") != None and _IMAGE_P4SWITCH_PY.exists()
 
 
 async def _podman_check():
