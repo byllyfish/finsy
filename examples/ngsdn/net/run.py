@@ -75,7 +75,7 @@ DEMONET = [
             dn.Image(
                 "docker.io/prom/prometheus",
                 files=[
-                    dn.CopyFile(PROM_YML, "/etc/prometheus/prometheus.yml"),
+                    dn.CopyFile(PROM_YML, Path("/etc/prometheus/prometheus.yml")),
                 ],
             ),
             # Grafana container (port 3000)

@@ -52,7 +52,7 @@ class Directive:
 @dataclass
 class CopyFile:
     source: Path
-    dest: str
+    dest: Path
 
 
 @dataclass
@@ -468,6 +468,10 @@ class DemoNet(_AContextHelper):
         ]
         for local, remote in remote_files:
             await _podman_copy(local, container, remote)
+
+        # Copy any extra files to the image.
+        for extra_file in image.files:
+            await _podman_copy(extra_file.source, container, extra_file.dest)
 
         return _podman_start(container, DEMONET_CONFIG=str(_IMAGE_CONFIG_JSON))
 
