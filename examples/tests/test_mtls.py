@@ -76,7 +76,7 @@ async def test_mtls4_expired_server(model):
     async with demonet(model, **tls_server("mtls4_expired_server")):
         await asyncio.sleep(0.25)
 
-        with pytest.raises(fy.P4ClientError, match="Ssl handshake failed"):
+        with pytest.raises(fy.P4ClientError, match="(Ssl|Tls) handshake failed"):
             async with fy.Switch("s1", "127.0.0.1:50001", opts):
                 pass
 
@@ -90,7 +90,7 @@ async def test_mtls_mismatched(model):
     async with demonet(model, **tls_server("mtls2")):
         await asyncio.sleep(0.25)
 
-        with pytest.raises(fy.P4ClientError, match="Ssl handshake failed"):
+        with pytest.raises(fy.P4ClientError, match="(Ssl|Tls) handshake failed"):
             async with fy.Switch("s1", "127.0.0.1:50001", opts):
                 pass
 
