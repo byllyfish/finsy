@@ -42,7 +42,7 @@ async def test_wrong_tls_client_vs_tls_server(p4rt_secure_server):
     "Test TLS P4Client using the wrong certificate for a server."
     client = P4Client(p4rt_secure_server[0], CLIENT2_CREDS, wait_for_ready=False)
     async with client:
-        with pytest.raises(P4ClientError, match="Ssl handshake failed[^:]*:"):
+        with pytest.raises(P4ClientError, match="(Ssl|Tls) handshake failed[^:]*:"):
             await _check_arbitration_request(client)
 
 
@@ -77,7 +77,8 @@ async def test_tls_client_vs_insecure_server(p4rt_server_target):
     client = P4Client(p4rt_server_target, CLIENT1_CREDS, wait_for_ready=False)
     async with client:
         with pytest.raises(
-            P4ClientError, match="Ssl handshake failed[^:]*:.*:WRONG_VERSION_NUMBER"
+            P4ClientError,
+            match="(Ssl|Tls) handshake failed[^:]*:.*:WRONG_VERSION_NUMBER",
         ):
             await _check_arbitration_request(client)
 
@@ -104,7 +105,7 @@ async def test_tls_client_vs_expired_tls_server(unused_tcp_target):
         async with client:
             with pytest.raises(
                 P4ClientError,
-                match="Ssl handshake failed[^:]*:.*:CERTIFICATE_VERIFY_FAILED",
+                match="(Ssl|Tls) handshake failed[^:]*:.*:CERTIFICATE_VERIFY_FAILED",
             ):
                 await _check_arbitration_request(client)
 
@@ -127,7 +128,7 @@ async def test_tls_client_using_misconfigured_key(p4rt_secure_server):
     async with client:
         with pytest.raises(
             P4ClientError,
-            match="code=GRPCStatusCode.UNAVAILABLE message='empty address list",
+            match="code=GRPCStatusCode.UNAVAILABLE message='(empty address list|failed to connect .+: Failed to create security handshaker.)",
         ):
             await _check_arbitration_request(client)
 
@@ -141,7 +142,7 @@ async def test_tls_client_using_wrong_name(unused_tcp_port):
         async with client:
             with pytest.raises(
                 P4ClientError,
-                match="Peer name 127.0.0.1 is not in peer certificate",
+                match="Peer name 127.0.0.1 is not in peer certificate|failed to connect .+: Hostname Verification Check failed.",
             ):
                 await _check_arbitration_request(client)
 
