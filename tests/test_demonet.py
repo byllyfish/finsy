@@ -124,9 +124,7 @@ def test_config_render_dot():
     )
 
     result = config.to_graph().to_string()
-    assert (
-        result.strip().expandtabs(2)
-        == r"""
+    assert result.strip().expandtabs(2) == r"""
 strict graph "" {
   graph [bgcolor=lightblue,
     margin=0,
@@ -170,4 +168,3 @@ fc00::2/64",
     headlabel=1,
     penwidth=2.0];
 }""".strip()
-    )
