@@ -44,7 +44,7 @@ shellous = { version = "^0.39.0", optional = true }
 demonet = ["shellous"]
 
 [tool.poetry.group.dev.dependencies]
-black = "25.9.0"
+black = "26.3.1"
 mypy = "^1.19.1"
 pdoc = "^15.0.4"
 prometheus-client = "^0.24.1"
@@ -113,7 +113,7 @@ reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']
-required-version = "25.9.0"
+required-version = "26.3.1"
 force-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 #************

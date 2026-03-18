@@ -19,9 +19,7 @@ async def test_demo0(python):
         HELLO_DIR / "p4/hello.p4info.txtpb",
     )
 
-    assert (
-        result
-        == """
+    assert result == """
 hello.p4 (version=1, arch=v1model)
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 📋 ipv4[1024]
@@ -33,7 +31,6 @@ hello.p4 (version=1, arch=v1model)
    egress_port:9 _pad:7
 
 """
-    )
 
 
 async def test_demo1(demonet, python):

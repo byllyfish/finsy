@@ -174,8 +174,7 @@ switches = {
 
 def _stratum_chassis_config(name: str, node_id: int, interfaces):
     "Produce chassis config file used to configure interfaces."
-    ports = "\n".join(
-        f"""\
+    ports = "\n".join(f"""\
 singleton_ports {{
   id: {if_index}
   name: "{if_name}"
@@ -188,9 +187,7 @@ singleton_ports {{
   }}
   node: {node_id}
 }}
-""".strip()
-        for (if_index, if_name) in interfaces
-    )
+""".strip() for (if_index, if_name) in interfaces)
     result = f"""\
 description: "{name}"
 chassis {{
