@@ -36,7 +36,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
       with:
         python-version: ${{ matrix.python-version }}
         check-latest: true
@@ -62,7 +62,7 @@ jobs:
       run: |
         FINSY_TEST_NO_BENCHMARK=1 COVERAGE_RUN=true pytest --cov finsy
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3
       with:
         token: ${{ secrets.FINSY_CODECOV_TOKEN }}
     - name: Format Check
@@ -121,7 +121,7 @@ jobs:
           cd examples; PYTHONPATH=.. COVERAGE_RUN=true pytest -k simple --cov ../finsy --cov-report xml --cov-config ../.coveragerc
       - name: Upload Coverage to Codecov
         # Revert codecov-action here due to failure running in container with v4.0.1.
-        uses: codecov/codecov-action@4fe8c5f003fae66aa5ebb77cfd3e7bfbbda0b6b0 # v3.1.5
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3
         with:
           token: ${{ secrets.FINSY_CODECOV_TOKEN }}
           directory: ./examples/
