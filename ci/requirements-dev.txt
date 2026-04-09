@@ -1,4 +1,4 @@
-# Poetry (version 2.3.3) export at Wed Apr  8 19:02:40 MST 2026
+# Poetry (version 2.3.3) export at Wed Apr  8 21:08:47 MST 2026
 astroid==4.0.4 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:52f39653876c7dec3e3afd4c2696920e05c83832b9737afc21928f2d2eb7a753 \
     --hash=sha256:986fed8bcf79fb82c78b18a53352a0b287a73817d6dbcfba3162da36667c49a0
@@ -314,6 +314,9 @@ librt==0.8.1 ; python_version >= "3.10" and python_version < "4.0" and platform_
     --hash=sha256:f7cdf7f26c2286ffb02e46d7bac56c94655540b26347673bea15fa52a6af17e9 \
     --hash=sha256:fd1a720332ea335ceb544cf0a03f81df92abd4bb887679fd1e460976b0e6214b \
     --hash=sha256:ff8baf1f8d3f4b6b7257fcb75a501f2a5499d0dda57645baa09d4d0d34b19444
+markdown2==2.5.5 ; python_version >= "3.10" and python_version < "4.0" \
+    --hash=sha256:001547e68f6e7fcf0f1cb83f7e82f48aa7d48b2c6a321f0cd20a853a8a2d1664 \
+    --hash=sha256:be798587e09d1f52d2e4d96a649c4b82a778c75f9929aad52a2c95747fa26941
 markupsafe==3.0.3 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:0303439a41979d9e74d18ff5e2dd8c43ed6c6001fd40e5bf2e43f7bd9bbc523f \
     --hash=sha256:068f375c472b3e7acbe2d5318dea141359e6900156b5b2ba06a30b169086b91a \
@@ -467,9 +470,9 @@ parsy==2.2 ; python_version >= "3.10" and python_version < "4.0" \
 pathspec==1.0.4 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:0210e2ae8a21a9137c0d470578cb0e595af87edaa6ebf12ff176f14a02e0e645 \
     --hash=sha256:fb6ae2fd4e7c921a165808a552060e722767cfa526f99ca5156ed2ce45a5c723
-pdoc==15.0.4 ; python_version >= "3.10" and python_version < "4.0" \
-    --hash=sha256:cf9680f10f5b4863381f44ef084b1903f8f356acb0d4cc6b64576ba9fb712c82 \
-    --hash=sha256:f9028e85e7bb8475b054e69bde1f6d26fc4693d25d9fa1b1ce9009bec7f7a5c4
+pdoc==16.0.0 ; python_version >= "3.10" and python_version < "4.0" \
+    --hash=sha256:070b51de2743b9b1a4e0ab193a06c9e6c12cf4151cf9137656eebb16e8556628 \
+    --hash=sha256:fdadc40cc717ec53919e3cd720390d4e3bcd40405cb51c4918c119447f913514
 platformdirs==4.9.6 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:3bfa75b0ad0db84096ae777218481852c0ebc6c727b3168c1b9e0118e458cf0a \
     --hash=sha256:e61adb1d5e5cb3441b4b7710bea7e4c12250ca49439228cc1021c00dcfac0917

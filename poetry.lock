@@ -490,6 +490,24 @@ files = [
 ]
 
 [[package]]
+name = "markdown2"
+version = "2.5.5"
+description = "A fast and complete Python implementation of Markdown"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["dev"]
+files = [
+    {file = "markdown2-2.5.5-py3-none-any.whl", hash = "sha256:be798587e09d1f52d2e4d96a649c4b82a778c75f9929aad52a2c95747fa26941"},
+    {file = "markdown2-2.5.5.tar.gz", hash = "sha256:001547e68f6e7fcf0f1cb83f7e82f48aa7d48b2c6a321f0cd20a853a8a2d1664"},
+]
+
+[package.extras]
+all = ["latex2mathml ; python_version >= \"3.8.1\"", "pygments (>=2.7.3)", "wavedrom"]
+code-syntax-highlighting = ["pygments (>=2.7.3)"]
+latex = ["latex2mathml ; python_version >= \"3.8.1\""]
+wavedrom = ["wavedrom"]
+
+[[package]]
 name = "markupsafe"
 version = "3.0.3"
 description = "Safely add untrusted strings to HTML/XML markup."
@@ -737,18 +755,19 @@ tests = ["pytest (>=9)", "typing-extensions (>=4.15)"]
 
 [[package]]
 name = "pdoc"
-version = "15.0.4"
+version = "16.0.0"
 description = "API Documentation for Python Projects"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "pdoc-15.0.4-py3-none-any.whl", hash = "sha256:f9028e85e7bb8475b054e69bde1f6d26fc4693d25d9fa1b1ce9009bec7f7a5c4"},
-    {file = "pdoc-15.0.4.tar.gz", hash = "sha256:cf9680f10f5b4863381f44ef084b1903f8f356acb0d4cc6b64576ba9fb712c82"},
+    {file = "pdoc-16.0.0-py3-none-any.whl", hash = "sha256:070b51de2743b9b1a4e0ab193a06c9e6c12cf4151cf9137656eebb16e8556628"},
+    {file = "pdoc-16.0.0.tar.gz", hash = "sha256:fdadc40cc717ec53919e3cd720390d4e3bcd40405cb51c4918c119447f913514"},
 ]
 
 [package.dependencies]
 Jinja2 = ">=2.11.0"
+markdown2 = ">=2.5.4"
 MarkupSafe = ">=1.1.1"
 pygments = ">=2.12.0"
 
@@ -1161,4 +1180,4 @@ demonet = ["shellous"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "499f6774524dc8e5d8f15f0d30ef3bf26edd93cab856e449088e46fd8bc55b48"
+content-hash = "51267d4f53d109f05448a22f7922f0d8f81c3175d75a432ce10c1a6e4e052f11"
