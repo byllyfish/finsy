@@ -3,101 +3,111 @@
 isort:skip_file
 P4Testgen Protobuf template."""
 
-import builtins
-import collections.abc
-import google.protobuf.descriptor
-import google.protobuf.internal.containers
-import google.protobuf.message
-from ..p4.v1 import p4runtime_pb2 as _dot_p4runtime_pb2
-import typing
+from collections import abc as _abc
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf.internal import containers as _containers
+from ..p4.v1 import p4runtime_pb2 as _p4runtime_pb2
+import builtins as _builtins
+import sys
+import typing as _typing
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+if sys.version_info >= (3, 10):
+    from typing import TypeAlias as _TypeAlias
+else:
+    from typing_extensions import TypeAlias as _TypeAlias
 
-@typing.final
-class InputPacketAtPort(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
-    PACKET_FIELD_NUMBER: builtins.int
-    PORT_FIELD_NUMBER: builtins.int
-    packet: builtins.bytes
+@_typing.final
+class InputPacketAtPort(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
+
+    PACKET_FIELD_NUMBER: _builtins.int
+    PORT_FIELD_NUMBER: _builtins.int
+    packet: _builtins.bytes
     """The raw bytes of the test packet."""
-    port: builtins.int
+    port: _builtins.int
     """The raw bytes of the port associated with the packet."""
     def __init__(
         self,
         *,
-        packet: builtins.bytes = ...,
-        port: builtins.int = ...,
+        packet: _builtins.bytes = ...,
+        port: _builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["packet", b"packet", "port", b"port"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["packet", b"packet", "port", b"port"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___InputPacketAtPort = InputPacketAtPort
+Global___InputPacketAtPort: _TypeAlias = InputPacketAtPort  # noqa: Y015
 
-@typing.final
-class OutputPacketAtPort(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+@_typing.final
+class OutputPacketAtPort(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
 
-    PACKET_FIELD_NUMBER: builtins.int
-    PORT_FIELD_NUMBER: builtins.int
-    PACKET_MASK_FIELD_NUMBER: builtins.int
-    packet: builtins.bytes
+    PACKET_FIELD_NUMBER: _builtins.int
+    PORT_FIELD_NUMBER: _builtins.int
+    PACKET_MASK_FIELD_NUMBER: _builtins.int
+    packet: _builtins.bytes
     """The raw bytes of the test packet."""
-    port: builtins.int
+    port: _builtins.int
     """The raw bytes of the port associated with the packet."""
-    packet_mask: builtins.bytes
+    packet_mask: _builtins.bytes
     """The don't care mask of the packet."""
     def __init__(
         self,
         *,
-        packet: builtins.bytes = ...,
-        port: builtins.int = ...,
-        packet_mask: builtins.bytes = ...,
+        packet: _builtins.bytes = ...,
+        port: _builtins.int = ...,
+        packet_mask: _builtins.bytes = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["packet", b"packet", "packet_mask", b"packet_mask", "port", b"port"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["packet", b"packet", "packet_mask", b"packet_mask", "port", b"port"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___OutputPacketAtPort = OutputPacketAtPort
+Global___OutputPacketAtPort: _TypeAlias = OutputPacketAtPort  # noqa: Y015
 
-@typing.final
-class TestCase(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+@_typing.final
+class TestCase(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
 
-    INPUT_PACKET_FIELD_NUMBER: builtins.int
-    EXPECTED_OUTPUT_PACKET_FIELD_NUMBER: builtins.int
-    ENTITIES_FIELD_NUMBER: builtins.int
-    TRACES_FIELD_NUMBER: builtins.int
-    METADATA_FIELD_NUMBER: builtins.int
-    @property
-    def input_packet(self) -> global___InputPacketAtPort:
+    INPUT_PACKET_FIELD_NUMBER: _builtins.int
+    EXPECTED_OUTPUT_PACKET_FIELD_NUMBER: _builtins.int
+    ENTITIES_FIELD_NUMBER: _builtins.int
+    TRACES_FIELD_NUMBER: _builtins.int
+    METADATA_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def input_packet(self) -> Global___InputPacketAtPort:
         """The input packet."""
 
-    @property
-    def expected_output_packet(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___OutputPacketAtPort]:
+    @_builtins.property
+    def expected_output_packet(self) -> _containers.RepeatedCompositeFieldContainer[Global___OutputPacketAtPort]:
         """The corresponding expected output packet."""
 
-    @property
-    def entities(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4runtime_pb2.Entity]:
+    @_builtins.property
+    def entities(self) -> _containers.RepeatedCompositeFieldContainer[_p4runtime_pb2.Entity]:
         """The entities (e.g., table entries) to install on the switch before
         injecting the `input_packet`.
         """
 
-    @property
-    def traces(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
+    @_builtins.property
+    def traces(self) -> _containers.RepeatedScalarFieldContainer[_builtins.str]:
         """The trace associated with this particular test."""
 
-    @property
-    def metadata(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
+    @_builtins.property
+    def metadata(self) -> _containers.RepeatedScalarFieldContainer[_builtins.str]:
         """Additional metadata and information."""
 
     def __init__(
         self,
         *,
-        input_packet: global___InputPacketAtPort | None = ...,
-        expected_output_packet: collections.abc.Iterable[global___OutputPacketAtPort] | None = ...,
-        entities: collections.abc.Iterable[_dot_p4runtime_pb2.Entity] | None = ...,
-        traces: collections.abc.Iterable[builtins.str] | None = ...,
-        metadata: collections.abc.Iterable[builtins.str] | None = ...,
+        input_packet: Global___InputPacketAtPort | None = ...,
+        expected_output_packet: _abc.Iterable[Global___OutputPacketAtPort] | None = ...,
+        entities: _abc.Iterable[_p4runtime_pb2.Entity] | None = ...,
+        traces: _abc.Iterable[_builtins.str] | None = ...,
+        metadata: _abc.Iterable[_builtins.str] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["input_packet", b"input_packet"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["entities", b"entities", "expected_output_packet", b"expected_output_packet", "input_packet", b"input_packet", "metadata", b"metadata", "traces", b"traces"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["input_packet", b"input_packet"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["entities", b"entities", "expected_output_packet", b"expected_output_packet", "input_packet", b"input_packet", "metadata", b"metadata", "traces", b"traces"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___TestCase = TestCase
+Global___TestCase: _TypeAlias = TestCase  # noqa: Y015

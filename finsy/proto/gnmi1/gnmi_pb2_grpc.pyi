@@ -11,26 +11,35 @@ This document references the gNMI Specification which can be found at
 http://github.com/openconfig/reference/blob/master/rpc/gnmi
 """
 
-import abc
-import collections.abc
-from . import gnmi_pb2 as _dot_gnmi_pb2
-import grpc
-import grpc.aio
-import typing
+from collections import abc as _abc
+from . import gnmi_pb2 as _gnmi_pb2
+from grpc import aio as _aio
+import abc as _abc_1
+import grpc as _grpc
+import sys
+import typing as _typing
 
-_T = typing.TypeVar("_T")
+if sys.version_info >= (3, 11):
+    from typing import Self as _Self
+else:
+    from typing_extensions import Self as _Self
 
-class _MaybeAsyncIterator(collections.abc.AsyncIterator[_T], collections.abc.Iterator[_T], metaclass=abc.ABCMeta): ...
+_T = _typing.TypeVar("_T")
 
-class _ServicerContext(grpc.ServicerContext, grpc.aio.ServicerContext):  # type: ignore[misc, type-arg]
+class _MaybeAsyncIterator(_abc.AsyncIterator[_T], _abc.Iterator[_T], metaclass=_abc_1.ABCMeta): ...
+
+class _ServicerContext(_grpc.ServicerContext, _aio.ServicerContext):  # type: ignore[misc, type-arg]
     ...
 
+GRPC_GENERATED_VERSION: str
+GRPC_VERSION: str
+
 class gNMIStub:
-    def __init__(self, channel: typing.Union[grpc.Channel, grpc.aio.Channel]) -> None: ...
-    Capabilities: grpc.UnaryUnaryMultiCallable[
-        _dot_gnmi_pb2.CapabilityRequest,
-        _dot_gnmi_pb2.CapabilityResponse,
-    ]
+    @_typing.overload
+    def __new__(cls, channel: _grpc.Channel) -> _Self: ...
+    @_typing.overload
+    def __new__(cls, channel: _aio.Channel) -> gNMIAsyncStub: ...
+    Capabilities: _grpc.UnaryUnaryMultiCallable[_gnmi_pb2.CapabilityRequest, _gnmi_pb2.CapabilityResponse]
     """Capabilities allows the client to retrieve the set of capabilities that
     is supported by the target. This allows the target to validate the
     service version that is implemented and retrieve the set of models that
@@ -38,32 +47,20 @@ class gNMIStub:
     to restrict the set of data that is utilized.
     Reference: gNMI Specification Section 3.2
     """
-
-    Get: grpc.UnaryUnaryMultiCallable[
-        _dot_gnmi_pb2.GetRequest,
-        _dot_gnmi_pb2.GetResponse,
-    ]
+    Get: _grpc.UnaryUnaryMultiCallable[_gnmi_pb2.GetRequest, _gnmi_pb2.GetResponse]
     """Retrieve a snapshot of data from the target. A Get RPC requests that the
     target snapshots a subset of the data tree as specified by the paths
     included in the message and serializes this to be returned to the
     client using the specified encoding.
     Reference: gNMI Specification Section 3.3
     """
-
-    Set: grpc.UnaryUnaryMultiCallable[
-        _dot_gnmi_pb2.SetRequest,
-        _dot_gnmi_pb2.SetResponse,
-    ]
+    Set: _grpc.UnaryUnaryMultiCallable[_gnmi_pb2.SetRequest, _gnmi_pb2.SetResponse]
     """Set allows the client to modify the state of data on the target. The
     paths to modified along with the new values that the client wishes
     to set the value to.
     Reference: gNMI Specification Section 3.4
     """
-
-    Subscribe: grpc.StreamStreamMultiCallable[
-        _dot_gnmi_pb2.SubscribeRequest,
-        _dot_gnmi_pb2.SubscribeResponse,
-    ]
+    Subscribe: _grpc.StreamStreamMultiCallable[_gnmi_pb2.SubscribeRequest, _gnmi_pb2.SubscribeResponse]
     """Subscribe allows a client to request the target to send it values
     of particular paths within the data tree. These values may be streamed
     at a particular cadence (STREAM), sent one off on a long-lived channel
@@ -71,11 +68,10 @@ class gNMIStub:
     Reference: gNMI Specification Section 3.5
     """
 
-class gNMIAsyncStub:
-    Capabilities: grpc.aio.UnaryUnaryMultiCallable[
-        _dot_gnmi_pb2.CapabilityRequest,
-        _dot_gnmi_pb2.CapabilityResponse,
-    ]
+@_typing.type_check_only
+class gNMIAsyncStub(gNMIStub):
+    def __init__(self, channel: _aio.Channel) -> None: ...
+    Capabilities: _aio.UnaryUnaryMultiCallable[_gnmi_pb2.CapabilityRequest, _gnmi_pb2.CapabilityResponse]  # type: ignore[assignment]
     """Capabilities allows the client to retrieve the set of capabilities that
     is supported by the target. This allows the target to validate the
     service version that is implemented and retrieve the set of models that
@@ -83,32 +79,20 @@ class gNMIAsyncStub:
     to restrict the set of data that is utilized.
     Reference: gNMI Specification Section 3.2
     """
-
-    Get: grpc.aio.UnaryUnaryMultiCallable[
-        _dot_gnmi_pb2.GetRequest,
-        _dot_gnmi_pb2.GetResponse,
-    ]
+    Get: _aio.UnaryUnaryMultiCallable[_gnmi_pb2.GetRequest, _gnmi_pb2.GetResponse]  # type: ignore[assignment]
     """Retrieve a snapshot of data from the target. A Get RPC requests that the
     target snapshots a subset of the data tree as specified by the paths
     included in the message and serializes this to be returned to the
     client using the specified encoding.
     Reference: gNMI Specification Section 3.3
     """
-
-    Set: grpc.aio.UnaryUnaryMultiCallable[
-        _dot_gnmi_pb2.SetRequest,
-        _dot_gnmi_pb2.SetResponse,
-    ]
+    Set: _aio.UnaryUnaryMultiCallable[_gnmi_pb2.SetRequest, _gnmi_pb2.SetResponse]  # type: ignore[assignment]
     """Set allows the client to modify the state of data on the target. The
     paths to modified along with the new values that the client wishes
     to set the value to.
     Reference: gNMI Specification Section 3.4
     """
-
-    Subscribe: grpc.aio.StreamStreamMultiCallable[
-        _dot_gnmi_pb2.SubscribeRequest,
-        _dot_gnmi_pb2.SubscribeResponse,
-    ]
+    Subscribe: _aio.StreamStreamMultiCallable[_gnmi_pb2.SubscribeRequest, _gnmi_pb2.SubscribeResponse]  # type: ignore[assignment]
     """Subscribe allows a client to request the target to send it values
     of particular paths within the data tree. These values may be streamed
     at a particular cadence (STREAM), sent one off on a long-lived channel
@@ -116,13 +100,13 @@ class gNMIAsyncStub:
     Reference: gNMI Specification Section 3.5
     """
 
-class gNMIServicer(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
+class gNMIServicer(metaclass=_abc_1.ABCMeta):
+    @_abc_1.abstractmethod
     def Capabilities(
         self,
-        request: _dot_gnmi_pb2.CapabilityRequest,
+        request: _gnmi_pb2.CapabilityRequest,
         context: _ServicerContext,
-    ) -> typing.Union[_dot_gnmi_pb2.CapabilityResponse, collections.abc.Awaitable[_dot_gnmi_pb2.CapabilityResponse]]:
+    ) -> _typing.Union[_gnmi_pb2.CapabilityResponse, _abc.Awaitable[_gnmi_pb2.CapabilityResponse]]:
         """Capabilities allows the client to retrieve the set of capabilities that
         is supported by the target. This allows the target to validate the
         service version that is implemented and retrieve the set of models that
@@ -131,12 +115,12 @@ class gNMIServicer(metaclass=abc.ABCMeta):
         Reference: gNMI Specification Section 3.2
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Get(
         self,
-        request: _dot_gnmi_pb2.GetRequest,
+        request: _gnmi_pb2.GetRequest,
         context: _ServicerContext,
-    ) -> typing.Union[_dot_gnmi_pb2.GetResponse, collections.abc.Awaitable[_dot_gnmi_pb2.GetResponse]]:
+    ) -> _typing.Union[_gnmi_pb2.GetResponse, _abc.Awaitable[_gnmi_pb2.GetResponse]]:
         """Retrieve a snapshot of data from the target. A Get RPC requests that the
         target snapshots a subset of the data tree as specified by the paths
         included in the message and serializes this to be returned to the
@@ -144,24 +128,24 @@ class gNMIServicer(metaclass=abc.ABCMeta):
         Reference: gNMI Specification Section 3.3
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Set(
         self,
-        request: _dot_gnmi_pb2.SetRequest,
+        request: _gnmi_pb2.SetRequest,
         context: _ServicerContext,
-    ) -> typing.Union[_dot_gnmi_pb2.SetResponse, collections.abc.Awaitable[_dot_gnmi_pb2.SetResponse]]:
+    ) -> _typing.Union[_gnmi_pb2.SetResponse, _abc.Awaitable[_gnmi_pb2.SetResponse]]:
         """Set allows the client to modify the state of data on the target. The
         paths to modified along with the new values that the client wishes
         to set the value to.
         Reference: gNMI Specification Section 3.4
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Subscribe(
         self,
-        request_iterator: _MaybeAsyncIterator[_dot_gnmi_pb2.SubscribeRequest],
+        request_iterator: _MaybeAsyncIterator[_gnmi_pb2.SubscribeRequest],
         context: _ServicerContext,
-    ) -> typing.Union[collections.abc.Iterator[_dot_gnmi_pb2.SubscribeResponse], collections.abc.AsyncIterator[_dot_gnmi_pb2.SubscribeResponse]]:
+    ) -> _typing.Union[_abc.Iterator[_gnmi_pb2.SubscribeResponse], _abc.AsyncIterator[_gnmi_pb2.SubscribeResponse]]:
         """Subscribe allows a client to request the target to send it values
         of particular paths within the data tree. These values may be streamed
         at a particular cadence (STREAM), sent one off on a long-lived channel
@@ -169,4 +153,4 @@ class gNMIServicer(metaclass=abc.ABCMeta):
         Reference: gNMI Specification Section 3.5
         """
 
-def add_gNMIServicer_to_server(servicer: gNMIServicer, server: typing.Union[grpc.Server, grpc.aio.Server]) -> None: ...
+def add_gNMIServicer_to_server(servicer: gNMIServicer, server: _typing.Union[_grpc.Server, _aio.Server]) -> None: ...

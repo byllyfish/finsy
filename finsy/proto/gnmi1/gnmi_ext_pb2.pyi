@@ -7,27 +7,27 @@ well-known extensions are defined within this file, along with a registry for
 extensions defined outside of this package.
 """
 
-import builtins
-import google.protobuf.descriptor
-import google.protobuf.duration_pb2
-import google.protobuf.internal.enum_type_wrapper
-import google.protobuf.message
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import duration_pb2 as _duration_pb2
+from google.protobuf import message as _message
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+import builtins as _builtins
 import sys
-import typing
+import typing as _typing
 
 if sys.version_info >= (3, 10):
-    import typing as typing_extensions
+    from typing import TypeAlias as _TypeAlias
 else:
-    import typing_extensions
+    from typing_extensions import TypeAlias as _TypeAlias
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
 class _ExtensionID:
-    ValueType = typing.NewType("ValueType", builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
+    ValueType = _typing.NewType("ValueType", _builtins.int)
+    V: _TypeAlias = ValueType  # noqa: Y015
 
-class _ExtensionIDEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ExtensionID.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+class _ExtensionIDEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_ExtensionID.ValueType], _builtins.type):
+    DESCRIPTOR: _descriptor.EnumDescriptor
     EID_UNSET: _ExtensionID.ValueType  # 0
     """New extensions are to be defined within this enumeration - their definition
     MUST link to a reference describing their implementation.
@@ -50,88 +50,93 @@ EID_EXPERIMENTAL: ExtensionID.ValueType  # 999
 """An experimental extension that may be used during prototyping of a new
 extension.
 """
-global___ExtensionID = ExtensionID
+Global___ExtensionID: _TypeAlias = ExtensionID  # noqa: Y015
 
-@typing.final
-class Extension(google.protobuf.message.Message):
+@_typing.final
+class Extension(_message.Message):
     """The Extension message contains a single gNMI extension."""
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    REGISTERED_EXT_FIELD_NUMBER: builtins.int
-    MASTER_ARBITRATION_FIELD_NUMBER: builtins.int
-    HISTORY_FIELD_NUMBER: builtins.int
-    COMMIT_FIELD_NUMBER: builtins.int
-    DEPTH_FIELD_NUMBER: builtins.int
-    CONFIG_SUBSCRIPTION_FIELD_NUMBER: builtins.int
-    @property
-    def registered_ext(self) -> global___RegisteredExtension:
+    REGISTERED_EXT_FIELD_NUMBER: _builtins.int
+    MASTER_ARBITRATION_FIELD_NUMBER: _builtins.int
+    HISTORY_FIELD_NUMBER: _builtins.int
+    COMMIT_FIELD_NUMBER: _builtins.int
+    DEPTH_FIELD_NUMBER: _builtins.int
+    CONFIG_SUBSCRIPTION_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def registered_ext(self) -> Global___RegisteredExtension:
         """A registered extension."""
 
-    @property
-    def master_arbitration(self) -> global___MasterArbitration:
+    @_builtins.property
+    def master_arbitration(self) -> Global___MasterArbitration:
         """Well known extensions.
         Master arbitration extension.
         """
 
-    @property
-    def history(self) -> global___History:
+    @_builtins.property
+    def history(self) -> Global___History:
         """History extension."""
 
-    @property
-    def commit(self) -> global___Commit:
+    @_builtins.property
+    def commit(self) -> Global___Commit:
         """Commit confirmed extension."""
 
-    @property
-    def depth(self) -> global___Depth:
+    @_builtins.property
+    def depth(self) -> Global___Depth:
         """Depth extension."""
 
-    @property
-    def config_subscription(self) -> global___ConfigSubscription:
+    @_builtins.property
+    def config_subscription(self) -> Global___ConfigSubscription:
         """Config Subscription extension."""
 
     def __init__(
         self,
         *,
-        registered_ext: global___RegisteredExtension | None = ...,
-        master_arbitration: global___MasterArbitration | None = ...,
-        history: global___History | None = ...,
-        commit: global___Commit | None = ...,
-        depth: global___Depth | None = ...,
-        config_subscription: global___ConfigSubscription | None = ...,
+        registered_ext: Global___RegisteredExtension | None = ...,
+        master_arbitration: Global___MasterArbitration | None = ...,
+        history: Global___History | None = ...,
+        commit: Global___Commit | None = ...,
+        depth: Global___Depth | None = ...,
+        config_subscription: Global___ConfigSubscription | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["commit", b"commit", "config_subscription", b"config_subscription", "depth", b"depth", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["commit", b"commit", "config_subscription", b"config_subscription", "depth", b"depth", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["ext", b"ext"]) -> typing.Literal["registered_ext", "master_arbitration", "history", "commit", "depth", "config_subscription"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["commit", b"commit", "config_subscription", b"config_subscription", "depth", b"depth", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["commit", b"commit", "config_subscription", b"config_subscription", "depth", b"depth", "ext", b"ext", "history", b"history", "master_arbitration", b"master_arbitration", "registered_ext", b"registered_ext"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType_ext: _TypeAlias = _typing.Literal["registered_ext", "master_arbitration", "history", "commit", "depth", "config_subscription"]  # noqa: Y015
+    _WhichOneofArgType_ext: _TypeAlias = _typing.Literal["ext", b"ext"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_ext) -> _WhichOneofReturnType_ext | None: ...
 
-global___Extension = Extension
+Global___Extension: _TypeAlias = Extension  # noqa: Y015
 
-@typing.final
-class RegisteredExtension(google.protobuf.message.Message):
+@_typing.final
+class RegisteredExtension(_message.Message):
     """The RegisteredExtension message defines an extension which is defined outside
     of this file.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    ID_FIELD_NUMBER: builtins.int
-    MSG_FIELD_NUMBER: builtins.int
-    id: global___ExtensionID.ValueType
+    ID_FIELD_NUMBER: _builtins.int
+    MSG_FIELD_NUMBER: _builtins.int
+    id: Global___ExtensionID.ValueType
     """The unique ID assigned to this extension."""
-    msg: builtins.bytes
+    msg: _builtins.bytes
     """The binary-marshalled protobuf extension payload."""
     def __init__(
         self,
         *,
-        id: global___ExtensionID.ValueType = ...,
-        msg: builtins.bytes = ...,
+        id: Global___ExtensionID.ValueType = ...,
+        msg: _builtins.bytes = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["id", b"id", "msg", b"msg"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["id", b"id", "msg", b"msg"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___RegisteredExtension = RegisteredExtension
+Global___RegisteredExtension: _TypeAlias = RegisteredExtension  # noqa: Y015
 
-@typing.final
-class MasterArbitration(google.protobuf.message.Message):
+@_typing.final
+class MasterArbitration(_message.Message):
     """MasterArbitration is used to select the master among multiple gNMI clients
     with the same Roles. The client with the largest election_id is honored as
     the master.
@@ -139,114 +144,123 @@ class MasterArbitration(google.protobuf.message.Message):
     https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-master-arbitration.md
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    ROLE_FIELD_NUMBER: builtins.int
-    ELECTION_ID_FIELD_NUMBER: builtins.int
-    @property
-    def role(self) -> global___Role: ...
-    @property
-    def election_id(self) -> global___Uint128: ...
+    ROLE_FIELD_NUMBER: _builtins.int
+    ELECTION_ID_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def role(self) -> Global___Role: ...
+    @_builtins.property
+    def election_id(self) -> Global___Uint128: ...
     def __init__(
         self,
         *,
-        role: global___Role | None = ...,
-        election_id: global___Uint128 | None = ...,
+        role: Global___Role | None = ...,
+        election_id: Global___Uint128 | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["election_id", b"election_id", "role", b"role"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["election_id", b"election_id", "role", b"role"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["election_id", b"election_id", "role", b"role"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["election_id", b"election_id", "role", b"role"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___MasterArbitration = MasterArbitration
+Global___MasterArbitration: _TypeAlias = MasterArbitration  # noqa: Y015
 
-@typing.final
-class Uint128(google.protobuf.message.Message):
+@_typing.final
+class Uint128(_message.Message):
     """Representation of unsigned 128-bit integer."""
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    HIGH_FIELD_NUMBER: builtins.int
-    LOW_FIELD_NUMBER: builtins.int
-    high: builtins.int
-    low: builtins.int
+    HIGH_FIELD_NUMBER: _builtins.int
+    LOW_FIELD_NUMBER: _builtins.int
+    high: _builtins.int
+    low: _builtins.int
     def __init__(
         self,
         *,
-        high: builtins.int = ...,
-        low: builtins.int = ...,
+        high: _builtins.int = ...,
+        low: _builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["high", b"high", "low", b"low"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["high", b"high", "low", b"low"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___Uint128 = Uint128
+Global___Uint128: _TypeAlias = Uint128  # noqa: Y015
 
-@typing.final
-class Role(google.protobuf.message.Message):
+@_typing.final
+class Role(_message.Message):
     """There can be one master for each role. The role is identified by its id."""
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    ID_FIELD_NUMBER: builtins.int
-    id: builtins.str
+    ID_FIELD_NUMBER: _builtins.int
+    id: _builtins.str
     """More fields can be added if needed, for example, to specify what paths the
     role can read/write.
     """
     def __init__(
         self,
         *,
-        id: builtins.str = ...,
+        id: _builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["id", b"id"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["id", b"id"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___Role = Role
+Global___Role: _TypeAlias = Role  # noqa: Y015
 
-@typing.final
-class History(google.protobuf.message.Message):
+@_typing.final
+class History(_message.Message):
     """The History extension allows clients to request historical data. Its
     spec can be found at
     https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-history.md
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    SNAPSHOT_TIME_FIELD_NUMBER: builtins.int
-    RANGE_FIELD_NUMBER: builtins.int
-    snapshot_time: builtins.int
+    SNAPSHOT_TIME_FIELD_NUMBER: _builtins.int
+    RANGE_FIELD_NUMBER: _builtins.int
+    snapshot_time: _builtins.int
     """Nanoseconds since the epoch"""
-    @property
-    def range(self) -> global___TimeRange: ...
+    @_builtins.property
+    def range(self) -> Global___TimeRange: ...
     def __init__(
         self,
         *,
-        snapshot_time: builtins.int = ...,
-        range: global___TimeRange | None = ...,
+        snapshot_time: _builtins.int = ...,
+        range: Global___TimeRange | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["range", b"range", "request", b"request", "snapshot_time", b"snapshot_time"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["range", b"range", "request", b"request", "snapshot_time", b"snapshot_time"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["request", b"request"]) -> typing.Literal["snapshot_time", "range"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["range", b"range", "request", b"request", "snapshot_time", b"snapshot_time"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["range", b"range", "request", b"request", "snapshot_time", b"snapshot_time"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType_request: _TypeAlias = _typing.Literal["snapshot_time", "range"]  # noqa: Y015
+    _WhichOneofArgType_request: _TypeAlias = _typing.Literal["request", b"request"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_request) -> _WhichOneofReturnType_request | None: ...
 
-global___History = History
+Global___History: _TypeAlias = History  # noqa: Y015
 
-@typing.final
-class TimeRange(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+@_typing.final
+class TimeRange(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
 
-    START_FIELD_NUMBER: builtins.int
-    END_FIELD_NUMBER: builtins.int
-    start: builtins.int
+    START_FIELD_NUMBER: _builtins.int
+    END_FIELD_NUMBER: _builtins.int
+    start: _builtins.int
     """Nanoseconds since the epoch"""
-    end: builtins.int
+    end: _builtins.int
     """Nanoseconds since the epoch"""
     def __init__(
         self,
         *,
-        start: builtins.int = ...,
-        end: builtins.int = ...,
+        start: _builtins.int = ...,
+        end: _builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["end", b"end", "start", b"start"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["end", b"end", "start", b"start"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___TimeRange = TimeRange
+Global___TimeRange: _TypeAlias = TimeRange  # noqa: Y015
 
-@typing.final
-class Commit(google.protobuf.message.Message):
+@_typing.final
+class Commit(_message.Message):
     """Commit confirmed extension allows automated revert of the configuration after
     certain duration if an explicit confirmation is not issued. It allows
     explicit cancellation of the commit during the rollback window. There cannot
@@ -255,39 +269,39 @@ class Commit(google.protobuf.message.Message):
     https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-commit-confirmed.md
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    ID_FIELD_NUMBER: builtins.int
-    COMMIT_FIELD_NUMBER: builtins.int
-    CONFIRM_FIELD_NUMBER: builtins.int
-    CANCEL_FIELD_NUMBER: builtins.int
-    SET_ROLLBACK_DURATION_FIELD_NUMBER: builtins.int
-    id: builtins.str
+    ID_FIELD_NUMBER: _builtins.int
+    COMMIT_FIELD_NUMBER: _builtins.int
+    CONFIRM_FIELD_NUMBER: _builtins.int
+    CANCEL_FIELD_NUMBER: _builtins.int
+    SET_ROLLBACK_DURATION_FIELD_NUMBER: _builtins.int
+    id: _builtins.str
     """ID is provided by the client during the commit request. During confirm and
     cancel actions the provided ID should match the ID provided during commit.
     If ID is not passed in any actions server shall return error.
     Required.
     """
-    @property
-    def commit(self) -> global___CommitRequest:
+    @_builtins.property
+    def commit(self) -> Global___CommitRequest:
         """commit action creates a new commit. If a commit is on-going, server
         returns error.
         """
 
-    @property
-    def confirm(self) -> global___CommitConfirm:
+    @_builtins.property
+    def confirm(self) -> Global___CommitConfirm:
         """confirm action will confirm an on-going commit, the ID provided during
         confirm should match the on-going commit ID.
         """
 
-    @property
-    def cancel(self) -> global___CommitCancel:
+    @_builtins.property
+    def cancel(self) -> Global___CommitCancel:
         """cancel action will cancel an on-going commit, the ID provided during
         cancel should match the on-going commit ID.
         """
 
-    @property
-    def set_rollback_duration(self) -> global___CommitSetRollbackDuration:
+    @_builtins.property
+    def set_rollback_duration(self) -> Global___CommitSetRollbackDuration:
         """set rollback duration action sets the rollback duration of an on-going commit
         to a new value.
         The ID provided with the Commit message should match the on-going commit ID.
@@ -296,94 +310,102 @@ class Commit(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        id: builtins.str = ...,
-        commit: global___CommitRequest | None = ...,
-        confirm: global___CommitConfirm | None = ...,
-        cancel: global___CommitCancel | None = ...,
-        set_rollback_duration: global___CommitSetRollbackDuration | None = ...,
+        id: _builtins.str = ...,
+        commit: Global___CommitRequest | None = ...,
+        confirm: Global___CommitConfirm | None = ...,
+        cancel: Global___CommitCancel | None = ...,
+        set_rollback_duration: Global___CommitSetRollbackDuration | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "set_rollback_duration", b"set_rollback_duration"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "id", b"id", "set_rollback_duration", b"set_rollback_duration"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["action", b"action"]) -> typing.Literal["commit", "confirm", "cancel", "set_rollback_duration"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "set_rollback_duration", b"set_rollback_duration"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["action", b"action", "cancel", b"cancel", "commit", b"commit", "confirm", b"confirm", "id", b"id", "set_rollback_duration", b"set_rollback_duration"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType_action: _TypeAlias = _typing.Literal["commit", "confirm", "cancel", "set_rollback_duration"]  # noqa: Y015
+    _WhichOneofArgType_action: _TypeAlias = _typing.Literal["action", b"action"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_action) -> _WhichOneofReturnType_action | None: ...
 
-global___Commit = Commit
+Global___Commit: _TypeAlias = Commit  # noqa: Y015
 
-@typing.final
-class CommitRequest(google.protobuf.message.Message):
+@_typing.final
+class CommitRequest(_message.Message):
     """CommitRequest is used to create a new confirmed commit. It hold additional
     parameter requried for commit action.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    ROLLBACK_DURATION_FIELD_NUMBER: builtins.int
-    @property
-    def rollback_duration(self) -> google.protobuf.duration_pb2.Duration:
+    ROLLBACK_DURATION_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def rollback_duration(self) -> _duration_pb2.Duration:
         """Maximum duration to wait for a confirmaton before reverting the commit."""
 
     def __init__(
         self,
         *,
-        rollback_duration: google.protobuf.duration_pb2.Duration | None = ...,
+        rollback_duration: _duration_pb2.Duration | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["rollback_duration", b"rollback_duration"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["rollback_duration", b"rollback_duration"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["rollback_duration", b"rollback_duration"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["rollback_duration", b"rollback_duration"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___CommitRequest = CommitRequest
+Global___CommitRequest: _TypeAlias = CommitRequest  # noqa: Y015
 
-@typing.final
-class CommitConfirm(google.protobuf.message.Message):
+@_typing.final
+class CommitConfirm(_message.Message):
     """CommitConfirm is used to confirm an on-going commit. It hold additional
     parameter requried for confirm action.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
     def __init__(
         self,
     ) -> None: ...
 
-global___CommitConfirm = CommitConfirm
+Global___CommitConfirm: _TypeAlias = CommitConfirm  # noqa: Y015
 
-@typing.final
-class CommitCancel(google.protobuf.message.Message):
+@_typing.final
+class CommitCancel(_message.Message):
     """CommitCancel is used to cancel an on-going commit. It hold additional
     parameter requried for cancel action.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
     def __init__(
         self,
     ) -> None: ...
 
-global___CommitCancel = CommitCancel
+Global___CommitCancel: _TypeAlias = CommitCancel  # noqa: Y015
 
-@typing.final
-class CommitSetRollbackDuration(google.protobuf.message.Message):
+@_typing.final
+class CommitSetRollbackDuration(_message.Message):
     """CommitSetRollbackDuration is used to set the existing rollback duration value
     of an on-going commit to a new desired value.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    ROLLBACK_DURATION_FIELD_NUMBER: builtins.int
-    @property
-    def rollback_duration(self) -> google.protobuf.duration_pb2.Duration:
+    ROLLBACK_DURATION_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def rollback_duration(self) -> _duration_pb2.Duration:
         """Maximum duration to wait for a confirmaton before reverting the commit."""
 
     def __init__(
         self,
         *,
-        rollback_duration: google.protobuf.duration_pb2.Duration | None = ...,
+        rollback_duration: _duration_pb2.Duration | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["rollback_duration", b"rollback_duration"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["rollback_duration", b"rollback_duration"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["rollback_duration", b"rollback_duration"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["rollback_duration", b"rollback_duration"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___CommitSetRollbackDuration = CommitSetRollbackDuration
+Global___CommitSetRollbackDuration: _TypeAlias = CommitSetRollbackDuration  # noqa: Y015
 
-@typing.final
-class Depth(google.protobuf.message.Message):
+@_typing.final
+class Depth(_message.Message):
     """Depth allows clients to specify the depth of the subtree to be returned in
     the response. The depth is specified as the number of levels below the
     specified path.
@@ -392,10 +414,10 @@ class Depth(google.protobuf.message.Message):
     https://github.com/openconfig/reference/tree/master/rpc/gnmi/gnmi-depth.md
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    LEVEL_FIELD_NUMBER: builtins.int
-    level: builtins.int
+    LEVEL_FIELD_NUMBER: _builtins.int
+    level: _builtins.int
     """The level of the subtree to be returned in the response.
     Value of 0 means no depth limit and behaves the same as if the extension
     was not specified.
@@ -405,87 +427,93 @@ class Depth(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        level: builtins.int = ...,
+        level: _builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["level", b"level"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["level", b"level"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___Depth = Depth
+Global___Depth: _TypeAlias = Depth  # noqa: Y015
 
-@typing.final
-class ConfigSubscription(google.protobuf.message.Message):
+@_typing.final
+class ConfigSubscription(_message.Message):
     """ConfigSubscription extension allows clients to subscribe to configuration
     schema nodes only.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    START_FIELD_NUMBER: builtins.int
-    SYNC_DONE_FIELD_NUMBER: builtins.int
-    @property
-    def start(self) -> global___ConfigSubscriptionStart:
+    START_FIELD_NUMBER: _builtins.int
+    SYNC_DONE_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def start(self) -> Global___ConfigSubscriptionStart:
         """ConfigSubscriptionStart is sent by the client in the SubscribeRequest"""
 
-    @property
-    def sync_done(self) -> global___ConfigSubscriptionSyncDone:
+    @_builtins.property
+    def sync_done(self) -> Global___ConfigSubscriptionSyncDone:
         """ConfigSubscriptionSyncDone is sent by the server in the SubscribeResponse"""
 
     def __init__(
         self,
         *,
-        start: global___ConfigSubscriptionStart | None = ...,
-        sync_done: global___ConfigSubscriptionSyncDone | None = ...,
+        start: Global___ConfigSubscriptionStart | None = ...,
+        sync_done: Global___ConfigSubscriptionSyncDone | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["action", b"action", "start", b"start", "sync_done", b"sync_done"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["action", b"action", "start", b"start", "sync_done", b"sync_done"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["action", b"action"]) -> typing.Literal["start", "sync_done"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["action", b"action", "start", b"start", "sync_done", b"sync_done"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["action", b"action", "start", b"start", "sync_done", b"sync_done"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType_action: _TypeAlias = _typing.Literal["start", "sync_done"]  # noqa: Y015
+    _WhichOneofArgType_action: _TypeAlias = _typing.Literal["action", b"action"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_action) -> _WhichOneofReturnType_action | None: ...
 
-global___ConfigSubscription = ConfigSubscription
+Global___ConfigSubscription: _TypeAlias = ConfigSubscription  # noqa: Y015
 
-@typing.final
-class ConfigSubscriptionStart(google.protobuf.message.Message):
+@_typing.final
+class ConfigSubscriptionStart(_message.Message):
     """ConfigSubscriptionStart is used to indicate to a target that for a given set
     of paths in the SubscribeRequest, the client wishes to receive updates
     for the configuration schema nodes only.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
     def __init__(
         self,
     ) -> None: ...
 
-global___ConfigSubscriptionStart = ConfigSubscriptionStart
+Global___ConfigSubscriptionStart: _TypeAlias = ConfigSubscriptionStart  # noqa: Y015
 
-@typing.final
-class ConfigSubscriptionSyncDone(google.protobuf.message.Message):
+@_typing.final
+class ConfigSubscriptionSyncDone(_message.Message):
     """ConfigSubscriptionSyncDone is sent by the server in the SubscribeResponse
     after all the updates for the configuration schema nodes have been sent.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    COMMIT_CONFIRM_ID_FIELD_NUMBER: builtins.int
-    SERVER_COMMIT_ID_FIELD_NUMBER: builtins.int
-    DONE_FIELD_NUMBER: builtins.int
-    commit_confirm_id: builtins.str
+    COMMIT_CONFIRM_ID_FIELD_NUMBER: _builtins.int
+    SERVER_COMMIT_ID_FIELD_NUMBER: _builtins.int
+    DONE_FIELD_NUMBER: _builtins.int
+    commit_confirm_id: _builtins.str
     """ID of a commit confirm operation as assigned by the client
     see Commit Confirm extension for more details.
     """
-    server_commit_id: builtins.str
+    server_commit_id: _builtins.str
     """ID of a commit as might be assigned by the server
     when registering a commit operation.
     """
-    done: builtins.bool
+    done: _builtins.bool
     """If true indicates that the server is done processing the updates related to the
     commit_confirm_id and/or server_commit_id.
     """
     def __init__(
         self,
         *,
-        commit_confirm_id: builtins.str = ...,
-        server_commit_id: builtins.str = ...,
-        done: builtins.bool = ...,
+        commit_confirm_id: _builtins.str = ...,
+        server_commit_id: _builtins.str = ...,
+        done: _builtins.bool = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["commit_confirm_id", b"commit_confirm_id", "done", b"done", "server_commit_id", b"server_commit_id"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["commit_confirm_id", b"commit_confirm_id", "done", b"done", "server_commit_id", b"server_commit_id"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___ConfigSubscriptionSyncDone = ConfigSubscriptionSyncDone
+Global___ConfigSubscriptionSyncDone: _TypeAlias = ConfigSubscriptionSyncDone  # noqa: Y015

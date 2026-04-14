@@ -16,18 +16,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import builtins
-import collections.abc
-import google.protobuf.descriptor
-import google.protobuf.duration_pb2
-import google.protobuf.internal.containers
-import google.protobuf.message
-import typing
+from collections import abc as _abc
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import duration_pb2 as _duration_pb2
+from google.protobuf import message as _message
+from google.protobuf.internal import containers as _containers
+import builtins as _builtins
+import sys
+import typing as _typing
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+if sys.version_info >= (3, 10):
+    from typing import TypeAlias as _TypeAlias
+else:
+    from typing_extensions import TypeAlias as _TypeAlias
 
-@typing.final
-class RetryInfo(google.protobuf.message.Message):
+DESCRIPTOR: _descriptor.FileDescriptor
+
+@_typing.final
+class RetryInfo(_message.Message):
     """Describes when the clients can retry a failed request. Clients could ignore
     the recommendation here or retry when this information is missing from error
     responses.
@@ -43,49 +49,52 @@ class RetryInfo(google.protobuf.message.Message):
     reached.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    RETRY_DELAY_FIELD_NUMBER: builtins.int
-    @property
-    def retry_delay(self) -> google.protobuf.duration_pb2.Duration:
+    RETRY_DELAY_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def retry_delay(self) -> _duration_pb2.Duration:
         """Clients should wait at least this long between retrying the same request."""
 
     def __init__(
         self,
         *,
-        retry_delay: google.protobuf.duration_pb2.Duration | None = ...,
+        retry_delay: _duration_pb2.Duration | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["retry_delay", b"retry_delay"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["retry_delay", b"retry_delay"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["retry_delay", b"retry_delay"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["retry_delay", b"retry_delay"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___RetryInfo = RetryInfo
+Global___RetryInfo: _TypeAlias = RetryInfo  # noqa: Y015
 
-@typing.final
-class DebugInfo(google.protobuf.message.Message):
+@_typing.final
+class DebugInfo(_message.Message):
     """Describes additional debugging info."""
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    STACK_ENTRIES_FIELD_NUMBER: builtins.int
-    DETAIL_FIELD_NUMBER: builtins.int
-    detail: builtins.str
+    STACK_ENTRIES_FIELD_NUMBER: _builtins.int
+    DETAIL_FIELD_NUMBER: _builtins.int
+    detail: _builtins.str
     """Additional debugging information provided by the server."""
-    @property
-    def stack_entries(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
+    @_builtins.property
+    def stack_entries(self) -> _containers.RepeatedScalarFieldContainer[_builtins.str]:
         """The stack trace entries indicating where the error occurred."""
 
     def __init__(
         self,
         *,
-        stack_entries: collections.abc.Iterable[builtins.str] | None = ...,
-        detail: builtins.str = ...,
+        stack_entries: _abc.Iterable[_builtins.str] | None = ...,
+        detail: _builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["detail", b"detail", "stack_entries", b"stack_entries"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["detail", b"detail", "stack_entries", b"stack_entries"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___DebugInfo = DebugInfo
+Global___DebugInfo: _TypeAlias = DebugInfo  # noqa: Y015
 
-@typing.final
-class QuotaFailure(google.protobuf.message.Message):
+@_typing.final
+class QuotaFailure(_message.Message):
     """Describes how a quota check failed.
 
     For example if a daily limit was exceeded for the calling project,
@@ -99,24 +108,24 @@ class QuotaFailure(google.protobuf.message.Message):
     quota failure.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    @typing.final
-    class Violation(google.protobuf.message.Message):
+    @_typing.final
+    class Violation(_message.Message):
         """A message type used to describe a single quota violation.  For example, a
         daily quota or a custom quota that was exceeded.
         """
 
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+        DESCRIPTOR: _descriptor.Descriptor
 
-        SUBJECT_FIELD_NUMBER: builtins.int
-        DESCRIPTION_FIELD_NUMBER: builtins.int
-        subject: builtins.str
+        SUBJECT_FIELD_NUMBER: _builtins.int
+        DESCRIPTION_FIELD_NUMBER: _builtins.int
+        subject: _builtins.str
         """The subject on which the quota check failed.
         For example, "clientip:<ip address of client>" or "project:<Google
         developer project id>".
         """
-        description: builtins.str
+        description: _builtins.str
         """A description of how the quota check failed. Clients can use this
         description to find more about the quota configuration in the service's
         public documentation, or find the relevant quota limit to adjust through
@@ -128,27 +137,29 @@ class QuotaFailure(google.protobuf.message.Message):
         def __init__(
             self,
             *,
-            subject: builtins.str = ...,
-            description: builtins.str = ...,
+            subject: _builtins.str = ...,
+            description: _builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["description", b"description", "subject", b"subject"]) -> None: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["description", b"description", "subject", b"subject"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-    VIOLATIONS_FIELD_NUMBER: builtins.int
-    @property
-    def violations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___QuotaFailure.Violation]:
+    VIOLATIONS_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def violations(self) -> _containers.RepeatedCompositeFieldContainer[Global___QuotaFailure.Violation]:
         """Describes all quota violations."""
 
     def __init__(
         self,
         *,
-        violations: collections.abc.Iterable[global___QuotaFailure.Violation] | None = ...,
+        violations: _abc.Iterable[Global___QuotaFailure.Violation] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["violations", b"violations"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["violations", b"violations"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___QuotaFailure = QuotaFailure
+Global___QuotaFailure: _TypeAlias = QuotaFailure  # noqa: Y015
 
-@typing.final
-class ErrorInfo(google.protobuf.message.Message):
+@_typing.final
+class ErrorInfo(_message.Message):
     """Describes the cause of the error with structured details.
 
     Example of an error when contacting the "pubsub.googleapis.com" API when it
@@ -172,42 +183,43 @@ class ErrorInfo(google.protobuf.message.Message):
         }
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    @typing.final
-    class MetadataEntry(google.protobuf.message.Message):
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    @_typing.final
+    class MetadataEntry(_message.Message):
+        DESCRIPTOR: _descriptor.Descriptor
 
-        KEY_FIELD_NUMBER: builtins.int
-        VALUE_FIELD_NUMBER: builtins.int
-        key: builtins.str
-        value: builtins.str
+        KEY_FIELD_NUMBER: _builtins.int
+        VALUE_FIELD_NUMBER: _builtins.int
+        key: _builtins.str
+        value: _builtins.str
         def __init__(
             self,
             *,
-            key: builtins.str = ...,
-            value: builtins.str = ...,
+            key: _builtins.str = ...,
+            value: _builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["key", b"key", "value", b"value"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-    REASON_FIELD_NUMBER: builtins.int
-    DOMAIN_FIELD_NUMBER: builtins.int
-    METADATA_FIELD_NUMBER: builtins.int
-    reason: builtins.str
+    REASON_FIELD_NUMBER: _builtins.int
+    DOMAIN_FIELD_NUMBER: _builtins.int
+    METADATA_FIELD_NUMBER: _builtins.int
+    reason: _builtins.str
     """The reason of the error. This is a constant value that identifies the
     proximate cause of the error. Error reasons are unique within a particular
     domain of errors. This should be at most 63 characters and match
     /[A-Z0-9_]+/.
     """
-    domain: builtins.str
+    domain: _builtins.str
     """The logical grouping to which the "reason" belongs.  Often "domain" will
     contain the registered service name of the tool or product that is the
     source of the error. Example: "pubsub.googleapis.com". If the error is
     common across many APIs, the first segment of the example above will be
     omitted.  The value will be, "googleapis.com".
     """
-    @property
-    def metadata(self) -> google.protobuf.internal.containers.ScalarMap[builtins.str, builtins.str]:
+    @_builtins.property
+    def metadata(self) -> _containers.ScalarMap[_builtins.str, _builtins.str]:
         """Additional structured details about this error.
 
         Keys should match /[a-zA-Z0-9-_]/ and be limited to 64 characters in
@@ -221,16 +233,17 @@ class ErrorInfo(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        reason: builtins.str = ...,
-        domain: builtins.str = ...,
-        metadata: collections.abc.Mapping[builtins.str, builtins.str] | None = ...,
+        reason: _builtins.str = ...,
+        domain: _builtins.str = ...,
+        metadata: _abc.Mapping[_builtins.str, _builtins.str] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["domain", b"domain", "metadata", b"metadata", "reason", b"reason"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["domain", b"domain", "metadata", b"metadata", "reason", b"reason"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___ErrorInfo = ErrorInfo
+Global___ErrorInfo: _TypeAlias = ErrorInfo  # noqa: Y015
 
-@typing.final
-class PreconditionFailure(google.protobuf.message.Message):
+@_typing.final
+class PreconditionFailure(_message.Message):
     """Describes what preconditions have failed.
 
     For example, if an RPC failed because it required the Terms of Service to be
@@ -238,28 +251,28 @@ class PreconditionFailure(google.protobuf.message.Message):
     PreconditionFailure message.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    @typing.final
-    class Violation(google.protobuf.message.Message):
+    @_typing.final
+    class Violation(_message.Message):
         """A message type used to describe a single precondition failure."""
 
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+        DESCRIPTOR: _descriptor.Descriptor
 
-        TYPE_FIELD_NUMBER: builtins.int
-        SUBJECT_FIELD_NUMBER: builtins.int
-        DESCRIPTION_FIELD_NUMBER: builtins.int
-        type: builtins.str
+        TYPE_FIELD_NUMBER: _builtins.int
+        SUBJECT_FIELD_NUMBER: _builtins.int
+        DESCRIPTION_FIELD_NUMBER: _builtins.int
+        type: _builtins.str
         """The type of PreconditionFailure. We recommend using a service-specific
         enum type to define the supported precondition violation subjects. For
         example, "TOS" for "Terms of Service violation".
         """
-        subject: builtins.str
+        subject: _builtins.str
         """The subject, relative to the type, that failed.
         For example, "google.com/cloud" relative to the "TOS" type would indicate
         which terms of service is being referenced.
         """
-        description: builtins.str
+        description: _builtins.str
         """A description of how the precondition failed. Developers can use this
         description to understand how to fix the failure.
 
@@ -268,125 +281,130 @@ class PreconditionFailure(google.protobuf.message.Message):
         def __init__(
             self,
             *,
-            type: builtins.str = ...,
-            subject: builtins.str = ...,
-            description: builtins.str = ...,
+            type: _builtins.str = ...,
+            subject: _builtins.str = ...,
+            description: _builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["description", b"description", "subject", b"subject", "type", b"type"]) -> None: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["description", b"description", "subject", b"subject", "type", b"type"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-    VIOLATIONS_FIELD_NUMBER: builtins.int
-    @property
-    def violations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PreconditionFailure.Violation]:
+    VIOLATIONS_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def violations(self) -> _containers.RepeatedCompositeFieldContainer[Global___PreconditionFailure.Violation]:
         """Describes all precondition violations."""
 
     def __init__(
         self,
         *,
-        violations: collections.abc.Iterable[global___PreconditionFailure.Violation] | None = ...,
+        violations: _abc.Iterable[Global___PreconditionFailure.Violation] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["violations", b"violations"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["violations", b"violations"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___PreconditionFailure = PreconditionFailure
+Global___PreconditionFailure: _TypeAlias = PreconditionFailure  # noqa: Y015
 
-@typing.final
-class BadRequest(google.protobuf.message.Message):
+@_typing.final
+class BadRequest(_message.Message):
     """Describes violations in a client request. This error type focuses on the
     syntactic aspects of the request.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    @typing.final
-    class FieldViolation(google.protobuf.message.Message):
+    @_typing.final
+    class FieldViolation(_message.Message):
         """A message type used to describe a single bad request field."""
 
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+        DESCRIPTOR: _descriptor.Descriptor
 
-        FIELD_FIELD_NUMBER: builtins.int
-        DESCRIPTION_FIELD_NUMBER: builtins.int
-        field: builtins.str
+        FIELD_FIELD_NUMBER: _builtins.int
+        DESCRIPTION_FIELD_NUMBER: _builtins.int
+        field: _builtins.str
         """A path leading to a field in the request body. The value will be a
         sequence of dot-separated identifiers that identify a protocol buffer
         field. E.g., "field_violations.field" would identify this field.
         """
-        description: builtins.str
+        description: _builtins.str
         """A description of why the request element is bad."""
         def __init__(
             self,
             *,
-            field: builtins.str = ...,
-            description: builtins.str = ...,
+            field: _builtins.str = ...,
+            description: _builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["description", b"description", "field", b"field"]) -> None: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["description", b"description", "field", b"field"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-    FIELD_VIOLATIONS_FIELD_NUMBER: builtins.int
-    @property
-    def field_violations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___BadRequest.FieldViolation]:
+    FIELD_VIOLATIONS_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def field_violations(self) -> _containers.RepeatedCompositeFieldContainer[Global___BadRequest.FieldViolation]:
         """Describes all violations in a client request."""
 
     def __init__(
         self,
         *,
-        field_violations: collections.abc.Iterable[global___BadRequest.FieldViolation] | None = ...,
+        field_violations: _abc.Iterable[Global___BadRequest.FieldViolation] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["field_violations", b"field_violations"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["field_violations", b"field_violations"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___BadRequest = BadRequest
+Global___BadRequest: _TypeAlias = BadRequest  # noqa: Y015
 
-@typing.final
-class RequestInfo(google.protobuf.message.Message):
+@_typing.final
+class RequestInfo(_message.Message):
     """Contains metadata about the request that clients can attach when filing a bug
     or providing other forms of feedback.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    REQUEST_ID_FIELD_NUMBER: builtins.int
-    SERVING_DATA_FIELD_NUMBER: builtins.int
-    request_id: builtins.str
+    REQUEST_ID_FIELD_NUMBER: _builtins.int
+    SERVING_DATA_FIELD_NUMBER: _builtins.int
+    request_id: _builtins.str
     """An opaque string that should only be interpreted by the service generating
     it. For example, it can be used to identify requests in the service's logs.
     """
-    serving_data: builtins.str
+    serving_data: _builtins.str
     """Any data that was used to serve this request. For example, an encrypted
     stack trace that can be sent back to the service provider for debugging.
     """
     def __init__(
         self,
         *,
-        request_id: builtins.str = ...,
-        serving_data: builtins.str = ...,
+        request_id: _builtins.str = ...,
+        serving_data: _builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["request_id", b"request_id", "serving_data", b"serving_data"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["request_id", b"request_id", "serving_data", b"serving_data"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___RequestInfo = RequestInfo
+Global___RequestInfo: _TypeAlias = RequestInfo  # noqa: Y015
 
-@typing.final
-class ResourceInfo(google.protobuf.message.Message):
+@_typing.final
+class ResourceInfo(_message.Message):
     """Describes the resource that is being accessed."""
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    RESOURCE_TYPE_FIELD_NUMBER: builtins.int
-    RESOURCE_NAME_FIELD_NUMBER: builtins.int
-    OWNER_FIELD_NUMBER: builtins.int
-    DESCRIPTION_FIELD_NUMBER: builtins.int
-    resource_type: builtins.str
+    RESOURCE_TYPE_FIELD_NUMBER: _builtins.int
+    RESOURCE_NAME_FIELD_NUMBER: _builtins.int
+    OWNER_FIELD_NUMBER: _builtins.int
+    DESCRIPTION_FIELD_NUMBER: _builtins.int
+    resource_type: _builtins.str
     """A name for the type of resource being accessed, e.g. "sql table",
     "cloud storage bucket", "file", "Google calendar"; or the type URL
     of the resource: e.g. "type.googleapis.com/google.pubsub.v1.Topic".
     """
-    resource_name: builtins.str
+    resource_name: _builtins.str
     """The name of the resource being accessed.  For example, a shared calendar
     name: "example.com_4fghdhgsrgh@group.calendar.google.com", if the current
     error is [google.rpc.Code.PERMISSION_DENIED][google.rpc.Code.PERMISSION_DENIED].
     """
-    owner: builtins.str
+    owner: _builtins.str
     """The owner of the resource (optional).
     For example, "user:<owner email>" or "project:<Google developer project
     id>".
     """
-    description: builtins.str
+    description: _builtins.str
     """Describes what error is encountered when accessing this resource.
     For example, updating a cloud project may require the `writer` permission
     on the developer console project.
@@ -394,17 +412,18 @@ class ResourceInfo(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        resource_type: builtins.str = ...,
-        resource_name: builtins.str = ...,
-        owner: builtins.str = ...,
-        description: builtins.str = ...,
+        resource_type: _builtins.str = ...,
+        resource_name: _builtins.str = ...,
+        owner: _builtins.str = ...,
+        description: _builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["description", b"description", "owner", b"owner", "resource_name", b"resource_name", "resource_type", b"resource_type"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["description", b"description", "owner", b"owner", "resource_name", b"resource_name", "resource_type", b"resource_type"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___ResourceInfo = ResourceInfo
+Global___ResourceInfo: _TypeAlias = ResourceInfo  # noqa: Y015
 
-@typing.final
-class Help(google.protobuf.message.Message):
+@_typing.final
+class Help(_message.Message):
     """Provides links to documentation or for performing an out of band action.
 
     For example, if a quota check failed with an error indicating the calling
@@ -412,65 +431,68 @@ class Help(google.protobuf.message.Message):
     directly to the right place in the developer console to flip the bit.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    @typing.final
-    class Link(google.protobuf.message.Message):
+    @_typing.final
+    class Link(_message.Message):
         """Describes a URL link."""
 
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+        DESCRIPTOR: _descriptor.Descriptor
 
-        DESCRIPTION_FIELD_NUMBER: builtins.int
-        URL_FIELD_NUMBER: builtins.int
-        description: builtins.str
+        DESCRIPTION_FIELD_NUMBER: _builtins.int
+        URL_FIELD_NUMBER: _builtins.int
+        description: _builtins.str
         """Describes what the link offers."""
-        url: builtins.str
+        url: _builtins.str
         """The URL of the link."""
         def __init__(
             self,
             *,
-            description: builtins.str = ...,
-            url: builtins.str = ...,
+            description: _builtins.str = ...,
+            url: _builtins.str = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["description", b"description", "url", b"url"]) -> None: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["description", b"description", "url", b"url"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-    LINKS_FIELD_NUMBER: builtins.int
-    @property
-    def links(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Help.Link]:
+    LINKS_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def links(self) -> _containers.RepeatedCompositeFieldContainer[Global___Help.Link]:
         """URL(s) pointing to additional information on handling the current error."""
 
     def __init__(
         self,
         *,
-        links: collections.abc.Iterable[global___Help.Link] | None = ...,
+        links: _abc.Iterable[Global___Help.Link] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["links", b"links"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["links", b"links"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___Help = Help
+Global___Help: _TypeAlias = Help  # noqa: Y015
 
-@typing.final
-class LocalizedMessage(google.protobuf.message.Message):
+@_typing.final
+class LocalizedMessage(_message.Message):
     """Provides a localized error message that is safe to return to the user
     which can be attached to an RPC error.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    LOCALE_FIELD_NUMBER: builtins.int
-    MESSAGE_FIELD_NUMBER: builtins.int
-    locale: builtins.str
+    LOCALE_FIELD_NUMBER: _builtins.int
+    MESSAGE_FIELD_NUMBER: _builtins.int
+    locale: _builtins.str
     """The locale used following the specification defined at
     http://www.rfc-editor.org/rfc/bcp/bcp47.txt.
     Examples are: "en-US", "fr-CH", "es-MX"
     """
-    message: builtins.str
+    message: _builtins.str
     """The localized error message in the above locale."""
     def __init__(
         self,
         *,
-        locale: builtins.str = ...,
-        message: builtins.str = ...,
+        locale: _builtins.str = ...,
+        message: _builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["locale", b"locale", "message", b"message"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["locale", b"locale", "message", b"message"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___LocalizedMessage = LocalizedMessage
+Global___LocalizedMessage: _TypeAlias = LocalizedMessage  # noqa: Y015
