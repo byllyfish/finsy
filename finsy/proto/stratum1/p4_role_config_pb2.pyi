@@ -6,17 +6,23 @@ Copyright 2022 Intel Corporation
 SPDX-License-Identifier: Apache-2.0
 """
 
-import builtins
-import collections.abc
-import google.protobuf.descriptor
-import google.protobuf.internal.containers
-import google.protobuf.message
-import typing
+from collections import abc as _abc
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf.internal import containers as _containers
+import builtins as _builtins
+import sys
+import typing as _typing
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+if sys.version_info >= (3, 10):
+    from typing import TypeAlias as _TypeAlias
+else:
+    from typing_extensions import TypeAlias as _TypeAlias
 
-@typing.final
-class P4RoleConfig(google.protobuf.message.Message):
+DESCRIPTOR: _descriptor.FileDescriptor
+
+@_typing.final
+class P4RoleConfig(_message.Message):
     """The P4RoleConfig message conists of these fields:
      exclusive_p4_ids - A list of P4 entities for which this role exclusivly may
          issue Write updates. Those entities are also filtered out of Read
@@ -32,49 +38,52 @@ class P4RoleConfig(google.protobuf.message.Message):
      can_push_pipeline - Determines if this role is allowed to push a pipeline.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    @typing.final
-    class PacketFilter(google.protobuf.message.Message):
-        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    @_typing.final
+    class PacketFilter(_message.Message):
+        DESCRIPTOR: _descriptor.Descriptor
 
-        METADATA_ID_FIELD_NUMBER: builtins.int
-        VALUE_FIELD_NUMBER: builtins.int
-        metadata_id: builtins.int
+        METADATA_ID_FIELD_NUMBER: _builtins.int
+        VALUE_FIELD_NUMBER: _builtins.int
+        metadata_id: _builtins.int
         """Must match an ID in the P4Info."""
-        value: builtins.bytes
+        value: _builtins.bytes
         """Should be given in canonical form."""
         def __init__(
             self,
             *,
-            metadata_id: builtins.int = ...,
-            value: builtins.bytes = ...,
+            metadata_id: _builtins.int = ...,
+            value: _builtins.bytes = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing.Literal["metadata_id", b"metadata_id", "value", b"value"]) -> None: ...
+        _ClearFieldArgType: _TypeAlias = _typing.Literal["metadata_id", b"metadata_id", "value", b"value"]  # noqa: Y015
+        def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-    EXCLUSIVE_P4_IDS_FIELD_NUMBER: builtins.int
-    SHARED_P4_IDS_FIELD_NUMBER: builtins.int
-    PACKET_IN_FILTER_FIELD_NUMBER: builtins.int
-    RECEIVES_PACKET_INS_FIELD_NUMBER: builtins.int
-    CAN_PUSH_PIPELINE_FIELD_NUMBER: builtins.int
-    receives_packet_ins: builtins.bool
-    can_push_pipeline: builtins.bool
-    @property
-    def exclusive_p4_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
-    @property
-    def shared_p4_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
-    @property
-    def packet_in_filter(self) -> global___P4RoleConfig.PacketFilter: ...
+    EXCLUSIVE_P4_IDS_FIELD_NUMBER: _builtins.int
+    SHARED_P4_IDS_FIELD_NUMBER: _builtins.int
+    PACKET_IN_FILTER_FIELD_NUMBER: _builtins.int
+    RECEIVES_PACKET_INS_FIELD_NUMBER: _builtins.int
+    CAN_PUSH_PIPELINE_FIELD_NUMBER: _builtins.int
+    receives_packet_ins: _builtins.bool
+    can_push_pipeline: _builtins.bool
+    @_builtins.property
+    def exclusive_p4_ids(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]: ...
+    @_builtins.property
+    def shared_p4_ids(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]: ...
+    @_builtins.property
+    def packet_in_filter(self) -> Global___P4RoleConfig.PacketFilter: ...
     def __init__(
         self,
         *,
-        exclusive_p4_ids: collections.abc.Iterable[builtins.int] | None = ...,
-        shared_p4_ids: collections.abc.Iterable[builtins.int] | None = ...,
-        packet_in_filter: global___P4RoleConfig.PacketFilter | None = ...,
-        receives_packet_ins: builtins.bool = ...,
-        can_push_pipeline: builtins.bool = ...,
+        exclusive_p4_ids: _abc.Iterable[_builtins.int] | None = ...,
+        shared_p4_ids: _abc.Iterable[_builtins.int] | None = ...,
+        packet_in_filter: Global___P4RoleConfig.PacketFilter | None = ...,
+        receives_packet_ins: _builtins.bool = ...,
+        can_push_pipeline: _builtins.bool = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["packet_in_filter", b"packet_in_filter"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["can_push_pipeline", b"can_push_pipeline", "exclusive_p4_ids", b"exclusive_p4_ids", "packet_in_filter", b"packet_in_filter", "receives_packet_ins", b"receives_packet_ins", "shared_p4_ids", b"shared_p4_ids"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["packet_in_filter", b"packet_in_filter"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["can_push_pipeline", b"can_push_pipeline", "exclusive_p4_ids", b"exclusive_p4_ids", "packet_in_filter", b"packet_in_filter", "receives_packet_ins", b"receives_packet_ins", "shared_p4_ids", b"shared_p4_ids"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___P4RoleConfig = P4RoleConfig
+Global___P4RoleConfig: _TypeAlias = P4RoleConfig  # noqa: Y015

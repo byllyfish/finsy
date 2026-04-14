@@ -3,50 +3,43 @@
 isort:skip_file
 This package and its contents are a work-in-progress."""
 
-import abc
-import collections.abc
-import grpc
-import grpc.aio
-from . import p4runtime_pb2 as _dot_p4runtime_pb2
-import typing
+from collections import abc as _abc
+from grpc import aio as _aio
+from . import p4runtime_pb2 as _p4runtime_pb2
+import abc as _abc_1
+import grpc as _grpc
+import sys
+import typing as _typing
 
-_T = typing.TypeVar("_T")
+if sys.version_info >= (3, 11):
+    from typing import Self as _Self
+else:
+    from typing_extensions import Self as _Self
 
-class _MaybeAsyncIterator(collections.abc.AsyncIterator[_T], collections.abc.Iterator[_T], metaclass=abc.ABCMeta): ...
+_T = _typing.TypeVar("_T")
 
-class _ServicerContext(grpc.ServicerContext, grpc.aio.ServicerContext):  # type: ignore[misc, type-arg]
+class _MaybeAsyncIterator(_abc.AsyncIterator[_T], _abc.Iterator[_T], metaclass=_abc_1.ABCMeta): ...
+
+class _ServicerContext(_grpc.ServicerContext, _aio.ServicerContext):  # type: ignore[misc, type-arg]
     ...
 
+GRPC_GENERATED_VERSION: str
+GRPC_VERSION: str
+
 class P4RuntimeStub:
-    def __init__(self, channel: typing.Union[grpc.Channel, grpc.aio.Channel]) -> None: ...
-    Write: grpc.UnaryUnaryMultiCallable[
-        _dot_p4runtime_pb2.WriteRequest,
-        _dot_p4runtime_pb2.WriteResponse,
-    ]
+    @_typing.overload
+    def __new__(cls, channel: _grpc.Channel) -> _Self: ...
+    @_typing.overload
+    def __new__(cls, channel: _aio.Channel) -> P4RuntimeAsyncStub: ...
+    Write: _grpc.UnaryUnaryMultiCallable[_p4runtime_pb2.WriteRequest, _p4runtime_pb2.WriteResponse]
     """Update one or more P4 entities on the target."""
-
-    Read: grpc.UnaryStreamMultiCallable[
-        _dot_p4runtime_pb2.ReadRequest,
-        _dot_p4runtime_pb2.ReadResponse,
-    ]
+    Read: _grpc.UnaryStreamMultiCallable[_p4runtime_pb2.ReadRequest, _p4runtime_pb2.ReadResponse]
     """Read one or more P4 entities from the target."""
-
-    SetForwardingPipelineConfig: grpc.UnaryUnaryMultiCallable[
-        _dot_p4runtime_pb2.SetForwardingPipelineConfigRequest,
-        _dot_p4runtime_pb2.SetForwardingPipelineConfigResponse,
-    ]
+    SetForwardingPipelineConfig: _grpc.UnaryUnaryMultiCallable[_p4runtime_pb2.SetForwardingPipelineConfigRequest, _p4runtime_pb2.SetForwardingPipelineConfigResponse]
     """Sets the P4 forwarding-pipeline config."""
-
-    GetForwardingPipelineConfig: grpc.UnaryUnaryMultiCallable[
-        _dot_p4runtime_pb2.GetForwardingPipelineConfigRequest,
-        _dot_p4runtime_pb2.GetForwardingPipelineConfigResponse,
-    ]
+    GetForwardingPipelineConfig: _grpc.UnaryUnaryMultiCallable[_p4runtime_pb2.GetForwardingPipelineConfigRequest, _p4runtime_pb2.GetForwardingPipelineConfigResponse]
     """Gets the current P4 forwarding-pipeline config."""
-
-    StreamChannel: grpc.StreamStreamMultiCallable[
-        _dot_p4runtime_pb2.StreamMessageRequest,
-        _dot_p4runtime_pb2.StreamMessageResponse,
-    ]
+    StreamChannel: _grpc.StreamStreamMultiCallable[_p4runtime_pb2.StreamMessageRequest, _p4runtime_pb2.StreamMessageResponse]
     """Represents the bidirectional stream between the controller and the
     switch (initiated by the controller), and is managed for the following
     purposes:
@@ -58,41 +51,20 @@ class P4RuntimeStub:
     - the controller sending/receiving packets to/from the switch
     - streaming of notifications from the switch
     """
+    Capabilities: _grpc.UnaryUnaryMultiCallable[_p4runtime_pb2.CapabilitiesRequest, _p4runtime_pb2.CapabilitiesResponse]
 
-    Capabilities: grpc.UnaryUnaryMultiCallable[
-        _dot_p4runtime_pb2.CapabilitiesRequest,
-        _dot_p4runtime_pb2.CapabilitiesResponse,
-    ]
-
-class P4RuntimeAsyncStub:
-    Write: grpc.aio.UnaryUnaryMultiCallable[
-        _dot_p4runtime_pb2.WriteRequest,
-        _dot_p4runtime_pb2.WriteResponse,
-    ]
+@_typing.type_check_only
+class P4RuntimeAsyncStub(P4RuntimeStub):
+    def __init__(self, channel: _aio.Channel) -> None: ...
+    Write: _aio.UnaryUnaryMultiCallable[_p4runtime_pb2.WriteRequest, _p4runtime_pb2.WriteResponse]  # type: ignore[assignment]
     """Update one or more P4 entities on the target."""
-
-    Read: grpc.aio.UnaryStreamMultiCallable[
-        _dot_p4runtime_pb2.ReadRequest,
-        _dot_p4runtime_pb2.ReadResponse,
-    ]
+    Read: _aio.UnaryStreamMultiCallable[_p4runtime_pb2.ReadRequest, _p4runtime_pb2.ReadResponse]  # type: ignore[assignment]
     """Read one or more P4 entities from the target."""
-
-    SetForwardingPipelineConfig: grpc.aio.UnaryUnaryMultiCallable[
-        _dot_p4runtime_pb2.SetForwardingPipelineConfigRequest,
-        _dot_p4runtime_pb2.SetForwardingPipelineConfigResponse,
-    ]
+    SetForwardingPipelineConfig: _aio.UnaryUnaryMultiCallable[_p4runtime_pb2.SetForwardingPipelineConfigRequest, _p4runtime_pb2.SetForwardingPipelineConfigResponse]  # type: ignore[assignment]
     """Sets the P4 forwarding-pipeline config."""
-
-    GetForwardingPipelineConfig: grpc.aio.UnaryUnaryMultiCallable[
-        _dot_p4runtime_pb2.GetForwardingPipelineConfigRequest,
-        _dot_p4runtime_pb2.GetForwardingPipelineConfigResponse,
-    ]
+    GetForwardingPipelineConfig: _aio.UnaryUnaryMultiCallable[_p4runtime_pb2.GetForwardingPipelineConfigRequest, _p4runtime_pb2.GetForwardingPipelineConfigResponse]  # type: ignore[assignment]
     """Gets the current P4 forwarding-pipeline config."""
-
-    StreamChannel: grpc.aio.StreamStreamMultiCallable[
-        _dot_p4runtime_pb2.StreamMessageRequest,
-        _dot_p4runtime_pb2.StreamMessageResponse,
-    ]
+    StreamChannel: _aio.StreamStreamMultiCallable[_p4runtime_pb2.StreamMessageRequest, _p4runtime_pb2.StreamMessageResponse]  # type: ignore[assignment]
     """Represents the bidirectional stream between the controller and the
     switch (initiated by the controller), and is managed for the following
     purposes:
@@ -104,51 +76,47 @@ class P4RuntimeAsyncStub:
     - the controller sending/receiving packets to/from the switch
     - streaming of notifications from the switch
     """
+    Capabilities: _aio.UnaryUnaryMultiCallable[_p4runtime_pb2.CapabilitiesRequest, _p4runtime_pb2.CapabilitiesResponse]  # type: ignore[assignment]
 
-    Capabilities: grpc.aio.UnaryUnaryMultiCallable[
-        _dot_p4runtime_pb2.CapabilitiesRequest,
-        _dot_p4runtime_pb2.CapabilitiesResponse,
-    ]
-
-class P4RuntimeServicer(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
+class P4RuntimeServicer(metaclass=_abc_1.ABCMeta):
+    @_abc_1.abstractmethod
     def Write(
         self,
-        request: _dot_p4runtime_pb2.WriteRequest,
+        request: _p4runtime_pb2.WriteRequest,
         context: _ServicerContext,
-    ) -> typing.Union[_dot_p4runtime_pb2.WriteResponse, collections.abc.Awaitable[_dot_p4runtime_pb2.WriteResponse]]:
+    ) -> _typing.Union[_p4runtime_pb2.WriteResponse, _abc.Awaitable[_p4runtime_pb2.WriteResponse]]:
         """Update one or more P4 entities on the target."""
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Read(
         self,
-        request: _dot_p4runtime_pb2.ReadRequest,
+        request: _p4runtime_pb2.ReadRequest,
         context: _ServicerContext,
-    ) -> typing.Union[collections.abc.Iterator[_dot_p4runtime_pb2.ReadResponse], collections.abc.AsyncIterator[_dot_p4runtime_pb2.ReadResponse]]:
+    ) -> _typing.Union[_abc.Iterator[_p4runtime_pb2.ReadResponse], _abc.AsyncIterator[_p4runtime_pb2.ReadResponse]]:
         """Read one or more P4 entities from the target."""
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def SetForwardingPipelineConfig(
         self,
-        request: _dot_p4runtime_pb2.SetForwardingPipelineConfigRequest,
+        request: _p4runtime_pb2.SetForwardingPipelineConfigRequest,
         context: _ServicerContext,
-    ) -> typing.Union[_dot_p4runtime_pb2.SetForwardingPipelineConfigResponse, collections.abc.Awaitable[_dot_p4runtime_pb2.SetForwardingPipelineConfigResponse]]:
+    ) -> _typing.Union[_p4runtime_pb2.SetForwardingPipelineConfigResponse, _abc.Awaitable[_p4runtime_pb2.SetForwardingPipelineConfigResponse]]:
         """Sets the P4 forwarding-pipeline config."""
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def GetForwardingPipelineConfig(
         self,
-        request: _dot_p4runtime_pb2.GetForwardingPipelineConfigRequest,
+        request: _p4runtime_pb2.GetForwardingPipelineConfigRequest,
         context: _ServicerContext,
-    ) -> typing.Union[_dot_p4runtime_pb2.GetForwardingPipelineConfigResponse, collections.abc.Awaitable[_dot_p4runtime_pb2.GetForwardingPipelineConfigResponse]]:
+    ) -> _typing.Union[_p4runtime_pb2.GetForwardingPipelineConfigResponse, _abc.Awaitable[_p4runtime_pb2.GetForwardingPipelineConfigResponse]]:
         """Gets the current P4 forwarding-pipeline config."""
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def StreamChannel(
         self,
-        request_iterator: _MaybeAsyncIterator[_dot_p4runtime_pb2.StreamMessageRequest],
+        request_iterator: _MaybeAsyncIterator[_p4runtime_pb2.StreamMessageRequest],
         context: _ServicerContext,
-    ) -> typing.Union[collections.abc.Iterator[_dot_p4runtime_pb2.StreamMessageResponse], collections.abc.AsyncIterator[_dot_p4runtime_pb2.StreamMessageResponse]]:
+    ) -> _typing.Union[_abc.Iterator[_p4runtime_pb2.StreamMessageResponse], _abc.AsyncIterator[_p4runtime_pb2.StreamMessageResponse]]:
         """Represents the bidirectional stream between the controller and the
         switch (initiated by the controller), and is managed for the following
         purposes:
@@ -161,11 +129,11 @@ class P4RuntimeServicer(metaclass=abc.ABCMeta):
         - streaming of notifications from the switch
         """
 
-    @abc.abstractmethod
+    @_abc_1.abstractmethod
     def Capabilities(
         self,
-        request: _dot_p4runtime_pb2.CapabilitiesRequest,
+        request: _p4runtime_pb2.CapabilitiesRequest,
         context: _ServicerContext,
-    ) -> typing.Union[_dot_p4runtime_pb2.CapabilitiesResponse, collections.abc.Awaitable[_dot_p4runtime_pb2.CapabilitiesResponse]]: ...
+    ) -> _typing.Union[_p4runtime_pb2.CapabilitiesResponse, _abc.Awaitable[_p4runtime_pb2.CapabilitiesResponse]]: ...
 
-def add_P4RuntimeServicer_to_server(servicer: P4RuntimeServicer, server: typing.Union[grpc.Server, grpc.aio.Server]) -> None: ...
+def add_P4RuntimeServicer_to_server(servicer: P4RuntimeServicer, server: _typing.Union[_grpc.Server, _aio.Server]) -> None: ...

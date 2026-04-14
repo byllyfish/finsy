@@ -16,18 +16,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import builtins
-import collections.abc
-import google.protobuf.any_pb2
-import google.protobuf.descriptor
-import google.protobuf.internal.containers
-import google.protobuf.message
-import typing
+from collections import abc as _abc
+from google.protobuf import any_pb2 as _any_pb2
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf.internal import containers as _containers
+import builtins as _builtins
+import sys
+import typing as _typing
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+if sys.version_info >= (3, 10):
+    from typing import TypeAlias as _TypeAlias
+else:
+    from typing_extensions import TypeAlias as _TypeAlias
 
-@typing.final
-class Status(google.protobuf.message.Message):
+DESCRIPTOR: _descriptor.FileDescriptor
+
+@_typing.final
+class Status(_message.Message):
     """The `Status` type defines a logical error model that is suitable for
     different programming environments, including REST APIs and RPC APIs. It is
     used by [gRPC](https://github.com/grpc). Each `Status` message contains
@@ -37,20 +43,20 @@ class Status(google.protobuf.message.Message):
     [API Design Guide](https://cloud.google.com/apis/design/errors).
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    CODE_FIELD_NUMBER: builtins.int
-    MESSAGE_FIELD_NUMBER: builtins.int
-    DETAILS_FIELD_NUMBER: builtins.int
-    code: builtins.int
+    CODE_FIELD_NUMBER: _builtins.int
+    MESSAGE_FIELD_NUMBER: _builtins.int
+    DETAILS_FIELD_NUMBER: _builtins.int
+    code: _builtins.int
     """The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code]."""
-    message: builtins.str
+    message: _builtins.str
     """A developer-facing error message, which should be in English. Any
     user-facing error message should be localized and sent in the
     [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
     """
-    @property
-    def details(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[google.protobuf.any_pb2.Any]:
+    @_builtins.property
+    def details(self) -> _containers.RepeatedCompositeFieldContainer[_any_pb2.Any]:
         """A list of messages that carry the error details.  There is a common set of
         message types for APIs to use.
         """
@@ -58,10 +64,11 @@ class Status(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        code: builtins.int = ...,
-        message: builtins.str = ...,
-        details: collections.abc.Iterable[google.protobuf.any_pb2.Any] | None = ...,
+        code: _builtins.int = ...,
+        message: _builtins.str = ...,
+        details: _abc.Iterable[_any_pb2.Any] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["code", b"code", "details", b"details", "message", b"message"]) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["code", b"code", "details", b"details", "message", b"message"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
-global___Status = Status
+Global___Status: _TypeAlias = Status  # noqa: Y015
