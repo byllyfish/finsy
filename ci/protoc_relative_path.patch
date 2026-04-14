@@ -8,96 +8,16 @@ index c2b36d4..f83da65 100644
 +from . import gnmi_ext_pb2 as gnmi1_dot_gnmi__ext__pb2
  
 diff --git b/finsy/proto/gnmi1/gnmi_pb2.pyi a/finsy/proto/gnmi1/gnmi_pb2.pyi
-index ef4a518..84117b1 100644
+index b5f5883..f0e2f3c 100644
 --- b/finsy/proto/gnmi1/gnmi_pb2.pyi
 +++ a/finsy/proto/gnmi1/gnmi_pb2.pyi
-@@ -15,3 +15,3 @@ import builtins
- import collections.abc
--import gnmi1.gnmi_ext_pb2
-+from . import gnmi_ext_pb2 as _dot_gnmi_ext_pb2
- import google.protobuf.any_pb2
-@@ -486,3 +486,3 @@ class SubscribeRequest(google.protobuf.message.Message):
-     @property
--    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
-+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
-         """Extension messages associated with the SubscribeRequest. See the
-@@ -496,3 +496,3 @@ class SubscribeRequest(google.protobuf.message.Message):
-         poll: global___Poll | None = ...,
--        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
-+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
-     ) -> None: ...
-@@ -549,3 +549,3 @@ class SubscribeResponse(google.protobuf.message.Message):
-     @property
--    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
-+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
-         """Extension messages associated with the SubscribeResponse. See the
-@@ -560,3 +560,3 @@ class SubscribeResponse(google.protobuf.message.Message):
-         error: global___Error | None = ...,
--        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
-+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
-     ) -> None: ...
-@@ -778,3 +778,3 @@ class SetRequest(google.protobuf.message.Message):
-     @property
--    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
-+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
-         """Extension messages associated with the SetRequest. See the
-@@ -791,3 +791,3 @@ class SetRequest(google.protobuf.message.Message):
-         union_replace: collections.abc.Iterable[global___Update] | None = ...,
--        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
-+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
-     ) -> None: ...
-@@ -833,3 +833,3 @@ class SetResponse(google.protobuf.message.Message):
-     @property
--    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
-+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
-         """Extension messages associated with the SetResponse. See the
-@@ -845,3 +845,3 @@ class SetResponse(google.protobuf.message.Message):
-         timestamp: builtins.int = ...,
--        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
-+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
-     ) -> None: ...
-@@ -991,3 +991,3 @@ class GetRequest(google.protobuf.message.Message):
-     @property
--    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
-+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
-         """Extension messages associated with the GetRequest. See the
-@@ -1004,3 +1004,3 @@ class GetRequest(google.protobuf.message.Message):
-         use_models: collections.abc.Iterable[global___ModelData] | None = ...,
--        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
-+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
-     ) -> None: ...
-@@ -1033,3 +1033,3 @@ class GetResponse(google.protobuf.message.Message):
-     @property
--    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
-+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
-         """Extension messages associated with the GetResponse. See the
-@@ -1043,3 +1043,3 @@ class GetResponse(google.protobuf.message.Message):
-         error: global___Error | None = ...,
--        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
-+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
-     ) -> None: ...
-@@ -1061,3 +1061,3 @@ class CapabilityRequest(google.protobuf.message.Message):
-     @property
--    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
-+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
-         """Extension messages associated with the CapabilityRequest. See the
-@@ -1069,3 +1069,3 @@ class CapabilityRequest(google.protobuf.message.Message):
-         *,
--        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
-+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
-     ) -> None: ...
-@@ -1099,3 +1099,3 @@ class CapabilityResponse(google.protobuf.message.Message):
-     @property
--    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[gnmi1.gnmi_ext_pb2.Extension]:
-+    def extension(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_gnmi_ext_pb2.Extension]:
-         """Extension messages associated with the CapabilityResponse. See the
-@@ -1110,3 +1110,3 @@ class CapabilityResponse(google.protobuf.message.Message):
-         gNMI_version: builtins.str = ...,
--        extension: collections.abc.Iterable[gnmi1.gnmi_ext_pb2.Extension] | None = ...,
-+        extension: collections.abc.Iterable[_dot_gnmi_ext_pb2.Extension] | None = ...,
-     ) -> None: ...
+@@ -14,3 +14,3 @@ http://github.com/openconfig/reference/blob/master/rpc/gnmi
+ from collections import abc as _abc
+-from gnmi1 import gnmi_ext_pb2 as _gnmi_ext_pb2
++from . import gnmi_ext_pb2 as _gnmi_ext_pb2
+ from google.protobuf import any_pb2 as _any_pb2
 diff --git b/finsy/proto/gnmi1/gnmi_pb2_grpc.py a/finsy/proto/gnmi1/gnmi_pb2_grpc.py
-index eaa7acb..9f20986 100644
+index 2b06c7a..9261aa5 100644
 --- b/finsy/proto/gnmi1/gnmi_pb2_grpc.py
 +++ a/finsy/proto/gnmi1/gnmi_pb2_grpc.py
 @@ -5,3 +5,3 @@ import warnings
@@ -106,102 +26,14 @@ index eaa7acb..9f20986 100644
 +from . import gnmi_pb2 as gnmi1_dot_gnmi__pb2
  
 diff --git b/finsy/proto/gnmi1/gnmi_pb2_grpc.pyi a/finsy/proto/gnmi1/gnmi_pb2_grpc.pyi
-index cbb2816..c1a2cef 100644
+index f7fa75c..f189276 100644
 --- b/finsy/proto/gnmi1/gnmi_pb2_grpc.pyi
 +++ a/finsy/proto/gnmi1/gnmi_pb2_grpc.pyi
-@@ -15,3 +15,3 @@ import abc
- import collections.abc
--import gnmi1.gnmi_pb2
-+from . import gnmi_pb2 as _dot_gnmi_pb2
- import grpc
-@@ -30,4 +30,4 @@ class gNMIStub:
-     Capabilities: grpc.UnaryUnaryMultiCallable[
--        gnmi1.gnmi_pb2.CapabilityRequest,
--        gnmi1.gnmi_pb2.CapabilityResponse,
-+        _dot_gnmi_pb2.CapabilityRequest,
-+        _dot_gnmi_pb2.CapabilityResponse,
-     ]
-@@ -42,4 +42,4 @@ class gNMIStub:
-     Get: grpc.UnaryUnaryMultiCallable[
--        gnmi1.gnmi_pb2.GetRequest,
--        gnmi1.gnmi_pb2.GetResponse,
-+        _dot_gnmi_pb2.GetRequest,
-+        _dot_gnmi_pb2.GetResponse,
-     ]
-@@ -53,4 +53,4 @@ class gNMIStub:
-     Set: grpc.UnaryUnaryMultiCallable[
--        gnmi1.gnmi_pb2.SetRequest,
--        gnmi1.gnmi_pb2.SetResponse,
-+        _dot_gnmi_pb2.SetRequest,
-+        _dot_gnmi_pb2.SetResponse,
-     ]
-@@ -63,4 +63,4 @@ class gNMIStub:
-     Subscribe: grpc.StreamStreamMultiCallable[
--        gnmi1.gnmi_pb2.SubscribeRequest,
--        gnmi1.gnmi_pb2.SubscribeResponse,
-+        _dot_gnmi_pb2.SubscribeRequest,
-+        _dot_gnmi_pb2.SubscribeResponse,
-     ]
-@@ -75,4 +75,4 @@ class gNMIAsyncStub:
-     Capabilities: grpc.aio.UnaryUnaryMultiCallable[
--        gnmi1.gnmi_pb2.CapabilityRequest,
--        gnmi1.gnmi_pb2.CapabilityResponse,
-+        _dot_gnmi_pb2.CapabilityRequest,
-+        _dot_gnmi_pb2.CapabilityResponse,
-     ]
-@@ -87,4 +87,4 @@ class gNMIAsyncStub:
-     Get: grpc.aio.UnaryUnaryMultiCallable[
--        gnmi1.gnmi_pb2.GetRequest,
--        gnmi1.gnmi_pb2.GetResponse,
-+        _dot_gnmi_pb2.GetRequest,
-+        _dot_gnmi_pb2.GetResponse,
-     ]
-@@ -98,4 +98,4 @@ class gNMIAsyncStub:
-     Set: grpc.aio.UnaryUnaryMultiCallable[
--        gnmi1.gnmi_pb2.SetRequest,
--        gnmi1.gnmi_pb2.SetResponse,
-+        _dot_gnmi_pb2.SetRequest,
-+        _dot_gnmi_pb2.SetResponse,
-     ]
-@@ -108,4 +108,4 @@ class gNMIAsyncStub:
-     Subscribe: grpc.aio.StreamStreamMultiCallable[
--        gnmi1.gnmi_pb2.SubscribeRequest,
--        gnmi1.gnmi_pb2.SubscribeResponse,
-+        _dot_gnmi_pb2.SubscribeRequest,
-+        _dot_gnmi_pb2.SubscribeResponse,
-     ]
-@@ -122,5 +122,5 @@ class gNMIServicer(metaclass=abc.ABCMeta):
-         self,
--        request: gnmi1.gnmi_pb2.CapabilityRequest,
-+        request: _dot_gnmi_pb2.CapabilityRequest,
-         context: _ServicerContext,
--    ) -> typing.Union[gnmi1.gnmi_pb2.CapabilityResponse, collections.abc.Awaitable[gnmi1.gnmi_pb2.CapabilityResponse]]:
-+    ) -> typing.Union[_dot_gnmi_pb2.CapabilityResponse, collections.abc.Awaitable[_dot_gnmi_pb2.CapabilityResponse]]:
-         """Capabilities allows the client to retrieve the set of capabilities that
-@@ -136,5 +136,5 @@ class gNMIServicer(metaclass=abc.ABCMeta):
-         self,
--        request: gnmi1.gnmi_pb2.GetRequest,
-+        request: _dot_gnmi_pb2.GetRequest,
-         context: _ServicerContext,
--    ) -> typing.Union[gnmi1.gnmi_pb2.GetResponse, collections.abc.Awaitable[gnmi1.gnmi_pb2.GetResponse]]:
-+    ) -> typing.Union[_dot_gnmi_pb2.GetResponse, collections.abc.Awaitable[_dot_gnmi_pb2.GetResponse]]:
-         """Retrieve a snapshot of data from the target. A Get RPC requests that the
-@@ -149,5 +149,5 @@ class gNMIServicer(metaclass=abc.ABCMeta):
-         self,
--        request: gnmi1.gnmi_pb2.SetRequest,
-+        request: _dot_gnmi_pb2.SetRequest,
-         context: _ServicerContext,
--    ) -> typing.Union[gnmi1.gnmi_pb2.SetResponse, collections.abc.Awaitable[gnmi1.gnmi_pb2.SetResponse]]:
-+    ) -> typing.Union[_dot_gnmi_pb2.SetResponse, collections.abc.Awaitable[_dot_gnmi_pb2.SetResponse]]:
-         """Set allows the client to modify the state of data on the target. The
-@@ -161,5 +161,5 @@ class gNMIServicer(metaclass=abc.ABCMeta):
-         self,
--        request_iterator: _MaybeAsyncIterator[gnmi1.gnmi_pb2.SubscribeRequest],
-+        request_iterator: _MaybeAsyncIterator[_dot_gnmi_pb2.SubscribeRequest],
-         context: _ServicerContext,
--    ) -> typing.Union[collections.abc.Iterator[gnmi1.gnmi_pb2.SubscribeResponse], collections.abc.AsyncIterator[gnmi1.gnmi_pb2.SubscribeResponse]]:
-+    ) -> typing.Union[collections.abc.Iterator[_dot_gnmi_pb2.SubscribeResponse], collections.abc.AsyncIterator[_dot_gnmi_pb2.SubscribeResponse]]:
-         """Subscribe allows a client to request the target to send it values
+@@ -14,3 +14,3 @@ http://github.com/openconfig/reference/blob/master/rpc/gnmi
+ from collections import abc as _abc
+-from gnmi1 import gnmi_pb2 as _gnmi_pb2
++from . import gnmi_pb2 as _gnmi_pb2
+ from grpc import aio as _aio
 diff --git b/finsy/proto/p4/config/v1/p4info_pb2.py a/finsy/proto/p4/config/v1/p4info_pb2.py
 index d5d4397..989e86c 100644
 --- b/finsy/proto/p4/config/v1/p4info_pb2.py
@@ -212,203 +44,14 @@ index d5d4397..989e86c 100644
 +from . import p4types_pb2 as p4_dot_config_dot_v1_dot_p4types__pb2
  
 diff --git b/finsy/proto/p4/config/v1/p4info_pb2.pyi a/finsy/proto/p4/config/v1/p4info_pb2.pyi
-index 52574b0..7566ca4 100644
+index 451a295..3bf9464 100644
 --- b/finsy/proto/p4/config/v1/p4info_pb2.pyi
 +++ a/finsy/proto/p4/config/v1/p4info_pb2.pyi
-@@ -12,3 +12,3 @@ import google.protobuf.internal.enum_type_wrapper
- import google.protobuf.message
--import p4.config.v1.p4types_pb2
-+from . import p4types_pb2 as _dot_p4types_pb2
- import sys
-@@ -68,3 +68,3 @@ class P4Info(google.protobuf.message.Message):
-     @property
--    def type_info(self) -> p4.config.v1.p4types_pb2.P4TypeInfo: ...
-+    def type_info(self) -> _dot_p4types_pb2.P4TypeInfo: ...
-     def __init__(
-@@ -85,3 +85,3 @@ class P4Info(google.protobuf.message.Message):
-         externs: collections.abc.Iterable[global___Extern] | None = ...,
--        type_info: p4.config.v1.p4types_pb2.P4TypeInfo | None = ...,
-+        type_info: _dot_p4types_pb2.P4TypeInfo | None = ...,
-     ) -> None: ...
-@@ -191,3 +191,3 @@ class PkgInfo(google.protobuf.message.Message):
-     @property
--    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
-+    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
-         """Optional. If present, the location of `annotations[i]` is given by
-@@ -197,3 +197,3 @@ class PkgInfo(google.protobuf.message.Message):
-     @property
--    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]:
-+    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]:
-         """Miscellaneous metadata, structured; a way to extend PkgInfo"""
-@@ -215,3 +215,3 @@ class PkgInfo(google.protobuf.message.Message):
-         annotations: collections.abc.Iterable[builtins.str] | None = ...,
--        annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
-+        annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
-         arch: builtins.str = ...,
-@@ -220,3 +220,3 @@ class PkgInfo(google.protobuf.message.Message):
-         url: builtins.str = ...,
--        structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
-+        structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
-         platform_properties: global___PlatformProperties | None = ...,
-@@ -340,3 +340,3 @@ class Preamble(google.protobuf.message.Message):
-     @property
--    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
-+    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
-         """Optional. If present, the location of `annotations[i]` is given by
-@@ -350,3 +350,3 @@ class Preamble(google.protobuf.message.Message):
-     @property
--    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
-+    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
-     def __init__(
-@@ -358,5 +358,5 @@ class Preamble(google.protobuf.message.Message):
-         annotations: collections.abc.Iterable[builtins.str] | None = ...,
--        annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
-+        annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
-         doc: global___Documentation | None = ...,
--        structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
-+        structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
-     ) -> None: ...
-@@ -465,3 +465,3 @@ class MatchField(google.protobuf.message.Message):
-     @property
--    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
-+    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
-         """Optional. If present, the location of `annotations[i]` is given by
-@@ -475,3 +475,3 @@ class MatchField(google.protobuf.message.Message):
-     @property
--    def type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
-+    def type_name(self) -> _dot_p4types_pb2.P4NamedType:
-         """unset if not user-defined type"""
-@@ -479,3 +479,3 @@ class MatchField(google.protobuf.message.Message):
-     @property
--    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
-+    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
-     def __init__(
-@@ -486,3 +486,3 @@ class MatchField(google.protobuf.message.Message):
-         annotations: collections.abc.Iterable[builtins.str] | None = ...,
--        annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
-+        annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
-         bitwidth: builtins.int = ...,
-@@ -491,4 +491,4 @@ class MatchField(google.protobuf.message.Message):
-         doc: global___Documentation | None = ...,
--        type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
--        structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
-+        type_name: _dot_p4types_pb2.P4NamedType | None = ...,
-+        structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
-     ) -> None: ...
-@@ -684,3 +684,3 @@ class ActionRef(google.protobuf.message.Message):
-     @property
--    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
-+    def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
-         """Optional. If present, the location of `annotations[i]` is given by
-@@ -690,3 +690,3 @@ class ActionRef(google.protobuf.message.Message):
-     @property
--    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
-+    def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
-     def __init__(
-@@ -697,4 +697,4 @@ class ActionRef(google.protobuf.message.Message):
-         annotations: collections.abc.Iterable[builtins.str] | None = ...,
--        annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
--        structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
-+        annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
-+        structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
-     ) -> None: ...
-@@ -726,3 +726,3 @@ class Action(google.protobuf.message.Message):
-         @property
--        def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
-+        def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
-             """Optional. If present, the location of `annotations[i]` is given by
-@@ -736,3 +736,3 @@ class Action(google.protobuf.message.Message):
-         @property
--        def type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
-+        def type_name(self) -> _dot_p4types_pb2.P4NamedType:
-             """unset if not user-defined type."""
-@@ -740,3 +740,3 @@ class Action(google.protobuf.message.Message):
-         @property
--        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
-+        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
-         def __init__(
-@@ -747,7 +747,7 @@ class Action(google.protobuf.message.Message):
-             annotations: collections.abc.Iterable[builtins.str] | None = ...,
--            annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
-+            annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
-             bitwidth: builtins.int = ...,
-             doc: global___Documentation | None = ...,
--            type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
--            structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
-+            type_name: _dot_p4types_pb2.P4NamedType | None = ...,
-+            structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
-         ) -> None: ...
-@@ -923,3 +923,3 @@ class Counter(google.protobuf.message.Message):
-     @property
--    def index_type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
-+    def index_type_name(self) -> _dot_p4types_pb2.P4NamedType:
-         """unset if index is not user-defined type"""
-@@ -932,3 +932,3 @@ class Counter(google.protobuf.message.Message):
-         size: builtins.int = ...,
--        index_type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
-+        index_type_name: _dot_p4types_pb2.P4NamedType | None = ...,
-     ) -> None: ...
-@@ -1067,3 +1067,3 @@ class Meter(google.protobuf.message.Message):
-     @property
--    def index_type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
-+    def index_type_name(self) -> _dot_p4types_pb2.P4NamedType:
-         """unset if index is not user-defined type"""
-@@ -1076,3 +1076,3 @@ class Meter(google.protobuf.message.Message):
-         size: builtins.int = ...,
--        index_type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
-+        index_type_name: _dot_p4types_pb2.P4NamedType | None = ...,
-     ) -> None: ...
-@@ -1140,3 +1140,3 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
-         @property
--        def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.SourceLocation]:
-+        def annotation_locations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.SourceLocation]:
-             """Optional. If present, the location of `annotations[i]` is given by
-@@ -1146,3 +1146,3 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
-         @property
--        def type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
-+        def type_name(self) -> _dot_p4types_pb2.P4NamedType:
-             """unset if not user-defined type"""
-@@ -1150,3 +1150,3 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
-         @property
--        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.config.v1.p4types_pb2.StructuredAnnotation]: ...
-+        def structured_annotations(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4types_pb2.StructuredAnnotation]: ...
-         def __init__(
-@@ -1157,6 +1157,6 @@ class ControllerPacketMetadata(google.protobuf.message.Message):
-             annotations: collections.abc.Iterable[builtins.str] | None = ...,
--            annotation_locations: collections.abc.Iterable[p4.config.v1.p4types_pb2.SourceLocation] | None = ...,
-+            annotation_locations: collections.abc.Iterable[_dot_p4types_pb2.SourceLocation] | None = ...,
-             bitwidth: builtins.int = ...,
--            type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
--            structured_annotations: collections.abc.Iterable[p4.config.v1.p4types_pb2.StructuredAnnotation] | None = ...,
-+            type_name: _dot_p4types_pb2.P4NamedType | None = ...,
-+            structured_annotations: collections.abc.Iterable[_dot_p4types_pb2.StructuredAnnotation] | None = ...,
-         ) -> None: ...
-@@ -1227,5 +1227,5 @@ class Register(google.protobuf.message.Message):
-     @property
--    def type_spec(self) -> p4.config.v1.p4types_pb2.P4DataTypeSpec: ...
-+    def type_spec(self) -> _dot_p4types_pb2.P4DataTypeSpec: ...
-     @property
--    def index_type_name(self) -> p4.config.v1.p4types_pb2.P4NamedType:
-+    def index_type_name(self) -> _dot_p4types_pb2.P4NamedType:
-         """unset if index is not user-defined type"""
-@@ -1236,5 +1236,5 @@ class Register(google.protobuf.message.Message):
-         preamble: global___Preamble | None = ...,
--        type_spec: p4.config.v1.p4types_pb2.P4DataTypeSpec | None = ...,
-+        type_spec: _dot_p4types_pb2.P4DataTypeSpec | None = ...,
-         size: builtins.int = ...,
--        index_type_name: p4.config.v1.p4types_pb2.P4NamedType | None = ...,
-+        index_type_name: _dot_p4types_pb2.P4NamedType | None = ...,
-     ) -> None: ...
-@@ -1254,3 +1254,3 @@ class Digest(google.protobuf.message.Message):
-     @property
--    def type_spec(self) -> p4.config.v1.p4types_pb2.P4DataTypeSpec: ...
-+    def type_spec(self) -> _dot_p4types_pb2.P4DataTypeSpec: ...
-     def __init__(
-@@ -1259,3 +1259,3 @@ class Digest(google.protobuf.message.Message):
-         preamble: global___Preamble | None = ...,
--        type_spec: p4.config.v1.p4types_pb2.P4DataTypeSpec | None = ...,
-+        type_spec: _dot_p4types_pb2.P4DataTypeSpec | None = ...,
-     ) -> None: ...
+@@ -11,3 +11,3 @@ from google.protobuf.internal import containers as _containers
+ from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+-from p4.config.v1 import p4types_pb2 as _p4types_pb2
++from . import p4types_pb2 as _p4types_pb2
+ import builtins as _builtins
 diff --git b/finsy/proto/p4/v1/p4runtime_pb2.py a/finsy/proto/p4/v1/p4runtime_pb2.py
 index 96187af..ac43f11 100644
 --- b/finsy/proto/p4/v1/p4runtime_pb2.py
@@ -423,60 +66,20 @@ index 96187af..ac43f11 100644
 +from . import p4data_pb2 as p4_dot_v1_dot_p4data__pb2
  
 diff --git b/finsy/proto/p4/v1/p4runtime_pb2.pyi a/finsy/proto/p4/v1/p4runtime_pb2.pyi
-index 8fb662f..d73c320 100644
+index c425d0b..d8c0746 100644
 --- b/finsy/proto/p4/v1/p4runtime_pb2.pyi
 +++ a/finsy/proto/p4/v1/p4runtime_pb2.pyi
-@@ -12,5 +12,5 @@ import google.protobuf.internal.enum_type_wrapper
- import google.protobuf.message
--import google.rpc.status_pb2
--import p4.config.v1.p4info_pb2
--import p4.v1.p4data_pb2
-+from ...google.rpc import status_pb2 as _dot_status_pb2
-+from ..config.v1 import p4info_pb2 as _dot_p4info_pb2
-+from . import p4data_pb2 as _dot_p4data_pb2
- import sys
-@@ -1363,3 +1363,3 @@ class RegisterEntry(google.protobuf.message.Message):
-     @property
--    def data(self) -> p4.v1.p4data_pb2.P4Data: ...
-+    def data(self) -> _dot_p4data_pb2.P4Data: ...
-     def __init__(
-@@ -1369,3 +1369,3 @@ class RegisterEntry(google.protobuf.message.Message):
-         index: global___Index | None = ...,
--        data: p4.v1.p4data_pb2.P4Data | None = ...,
-+        data: _dot_p4data_pb2.P4Data | None = ...,
-     ) -> None: ...
-@@ -1596,3 +1596,3 @@ class DigestList(google.protobuf.message.Message):
-     @property
--    def data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.v1.p4data_pb2.P4Data]:
-+    def data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4data_pb2.P4Data]:
-         """List of entries: each call to the Digest<T>::pack() method corresponds to
-@@ -1606,3 +1606,3 @@ class DigestList(google.protobuf.message.Message):
-         list_id: builtins.int = ...,
--        data: collections.abc.Iterable[p4.v1.p4data_pb2.P4Data] | None = ...,
-+        data: collections.abc.Iterable[_dot_p4data_pb2.P4Data] | None = ...,
-         timestamp: builtins.int = ...,
-@@ -1664,3 +1664,3 @@ class MasterArbitrationUpdate(google.protobuf.message.Message):
-     @property
--    def status(self) -> google.rpc.status_pb2.Status:
-+    def status(self) -> _dot_status_pb2.Status:
-         """Switch populates this with OK for the client that is the primary, and
-@@ -1676,3 +1676,3 @@ class MasterArbitrationUpdate(google.protobuf.message.Message):
-         election_id: global___Uint128 | None = ...,
--        status: google.rpc.status_pb2.Status | None = ...,
-+        status: _dot_status_pb2.Status | None = ...,
-     ) -> None: ...
-@@ -2033,3 +2033,3 @@ class ForwardingPipelineConfig(google.protobuf.message.Message):
-     @property
--    def p4info(self) -> p4.config.v1.p4info_pb2.P4Info: ...
-+    def p4info(self) -> _dot_p4info_pb2.P4Info: ...
-     @property
-@@ -2039,3 +2039,3 @@ class ForwardingPipelineConfig(google.protobuf.message.Message):
-         *,
--        p4info: p4.config.v1.p4info_pb2.P4Info | None = ...,
-+        p4info: _dot_p4info_pb2.P4Info | None = ...,
-         p4_device_config: builtins.bytes = ...,
+@@ -11,5 +11,5 @@ from google.protobuf.internal import containers as _containers
+ from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+-from google.rpc import status_pb2 as _status_pb2
+-from p4.config.v1 import p4info_pb2 as _p4info_pb2
+-from p4.v1 import p4data_pb2 as _p4data_pb2
++from ...google.rpc import status_pb2 as _status_pb2
++from ..config.v1 import p4info_pb2 as _p4info_pb2
++from . import p4data_pb2 as _p4data_pb2
+ import builtins as _builtins
 diff --git b/finsy/proto/p4/v1/p4runtime_pb2_grpc.py a/finsy/proto/p4/v1/p4runtime_pb2_grpc.py
-index f6376e4..0ee8a08 100644
+index dfff31c..940e083 100644
 --- b/finsy/proto/p4/v1/p4runtime_pb2_grpc.py
 +++ a/finsy/proto/p4/v1/p4runtime_pb2_grpc.py
 @@ -5,3 +5,3 @@ import warnings
@@ -485,146 +88,14 @@ index f6376e4..0ee8a08 100644
 +from . import p4runtime_pb2 as p4_dot_v1_dot_p4runtime__pb2
  
 diff --git b/finsy/proto/p4/v1/p4runtime_pb2_grpc.pyi a/finsy/proto/p4/v1/p4runtime_pb2_grpc.pyi
-index bfe8ee1..925392e 100644
+index 2b04e8a..b71fa56 100644
 --- b/finsy/proto/p4/v1/p4runtime_pb2_grpc.pyi
 +++ a/finsy/proto/p4/v1/p4runtime_pb2_grpc.pyi
-@@ -9,3 +9,3 @@ import grpc
- import grpc.aio
--import p4.v1.p4runtime_pb2
-+from . import p4runtime_pb2 as _dot_p4runtime_pb2
- import typing
-@@ -22,4 +22,4 @@ class P4RuntimeStub:
-     Write: grpc.UnaryUnaryMultiCallable[
--        p4.v1.p4runtime_pb2.WriteRequest,
--        p4.v1.p4runtime_pb2.WriteResponse,
-+        _dot_p4runtime_pb2.WriteRequest,
-+        _dot_p4runtime_pb2.WriteResponse,
-     ]
-@@ -28,4 +28,4 @@ class P4RuntimeStub:
-     Read: grpc.UnaryStreamMultiCallable[
--        p4.v1.p4runtime_pb2.ReadRequest,
--        p4.v1.p4runtime_pb2.ReadResponse,
-+        _dot_p4runtime_pb2.ReadRequest,
-+        _dot_p4runtime_pb2.ReadResponse,
-     ]
-@@ -34,4 +34,4 @@ class P4RuntimeStub:
-     SetForwardingPipelineConfig: grpc.UnaryUnaryMultiCallable[
--        p4.v1.p4runtime_pb2.SetForwardingPipelineConfigRequest,
--        p4.v1.p4runtime_pb2.SetForwardingPipelineConfigResponse,
-+        _dot_p4runtime_pb2.SetForwardingPipelineConfigRequest,
-+        _dot_p4runtime_pb2.SetForwardingPipelineConfigResponse,
-     ]
-@@ -40,4 +40,4 @@ class P4RuntimeStub:
-     GetForwardingPipelineConfig: grpc.UnaryUnaryMultiCallable[
--        p4.v1.p4runtime_pb2.GetForwardingPipelineConfigRequest,
--        p4.v1.p4runtime_pb2.GetForwardingPipelineConfigResponse,
-+        _dot_p4runtime_pb2.GetForwardingPipelineConfigRequest,
-+        _dot_p4runtime_pb2.GetForwardingPipelineConfigResponse,
-     ]
-@@ -46,4 +46,4 @@ class P4RuntimeStub:
-     StreamChannel: grpc.StreamStreamMultiCallable[
--        p4.v1.p4runtime_pb2.StreamMessageRequest,
--        p4.v1.p4runtime_pb2.StreamMessageResponse,
-+        _dot_p4runtime_pb2.StreamMessageRequest,
-+        _dot_p4runtime_pb2.StreamMessageResponse,
-     ]
-@@ -62,4 +62,4 @@ class P4RuntimeStub:
-     Capabilities: grpc.UnaryUnaryMultiCallable[
--        p4.v1.p4runtime_pb2.CapabilitiesRequest,
--        p4.v1.p4runtime_pb2.CapabilitiesResponse,
-+        _dot_p4runtime_pb2.CapabilitiesRequest,
-+        _dot_p4runtime_pb2.CapabilitiesResponse,
-     ]
-@@ -68,4 +68,4 @@ class P4RuntimeAsyncStub:
-     Write: grpc.aio.UnaryUnaryMultiCallable[
--        p4.v1.p4runtime_pb2.WriteRequest,
--        p4.v1.p4runtime_pb2.WriteResponse,
-+        _dot_p4runtime_pb2.WriteRequest,
-+        _dot_p4runtime_pb2.WriteResponse,
-     ]
-@@ -74,4 +74,4 @@ class P4RuntimeAsyncStub:
-     Read: grpc.aio.UnaryStreamMultiCallable[
--        p4.v1.p4runtime_pb2.ReadRequest,
--        p4.v1.p4runtime_pb2.ReadResponse,
-+        _dot_p4runtime_pb2.ReadRequest,
-+        _dot_p4runtime_pb2.ReadResponse,
-     ]
-@@ -80,4 +80,4 @@ class P4RuntimeAsyncStub:
-     SetForwardingPipelineConfig: grpc.aio.UnaryUnaryMultiCallable[
--        p4.v1.p4runtime_pb2.SetForwardingPipelineConfigRequest,
--        p4.v1.p4runtime_pb2.SetForwardingPipelineConfigResponse,
-+        _dot_p4runtime_pb2.SetForwardingPipelineConfigRequest,
-+        _dot_p4runtime_pb2.SetForwardingPipelineConfigResponse,
-     ]
-@@ -86,4 +86,4 @@ class P4RuntimeAsyncStub:
-     GetForwardingPipelineConfig: grpc.aio.UnaryUnaryMultiCallable[
--        p4.v1.p4runtime_pb2.GetForwardingPipelineConfigRequest,
--        p4.v1.p4runtime_pb2.GetForwardingPipelineConfigResponse,
-+        _dot_p4runtime_pb2.GetForwardingPipelineConfigRequest,
-+        _dot_p4runtime_pb2.GetForwardingPipelineConfigResponse,
-     ]
-@@ -92,4 +92,4 @@ class P4RuntimeAsyncStub:
-     StreamChannel: grpc.aio.StreamStreamMultiCallable[
--        p4.v1.p4runtime_pb2.StreamMessageRequest,
--        p4.v1.p4runtime_pb2.StreamMessageResponse,
-+        _dot_p4runtime_pb2.StreamMessageRequest,
-+        _dot_p4runtime_pb2.StreamMessageResponse,
-     ]
-@@ -108,4 +108,4 @@ class P4RuntimeAsyncStub:
-     Capabilities: grpc.aio.UnaryUnaryMultiCallable[
--        p4.v1.p4runtime_pb2.CapabilitiesRequest,
--        p4.v1.p4runtime_pb2.CapabilitiesResponse,
-+        _dot_p4runtime_pb2.CapabilitiesRequest,
-+        _dot_p4runtime_pb2.CapabilitiesResponse,
-     ]
-@@ -116,5 +116,5 @@ class P4RuntimeServicer(metaclass=abc.ABCMeta):
-         self,
--        request: p4.v1.p4runtime_pb2.WriteRequest,
-+        request: _dot_p4runtime_pb2.WriteRequest,
-         context: _ServicerContext,
--    ) -> typing.Union[p4.v1.p4runtime_pb2.WriteResponse, collections.abc.Awaitable[p4.v1.p4runtime_pb2.WriteResponse]]:
-+    ) -> typing.Union[_dot_p4runtime_pb2.WriteResponse, collections.abc.Awaitable[_dot_p4runtime_pb2.WriteResponse]]:
-         """Update one or more P4 entities on the target."""
-@@ -124,5 +124,5 @@ class P4RuntimeServicer(metaclass=abc.ABCMeta):
-         self,
--        request: p4.v1.p4runtime_pb2.ReadRequest,
-+        request: _dot_p4runtime_pb2.ReadRequest,
-         context: _ServicerContext,
--    ) -> typing.Union[collections.abc.Iterator[p4.v1.p4runtime_pb2.ReadResponse], collections.abc.AsyncIterator[p4.v1.p4runtime_pb2.ReadResponse]]:
-+    ) -> typing.Union[collections.abc.Iterator[_dot_p4runtime_pb2.ReadResponse], collections.abc.AsyncIterator[_dot_p4runtime_pb2.ReadResponse]]:
-         """Read one or more P4 entities from the target."""
-@@ -132,5 +132,5 @@ class P4RuntimeServicer(metaclass=abc.ABCMeta):
-         self,
--        request: p4.v1.p4runtime_pb2.SetForwardingPipelineConfigRequest,
-+        request: _dot_p4runtime_pb2.SetForwardingPipelineConfigRequest,
-         context: _ServicerContext,
--    ) -> typing.Union[p4.v1.p4runtime_pb2.SetForwardingPipelineConfigResponse, collections.abc.Awaitable[p4.v1.p4runtime_pb2.SetForwardingPipelineConfigResponse]]:
-+    ) -> typing.Union[_dot_p4runtime_pb2.SetForwardingPipelineConfigResponse, collections.abc.Awaitable[_dot_p4runtime_pb2.SetForwardingPipelineConfigResponse]]:
-         """Sets the P4 forwarding-pipeline config."""
-@@ -140,5 +140,5 @@ class P4RuntimeServicer(metaclass=abc.ABCMeta):
-         self,
--        request: p4.v1.p4runtime_pb2.GetForwardingPipelineConfigRequest,
-+        request: _dot_p4runtime_pb2.GetForwardingPipelineConfigRequest,
-         context: _ServicerContext,
--    ) -> typing.Union[p4.v1.p4runtime_pb2.GetForwardingPipelineConfigResponse, collections.abc.Awaitable[p4.v1.p4runtime_pb2.GetForwardingPipelineConfigResponse]]:
-+    ) -> typing.Union[_dot_p4runtime_pb2.GetForwardingPipelineConfigResponse, collections.abc.Awaitable[_dot_p4runtime_pb2.GetForwardingPipelineConfigResponse]]:
-         """Gets the current P4 forwarding-pipeline config."""
-@@ -148,5 +148,5 @@ class P4RuntimeServicer(metaclass=abc.ABCMeta):
-         self,
--        request_iterator: _MaybeAsyncIterator[p4.v1.p4runtime_pb2.StreamMessageRequest],
-+        request_iterator: _MaybeAsyncIterator[_dot_p4runtime_pb2.StreamMessageRequest],
-         context: _ServicerContext,
--    ) -> typing.Union[collections.abc.Iterator[p4.v1.p4runtime_pb2.StreamMessageResponse], collections.abc.AsyncIterator[p4.v1.p4runtime_pb2.StreamMessageResponse]]:
-+    ) -> typing.Union[collections.abc.Iterator[_dot_p4runtime_pb2.StreamMessageResponse], collections.abc.AsyncIterator[_dot_p4runtime_pb2.StreamMessageResponse]]:
-         """Represents the bidirectional stream between the controller and the
-@@ -166,5 +166,5 @@ class P4RuntimeServicer(metaclass=abc.ABCMeta):
-         self,
--        request: p4.v1.p4runtime_pb2.CapabilitiesRequest,
-+        request: _dot_p4runtime_pb2.CapabilitiesRequest,
-         context: _ServicerContext,
--    ) -> typing.Union[p4.v1.p4runtime_pb2.CapabilitiesResponse, collections.abc.Awaitable[p4.v1.p4runtime_pb2.CapabilitiesResponse]]: ...
-+    ) -> typing.Union[_dot_p4runtime_pb2.CapabilitiesResponse, collections.abc.Awaitable[_dot_p4runtime_pb2.CapabilitiesResponse]]: ...
- 
+@@ -7,3 +7,3 @@ from collections import abc as _abc
+ from grpc import aio as _aio
+-from p4.v1 import p4runtime_pb2 as _p4runtime_pb2
++from . import p4runtime_pb2 as _p4runtime_pb2
+ import abc as _abc_1
 diff --git b/finsy/proto/p4testgen1/p4testgen_pb2.py a/finsy/proto/p4testgen1/p4testgen_pb2.py
 index 7032aca..1bf7c66 100644
 --- b/finsy/proto/p4testgen1/p4testgen_pb2.py
@@ -635,21 +106,11 @@ index 7032aca..1bf7c66 100644
 +from ..p4.v1 import p4runtime_pb2 as p4_dot_v1_dot_p4runtime__pb2
  
 diff --git b/finsy/proto/p4testgen1/p4testgen_pb2.pyi a/finsy/proto/p4testgen1/p4testgen_pb2.pyi
-index c7d12ae..7b0770d 100644
+index 328503d..ca0baaf 100644
 --- b/finsy/proto/p4testgen1/p4testgen_pb2.pyi
 +++ a/finsy/proto/p4testgen1/p4testgen_pb2.pyi
-@@ -10,3 +10,3 @@ import google.protobuf.internal.containers
- import google.protobuf.message
--import p4.v1.p4runtime_pb2
-+from ..p4.v1 import p4runtime_pb2 as _dot_p4runtime_pb2
- import typing
-@@ -77,3 +77,3 @@ class TestCase(google.protobuf.message.Message):
-     @property
--    def entities(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[p4.v1.p4runtime_pb2.Entity]:
-+    def entities(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[_dot_p4runtime_pb2.Entity]:
-         """The entities (e.g., table entries) to install on the switch before
-@@ -95,3 +95,3 @@ class TestCase(google.protobuf.message.Message):
-         expected_output_packet: collections.abc.Iterable[global___OutputPacketAtPort] | None = ...,
--        entities: collections.abc.Iterable[p4.v1.p4runtime_pb2.Entity] | None = ...,
-+        entities: collections.abc.Iterable[_dot_p4runtime_pb2.Entity] | None = ...,
-         traces: collections.abc.Iterable[builtins.str] | None = ...,
+@@ -9,3 +9,3 @@ from google.protobuf import message as _message
+ from google.protobuf.internal import containers as _containers
+-from p4.v1 import p4runtime_pb2 as _p4runtime_pb2
++from ..p4.v1 import p4runtime_pb2 as _p4runtime_pb2
+ import builtins as _builtins
