@@ -1,5 +1,14 @@
 # Finsy Change Log
 
+## 0.29.0
+
+- Fix issue with `CopyFile` in `demonet` module (#831).
+- Update `P4Runtime` protobufs to the 1.50 release.
+- Implement API support for `P4Runtime` 1.5.0 changes.
+- Implement support for Python 3.14.
+- Re-compile protobuf files with newer `protoc` and `mypy-protobuf`.
+- Re-format python source files with latest version of `black` (26.3.1).
+
 ## 0.28.0
 
 - Update `GNMI` protobufs to latest from upstream.
