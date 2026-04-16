@@ -32,7 +32,7 @@ poetry-plugin-export = ">=1.8"
 python = "^3.10"
 
 # Core dependencies.
-grpcio = "1.76.0"  # valgrind ci issue with 1.78.0
+grpcio = "1.80.0"  # valgrind ci issue with 1.78.0
 parsy = "^2.2.0"
 protobuf = "^6.33.6"
 pyee = "^13.0.1"
