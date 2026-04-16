@@ -24,7 +24,11 @@
 
 set -eu
 
-P4RUNTIME_FILES_URL="https://github.com/p4lang/p4runtime/tree/main/proto/p4"
+# Set P4RUNTIME_TAG to "main" to get latest from main branch. For now, just
+# specify the latest release tag.
+P4RUNTIME_TAG="v1.5.0"
+
+P4RUNTIME_FILES_URL="https://github.com/p4lang/p4runtime/tree/$P4RUNTIME_TAG/proto/p4"
 GOOGLE_RPC_FILES_URL="https://github.com/googleapis/api-common-protos/tree/main/google/rpc"
 GNMI_URL="https://raw.githubusercontent.com/openconfig/gnmi/master/proto/gnmi/gnmi.proto"
 GNMI_EXT_URL="https://raw.githubusercontent.com/openconfig/gnmi/master/proto/gnmi_ext/gnmi_ext.proto"
