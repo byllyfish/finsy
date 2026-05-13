@@ -34,7 +34,7 @@ python = "^3.10"
 # Core dependencies.
 grpcio = "1.76.0"  # valgrind ci issue with 1.78.0
 parsy = "^2.2.0"
-protobuf = "^6.33.6"
+protobuf = ">=6.33.6,<8.0.0"
 pyee = "^13.0.1"
 
 # Optional dependency: installed via `pip install finsy[demonet]`
