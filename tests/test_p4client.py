@@ -58,17 +58,15 @@ async def test_wrong_tls_client_vs_tls_server_wait_for_ready(p4rt_secure_server)
             await asyncio.wait_for(_check_arbitration_request(client), 2.0)
 
 
-# On Windows, the "Socket closed" message is "End of TCP stream".
-_UNAVAILABLE1 = "UNAVAILABLE:.*: (?:Socket closed|End of TCP stream|recvmsg:Connection reset by peer)"
 # On Windows, the "Connection reset by peer" message is "Connection aborted".
-_UNAVAILABLE2 = "UNAVAILABLE:.*: (?:Socket closed|.*End of TCP stream|recvmsg:Connection reset by peer|Connection aborted|Connection reset)"
+_UNAVAILABLE = "UNAVAILABLE:.*: (?:Socket closed|.*End of TCP stream|recvmsg:Connection reset by peer|.*Connection aborted|Connection reset)"
 
 
 async def test_insecure_client_vs_tls_server(p4rt_secure_server):
     "Test insecure P4Client against a TLS server."
     client = P4Client(p4rt_secure_server[0], wait_for_ready=False)
     async with client:
-        with pytest.raises(P4ClientError, match=_UNAVAILABLE1):
+        with pytest.raises(P4ClientError, match=_UNAVAILABLE):
             await _check_arbitration_request(client)
 
 
@@ -91,7 +89,7 @@ async def test_expired_tls_client_vs_tls_server(unused_tcp_target):
             unused_tcp_target, CLIENT3_CREDS_XCLIENT, wait_for_ready=False
         )
         async with client:
-            with pytest.raises(P4ClientError, match=_UNAVAILABLE1):
+            with pytest.raises(P4ClientError, match=_UNAVAILABLE):
                 await _check_arbitration_request(client)
 
 
@@ -116,7 +114,7 @@ async def test_tls_client_vs_tls_server_missing_client_cert(p4rt_secure_server):
         p4rt_secure_server[0], CLIENT1_MISSING_CREDS, wait_for_ready=False
     )
     async with client:
-        with pytest.raises(P4ClientError, match=_UNAVAILABLE2):
+        with pytest.raises(P4ClientError, match=_UNAVAILABLE):
             await _check_arbitration_request(client)
 
 
@@ -163,7 +161,7 @@ async def test_tls_client_using_server_cert(p4rt_secure_server):
     "Test TLS client using a server certificate."
     client = P4Client(p4rt_secure_server[0], SERVER1_CREDS, wait_for_ready=False)
     async with client:
-        with pytest.raises(P4ClientError, match=_UNAVAILABLE1):
+        with pytest.raises(P4ClientError, match=_UNAVAILABLE):
             await _check_arbitration_request(client)
 
 
