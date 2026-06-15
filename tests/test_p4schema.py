@@ -221,7 +221,7 @@ def test_p4info_actions():
     assert p4.actions[21257015] is noaction
 
 
-@pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
+@pytest.mark.parametrize("p4info_file", list(P4INFO_TEST_DIR.glob("*.p4info.txt")))
 def test_p4info_repr(p4info_file: Path):
     "Test output of P4Schema repr function."
     p4 = P4Schema(p4info_file)
@@ -265,7 +265,7 @@ def _format_source_code(source: str) -> str:
         logger.setLevel(savedLevel)
 
 
-@pytest.mark.parametrize("p4info_file", P4INFO_TEST_DIR.glob("*.p4info.txt"))
+@pytest.mark.parametrize("p4info_file", list(P4INFO_TEST_DIR.glob("*.p4info.txt")))
 def test_p4info_str(p4info_file: Path):
     "Test output of P4Schema description files."
     p4 = P4Schema(p4info_file)
