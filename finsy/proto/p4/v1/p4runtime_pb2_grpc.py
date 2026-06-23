@@ -5,7 +5,7 @@ import warnings
 
 from . import p4runtime_pb2 as p4_dot_v1_dot_p4runtime__pb2
 
-GRPC_GENERATED_VERSION = '1.76.0'
+GRPC_GENERATED_VERSION = '1.81.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -25,7 +25,7 @@ if _version_not_supported:
     )
 
 
-class P4RuntimeStub(object):
+class P4RuntimeStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -66,7 +66,7 @@ class P4RuntimeStub(object):
                 _registered_method=True)
 
 
-class P4RuntimeServicer(object):
+class P4RuntimeServicer:
     """Missing associated documentation comment in .proto file."""
 
     def Write(self, request, context):
@@ -160,7 +160,7 @@ def add_P4RuntimeServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class P4Runtime(object):
+class P4Runtime:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
