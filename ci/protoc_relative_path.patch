@@ -1,5 +1,5 @@
 diff --git b/finsy/proto/gnmi1/gnmi_pb2.py a/finsy/proto/gnmi1/gnmi_pb2.py
-index c2b36d4..f83da65 100644
+index 2d3bf45..b19e92a 100644
 --- b/finsy/proto/gnmi1/gnmi_pb2.py
 +++ a/finsy/proto/gnmi1/gnmi_pb2.py
 @@ -26,3 +26,3 @@ from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
@@ -8,7 +8,7 @@ index c2b36d4..f83da65 100644
 +from . import gnmi_ext_pb2 as gnmi1_dot_gnmi__ext__pb2
  
 diff --git b/finsy/proto/gnmi1/gnmi_pb2.pyi a/finsy/proto/gnmi1/gnmi_pb2.pyi
-index b5f5883..f0e2f3c 100644
+index cdfce03..a69a163 100644
 --- b/finsy/proto/gnmi1/gnmi_pb2.pyi
 +++ a/finsy/proto/gnmi1/gnmi_pb2.pyi
 @@ -14,3 +14,3 @@ http://github.com/openconfig/reference/blob/master/rpc/gnmi
@@ -17,7 +17,7 @@ index b5f5883..f0e2f3c 100644
 +from . import gnmi_ext_pb2 as _gnmi_ext_pb2
  from google.protobuf import any_pb2 as _any_pb2
 diff --git b/finsy/proto/gnmi1/gnmi_pb2_grpc.py a/finsy/proto/gnmi1/gnmi_pb2_grpc.py
-index 2b06c7a..9261aa5 100644
+index 448c3b0..131f1e4 100644
 --- b/finsy/proto/gnmi1/gnmi_pb2_grpc.py
 +++ a/finsy/proto/gnmi1/gnmi_pb2_grpc.py
 @@ -5,3 +5,3 @@ import warnings
@@ -35,7 +35,7 @@ index f7fa75c..f189276 100644
 +from . import gnmi_pb2 as _gnmi_pb2
  from grpc import aio as _aio
 diff --git b/finsy/proto/p4/config/v1/p4info_pb2.py a/finsy/proto/p4/config/v1/p4info_pb2.py
-index d5d4397..989e86c 100644
+index b292a5b..c2f6701 100644
 --- b/finsy/proto/p4/config/v1/p4info_pb2.py
 +++ a/finsy/proto/p4/config/v1/p4info_pb2.py
 @@ -25,3 +25,3 @@ _sym_db = _symbol_database.Default()
@@ -44,7 +44,7 @@ index d5d4397..989e86c 100644
 +from . import p4types_pb2 as p4_dot_config_dot_v1_dot_p4types__pb2
  
 diff --git b/finsy/proto/p4/config/v1/p4info_pb2.pyi a/finsy/proto/p4/config/v1/p4info_pb2.pyi
-index 451a295..3bf9464 100644
+index 43187b3..b757c9e 100644
 --- b/finsy/proto/p4/config/v1/p4info_pb2.pyi
 +++ a/finsy/proto/p4/config/v1/p4info_pb2.pyi
 @@ -11,3 +11,3 @@ from google.protobuf.internal import containers as _containers
@@ -53,7 +53,7 @@ index 451a295..3bf9464 100644
 +from . import p4types_pb2 as _p4types_pb2
  import builtins as _builtins
 diff --git b/finsy/proto/p4/v1/p4runtime_pb2.py a/finsy/proto/p4/v1/p4runtime_pb2.py
-index 96187af..ac43f11 100644
+index 8c704df..ac6bcbb 100644
 --- b/finsy/proto/p4/v1/p4runtime_pb2.py
 +++ a/finsy/proto/p4/v1/p4runtime_pb2.py
 @@ -25,5 +25,5 @@ _sym_db = _symbol_database.Default()
@@ -66,7 +66,7 @@ index 96187af..ac43f11 100644
 +from . import p4data_pb2 as p4_dot_v1_dot_p4data__pb2
  
 diff --git b/finsy/proto/p4/v1/p4runtime_pb2.pyi a/finsy/proto/p4/v1/p4runtime_pb2.pyi
-index c425d0b..d8c0746 100644
+index eef7398..3d5f360 100644
 --- b/finsy/proto/p4/v1/p4runtime_pb2.pyi
 +++ a/finsy/proto/p4/v1/p4runtime_pb2.pyi
 @@ -11,5 +11,5 @@ from google.protobuf.internal import containers as _containers
@@ -79,7 +79,7 @@ index c425d0b..d8c0746 100644
 +from . import p4data_pb2 as _p4data_pb2
  import builtins as _builtins
 diff --git b/finsy/proto/p4/v1/p4runtime_pb2_grpc.py a/finsy/proto/p4/v1/p4runtime_pb2_grpc.py
-index dfff31c..940e083 100644
+index d0e92cb..06ea727 100644
 --- b/finsy/proto/p4/v1/p4runtime_pb2_grpc.py
 +++ a/finsy/proto/p4/v1/p4runtime_pb2_grpc.py
 @@ -5,3 +5,3 @@ import warnings
@@ -97,7 +97,7 @@ index 2b04e8a..b71fa56 100644
 +from . import p4runtime_pb2 as _p4runtime_pb2
  import abc as _abc_1
 diff --git b/finsy/proto/p4testgen1/p4testgen_pb2.py a/finsy/proto/p4testgen1/p4testgen_pb2.py
-index 7032aca..1bf7c66 100644
+index 85955da..5670fad 100644
 --- b/finsy/proto/p4testgen1/p4testgen_pb2.py
 +++ a/finsy/proto/p4testgen1/p4testgen_pb2.py
 @@ -24,3 +24,3 @@ _sym_db = _symbol_database.Default()
@@ -106,10 +106,10 @@ index 7032aca..1bf7c66 100644
 +from ..p4.v1 import p4runtime_pb2 as p4_dot_v1_dot_p4runtime__pb2
  
 diff --git b/finsy/proto/p4testgen1/p4testgen_pb2.pyi a/finsy/proto/p4testgen1/p4testgen_pb2.pyi
-index 328503d..ca0baaf 100644
+index e5d0ca4..066a322 100644
 --- b/finsy/proto/p4testgen1/p4testgen_pb2.pyi
 +++ a/finsy/proto/p4testgen1/p4testgen_pb2.pyi
-@@ -9,3 +9,3 @@ from google.protobuf import message as _message
+@@ -14,3 +14,3 @@ from google.protobuf import message as _message
  from google.protobuf.internal import containers as _containers
 -from p4.v1 import p4runtime_pb2 as _p4runtime_pb2
 +from ..p4.v1 import p4runtime_pb2 as _p4runtime_pb2
