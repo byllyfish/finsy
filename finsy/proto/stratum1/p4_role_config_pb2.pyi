@@ -14,10 +14,10 @@ import builtins as _builtins
 import sys
 import typing as _typing
 
-if sys.version_info >= (3, 10):
-    from typing import TypeAlias as _TypeAlias
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
 else:
-    from typing_extensions import TypeAlias as _TypeAlias
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -56,8 +56,11 @@ class P4RoleConfig(_message.Message):
             metadata_id: _builtins.int = ...,
             value: _builtins.bytes = ...,
         ) -> None: ...
+        _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+        def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
         _ClearFieldArgType: _TypeAlias = _typing.Literal["metadata_id", b"metadata_id", "value", b"value"]  # noqa: Y015
         def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+        def WhichOneof(self, oneof_group: _Never) -> None: ...
 
     EXCLUSIVE_P4_IDS_FIELD_NUMBER: _builtins.int
     SHARED_P4_IDS_FIELD_NUMBER: _builtins.int
@@ -85,5 +88,6 @@ class P4RoleConfig(_message.Message):
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
     _ClearFieldArgType: _TypeAlias = _typing.Literal["can_push_pipeline", b"can_push_pipeline", "exclusive_p4_ids", b"exclusive_p4_ids", "packet_in_filter", b"packet_in_filter", "receives_packet_ins", b"receives_packet_ins", "shared_p4_ids", b"shared_p4_ids"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___P4RoleConfig: _TypeAlias = P4RoleConfig  # noqa: Y015

@@ -24,10 +24,10 @@ import builtins as _builtins
 import sys
 import typing as _typing
 
-if sys.version_info >= (3, 10):
-    from typing import TypeAlias as _TypeAlias
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
 else:
-    from typing_extensions import TypeAlias as _TypeAlias
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -112,8 +112,11 @@ class P4Varbit(_message.Message):
         bitstring: _builtins.bytes = ...,
         bitwidth: _builtins.int = ...,
     ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
     _ClearFieldArgType: _TypeAlias = _typing.Literal["bitstring", b"bitstring", "bitwidth", b"bitwidth"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___P4Varbit: _TypeAlias = P4Varbit  # noqa: Y015
 
@@ -129,8 +132,11 @@ class P4StructLike(_message.Message):
         *,
         members: _abc.Iterable[Global___P4Data] | None = ...,
     ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
     _ClearFieldArgType: _TypeAlias = _typing.Literal["members", b"members"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___P4StructLike: _TypeAlias = P4StructLike  # noqa: Y015
 
@@ -152,8 +158,11 @@ class P4Header(_message.Message):
         is_valid: _builtins.bool = ...,
         bitstrings: _abc.Iterable[_builtins.bytes] | None = ...,
     ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
     _ClearFieldArgType: _TypeAlias = _typing.Literal["bitstrings", b"bitstrings", "is_valid", b"is_valid"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___P4Header: _TypeAlias = P4Header  # noqa: Y015
 
@@ -179,6 +188,7 @@ class P4HeaderUnion(_message.Message):
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
     _ClearFieldArgType: _TypeAlias = _typing.Literal["valid_header", b"valid_header", "valid_header_name", b"valid_header_name"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___P4HeaderUnion: _TypeAlias = P4HeaderUnion  # noqa: Y015
 
@@ -198,8 +208,11 @@ class P4HeaderStack(_message.Message):
         *,
         entries: _abc.Iterable[Global___P4Header] | None = ...,
     ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
     _ClearFieldArgType: _TypeAlias = _typing.Literal["entries", b"entries"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___P4HeaderStack: _TypeAlias = P4HeaderStack  # noqa: Y015
 
@@ -219,7 +232,10 @@ class P4HeaderUnionStack(_message.Message):
         *,
         entries: _abc.Iterable[Global___P4HeaderUnion] | None = ...,
     ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
     _ClearFieldArgType: _TypeAlias = _typing.Literal["entries", b"entries"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
 Global___P4HeaderUnionStack: _TypeAlias = P4HeaderUnionStack  # noqa: Y015
