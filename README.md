@@ -300,19 +300,16 @@ attribute that lets your code register for event callbacks.
 
 Perform these steps to set up your local environment for Finsy development, or try 
 the [codespace](https://codespaces.new/byllyfish/finsy). Finsy requires Python 3.10 or 
-later. If [poetry](https://python-poetry.org/) is not installed, follow 
-[these directions](https://python-poetry.org/docs/#installation) to install it.
+later. Install [uv](https://docs.astral.sh/uv/) if it is not installed.
 
-### Clone and Prepare a Virtual Environment
+### Set Up Development Environment
 
-The `poetry install` command installs all development dependencies into the
-virtual environment (venv).
+Use `uv` to set up the development environment (venv).
 
 ```sh
 $ git clone https://github.com/byllyfish/finsy.git
 $ cd finsy
-$ python3 -m venv .venv
-$ poetry install
+$ uv venv && uv sync
 ```
 
 ### Run Unit Tests
@@ -320,18 +317,18 @@ $ poetry install
 When you run pytest from the top level of the repository, you will run the unit tests.
 
 ```sh
-$ poetry run pytest
+$ uv run pytest
 ```
 
 ### Run Integration Tests
 
 When you run pytest from within the `examples` directory, you will run the integration
-tests instead of the unit tests. The integration tests run the example programs against a
+tests. The integration tests run the example programs against a
 [Mininet](https://github.com/mininet/mininet) network. Docker or podman are required.
 
 ```bash
 $ cd examples
-$ poetry run pytest
+$ uv run pytest
 ```
 
 ---

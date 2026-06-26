@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Update requirements.txt files to synchronize with "poetry.lock".
+# Update requirements.txt files to synchronize with "uv.lock".
 
 set -eu
 
@@ -9,15 +9,8 @@ if [ ! -f "./ci/requirements.txt" ]; then
     exit 1
 fi
 
-HEADER="# $(poetry --version) export at $(date)"
-
-echo "$HEADER" > ./ci/requirements.txt
-poetry export >> ./ci/requirements.txt
-
-echo "$HEADER" > ./ci/requirements-dev.txt
-poetry export --with dev >> ./ci/requirements-dev.txt
-
-echo "$HEADER" > ./ci/requirements-demonet.txt
-poetry export --only demonet >> ./ci/requirements-demonet.txt
+uv export --quiet --frozen --no-annotate --format requirements-txt --no-emit-local --no-dev --output-file ./ci/requirements.txt
+uv export --quiet --frozen --no-annotate --format requirements-txt --no-emit-local --output-file ./ci/requirements-dev.txt
+uv export --quiet --frozen --no-annotate --format requirements-txt --only-group demonet --output-file ./ci/requirements-demonet.txt
 
 exit 0

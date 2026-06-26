@@ -24,7 +24,10 @@ _BIT_WIDTH = _BYTE_WIDTH * 8
 class MACAddress:
     """Concrete class for a MAC address."""
 
-    __slots__ = ("__weakref__", "_mac")
+    __slots__ = (
+        "__weakref__",  # pyright: ignore[reportUninitializedInstanceVariable]
+        "_mac",
+    )
     _mac: int
 
     def __init__(self, value: object) -> None:

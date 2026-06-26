@@ -18,7 +18,7 @@ import asyncio
 import contextlib
 from typing import AsyncIterator
 
-import grpc  # pyright: ignore[reportMissingTypeStubs]
+import grpc
 
 from finsy import pbutil
 from finsy.log import LOGGER

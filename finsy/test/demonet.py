@@ -435,9 +435,8 @@ class DemoNet(_AContextHelper):
     async def send(self, cmdline: str, *, expect: str = "") -> str:
         assert self._prompt is not None
         result = await self._prompt.command(cmdline)
-        print(result)
-        if expect:
-            assert expect in result
+        if expect and expect not in result:
+            raise ValueError(f"expected {expect!r}, got {result!r}")
         return result
 
     async def _mininet_command(self):
