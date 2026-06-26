@@ -4,7 +4,7 @@
 version: 2
 updates:
   - package-ecosystem: pip
-    directory: /     # pyproject.toml, poetry.lock, ci/requirements*.txt
+    directory: /     # pyproject.toml, ci/requirements*.txt
     schedule:
       interval: weekly
 

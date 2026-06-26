@@ -3,17 +3,17 @@
 # To install from repository directory:
 #   ln -s ../../ci/git-hook/pre-commit .git/hooks/pre-commit
 
-# ci/requirements[-dev].txt must be updated after poetry.lock is 
+# ci/requirements[-dev].txt must be updated after uv.lock is 
 # updated.
 
 set -eu
 
-if [ "poetry.lock" -nt "ci/requirements.txt" ]; then
+if [ "uv.lock" -nt "ci/requirements.txt" ]; then
     echo "You must update requirements.txt first."
     exit 1
 fi
 
-if [ "poetry.lock" -nt "ci/requirements-dev.txt" ]; then
+if [ "uv.lock" -nt "ci/requirements-dev.txt" ]; then
     echo "You must update requirements-dev.txt first."
     exit 1
 fi
