@@ -20,7 +20,7 @@ import contextlib
 import logging
 from typing import Any, AsyncIterator, Coroutine, TypeVar
 
-import grpc  # pyright: ignore[reportMissingTypeStubs]
+import grpc
 
 from finsy.futures import wait_for_cancel
 from finsy.grpcutil import GRPC_EOF, GRPCCredentialsTLS
