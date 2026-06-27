@@ -46,7 +46,7 @@ dev = [
     "ruff>=0.15.19,<0.16",
     "shellous>=0.40.0,<0.41",
 ]
-demonet = ["pygraphviz>=1.13,<2"]
+demonet = ["pygraphviz>=2.0,<3"]
 
 [tool.uv]
 default-groups = ["dev"]
