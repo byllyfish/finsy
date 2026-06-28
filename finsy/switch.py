@@ -18,7 +18,6 @@ import asyncio
 import dataclasses
 import enum
 import logging
-import re
 import time
 from asyncio import Queue
 from contextlib import asynccontextmanager
@@ -31,7 +30,6 @@ from typing import (
     Callable,
     Coroutine,
     Iterable,
-    NamedTuple,
     SupportsBytes,
     TypeVar,
     final,
@@ -332,7 +330,7 @@ class Switch:
         "Most general overload: we can't determine the return type exactly."
         ...  # pragma: no cover
 
-    async def read(
+    async def read(  # pyright: ignore[reportInconsistentOverload]
         self,
         entities: Iterable[p4entity.P4EntityList] | p4entity.P4Entity,
     ) -> AsyncGenerator[p4entity.P4Entity, None]:
