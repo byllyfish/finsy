@@ -1,6 +1,6 @@
 [project]
 name = "finsy"
-version = "0.29.0"
+version = "0.30.0"
 description = "P4Runtime Client Library"
 authors = [{ name = "Bill Fisher", email = "william.w.fisher@gmail.com" }]
 requires-python = ">=3.10,<4"

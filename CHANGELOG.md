@@ -1,5 +1,10 @@
 # Finsy Change Log
 
+## 0.30.0
+
+- Switch `project.toml` from poetry to uv. Build package using uv.
+- Re-generate protobuf files using `grpcio-tools` 1.81.1.
+
 ## 0.29.0
 
 - Fix issue with `CopyFile` in `demonet` module (#831).
