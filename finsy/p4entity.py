@@ -298,7 +298,7 @@ class P4Replica:
             port = decode_port(replica.port)
         else:
             # `egress_port` field was deprecated in P4Runtime 1.4.0.
-            port = replica.egress_port
+            port = replica.egress_port  # pyright: ignore[reportDeprecated]
 
         if replica.backup_replicas:
             backup_replicas = [
@@ -1251,7 +1251,7 @@ class P4TableEntry(_P4Writable):
             match=match,
             action=action,
             priority=entry.priority,
-            controller_metadata=entry.controller_metadata,
+            controller_metadata=entry.controller_metadata,  # pyright: ignore[reportDeprecated]
             meter_config=meter_config,
             counter_data=counter_data,
             meter_counter_data=meter_counter_data,
