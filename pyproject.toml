@@ -20,7 +20,7 @@ classifiers = [
 dependencies = [
     "grpcio>=1.81.1,<2",
     "parsy>=2.2.0,<3",
-    "protobuf>=6.33.6,<7",
+    "protobuf>=6.33.6,<8",
     "pyee>=13.0.1,<14",
 ]
 
