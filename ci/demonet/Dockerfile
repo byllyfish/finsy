@@ -1,8 +1,8 @@
 # Dockerfile that produces an ubuntu-based image with BMV2 and Mininet.
 
-FROM docker.io/opennetworking/mn-stratum:latest@sha256:b588956bafc3a4829b36e0c96ff0d580662a00862dde3a1ef73ad1179cba1a62 AS stratum
+FROM docker.io/opennetworking/mn-stratum:latest@sha256:352323780adf642664895689b7d2350f2e0be24780420c84bb5aa437d7ac9315 AS stratum
 
-FROM ubuntu:22.04@sha256:aa772c98400ef833586d1d517d3e8de670f7e712bf581ce6053165081773259d AS builder
+FROM ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8 AS builder
 WORKDIR /root
 COPY build.sh p4switch.py ./
 COPY --from=stratum /stratum_bmv2_deb.deb \
@@ -14,7 +14,7 @@ COPY --from=stratum /stratum_bmv2_deb.deb \
   ./stratum/
 RUN ./build.sh
 
-FROM ubuntu:22.04@sha256:aa772c98400ef833586d1d517d3e8de670f7e712bf581ce6053165081773259d
+FROM ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8
 ARG BMV2_DEPS="libpcap0.8 libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-thread1.74.0"
 ARG MININET_DEPS="python3 net-tools iproute2 iputils-ping socat psmisc procps ethtool iperf tcpdump telnet"
 ARG OTHER_DEPS="python3-venv gpg"
