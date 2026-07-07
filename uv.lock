@@ -311,11 +311,11 @@ dev = [
     { name = "pdoc", specifier = ">=16.0.0,<17" },
     { name = "prometheus-client", specifier = ">=0.25.0,<0.26" },
     { name = "pylint", specifier = ">=4.0.6,<5" },
-    { name = "pyright", specifier = ">=1.1.410,<2" },
+    { name = "pyright", specifier = ">=1.1.411,<2" },
     { name = "pytest", specifier = ">=9.1.1,<10" },
     { name = "pytest-asyncio", specifier = ">=1.4.0,<2" },
     { name = "pytest-cov", specifier = ">=7.1.0,<8" },
-    { name = "ruff", specifier = ">=0.15.19,<0.16" },
+    { name = "ruff", specifier = ">=0.15.20,<0.16" },
     { name = "shellous", specifier = ">=0.40.0,<0.41" },
 ]
 

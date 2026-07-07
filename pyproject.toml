@@ -39,11 +39,11 @@ dev = [
     "pdoc>=16.0.0,<17",
     "prometheus-client>=0.25.0,<0.26",
     "pylint>=4.0.6,<5",
-    "pyright>=1.1.410,<2",
+    "pyright>=1.1.411,<2",
     "pytest>=9.1.1,<10",
     "pytest-asyncio>=1.4.0,<2",
     "pytest-cov>=7.1.0,<8",
-    "ruff>=0.15.19,<0.16",
+    "ruff>=0.15.20,<0.16",
     "shellous>=0.40.0,<0.41",
 ]
 demonet = ["pygraphviz>=2.0,<3"]
