@@ -16,13 +16,13 @@ RUN ./build.sh
 
 FROM ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8
 ARG BMV2_DEPS="libpcap0.8 libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-thread1.74.0 libjsoncpp25"
-ARG MININET_DEPS="python3 net-tools iproute2 iputils-ping socat psmisc procps ethtool iperf tcpdump telnet"
-ARG OTHER_DEPS="python3-venv git"
+ARG MININET_DEPS="python3 python3-venv net-tools iproute2 iputils-ping socat psmisc procps ethtool iperf tcpdump telnet"
 ARG STRATUM_DEPS="libjudydebian1"
+ARG CODECOV_DEPS="curl git gpg"
 COPY --from=builder /output /usr/local/
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get -qq update \
-    && apt-get -y --no-install-recommends install $BMV2_DEPS $MININET_DEPS $OTHER_DEPS $STRATUM_DEPS \
+    && apt-get -y --no-install-recommends install $BMV2_DEPS $MININET_DEPS $STRATUM_DEPS $CODECOV_DEPS \
     && rm -rf /var/lib/apt/lists/* \
     && ldconfig \
     && ln -s /usr/local/stratum/etc /etc/stratum
