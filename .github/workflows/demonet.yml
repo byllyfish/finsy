@@ -29,6 +29,6 @@ jobs:
     - name: Build image
       run: |
         name="ghcr.io/byllyfish/demonet"
-        tag="$(date '+%y.%m')"
+        tag="$(date '+%y.%m.%d')"
         docker build -t $name:latest -t $name:$tag ci/demonet/.
         docker push -a $name

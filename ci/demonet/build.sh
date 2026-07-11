@@ -31,7 +31,8 @@ APT_TOOLS=(autoconf automake build-essential ca-certificates cmake git
     libtool pkg-config python3 python3-venv)
 
 APT_LIBS=(libgmp-dev libpcap-dev libboost-filesystem-dev
-    libboost-program-options-dev libboost-thread-dev libssl-dev)
+    libboost-program-options-dev libboost-thread-dev libssl-dev libxxhash-dev
+    libjsoncpp-dev)
 
 GRPC_VERSION="1.43.2"
 GRPC_CMAKE_FLAGS=(-DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DgRPC_SSL_PROVIDER=package)
