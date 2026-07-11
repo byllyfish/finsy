@@ -53,7 +53,7 @@ class P4RuntimeSwitch(Switch):
         log = shlex.quote(str(self.log_file))
 
         self.cmd(f"{cmd_line} &> {log} &")
-        print(f"⚡️ {self._start_command} @ {self.grpc_port}")
+        print(f"🟢 {self._start_command} @ {self.grpc_port}")
 
     def stop(self, deleteIntfs=True):
         "Stop the switch."
