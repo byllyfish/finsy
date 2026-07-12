@@ -140,7 +140,7 @@ install_mininet() {
     venv="$output/mininet"
     python3 -m venv "$venv"
     VIRTUAL_ENV="$venv" "$venv/bin/pip" install .
-    PREFIX="$venv" PYTHON=python3 make install-mnexec
+    PREFIX="$venv" PYTHON="$venv/bin/python3" make install-mnexec
 
     mkdir "$venv/custom"
     cp "$WORK_DIR/p4switch.py" "$venv/custom"
