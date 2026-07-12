@@ -32,12 +32,9 @@ APT_TOOLS=(autoconf automake build-essential ca-certificates cmake git
 
 APT_LIBS=(libgmp-dev libpcap-dev libboost-filesystem-dev
     libboost-program-options-dev libboost-thread-dev libssl-dev libxxhash-dev
-    libjsoncpp-dev)
+    libjsoncpp-dev libprotobuf-dev protobuf-compiler protobuf-compiler-grpc
+    libgrpc-dev libgrpc++-dev)
 
-GRPC_VERSION="1.43.2"
-GRPC_CMAKE_FLAGS=(-DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DgRPC_SSL_PROVIDER=package)
-
-GRPC_GIT="https://github.com/grpc/grpc.git"
 PI_GIT="https://github.com/p4lang/PI"
 BMV2_GIT="https://github.com/p4lang/behavioral-model.git"
 MININET_GIT="https://github.com/mininet/mininet.git"
@@ -62,29 +59,6 @@ install_apt_prerequisites() {
     log "Install APT prerequisites."
     apt-get -qq update
     apt-get --yes --no-install-recommends install "${APT_TOOLS[@]}" "${APT_LIBS[@]}"
-}
-
-# Build and install C++ version of grpc library ($GRPC_VERSION).
-install_grpc() {
-    cd "$WORK_DIR"
-    if [ -d "grpc" ]; then
-        return 0
-    fi
-
-    log "Installing grpc."
-    git clone --recurse-submodules --branch "v${GRPC_VERSION}" --depth 1 --shallow-submodules "${GRPC_GIT}"
-    mkdir "grpc/cmake_build"
-    cd "grpc/cmake_build"
-    cmake "${GRPC_CMAKE_FLAGS[@]}" ..
-    make
-    make install
-    make clean
-
-    # Check that grpc++ has all its dependencies.
-    pkg-config --print-errors "grpc++"
-
-    # Remove extra libz.so files; this forces static linking.
-    rm /usr/local/lib/libz.so{,.1,.1.2.11}
 }
 
 # Build and install PI library from HEAD.
@@ -166,7 +140,7 @@ install_mininet() {
     venv="$output/mininet"
     python3 -m venv "$venv"
     VIRTUAL_ENV="$venv" "$venv/bin/pip" install .
-    PREFIX="$venv" PYTHON=python3 make install-mnexec
+    PREFIX="$venv" PYTHON="$venv/bin/python3" make install-mnexec
 
     mkdir "$venv/custom"
     cp "$WORK_DIR/p4switch.py" "$venv/custom"
@@ -199,7 +173,6 @@ log "Welcome."
 
 install_apt_prerequisites
 
-install_grpc
 install_pi
 install_bmv2
 

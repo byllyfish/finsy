@@ -2,7 +2,7 @@
 
 FROM docker.io/opennetworking/mn-stratum:latest@sha256:352323780adf642664895689b7d2350f2e0be24780420c84bb5aa437d7ac9315 AS stratum
 
-FROM ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8 AS builder
+FROM ubuntu:24.04@sha256:52df9b1ee71626e0088f7d400d5c6b5f7bb916f8f0c82b474289a4ece6cf3faf AS builder
 WORKDIR /root
 COPY build.sh p4switch.py ./
 COPY --from=stratum /stratum_bmv2_deb.deb \
@@ -14,8 +14,8 @@ COPY --from=stratum /stratum_bmv2_deb.deb \
   ./stratum/
 RUN ./build.sh
 
-FROM ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8
-ARG BMV2_DEPS="libpcap0.8 libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-thread1.74.0 libjsoncpp25"
+FROM ubuntu:24.04@sha256:52df9b1ee71626e0088f7d400d5c6b5f7bb916f8f0c82b474289a4ece6cf3faf
+ARG BMV2_DEPS="libpcap0.8 libboost-program-options1.83.0 libjsoncpp25 libprotobuf32t64 libgrpc++1.51t64"
 ARG MININET_DEPS="python3 python3-venv net-tools iproute2 iputils-ping socat psmisc procps ethtool iperf tcpdump telnet"
 ARG STRATUM_DEPS="libjudydebian1"
 ARG CODECOV_DEPS="curl git gpg"
