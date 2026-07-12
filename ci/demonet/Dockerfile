@@ -15,7 +15,7 @@ COPY --from=stratum /stratum_bmv2_deb.deb \
 RUN ./build.sh
 
 FROM ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8
-ARG BMV2_DEPS="libpcap0.8 libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-thread1.74.0 libjsoncpp25"
+ARG BMV2_DEPS="libpcap0.8 libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-thread1.74.0 libjsoncpp25 libprotobuf23 libgrpc++1"
 ARG MININET_DEPS="python3 python3-venv net-tools iproute2 iputils-ping socat psmisc procps ethtool iperf tcpdump telnet"
 ARG STRATUM_DEPS="libjudydebian1"
 ARG CODECOV_DEPS="curl git gpg"

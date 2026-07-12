@@ -10,7 +10,8 @@
         "oneof",
         "cburst",
         "pburst",
-        "gnmi"
+        "gnmi",
+        "mininet"
     ],
     "ignorePaths": [
         "tests/**"
