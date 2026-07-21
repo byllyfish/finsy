@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-demonet = ["shellous>=0.40.0,<0.41"]
+demonet = ["shellous>=0.40.0,<0.42"]
 
 [project.urls]
 Homepage = "https://github.com/byllyfish/finsy"
@@ -44,7 +44,7 @@ dev = [
     "pytest-asyncio>=1.4.0,<2",
     "pytest-cov>=7.1.0,<8",
     "ruff>=0.15.20,<0.16",
-    "shellous>=0.40.0,<0.41",
+    "shellous>=0.40.0,<0.42",
 ]
 demonet = ["pygraphviz>=2.0,<3"]
 

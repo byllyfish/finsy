@@ -555,9 +555,9 @@ ruff==0.15.22 \
     --hash=sha256:e5ba0e4a13fd14abbed2a77b517a3911290c6c6c59ef67784328d1668fab76cf \
     --hash=sha256:e8b9b3f8779a4f08c969defc3c8c35abffaa757e601ed5ae66d6d1db6519969a \
     --hash=sha256:fabfd168afdf29fee5be98b831efa9683c94d7c5a3b58b9ce5a2e38444589a74
-shellous==0.40.0 \
-    --hash=sha256:aaaa0d89e3291278b30c022861dc5908b57efbb0c008d44bebc351662e76d0d2 \
-    --hash=sha256:c55e1b33a4bdb2f743fcdbcf556af5d2af4626ef96c7587e6bfc067c4bf56042
+shellous==0.41.0 \
+    --hash=sha256:c99c4c023b56a1cfd262d8c882f9e0f2bd57372cb97845758b4d7b6c5f066545 \
+    --hash=sha256:dc8cfe6d06d41ecfc6d670d456ffcdc53dcfe615fb84e72324f8950525d3f803
 tomli==2.4.1 ; python_full_version <= '3.11' \
     --hash=sha256:01f520d4f53ef97964a240a035ec2a869fe1a37dde002b57ebc4417a27ccd853 \
     --hash=sha256:0d85819802132122da43cb86656f8d1f8c6587d54ae7dcaf30e90533028b49fe \
