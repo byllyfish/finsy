@@ -37,7 +37,7 @@ dev = [
     "black==26.5.1",
     "mypy>=2.1.0,<3",
     "pdoc>=16.0.0,<17",
-    "prometheus-client>=0.25.0,<0.26",
+    "prometheus-client>=0.25.0,<0.27",
     "pylint>=4.0.6,<5",
     "pyright>=1.1.411,<2",
     "pytest>=9.1.1,<10",
