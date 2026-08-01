@@ -43,7 +43,7 @@ dev = [
     "pytest>=9.1.1,<10",
     "pytest-asyncio>=1.4.0,<2",
     "pytest-cov>=7.1.0,<8",
-    "ruff>=0.15.20,<0.16",
+    "ruff>=0.15.20,<0.17",
     "shellous>=0.41.0,<0.42",
 ]
 demonet = ["pygraphviz>=2.0,<3"]
