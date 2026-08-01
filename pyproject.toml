@@ -50,6 +50,7 @@ demonet = ["pygraphviz>=2.0,<3"]
 
 [tool.uv]
 default-groups = ["dev"]
+exclude-newer = "7 days"
 
 [tool.uv.build-backend]
 module-root = ""
