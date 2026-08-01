@@ -1,19 +1,25 @@
 # Reference:
-#   https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+#   https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
 
 version: 2
 updates:
-  - package-ecosystem: pip
-    directory: /     # pyproject.toml, ci/requirements*.txt
+  - package-ecosystem: uv
+    directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: docker
     directory: /ci/demonet
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
