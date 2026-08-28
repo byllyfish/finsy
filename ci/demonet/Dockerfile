@@ -2,7 +2,7 @@
 
 FROM docker.io/opennetworking/mn-stratum:latest@sha256:352323780adf642664895689b7d2350f2e0be24780420c84bb5aa437d7ac9315 AS stratum
 
-FROM ubuntu:24.04@sha256:52df9b1ee71626e0088f7d400d5c6b5f7bb916f8f0c82b474289a4ece6cf3faf AS builder
+FROM ubuntu:25.10@sha256:7cc5e35f6567ee8c66d2abb4aab0fd866669e6207c237c3a8f0947a5c7f17092 AS builder
 WORKDIR /root
 COPY build.sh p4switch.py ./
 COPY --from=stratum /stratum_bmv2_deb.deb \
@@ -14,7 +14,7 @@ COPY --from=stratum /stratum_bmv2_deb.deb \
   ./stratum/
 RUN ./build.sh
 
-FROM ubuntu:24.04@sha256:52df9b1ee71626e0088f7d400d5c6b5f7bb916f8f0c82b474289a4ece6cf3faf
+FROM ubuntu:25.10@sha256:7cc5e35f6567ee8c66d2abb4aab0fd866669e6207c237c3a8f0947a5c7f17092
 ARG BMV2_DEPS="libpcap0.8 libboost-program-options1.83.0 libjsoncpp25 libprotobuf32t64 libgrpc++1.51t64"
 ARG MININET_DEPS="python3 python3-venv net-tools iproute2 iputils-ping socat psmisc procps ethtool iperf tcpdump telnet"
 ARG STRATUM_DEPS="libjudydebian1"
