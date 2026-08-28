@@ -21,11 +21,11 @@ dependencies = [
     "grpcio>=1.81.1,<2",
     "parsy>=2.2.0,<3",
     "protobuf>=6.33.6,<7",
-    "pyee>=13.0.1,<14",
+    "pyee>=13.0.1,<15",
 ]
 
 [project.optional-dependencies]
-demonet = ["shellous>=0.41.0,<0.42"]
+demonet = ["shellous>=0.42.0,<0.43"]
 
 [project.urls]
 Homepage = "https://github.com/byllyfish/finsy"
@@ -37,14 +37,14 @@ dev = [
     "black==26.5.1",
     "mypy>=2.1.0,<3",
     "pdoc>=16.0.0,<17",
-    "prometheus-client>=0.25.0,<0.26",
+    "prometheus-client>=0.26.0,<0.27",
     "pylint>=4.0.6,<5",
     "pyright>=1.1.411,<2",
     "pytest>=9.1.1,<10",
     "pytest-asyncio>=1.4.0,<2",
     "pytest-cov>=7.1.0,<8",
-    "ruff>=0.15.20,<0.16",
-    "shellous>=0.41.0,<0.42",
+    "ruff>=0.16.4,<0.17",
+    "shellous>=0.42.0,<0.43",
 ]
 demonet = ["pygraphviz>=2.0,<3"]
 
