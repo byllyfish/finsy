@@ -34,7 +34,7 @@ Homepage = "https://github.com/byllyfish/finsy"
 
 [dependency-groups]
 dev = [
-    "black==26.5.1",
+    "black==26.10.1",
     "mypy>=2.1.0,<3",
     "pdoc>=16.0.0,<17",
     "prometheus-client>=0.26.0,<0.27",
@@ -43,7 +43,7 @@ dev = [
     "pytest>=9.1.1,<10",
     "pytest-asyncio>=1.4.0,<2",
     "pytest-cov>=7.1.0,<8",
-    "ruff>=0.16.4,<0.17",
+    "ruff>=0.17.2,<0.18",
     "shellous>=0.42.0,<0.43",
 ]
 demonet = ["pygraphviz>=2.0,<3"]
@@ -106,7 +106,7 @@ reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.black]
 target-version = ['py310']
-required-version = "26.5.1"
+required-version = "26.10.1"
 force-exclude = "_pb2(_grpc)?\\.pyi?$"
 
 #************
